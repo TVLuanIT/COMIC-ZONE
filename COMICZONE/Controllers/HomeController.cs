@@ -22,7 +22,9 @@ namespace COMICZONE.Controllers
         // GET: Home
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Products.ToListAsync());
+            return View(await _context.Products
+                                        .Include(p => p.Pictures)
+                                        .ToListAsync());
         }
 
         // GET: Home/Details/5
