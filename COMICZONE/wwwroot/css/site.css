@@ -33,6 +33,7 @@ body {
     transform: translateY(-50%);
 }
 
+/*card hover*/
 .card-hover:hover {
     transform: translateY(-5px) scale(1.03); /* nâng nhẹ và zoom */
     transition: transform 0.3s ease;
@@ -42,4 +43,56 @@ body {
 .card-hover .fw-semibold:hover {
     color: #0d6efd; /* đổi sang màu primary khi hover */
     transition: color 0.3s ease;
+}
+
+/*banner*/
+#homeBannerCarousel {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+#homeBannerCarousel .carousel-inner {
+    width: 100%;
+    padding-top: 31.25%; /* 5 / 16 = 0.3125 → chiều cao container */
+    position: relative;
+}
+
+/* carousel items */
+#homeBannerCarousel .carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#homeBannerCarousel .carousel-item img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 100%;
+    width: auto;
+    min-width: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+/*banner hover*/
+#homeBannerCarousel .carousel-item:hover img {
+    transform: translate(-50%, -50%) scale(1.05);
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .carousel-caption.single-caption {
+        padding: 15px 10px;
+        max-width: 90%;
+    }
+    .carousel-caption.single-caption h3 {
+        font-size: 1.5rem;
+    }
+    .carousel-caption.single-caption p {
+        font-size: 1rem;
+    }
 }

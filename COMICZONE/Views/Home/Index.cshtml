@@ -5,6 +5,29 @@
 @{
     ViewData["Title"] = "Trang chủ";
 }
+<!-- BANNER -->
+<div id="homeBannerCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="images/banner1.png" class="d-block w-100" alt="banner">
+        </div>
+        <div class="carousel-item">
+            <img src="images/banner2.png" class="d-block w-100" alt="banner">
+        </div>
+        <div class="carousel-item">
+            <img src="images/banner3.png" class="d-block w-100" alt="banner">
+        </div>
+        <div class="carousel-item">
+            <img src="images/banner4.png" class="d-block w-100" alt="banner">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
 <!-- NỔI BẬT TRONG TUẦN -->
 <section class="py-5 bg-light">
     <div class="container">
@@ -81,7 +104,7 @@
             </h4>
             <p class="text-muted small mb-0">Những tựa truyện vừa được cập nhật trong tuần, không nên bỏ lỡ.</p>
         </div>
-        <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div id="featuredCarouselLatest" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 @for (int i = 0; i < Model.Count(); i += 4)
                 {
@@ -113,12 +136,12 @@
                 }
             </div>
             <!-- Nút điều hướng trái -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
             <!-- Nút điều hướng phải -->
-            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="next">
                 <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
