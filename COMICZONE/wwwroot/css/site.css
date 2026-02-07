@@ -20,3 +20,26 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.card-img-top{
+  object-fit: scale-down;
+}
+
+/*2 nút điều hướng*/
+#featuredCarousel .carousel-control-prev,
+#featuredCarousel .carousel-control-next {
+    width: 5%;          /* điều chỉnh khoảng cách ra ngoài */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px) scale(1.03); /* nâng nhẹ và zoom */
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* đổ bóng nổi bật */
+}
+
+.card-hover .fw-semibold:hover {
+    color: #0d6efd; /* đổi sang màu primary khi hover */
+    transition: color 0.3s ease;
+}
