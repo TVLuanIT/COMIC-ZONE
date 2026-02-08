@@ -1,0 +1,66 @@
+﻿@model IEnumerable<COMICZONE.Models.Blog>
+
+<!-- TIN TỨC & BLOG -->
+<section class="py-5 bg-light">
+    <div class="container">
+
+        <!-- Tiêu đề -->
+        <div class="mb-4 text-center">
+            <h4 class="fw-bold">
+                <i class="bi bi-journal-text me-1"></i>
+                Tin tức & Blog
+            </h4>
+            <p class="text-muted small mb-0">
+                Review truyện nổi bật dành cho fan manga & light novel
+            </p>
+        </div>
+        @if (Model != null && Model.Any())
+        {
+            <div id="blogCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < Model.Count(); i += 3)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row justify-content-center g-4">
+                                @foreach (var blog in Model.Skip(i).Take(3))
+                                {
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm card-hover">
+                                            <a asp-action="Details" asp-controller="Blog" asp-route-id="@blog.Id">
+                                                <img src="@blog.Thumbnail" class="card-img-top rounded-top" alt="@blog.Title">
+                                            </a>
+                                            <div class="card-body text-center">
+                                                <h6 class="fw-semibold">@blog.Title</h6>
+                                                <p class="text-muted small">@blog.Shortdescription</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- Controls -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#blogCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#blogCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span>
+                </button>
+            </div>
+            <!-- Xem tất cả -->
+            <div class="text-center mt-4">
+                <a asp-action="Index" asp-controller="Blog" class="btn btn-outline-primary">
+                    XEM TẤT CẢ BÀI VIẾT
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-muted mt-4">
+                Hiện tại chưa có bài đăng nào. Hãy quay lại sau!
+            </p>
+        }
+    </div>
+</section>

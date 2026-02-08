@@ -194,35 +194,5 @@ else
             </div>
         </div>
     </section>
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="text-center mb-4">
-                <h4 class="fw-bold">Tin tức & Blog</h4>
-                <p class="text-muted small">Cập nhật thông tin, review và hướng dẫn đọc truyện</p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="/images/blog1.jpg" class="card-img-top" alt="Blog 1">
-                        <div class="card-body">
-                            <h5 class="card-title">Hướng dẫn sưu tầm figure</h5>
-                            <p class="card-text text-truncate">Tổng hợp cách chọn figure đẹp, chất lượng và không bị đắt…</p>
-                            <a href="/blog/1" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="/images/blog2.jpg" class="card-img-top" alt="Blog 2">
-                        <div class="card-body">
-                            <h5 class="card-title">Review truyện Hell Mode Tập 1</h5>
-                            <p class="card-text text-truncate">Cốt truyện, nhân vật và điểm nổi bật của Hell Mode Tập 1 mà fan không nên bỏ lỡ…</p>
-                            <a href="/blog/2" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Thêm bài viết khác -->
-            </div>
-        </div>
-    </section>
+    @await Html.PartialAsync("~/Views/Blogs/_HomeBlog.cshtml", (IEnumerable<COMICZONE.Models.Blog>)ViewBag.Blogs)
 }

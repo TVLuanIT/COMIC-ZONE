@@ -46,7 +46,14 @@ namespace COMICZONE.Controllers
                 );
             }
 
+            // Gán ViewBag cho carousel Blog
+            ViewBag.Blogs = _context.Blogs
+                .OrderByDescending(b => b.Createdat) // mới nhất trước
+                .Take(9) // lấy 9 bài mới nhất
+                .ToList();
+
             ViewBag.Keyword = keyword;
+
             return View(await products.ToListAsync());
         }
 
