@@ -20,11 +20,34 @@ namespace COMICZONE.Controllers
         }
 
         // GET: Home
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword)
         {
-            return View(await _context.Products
-                                        .Include(p => p.Pictures)
-                                        .ToListAsync());
+            var products = _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var key = keyword.ToLower();
+
+                products = products.Where(p =>
+                    (p.Name ?? "").ToLower().Contains(key) ||
+                    (p.Author ?? "").ToLower().Contains(key) ||
+                    (p.Series ?? "").ToLower().Contains(key) ||
+                    (p.Publisher ?? "").ToLower().Contains(key) ||
+
+                    //tìm theo Artist
+                    p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
+
+                    //tìm theo Tag
+                    p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
+                );
+            }
+
+            ViewBag.Keyword = keyword;
+            return View(await products.ToListAsync());
         }
 
         // GET: Home/Details/5

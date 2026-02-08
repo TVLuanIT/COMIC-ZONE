@@ -83,6 +83,7 @@ body {
 #homeBannerCarousel .carousel-item:hover img {
     transform: translate(-50%, -50%) scale(1.05);
 }
+
 /* Responsive */
 @media (max-width: 768px) {
     .carousel-caption.single-caption {
@@ -94,5 +95,44 @@ body {
     }
     .carousel-caption.single-caption p {
         font-size: 1rem;
+    }
+}
+/*search*/
+.search-title {
+    font-size: 1.6rem;
+    color: #ff4d4f;
+    text-align: center;
+    margin-top: 2rem;   /* cách banner phía trên */
+    margin-bottom: 1.5rem; /* cách sản phẩm phía dưới */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+.search-title:hover {
+    color: #ff7875;
+    transform: scale(1.03);
+    transition: all 0.3s;
+}
+.search-results {
+    display: flex;           /* dùng flexbox */
+    flex-wrap: wrap;         /* wrap xuống dòng khi quá rộng */
+    justify-content: center; /* căn giữa các card */
+    gap: 1rem;               /* khoảng cách giữa card */
+}
+.card-wrapper {
+    flex: 0 0 23%;           /* width ~ 4 cột trên desktop */
+    max-width: 23%;          /* để card không quá rộng */
+    margin-bottom: 1rem;
+}
+@media (max-width: 992px) { /* tablet */
+    .card-wrapper {
+        flex: 0 0 45%;       /* 2 cột */
+        max-width: 45%;
+    }
+}
+@media (max-width: 576px) { /* mobile */
+    .card-wrapper {
+        flex: 0 0 100%;      /* 1 cột */
+        max-width: 100%;
     }
 }

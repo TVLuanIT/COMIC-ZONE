@@ -57,7 +57,12 @@
                             </a>
                         </li>
                     </ul>
-
+					<!-- Search Form -->
+                    <form class="d-flex my-3" asp-controller="Home" asp-action="index" method="get">
+                        <input class="form-control me-2" type="search" name="keyword"
+                               placeholder="Tìm truyện...">
+                        <button class="btn" type="submit">🔍</button>
+                    </form>
                     <!-- Login / Register -->
                     <partial name="_LoginPartial" />
                 </div>
@@ -71,11 +76,42 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-dark text-light mt-5">
-        <div class="container py-4 text-center">
-            <h5 class="fw-bold">COMICZONE</h5>
-            <p class="mb-1">Cửa hàng truyện tranh Nhật Bản</p>
-            <small>&copy; 2026 COMICZONE. All rights reserved.</small>
+    <footer class="bg-dark text-light mt-5 border-top border-warning">
+        <div class="container py-5">
+            <div class="row text-center text-md-start">
+
+                <!-- Brand -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold text-warning">COMICZONE</h5>
+                    <p class="small mb-0">
+                        Cửa hàng truyện tranh Nhật Bản <br>
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold">Liên kết</h6>
+                    <div class="mt-2">
+                        <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-tiktok"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold">Liên hệ</h6>
+                    <p class="small mb-1">📧 luan31032004@gmail.com</p>
+                    <p class="small mb-0">📞 0373801713</p>
+                </div>
+
+            </div>
+
+            <hr class="border-secondary">
+
+            <div class="text-center small">
+                &copy; 2026 COMICZONE. All rights reserved.
+            </div>
         </div>
     </footer>
 

@@ -28,19 +28,58 @@
         <span class="carousel-control-next-icon"></span>
     </button>
 </div>
-<!-- NỔI BẬT TRONG TUẦN -->
-<section class="py-5 bg-light">
-    <div class="container">
 
-        <div class="mb-4 text-center">
-            <h4 class="fw-bold">
-                <i class="bi bi-stars text-warning me-1"></i>
-                Nổi Bật Trong Tuần
-            </h4>
-            <p class="text-muted small mb-0">
-                Những tựa truyện nổi bật, được nhiều độc giả quan tâm trong tuần.
-            </p>
+@if (!string.IsNullOrEmpty(ViewBag.Keyword))
+{
+    <h4 class="search-title">
+        Kết quả tìm kiếm cho: "<strong>@ViewBag.Keyword</strong>"
+    </h4>
+    @if (Model.Any())
+    {
+        <div class="search-results g-4">
+            @foreach (var item in Model)
+            {
+                <div class="card-wrapper col-md-3 col-sm-6 col-12 mb-4">
+                    <div class="card h-100 border-0 shadow-sm card-hover">
+                        <a asp-action="Details" asp-route-id="@item.Id">
+                            <div class="ratio ratio-4x3">
+                                <img class="card-img-top border rounded"
+                                     src="@item.GetImagePath()" alt="@item.Name" />
+                            </div>
+                        </a>
+                        <div class="card-body text-center p-2">
+                            <div class="text-danger fw-bold mt-1">
+                                @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
+                            </div>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-black">
+                                <div class="fw-semibold small">@item.Name</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
+    }
+    else
+    {
+        <p class="text-muted mt-3">Không tìm thấy sản phẩm nào phù hợp với từ khóa.</p>
+    }
+}
+else
+{
+    <!-- NỔI BẬT TRONG TUẦN -->
+    <section class="py-5 bg-light">
+        <div class="container">
+
+            <div class="mb-4 text-center">
+                <h4 class="fw-bold">
+                    <i class="bi bi-stars text-warning me-1"></i>
+                    Nổi Bật Trong Tuần
+                </h4>
+                <p class="text-muted small mb-0">
+                    Những tựa truyện nổi bật, được nhiều độc giả quan tâm trong tuần.
+                </p>
+            </div>
             <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     @for (int i = 0; i < Model.Count(); i += 4)
@@ -91,67 +130,99 @@
                 </a>
             </div>
         </div>
-</section>
+    </section>
 
-<!-- MỚI NHẤT TRONG TUẦN -->
-<section class="py-5">
-    <div class="container">
-        <!-- Tiêu đề + mô tả -->
-        <div class="mb-4 text-center">
-            <h4 class="fw-bold">
-                <i class="bi bi-fire text-danger me-1"></i>
-                Mới Nhất Trong Tuần
-            </h4>
-            <p class="text-muted small mb-0">Những tựa truyện vừa được cập nhật trong tuần, không nên bỏ lỡ.</p>
-        </div>
-        <div id="featuredCarouselLatest" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                @for (int i = 0; i < Model.Count(); i += 4)
-                {
-                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                        <div class="row row-cols-1 row-cols-md-4 g-4">
-                            @foreach (var item in Model.Skip(i).Take(4))
-                            {
-                                <div class="col">
-                                    <div class="card h-100 border-0 shadow-sm card-hover">
-                                        <a asp-action="Details" asp-route-id="@item.Id">
-                                            <div class="ratio ratio-4x3">
-                                                <img class="card-img-top border rounded"
-                                                     src="@item.GetImagePath()" alt="@item.Name" />
-                                            </div>
-                                        </a>
-                                        <div class="card-body text-center p-2">
-                                            <div class="text-danger fw-bold mt-1">
-                                                @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
-                                            </div>
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-black">
-                                                <div class="fw-semibold small">@item.Name</div>
+    <!-- MỚI NHẤT TRONG TUẦN -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Tiêu đề + mô tả -->
+            <div class="mb-4 text-center">
+                <h4 class="fw-bold">
+                    <i class="bi bi-fire text-danger me-1"></i>
+                    Mới Nhất Trong Tuần
+                </h4>
+                <p class="text-muted small mb-0">Những tựa truyện vừa được cập nhật trong tuần, không nên bỏ lỡ.</p>
+            </div>
+            <div id="featuredCarouselLatest" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < Model.Count(); i += 4)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row row-cols-1 row-cols-md-4 g-4">
+                                @foreach (var item in Model.Skip(i).Take(4))
+                                {
+                                    <div class="col">
+                                        <div class="card h-100 border-0 shadow-sm card-hover">
+                                            <a asp-action="Details" asp-route-id="@item.Id">
+                                                <div class="ratio ratio-4x3">
+                                                    <img class="card-img-top border rounded"
+                                                         src="@item.GetImagePath()" alt="@item.Name" />
+                                                </div>
                                             </a>
+                                            <div class="card-body text-center p-2">
+                                                <div class="text-danger fw-bold mt-1">
+                                                    @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
+                                                </div>
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-black">
+                                                    <div class="fw-semibold small">@item.Name</div>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- Nút điều hướng trái -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <!-- Nút điều hướng phải -->
+                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            <!-- Phần Xem Thêm -->
+            <div class="text-center mt-4">
+                <a asp-action="AllFeatured" class="btn btn-outline-primary">
+                    XEM THÊM
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h4 class="fw-bold">Tin tức & Blog</h4>
+                <p class="text-muted small">Cập nhật thông tin, review và hướng dẫn đọc truyện</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="/images/blog1.jpg" class="card-img-top" alt="Blog 1">
+                        <div class="card-body">
+                            <h5 class="card-title">Hướng dẫn sưu tầm figure</h5>
+                            <p class="card-text text-truncate">Tổng hợp cách chọn figure đẹp, chất lượng và không bị đắt…</p>
+                            <a href="/blog/1" class="btn btn-primary btn-sm">Xem chi tiết</a>
                         </div>
                     </div>
-                }
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="/images/blog2.jpg" class="card-img-top" alt="Blog 2">
+                        <div class="card-body">
+                            <h5 class="card-title">Review truyện Hell Mode Tập 1</h5>
+                            <p class="card-text text-truncate">Cốt truyện, nhân vật và điểm nổi bật của Hell Mode Tập 1 mà fan không nên bỏ lỡ…</p>
+                            <a href="/blog/2" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Thêm bài viết khác -->
             </div>
-            <!-- Nút điều hướng trái -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <!-- Nút điều hướng phải -->
-            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarouselLatest" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
         </div>
-        <!-- Phần Xem Thêm -->
-        <div class="text-center mt-4">
-            <a asp-action="AllFeatured" class="btn btn-outline-primary">
-                XEM THÊM
-                <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-    </div>
-</section>
+    </section>
+}
