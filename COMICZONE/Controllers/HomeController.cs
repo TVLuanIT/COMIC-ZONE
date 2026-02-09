@@ -22,57 +22,63 @@ namespace COMICZONE.Controllers
         // GET: Home
         public async Task<IActionResult> Index(string? keyword)
         {
-            var products = _context.Products
+            // Nổi bật trong tuần (Featured) → ví dụ dựa vào view count hoặc tiêu chí khác
+            var ModelFeatured = await _context.Products
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
-                .AsQueryable();
+                .OrderByDescending(p => p.Id) // giả sử ID càng cao → sản phẩm mới/được quan tâm
+                .Take(8)
+                .ToListAsync();
 
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                var key = keyword.ToLower();
+            // Mới nhất trong tuần (Latest) – ví dụ lấy 8 sản phẩm mới cập nhật
+            var ModelLatest = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .OrderByDescending(p => p.ReleaseDate) // mới nhất
+                .Take(8)
+                .ToListAsync();
 
-                products = products.Where(p =>
+            // Gán ViewBag cho carousel Blog
+            ViewBag.Blogs = await _context.Blogs
+                .OrderByDescending(b => b.Createdat) // mới nhất trước
+                .Take(9) // lấy 9 bài mới nhất
+                .ToListAsync();
+
+            // Gửi dữ liệu vào ViewBag để Index.cshtml sử dụng
+            ViewBag.ModelFeatured = ModelFeatured;
+            ViewBag.ModelLatest = ModelLatest;
+
+            return View();
+        }
+
+        // GET: /Home/Search?keyword=...
+        // Trang tìm kiếm sản phẩm
+        public async Task<IActionResult> Search(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return RedirectToAction("Index"); // không có keyword → về trang chủ
+
+            var key = keyword.ToLower();
+
+            var products = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .Where(p =>
                     (p.Name ?? "").ToLower().Contains(key) ||
                     (p.Author ?? "").ToLower().Contains(key) ||
                     (p.Series ?? "").ToLower().Contains(key) ||
                     (p.Publisher ?? "").ToLower().Contains(key) ||
-
-                    //tìm theo Artist
                     p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
-
-                    //tìm theo Tag
                     p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
-                );
-            }
-
-            // Gán ViewBag cho carousel Blog
-            ViewBag.Blogs = _context.Blogs
-                .OrderByDescending(b => b.Createdat) // mới nhất trước
-                .Take(9) // lấy 9 bài mới nhất
-                .ToList();
+                )
+                .ToListAsync();
 
             ViewBag.Keyword = keyword;
 
-            return View(await products.ToListAsync());
-        }
-
-        // GET: Home/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
+            return View(products); // Trả về Search.cshtml
         }
     }
 }

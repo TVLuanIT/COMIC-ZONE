@@ -1,0 +1,75 @@
+﻿@using COMICZONE.Extensions;
+@model IEnumerable<COMICZONE.Models.Product>
+
+@{
+    var sectionTitle = ViewBag.SectionTitle ?? "Sản phẩm";
+    var sectionIcon = ViewBag.SectionIcon ?? "bi-box-seam";
+    var carouselId = ViewBag.CarouselId ?? "productCarousel";
+    var viewMoreLink = ViewBag.ViewMoreLink ?? "#";
+    var bgClass = ViewBag.BackgroundClass ?? "";
+}
+
+<section class="py-5 @bgClass">
+    <div class="container">
+
+        <!-- Tiêu đề + mô tả -->
+        <div class="mb-4 text-center">
+            <h4 class="fw-bold">
+                <i class="bi @sectionIcon me-1"></i>
+                @sectionTitle
+            </h4>
+            <p class="text-muted small mb-0">@ViewBag.SectionDescription</p>
+        </div>
+
+        <!-- Carousel -->
+        <div id="@carouselId" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.Count(); i += 4)
+                {
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <div class="row row-cols-1 row-cols-md-4 g-4">
+                            @foreach (var item in Model.Skip(i).Take(4))
+                            {
+                                <div class="col">
+                                    <div class="card h-100 border-0 shadow-sm card-hover">
+                                        <a asp-action="Details" asp-route-id="@item.Id">
+                                            <div class="ratio ratio-4x3">
+                                                <img class="card-img-top border rounded"
+                                                     src="@item.GetImagePath()" alt="@item.Name" />
+                                            </div>
+                                        </a>
+                                        <div class="card-body text-center p-2">
+                                            <div class="text-danger fw-bold mt-1">
+                                                @string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
+                                            </div>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-black">
+                                                <div class="fw-semibold small">@item.Name</div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Nút điều hướng -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Xem thêm -->
+        <div class="text-center mt-4">
+            <a href="@viewMoreLink" class="btn btn-outline-primary">
+                XEM THÊM <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</section>

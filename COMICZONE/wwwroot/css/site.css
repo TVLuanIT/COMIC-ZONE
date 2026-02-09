@@ -53,7 +53,7 @@ body {
 }
 #homeBannerCarousel .carousel-inner {
     width: 100%;
-    padding-top: 31.25%; /* 5 / 16 = 0.3125 → chiều cao container */
+    padding-top: 56.25%; /* 5 / 16 = 0.3125 → chiều cao container */
     position: relative;
 }
 
