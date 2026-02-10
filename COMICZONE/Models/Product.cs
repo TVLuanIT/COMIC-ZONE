@@ -13,9 +13,6 @@ public partial class Product
     [Column("ID")]
     public int Id { get; set; }
 
-    [Column("STT")]
-    public int? Stt { get; set; }
-
     [Column("NAME")]
     [StringLength(255)]
     public string? Name { get; set; }

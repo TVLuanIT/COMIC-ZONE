@@ -43,7 +43,7 @@
     ViewBag.SectionTitle = "Nổi Bật Trong Tuần";
     ViewBag.SectionIcon = "bi-stars text-warning";
     ViewBag.CarouselId = "featuredCarousel";
-    ViewBag.ViewMoreLink = Url.Action("AllFeatured");
+    ViewBag.ViewMoreLink = Url.Action("Index", "Products");
     ViewBag.SectionDescription = "Những tựa truyện nổi bật, được nhiều độc giả quan tâm trong tuần.";
     ViewBag.BackgroundClass = "bg-light";
 }
@@ -54,7 +54,7 @@
     ViewBag.SectionTitle = "Mới Nhất Trong Tuần";
     ViewBag.SectionIcon = "bi-fire text-danger";
     ViewBag.CarouselId = "latestCarousel";
-    ViewBag.ViewMoreLink = Url.Action("AllLatest");
+    ViewBag.ViewMoreLink = Url.Action("Index", "Products");
     ViewBag.SectionDescription = "Những tựa truyện vừa được cập nhật trong tuần, không nên bỏ lỡ.";
     ViewBag.BackgroundClass = ""; // nền trắng
 }

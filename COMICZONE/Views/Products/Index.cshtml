@@ -1,0 +1,87 @@
+﻿@using COMICZONE.Extensions;
+@using System.Globalization;
+
+@model IEnumerable<COMICZONE.Models.Product>
+@{
+    ViewBag.Title = "Danh sách sản phẩm";
+    var currentSort = ViewBag.CurrentSort as string ?? "";
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Danh sách sản phẩm</h2>
+            <!-- Dropdown sắp xếp -->
+            <form method="get" class="sort-form">
+                <div class="sort-wrapper">
+                    <i class="bi bi-filter"></i>
+                    <select class="form-select sort-select" name="sortOrder" onchange="this.form.submit()">
+                        <option value="">Tên A → Z</option>
+                        <option value="name_desc">Tên Z → A</option>
+                        <option value="price_asc">Giá thấp → cao</option>
+                        <option value="price_desc">Giá cao → thấp</option>
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="product-card">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="product-img">
+                            <img src="@item.GetImagePath()" alt="@item.Name" />
+                        </a>
+                        <div class="product-body">
+                            <div class="product-price">
+                                @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
+                            </div>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="product-name">
+                                @item.Name
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center custom-pagination">
+                    <!-- Previous -->
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage - 1)"
+                           asp-route-sortOrder="@ViewBag.CurrentSort">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-sortOrder="@ViewBag.CurrentSort">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    <!-- Next -->
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage + 1)"
+                           asp-route-sortOrder="@ViewBag.CurrentSort">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</section>
