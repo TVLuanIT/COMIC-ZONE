@@ -1,9 +1,18 @@
 ﻿@using System.Globalization;
+@using COMICZONE.Extensions;
+@model IEnumerable<COMICZONE.Models.Product>
 
-<h4 class="search-title">
-    Kết quả tìm kiếm cho: "<strong>@ViewBag.Keyword</strong>"
-</h4>
-@if (Model.Any())
+@if (!string.IsNullOrWhiteSpace(ViewBag.Keyword))
+{
+    <h4 class="search-title">
+        Kết quả tìm kiếm cho: "<strong>@ViewBag.Keyword</strong>"
+    </h4>
+}
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <p class="text-warning">@ViewBag.Message</p>
+}
+else if (Model.Any())
 {
     <div class="search-results g-4">
         @foreach (var item in Model)

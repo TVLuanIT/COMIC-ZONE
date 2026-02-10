@@ -52,33 +52,5 @@ namespace COMICZONE.Controllers
 
             return View();
         }
-
-        // GET: /Home/Search?keyword=...
-        // Trang tìm kiếm sản phẩm
-        public async Task<IActionResult> Search(string keyword)
-        {
-            if (string.IsNullOrWhiteSpace(keyword))
-                return RedirectToAction("Index"); // không có keyword → về trang chủ
-
-            var key = keyword.ToLower();
-
-            var products = await _context.Products
-                .Include(p => p.Pictures)
-                .Include(p => p.Artists)
-                .Include(p => p.Tags)
-                .Where(p =>
-                    (p.Name ?? "").ToLower().Contains(key) ||
-                    (p.Author ?? "").ToLower().Contains(key) ||
-                    (p.Series ?? "").ToLower().Contains(key) ||
-                    (p.Publisher ?? "").ToLower().Contains(key) ||
-                    p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
-                    p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
-                )
-                .ToListAsync();
-
-            ViewBag.Keyword = keyword;
-
-            return View(products); // Trả về Search.cshtml
-        }
     }
 }
