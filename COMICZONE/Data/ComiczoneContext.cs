@@ -18,12 +18,21 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Artist> Artists { get; set; }
 
+    public virtual DbSet<Blog> Blogs { get; set; }
+
+    public virtual DbSet<Blogcategory> Blogcategories { get; set; }
+
+    public virtual DbSet<Blogcomment> Blogcomments { get; set; }
+
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<Picture> Pictures { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
@@ -31,6 +40,66 @@ public partial class ComiczoneContext : DbContext
         modelBuilder.Entity<Artist>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__ARTISTS__3214EC2763439081");
+        });
+
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__BLOG__3214EC2772788182");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("PENDING");
+
+            entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BLOG_USER");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Blogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BLOG_CATEGORY");
+
+            entity.HasMany(d => d.Categories).WithMany(p => p.BlogsNavigation)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BlogBlogcategory",
+                    r => r.HasOne<Blogcategory>().WithMany()
+                        .HasForeignKey("Categoryid")
+                        .HasConstraintName("FK_BLOG_BLOGCATEGORY_CATEGORY"),
+                    l => l.HasOne<Blog>().WithMany()
+                        .HasForeignKey("Blogid")
+                        .HasConstraintName("FK_BLOG_BLOGCATEGORY_BLOG"),
+                    j =>
+                    {
+                        j.HasKey("Blogid", "Categoryid");
+                        j.ToTable("BLOG_BLOGCATEGORY");
+                        j.IndexerProperty<int>("Blogid").HasColumnName("BLOGID");
+                        j.IndexerProperty<int>("Categoryid").HasColumnName("CATEGORYID");
+                    });
+        });
+
+        modelBuilder.Entity<Blogcategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__BLOGCATE__3214EC27848A46AC");
+        });
+
+        modelBuilder.Entity<Blogcomment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__BLOGCOMM__3214EC270A55F826");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Blog).WithMany(p => p.Blogcomments).HasConstraintName("FK_BLOGCOMMENT_BLOG");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Blogcomments)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BLOGCOMMENT_USER");
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Customerid).HasName("PK__CUSTOMER__61DBD788ADF0132A");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.User).WithOne(p => p.Customer).HasConstraintName("FK_CUSTOMERS_USERS");
         });
 
         modelBuilder.Entity<Picture>(entity =>
@@ -103,6 +172,15 @@ public partial class ComiczoneContext : DbContext
         modelBuilder.Entity<Tag>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__TAGS__3214EC2799A79064");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__USERS__7B9E7F3500BD3BA0");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Isactive).HasDefaultValue(true);
+            entity.Property(e => e.Role).HasDefaultValue("USER");
         });
 
         OnModelCreatingPartial(modelBuilder);

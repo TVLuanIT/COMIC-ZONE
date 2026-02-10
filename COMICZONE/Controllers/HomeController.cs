@@ -20,27 +20,37 @@ namespace COMICZONE.Controllers
         }
 
         // GET: Home
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword)
         {
-            return View(await _context.Products.ToListAsync());
-        }
+            // Nổi bật trong tuần (Featured) → ví dụ dựa vào view count hoặc tiêu chí khác
+            var ModelFeatured = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .OrderByDescending(p => p.Id) // giả sử ID càng cao → sản phẩm mới/được quan tâm
+                .Take(8)
+                .ToListAsync();
 
-        // GET: Home/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            // Mới nhất trong tuần (Latest) – ví dụ lấy 8 sản phẩm mới cập nhật
+            var ModelLatest = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .OrderByDescending(p => p.ReleaseDate) // mới nhất
+                .Take(8)
+                .ToListAsync();
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            // Gán ViewBag cho carousel Blog
+            ViewBag.Blogs = await _context.Blogs
+                .OrderByDescending(b => b.Createdat) // mới nhất trước
+                .Take(9) // lấy 9 bài mới nhất
+                .ToListAsync();
 
-            return View(product);
+            // Gửi dữ liệu vào ViewBag để Index.cshtml sử dụng
+            ViewBag.ModelFeatured = ModelFeatured;
+            ViewBag.ModelLatest = ModelLatest;
+
+            return View();
         }
     }
 }

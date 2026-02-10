@@ -12,11 +12,133 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
 body {
-  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* phần nội dung chính */
+main {
+  flex: 1;
+}
+
+.card-img-top{
+  object-fit: scale-down;
+}
+
+/*2 nút điều hướng*/
+#featuredCarousel .carousel-control-prev,
+#featuredCarousel .carousel-control-next {
+    width: 5%;          /* điều chỉnh khoảng cách ra ngoài */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/*card hover*/
+.card-hover:hover {
+    transform: translateY(-5px) scale(1.03); /* nâng nhẹ và zoom */
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* đổ bóng nổi bật */
+}
+
+.card-hover .fw-semibold:hover {
+    color: #0d6efd; /* đổi sang màu primary khi hover */
+    transition: color 0.3s ease;
+}
+
+/*banner*/
+#homeBannerCarousel {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+#homeBannerCarousel .carousel-inner {
+    width: 100%;
+    padding-top: 56.25%; /* 5 / 16 = 0.3125 → chiều cao container */
+    position: relative;
+}
+
+/* carousel items */
+#homeBannerCarousel .carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#homeBannerCarousel .carousel-item img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 100%;
+    width: auto;
+    min-width: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+/*banner hover*/
+#homeBannerCarousel .carousel-item:hover img {
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .carousel-caption.single-caption {
+        padding: 15px 10px;
+        max-width: 90%;
+    }
+    .carousel-caption.single-caption h3 {
+        font-size: 1.5rem;
+    }
+    .carousel-caption.single-caption p {
+        font-size: 1rem;
+    }
+}
+/*search*/
+.search-title {
+    font-size: 1.6rem;
+    color: #ff4d4f;
+    text-align: center;
+    margin-top: 2rem;   /* cách banner phía trên */
+    margin-bottom: 1.5rem; /* cách sản phẩm phía dưới */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+.search-title:hover {
+    color: #ff7875;
+    transform: scale(1.03);
+    transition: all 0.3s;
+}
+.search-results {
+    display: flex;           /* dùng flexbox */
+    flex-wrap: wrap;         /* wrap xuống dòng khi quá rộng */
+    justify-content: center; /* căn giữa các card */
+    gap: 1rem;               /* khoảng cách giữa card */
+}
+.card-wrapper {
+    flex: 0 0 23%;           /* width ~ 4 cột trên desktop */
+    max-width: 23%;          /* để card không quá rộng */
+    margin-bottom: 1rem;
+}
+@media (max-width: 992px) { /* tablet */
+    .card-wrapper {
+        flex: 0 0 45%;       /* 2 cột */
+        max-width: 45%;
+    }
+}
+@media (max-width: 576px) { /* mobile */
+    .card-wrapper {
+        flex: 0 0 100%;      /* 1 cột */
+        max-width: 100%;
+    }
 }
