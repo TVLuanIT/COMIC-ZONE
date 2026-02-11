@@ -147,7 +147,30 @@ main {
     max-width: calc(33.333% - 1rem);
     margin-bottom: 1rem;
 }
+.search-alert {
+    margin: 20px auto;
+    padding: 10px 18px;
+    width: fit-content;
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 8px;
+    font-weight: 500;
+    animation: fadeOut 4s ease forwards;
+}
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
 
+    70% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}
 @media (max-width: 992px) { /* tablet */
     .search-results .col {
         flex: 0 0 calc(50% - 1rem); /* 2 cột */

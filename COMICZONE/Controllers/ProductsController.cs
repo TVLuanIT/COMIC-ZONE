@@ -21,7 +21,7 @@ namespace COMICZONE.Controllers
         }
 
         // GET: /Products
-        public async Task<IActionResult> Index(string sortOrder, int page = 1)
+        public async Task<IActionResult> Index(string sortOrder, string keyword, int page = 1)
         {
             int pageSize = 9; // số sản phẩm mỗi trang
 
@@ -30,6 +30,27 @@ namespace COMICZONE.Controllers
                                     .Include(p=>p.Tags)
                                     .Include(p=>p.Pictures)
                                     .AsQueryable();
+            // FILTER THEO KEYWORD (PHẢI ĐẶT TRƯỚC SORT & PAGING)
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var key = keyword.ToLower();
+
+                products = products.Where(p =>
+                    (p.Name ?? "").ToLower().Contains(key) ||
+                    (p.Author ?? "").ToLower().Contains(key) ||
+                    (p.Series ?? "").ToLower().Contains(key) ||
+                    (p.Publisher ?? "").ToLower().Contains(key) ||
+                    p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
+                    p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
+                );
+
+                ViewBag.SectionTitle = $"Kết quả tìm kiếm cho \"{keyword}\"";
+            }
+            else
+            {
+                ViewBag.SectionTitle = "Danh sách sản phẩm";
+            }
+            //SORT
             switch (sortOrder)
             {
                 case "name_asc":
@@ -58,61 +79,40 @@ namespace COMICZONE.Controllers
             int totalItems = await products.CountAsync();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
+            if (totalItems == 0 && !string.IsNullOrWhiteSpace(keyword))
+            {
+                TempData["SearchMessage"] = "Không tìm thấy sản phẩm phù hợp";
+            }
+
             var pagedProducts = await products
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            ViewBag.SectionTitle = "Danh sách sản phẩm";
             // Xử lý sắp xếp
             ViewBag.CurrentSort = sortOrder; // giữ giá trị hiện tại cho dropdown
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
+            ViewBag.Keyword = keyword;
 
             return View(pagedProducts);
         }
 
         // GET: /Products/Search?keyword=...
-        // Trang tìm kiếm sản phẩm
-        public async Task<IActionResult> Search(string keyword, int page = 1)
+        public IActionResult Search(string keyword)
         {
-            int pageSize = 9; // 3 sản phẩm x 3 hàng
-
+            // Không nhập gì → quay lại Index, không làm gì cả
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                ViewBag.Message = "Vui lòng nhập từ khóa tìm kiếm";
-                return View(new List<Product>());
+                return RedirectToAction("Index");
             }
 
-            var key = keyword.ToLower();
-
-            var productsQuery = _context.Products
-                .Include(p => p.Pictures)
-                .Include(p => p.Artists)
-                .Include(p => p.Tags)
-                .Where(p =>
-                    (p.Name ?? "").ToLower().Contains(key) ||
-                    (p.Author ?? "").ToLower().Contains(key) ||
-                    (p.Series ?? "").ToLower().Contains(key) ||
-                    (p.Publisher ?? "").ToLower().Contains(key) ||
-                    p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
-                    p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
-                )
-                .AsQueryable();
-
-            int totalItems = await productsQuery.CountAsync();
-            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-            var pagedProducts = await productsQuery
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            ViewBag.Keyword = keyword;
-            ViewBag.Page = page;
-            ViewBag.TotalPages = totalPages;
-
-            return View(pagedProducts); // Trả về Search.cshtml
+            // Có nhập → điều hướng sang Index để xử lý
+            return RedirectToAction("Index", new
+            {
+                keyword = keyword,
+                page = 1
+            });
         }
     }
 }
