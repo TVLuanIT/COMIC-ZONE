@@ -14,16 +14,19 @@
     <div class="container">
 
         <!-- Tiêu đề + mô tả -->
-        <div class="mb-4 text-center">
-            <h4 class="fw-bold">
-                <i class="bi @sectionIcon me-1"></i>
+        <div class="section-header-bold mb-4">
+            <h2>
+                <i class="bi @sectionIcon me-2"></i>
                 @sectionTitle
-            </h4>
-            <p class="text-muted small mb-0">@ViewBag.SectionDescription</p>
+            </h2>
+            @if (ViewBag.SectionDescription != null)
+            {
+                <span>@ViewBag.SectionDescription</span>
+            }
         </div>
 
         <!-- Carousel -->
-        <div id="@carouselId" class="carousel slide" data-bs-ride="carousel">
+        <div id="@carouselId" class="carousel slide product-carousel" data-bs-ride="carousel">
             <div class="carousel-inner">
                 @for (int i = 0; i < Model.Count(); i += 4)
                 {

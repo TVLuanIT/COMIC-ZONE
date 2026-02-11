@@ -22,19 +22,39 @@ body {
   flex-direction: column;
 }
 
+/*navbar _layout*/
+.navbar .nav-link {
+    position: relative;
+    transition: color 0.25s ease;
+}
+.navbar .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background-color: #dc3545;
+    transition: width 0.25s ease;
+}
+.navbar .nav-link:hover::after {
+    width: 100%;
+}
+
 /* phần nội dung chính */
 main {
-  flex: 1;
+    flex: 1;
+    padding-top: 80px;
 }
 
 .card-img-top{
   object-fit: scale-down;
 }
 
-/*2 nút điều hướng*/
-#featuredCarousel .carousel-control-prev,
-#featuredCarousel .carousel-control-next {
-    width: 5%;          /* điều chỉnh khoảng cách ra ngoài */
+/* 2 nút điều hướng – tất cả carousel sản phẩm */
+.product-carousel .carousel-control-prev,
+.product-carousel .carousel-control-next {
+    width: 5%;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -51,94 +71,93 @@ main {
     transition: color 0.3s ease;
 }
 
-/*banner*/
+/* ================= BANNER ================= */
 #homeBannerCarousel {
-    width: 100%;
     position: relative;
+    width: 100%;
     overflow: hidden;
 }
+
+/* carousel-inner */
 #homeBannerCarousel .carousel-inner {
     width: 100%;
-    padding-top: 56.25%; /* 5 / 16 = 0.3125 → chiều cao container */
-    position: relative;
 }
 
-/* carousel items */
+/* carousel-item */
 #homeBannerCarousel .carousel-item {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: relative; /* đảm bảo slide hoạt động */
 }
+
+/* Ảnh banner full cover, chiếm toàn màn hình */
 #homeBannerCarousel .carousel-item img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    height: 100%;
-    width: auto;
-    min-width: 100%;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
+    width: 100%;
+    height: 100vh;       /* chiếm toàn màn hình */
+    object-fit: cover;    /* phủ toàn container */
     object-position: center;
-    display: block;
     transition: transform 0.5s ease;
 }
 
-/*banner hover*/
+/* hover zoom ảnh */
 #homeBannerCarousel .carousel-item:hover img {
-    transform: translate(-50%, -50%) scale(1.05);
+    transform: scale(1.05);
 }
 
-/* Responsive */
+/* responsive mobile */
 @media (max-width: 768px) {
-    .carousel-caption.single-caption {
-        padding: 15px 10px;
-        max-width: 90%;
-    }
-    .carousel-caption.single-caption h3 {
-        font-size: 1.5rem;
-    }
-    .carousel-caption.single-caption p {
-        font-size: 1rem;
+    #homeBannerCarousel .carousel-item img {
+        height: 70vh;    /* vẫn vừa với màn hình điện thoại */
     }
 }
+
 /*search*/
 .search-title {
     font-size: 1.6rem;
     color: #ff4d4f;
     text-align: center;
-    margin-top: 2rem;   /* cách banner phía trên */
+    margin-top: 2rem; /* cách banner phía trên */
     margin-bottom: 1.5rem; /* cách sản phẩm phía dưới */
     font-weight: 600;
     letter-spacing: 0.5px;
     display: inline-block;
+    z-index: 1050;  
 }
 .search-title:hover {
     color: #ff7875;
     transform: scale(1.03);
     transition: all 0.3s;
 }
-.search-results {
-    display: flex;           /* dùng flexbox */
-    flex-wrap: wrap;         /* wrap xuống dòng khi quá rộng */
-    justify-content: center; /* căn giữa các card */
-    gap: 1rem;               /* khoảng cách giữa card */
+.search-results-wrapper {
+    display: flex;
+    flex-direction: column; /* xếp theo cột */
+    align-items: center; /* căn giữa theo chiều ngang */
+    justify-content: flex-start; /* căn từ trên xuống */
+    width: 100%;
+    padding: 1rem 0;
 }
-.card-wrapper {
-    flex: 0 0 23%;           /* width ~ 4 cột trên desktop */
-    max-width: 23%;          /* để card không quá rộng */
+.search-results {
+    display: flex;
+    flex-wrap: wrap; /* wrap xuống dòng khi quá rộng */
+    justify-content: center; /* căn giữa các card */
+    gap: 1rem; /* khoảng cách giữa card */
+    max-width: 1200px; /* giới hạn chiều rộng */
+}
+
+.search-results .col {
+    flex: 0 0 calc(33.333% - 1rem); /* 3 cột desktop */
+    max-width: calc(33.333% - 1rem);
     margin-bottom: 1rem;
 }
+
 @media (max-width: 992px) { /* tablet */
-    .card-wrapper {
-        flex: 0 0 45%;       /* 2 cột */
-        max-width: 45%;
+    .search-results .col {
+        flex: 0 0 calc(50% - 1rem); /* 2 cột */
+        max-width: calc(50% - 1rem);
     }
 }
+
 @media (max-width: 576px) { /* mobile */
-    .card-wrapper {
-        flex: 0 0 100%;      /* 1 cột */
+    .search-results .col {
+        flex: 0 0 100%; /* 1 cột */
         max-width: 100%;
     }
 }
@@ -203,8 +222,9 @@ main {
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* chiếm toàn bộ chiều cao của col */
 }
 .product-card:hover {
     transform: translateY(-6px);
@@ -218,8 +238,9 @@ main {
 }
 .product-img img {
     width: 100%;
-    height: 280px;
-    object-fit: contain;
+    height: auto;        /* cho ảnh tự cao theo tỉ lệ */
+    aspect-ratio: 3/4;   /* tỉ lệ ảnh (rộng 3, cao 4) */
+    object-fit: cover;    /* ảnh phủ khung */
     transition: transform 0.35s ease;
 }
 .product-card:hover img {
@@ -227,8 +248,9 @@ main {
 }
 /* BODY */
 .product-body {
-    padding: 14px 16px 18px;
-    text-align: center;
+    padding: 1rem; /* padding linh hoạt theo rem */
+    flex-grow: 1; /* phần nội dung chiếm hết card */
+    text-align: center; /* căn giữa tên và giá */
 }
 /* NAME */
 .product-name {
@@ -250,4 +272,38 @@ main {
     font-size: 1.05rem;
     font-weight: 700;
     color: #e63946;
+}
+
+/*tiêu đề + mô tả của home*/
+.section-header-bold {
+    position: relative;
+    padding-left: 16px;
+}
+.section-header-bold::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #dc3545;
+    border-radius: 2px;
+}
+.section-header-bold h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+.section-header-bold h2 i {
+    font-size: 1.2rem;
+    color: #dc3545;
+}
+.section-header-bold span {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #777;
 }

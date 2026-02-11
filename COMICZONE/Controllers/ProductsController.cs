@@ -74,8 +74,10 @@ namespace COMICZONE.Controllers
 
         // GET: /Products/Search?keyword=...
         // Trang tìm kiếm sản phẩm
-        public async Task<IActionResult> Search(string keyword)
+        public async Task<IActionResult> Search(string keyword, int page = 1)
         {
+            int pageSize = 9; // 3 sản phẩm x 3 hàng
+
             if (string.IsNullOrWhiteSpace(keyword))
             {
                 ViewBag.Message = "Vui lòng nhập từ khóa tìm kiếm";
@@ -84,7 +86,7 @@ namespace COMICZONE.Controllers
 
             var key = keyword.ToLower();
 
-            var products = await _context.Products
+            var productsQuery = _context.Products
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
@@ -96,11 +98,21 @@ namespace COMICZONE.Controllers
                     p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
                     p.Tags.Any(t => (t.Name ?? "").ToLower().Contains(key))
                 )
+                .AsQueryable();
+
+            int totalItems = await productsQuery.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var pagedProducts = await productsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             ViewBag.Keyword = keyword;
+            ViewBag.Page = page;
+            ViewBag.TotalPages = totalPages;
 
-            return View(products); // Trả về Search.cshtml
+            return View(pagedProducts); // Trả về Search.cshtml
         }
     }
 }
