@@ -94,7 +94,19 @@ namespace COMICZONE.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.Keyword = keyword;
-
+            // Chuẩn bị sidebar filters
+            ViewBag.SidebarFilters = new Dictionary<string, List<string>>()
+            {
+                { "Tác giả", (await _context.Products
+                            .Where(p => !string.IsNullOrEmpty(p.Author))
+                            .Select(p => p.Author!)
+                            .Distinct()
+                            .ToListAsync()) },
+                { "Họa sĩ", await _context.Artists
+                          .Select(a => a.Name!)
+                          .Distinct()
+                          .ToListAsync() }
+            };
             return View(pagedProducts);
         }
 

@@ -1,3 +1,4 @@
+/* ================= GLOBAL ================= */
 html {
   font-size: 14px;
 }
@@ -8,7 +9,11 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus, 
+.btn:active:focus, 
+.btn-link.nav-link:focus, 
+.form-control:focus, 
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -22,10 +27,22 @@ body {
   flex-direction: column;
 }
 
-/*navbar _layout*/
+/* ================= NAVBAR ================= */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030; /* cao hơn content nhưng thấp hơn modal nếu có */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* link trong navbar */
 .navbar .nav-link {
     position: relative;
     transition: color 0.25s ease;
+    color: #333;
 }
 .navbar .nav-link::after {
     content: "";
@@ -34,17 +51,24 @@ body {
     bottom: -4px;
     width: 0;
     height: 2px;
-    background-color: #dc3545;
+    background-color: #dc3545; /* underline đỏ */
     transition: width 0.25s ease;
 }
 .navbar .nav-link:hover::after {
     width: 100%;
 }
 
-/* phần nội dung chính */
+/* ================= MAIN CONTENT ================= */
 main {
     flex: 1;
-    padding-top: 80px;
+    padding-top: 90px; /* khoảng cách bằng navbar */
+}
+
+/* ================= MOBILE NAVBAR ================= */
+@media (max-width: 768px) {
+    main {
+        padding-top: 100px; /* ví dụ navbar cao hơn */
+    }
 }
 
 .card-img-top{
@@ -329,4 +353,91 @@ main {
     margin-top: 6px;
     font-size: 0.9rem;
     color: #777;
+}
+
+/* ================= Sidebar ================= */
+.sidebar {
+    position: sticky;
+    top: 90px; /* navbar cao 90px */
+    max-height: calc(100vh - 90px); /* không vượt quá viewport */
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* flex container */
+.d-flex.align-items-start {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem; /* khoảng cách giữa sidebar và main */
+}
+
+/* main content */
+.main-content {
+    flex-grow: 1; /* chiếm hết chỗ còn lại */
+}
+
+/* ================= Filter Header ================= */
+.filter-title a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: #212529;
+}
+
+.filter-title a:hover {
+    color: #0d6efd;
+}
+
+/* Xoay khi collapse */
+.filter-title a[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+.filter-title i {
+    font-size: 1.1rem; /* tăng kích thước */
+    transition: transform 0.3s;
+    line-height: 1; /* căn theo chữ */
+    vertical-align: middle;
+}
+/* ================= Filter List ================= */
+.filter-list {
+    padding-left: 0.5rem;
+    max-height: 250px; /* scroll nếu nhiều item */
+    overflow-y: auto;
+    margin-top: 0.25rem;
+}
+
+.filter-item {
+    display: block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    color: #212529;
+    text-decoration: none;
+}
+
+.filter-item:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+/* ================= Scrollbar đẹp ================= */
+.filter-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-list::-webkit-scrollbar-thumb {
+    background-color: #adb5bd;
+    border-radius: 3px;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative; /* bỏ sticky trên mobile */
+        max-height: none;
+    }
 }
