@@ -358,13 +358,24 @@ main {
 /* ================= Sidebar ================= */
 .sidebar {
     position: sticky;
-    top: 90px; /* navbar cao 90px */
-    max-height: calc(100vh - 90px); /* không vượt quá viewport */
+    top: 90px;
+    max-height: calc(100vh - 90px);
     overflow-y: auto;
+}
+
+/* Khung sidebar (có thể bật/tắt) */
+.sidebar-frame {
     padding: 1rem;
     background-color: #f8f9fa;
     border-radius: 8px;
     border: 1px solid #dee2e6;
+}
+
+/* Ẩn khung */
+.sidebar.no-frame {
+    padding: 0;
+    background: transparent;
+    border: none;
 }
 
 /* flex container */

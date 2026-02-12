@@ -1,30 +1,36 @@
 ﻿@model IDictionary<string, List<string>>
 
-<div class="sidebar p-3 border rounded bg-light">
+@{
+    var activeGroup = ViewBag.ActiveGroup as string;
+}
+
+<div class="sidebar no-frame">
     @if (Model != null && Model.Any())
     {
         foreach (var filterGroup in Model)
         {
-            var collapseId = "collapse-" + filterGroup.Key.Replace(" ", "").ToLower();
+            var key = filterGroup.Key;
+            var collapseId = "collapse-" + key.Replace(" ", "").ToLower();
+            var isActive = activeGroup == key;
 
             <div class="mb-3">
                 <h5 class="filter-title">
                     <a data-bs-toggle="collapse"
                        href="#@collapseId"
-                       role="button"
-                       aria-expanded="true"
-                       aria-controls="@collapseId">
+                       aria-expanded="@isActive">
                         <span>@filterGroup.Key</span>
                         <i class="bi bi-chevron-down ms-2"></i>
                     </a>
                 </h5>
 
-                <ul class="list-unstyled collapse show filter-list" id="@collapseId">
+                <ul class="list-unstyled collapse @(isActive ? "show" : "") filter-list" id="@collapseId">
                     @foreach (var item in filterGroup.Value)
                     {
                         <li>
                             <a class="filter-item"
-                               href="@Url.Action("Index", "Products", new { keyword = item })">
+                                href="@Url.Action("Index", "Products", new {
+                                keyword = item,
+                                activeGroup = filterGroup.Key})">
                                 @item
                             </a>
                         </li>

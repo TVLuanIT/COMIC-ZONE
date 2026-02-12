@@ -21,7 +21,7 @@ namespace COMICZONE.Controllers
         }
 
         // GET: /Products
-        public async Task<IActionResult> Index(string sortOrder, string keyword, int page = 1)
+        public async Task<IActionResult> Index(string sortOrder, string keyword, string activeGroup, int page = 1)
         {
             int pageSize = 9; // số sản phẩm mỗi trang
 
@@ -38,6 +38,8 @@ namespace COMICZONE.Controllers
                 products = products.Where(p =>
                     (p.Name ?? "").ToLower().Contains(key) ||
                     (p.Author ?? "").ToLower().Contains(key) ||
+                    (p.Translator ?? "").ToLower().Contains(key) ||
+                    (p.Distributor ?? "").ToLower().Contains(key) ||
                     (p.Series ?? "").ToLower().Contains(key) ||
                     (p.Publisher ?? "").ToLower().Contains(key) ||
                     p.Artists.Any(a => (a.Name ?? "").ToLower().Contains(key)) ||
@@ -94,6 +96,7 @@ namespace COMICZONE.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.Keyword = keyword;
+            ViewBag.ActiveGroup = activeGroup;
             // Chuẩn bị sidebar filters
             ViewBag.SidebarFilters = new Dictionary<string, List<string>>()
             {
@@ -103,9 +106,33 @@ namespace COMICZONE.Controllers
                             .Distinct()
                             .ToListAsync()) },
                 { "Họa sĩ", await _context.Artists
-                          .Select(a => a.Name!)
-                          .Distinct()
-                          .ToListAsync() }
+                            .Select(a => a.Name!)
+                            .Distinct()
+                            .ToListAsync() },
+                { "Dịch giả", (await _context.Products
+                            .Where(p => !string.IsNullOrEmpty(p.Translator))
+                            .Select(p => p.Translator!)
+                            .Distinct()
+                            .ToListAsync()) },
+                { "Series", (await _context.Products
+                            .Where(p => !string.IsNullOrEmpty(p.Series))
+                            .Select(p => p.Series!)
+                            .Distinct()
+                            .ToListAsync()) },
+                { "Tag", await _context.Tags
+                            .Select(a => a.Name!)
+                            .Distinct()
+                            .ToListAsync() },
+                { "Nhà phát hành", (await _context.Products
+                            .Where(p => !string.IsNullOrEmpty(p.Distributor))
+                            .Select(p => p.Distributor!)
+                            .Distinct()
+                            .ToListAsync()) },
+                { "NXB", (await _context.Products
+                            .Where(p => !string.IsNullOrEmpty(p.Publisher))
+                            .Select(p => p.Publisher!)
+                            .Distinct()
+                            .ToListAsync()) },
             };
             return View(pagedProducts);
         }
