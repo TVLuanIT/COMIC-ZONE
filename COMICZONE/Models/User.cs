@@ -44,4 +44,13 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual Customer? Customer { get; set; }
+
+    [InverseProperty("User")]
+    public virtual ICollection<ProductReviewLike> ProductReviewLikes { get; set; } = new List<ProductReviewLike>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<ProductReviewReport> ProductReviewReports { get; set; } = new List<ProductReviewReport>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 }

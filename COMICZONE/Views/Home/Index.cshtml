@@ -6,7 +6,6 @@
     var ModelLatest = ViewBag.ModelLatest as IEnumerable<COMICZONE.Models.Product>;
 }
 <!-- BANNER -->
-<!-- BANNER -->
 <div id="homeBannerCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -47,7 +46,7 @@
     ViewBag.SectionDescription = "Những tựa truyện nổi bật, được nhiều độc giả quan tâm trong tuần.";
     ViewBag.BackgroundClass = "bg-light";
 }
-@await Html.PartialAsync("~/Views/Products/_HomeProduct.cshtml", ModelFeatured)
+@await Html.PartialAsync("_HomeProduct.cshtml", ModelFeatured)
 
 <!-- MỚI NHẤT TRONG TUẦN -->
 @{
@@ -58,7 +57,7 @@
     ViewBag.SectionDescription = "Những tựa truyện vừa được cập nhật trong tuần, không nên bỏ lỡ.";
     ViewBag.BackgroundClass = ""; // nền trắng
 }
-@await Html.PartialAsync("~/Views/Products/_HomeProduct.cshtml", ModelLatest)
+@await Html.PartialAsync("_HomeProduct.cshtml", ModelLatest)
 
 <!-- BLOG -->
-@await Html.PartialAsync("~/Views/Blogs/_HomeBlog.cshtml", (IEnumerable<COMICZONE.Models.Blog>)ViewBag.Blogs)
+@await Html.PartialAsync("_HomeBlog.cshtml", (IEnumerable<COMICZONE.Models.Blog>)ViewBag.Blogs)

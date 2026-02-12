@@ -1,0 +1,23 @@
+﻿@model COMICZONE.Models.ProductReview
+
+<form asp-action="Create" asp-controller="ProductReviews" method="post" class="mb-4">
+    <input type="hidden" asp-for="Productid" value="@Model.Productid" />
+
+    <div class="mb-2">
+        <label class="form-label">Đánh giá</label>
+        <select asp-for="Rating" class="form-select">
+            <option value="1">1 sao</option>
+            <option value="2">2 sao</option>
+            <option value="3">3 sao</option>
+            <option value="4">4 sao</option>
+            <option value="5">5 sao</option>
+        </select>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Nội dung</label>
+        <textarea asp-for="Reviewcontent" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+</form>

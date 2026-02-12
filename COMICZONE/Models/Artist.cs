@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("ARTISTS")]
+[Table("ARTIST")]
 [Index("Name", Name = "UQ__ARTISTS__D9C1FA00F949CE6A", IsUnique = true)]
 public partial class Artist
 {

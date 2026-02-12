@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("PRODUCTS")]
+[Table("PRODUCT")]
 public partial class Product
 {
     [Key]
@@ -71,6 +71,12 @@ public partial class Product
     [Column("AGE_GROUP")]
     [StringLength(20)]
     public string? AgeGroup { get; set; }
+
+    [InverseProperty("Product")]
+    public virtual ProductReviewSummary? ProductReviewSummary { get; set; }
+
+    [InverseProperty("Product")]
+    public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 
     [ForeignKey("ProductId")]
     [InverseProperty("Products")]

@@ -30,6 +30,14 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<ProductReview> ProductReviews { get; set; }
+
+    public virtual DbSet<ProductReviewLike> ProductReviewLikes { get; set; }
+
+    public virtual DbSet<ProductReviewReport> ProductReviewReports { get; set; }
+
+    public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
+
     public virtual DbSet<Tag> Tags { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -118,11 +126,11 @@ public partial class ComiczoneContext : DbContext
                     r => r.HasOne<Artist>().WithMany()
                         .HasForeignKey("ArtistId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_A__ARTIS__1B0907CE"),
+                        .HasConstraintName("FK_PRODUCT_ARTIST_ARTIST"),
                     l => l.HasOne<Product>().WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_A__PRODU__1A14E395"),
+                        .HasConstraintName("FK_PRODUCT_ARTIST_PRODUCT"),
                     j =>
                     {
                         j.HasKey("ProductId", "ArtistId").HasName("PK__PRODUCT___C61447605FF82DE2");
@@ -137,11 +145,11 @@ public partial class ComiczoneContext : DbContext
                     r => r.HasOne<Picture>().WithMany()
                         .HasForeignKey("PictureId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_P__PICTU__22AA2996"),
+                        .HasConstraintName("FK_PRODUCT_PICTURE_PICTURE"),
                     l => l.HasOne<Product>().WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_P__PRODU__21B6055D"),
+                        .HasConstraintName("FK_PRODUCT_PICTURE_PRODUCT"),
                     j =>
                     {
                         j.HasKey("ProductId", "PictureId").HasName("PK__PRODUCT___0EF281E8F575EAB0");
@@ -156,11 +164,11 @@ public partial class ComiczoneContext : DbContext
                     r => r.HasOne<Tag>().WithMany()
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_T__TAG_I__1ED998B2"),
+                        .HasConstraintName("FK_PRODUCT_TAG_TAG"),
                     l => l.HasOne<Product>().WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PRODUCT_T__PRODU__1DE57479"),
+                        .HasConstraintName("FK_PRODUCT_TAG_PRODUCT"),
                     j =>
                     {
                         j.HasKey("ProductId", "TagId").HasName("PK__PRODUCT___58167A98A046EDB4");
@@ -168,6 +176,60 @@ public partial class ComiczoneContext : DbContext
                         j.IndexerProperty<int>("ProductId").HasColumnName("PRODUCT_ID");
                         j.IndexerProperty<int>("TagId").HasColumnName("TAG_ID");
                     });
+        });
+
+        modelBuilder.Entity<ProductReview>(entity =>
+        {
+            entity.HasKey(e => e.Reviewid).HasName("PK__PRODUCT___DDDCEB4A41B2EC7A");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Isapproved).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PRODUCT_R__PRODU__1AD3FDA4");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviews)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PRODUCT_R__USERI__1BC821DD");
+        });
+
+        modelBuilder.Entity<ProductReviewLike>(entity =>
+        {
+            entity.HasKey(e => new { e.Reviewid, e.Userid }).HasName("PK_REVIEW_LIKE");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewLikes).HasConstraintName("FK__PRODUCT_R__REVIE__1F98B2C1");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PRODUCT_R__USERI__208CD6FA");
+        });
+
+        modelBuilder.Entity<ProductReviewReport>(entity =>
+        {
+            entity.HasKey(e => e.Reportid).HasName("PK__PRODUCT___A85DEB2D0B3B8B15");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports).HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReports)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PRODUCT_R__USERI__25518C17");
+        });
+
+        modelBuilder.Entity<ProductReviewSummary>(entity =>
+        {
+            entity.HasKey(e => e.Productid).HasName("PK__PRODUCT___34980AA2424C1B98");
+
+            entity.Property(e => e.Productid).ValueGeneratedNever();
+            entity.Property(e => e.Lastupdated).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Product).WithOne(p => p.ProductReviewSummary)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PRODUCT_R__PRODU__2B0A656D");
         });
 
         modelBuilder.Entity<Tag>(entity =>
