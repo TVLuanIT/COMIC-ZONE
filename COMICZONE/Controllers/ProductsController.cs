@@ -20,6 +20,23 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        // GET: /Products/Details/5
+        public async Task<IActionResult> Detail(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
+
         // GET: /Products
         public async Task<IActionResult> Index(string sortOrder, string keyword, string activeGroup, int page = 1)
         {

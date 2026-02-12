@@ -47,14 +47,14 @@
                     {
                         <div class="col">
                             <div class="product-card">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="product-img">
+                                <a asp-action="Detail" asp-route-id="@item.Id" class="product-img">
                                     <img src="@item.GetImagePath()" alt="@item.Name" />
                                 </a>
                                 <div class="product-body">
                                     <div class="product-price">
                                         @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
                                     </div>
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="product-name">
+                                    <a asp-action="Detail" asp-route-id="@item.Id" class="product-name">
                                         @item.Name
                                     </a>
                                 </div>

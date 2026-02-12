@@ -452,3 +452,30 @@ main {
         max-height: none;
     }
 }
+
+/* ================= PRODUCT SUMMARY ================= */
+.product-summary {
+    margin-bottom: 1.5rem;
+}
+
+.summary-text {
+    display: inline; /* để chữ toggle nằm sát bên */
+    font-size: 0.95rem;
+    color: #333; /* màu nội dung */
+    line-height: 1.5;
+}
+
+.toggle-btn {
+    display: inline; /* sát nội dung */
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 0.3rem; /* khoảng cách nhỏ so với nội dung */
+    font-size: 0.85rem; /* nhỏ hơn nội dung */
+    color: #6c757d; /* nhạt hơn nội dung */
+    cursor: pointer;
+}
+
+.toggle-btn:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,133 @@
+﻿@model COMICZONE.Models.Product
+@using System.Globalization;
+@using COMICZONE.Extensions;
+
+@{
+    ViewBag.Title = Model.Name;
+    var priceText = Model.Price.HasValue
+        ? string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0} ₫", Model.Price)
+        : "Liên hệ";
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- CỘT TRÁI: HÌNH ẢNH -->
+            <div class="col-md-5">
+                @if (Model.Pictures != null && Model.Pictures.Any())
+                {
+                    <div class="border rounded p-3 bg-light">
+                        <img class="img-fluid rounded"
+                             src="@Model.GetImagePath()"
+                             alt="@Model.Name" />
+                    </div>
+                    @if (Model.Pictures.Count > 1)
+                    {
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            @foreach (var pic in Model.Pictures.Skip(1))
+                            {
+                                <img src="@pic.FileName"
+                                     class="img-thumbnail"
+                                     style="width:80px;height:auto;"
+                                     alt="@Model.Name" />
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="border rounded p-5 text-center text-muted">
+                        Không có hình ảnh
+                    </div>
+                }
+            </div>
+            <!-- CỘT PHẢI: THÔNG TIN -->
+            <div class="col-md-7">
+                <h1 class="fw-bold mb-3">@Model.Name</h1>
+
+                <div class="fs-3 text-danger fw-semibold mb-3">
+                    @priceText
+                </div>
+
+                @if (Model.StockQuantity.HasValue)
+                {
+                    <p class="mb-3">
+                        <strong>Tình trạng:</strong>
+                        @if (Model.StockQuantity > 0)
+                        {
+                            <span class="text-success">Còn hàng</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Hết hàng</span>
+                        }
+                    </p>
+                }
+                <table class="table table-sm table-borderless">
+                    <tbody>
+                        @if (!string.IsNullOrWhiteSpace(Model.Author))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Tác giả</td>
+                                <td>@Model.Author</td>
+                            </tr>
+                        }
+                        @if (Model.Artists.Any())
+                        {
+                            <tr>
+                                <td class="fw-semibold">Họa sĩ</td>
+                                <td>
+                                    @string.Join(", ", Model.Artists.Select(a => a.Name))
+                                </td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Translator))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Dịch giả</td>
+                                <td>@Model.Translator</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Series))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Series</td>
+                                <td>@Model.Series</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <!--DESCRIPTION-->
+                <!--DESCRIPTION-->
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <div class="product-summary">
+                        <h3 class="summary-title">Tóm tắt nội dung</h3>
+                        <p class="summary-text" id="desc-@Model.Id" data-full="@Model.Description"></p>
+                        <button class="toggle-btn" onclick="ProductSummary.toggle(@Model.Id)">Xem thêm</button>
+                    </div>
+                }
+                <!-- TAG -->
+                @if (Model.Tags.Any())
+                {
+                    <div class="mt-3">
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <span class="badge bg-secondary me-1">@tag.Name</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- MÔ TẢ -->
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="mt-5">
+                <h4 class="fw-bold mb-3">Mô tả sản phẩm</h4>
+                <p class="text-muted" style="white-space: pre-line;">
+                    @Model.Description
+                </p>
+            </div>
+        }
+    </div>
+</section>
