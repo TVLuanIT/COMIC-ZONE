@@ -1,0 +1,21 @@
+﻿@model List<string>
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
+       data-bs-toggle="dropdown" aria-expanded="false">
+        Danh mục
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+        @foreach (var group in Model)
+        {
+            <li>
+                <a class="dropdown-item"
+                   asp-controller="Products"
+                   asp-action="Index"
+                   asp-route-activeGroup="@group">
+                    @group
+                </a>
+            </li>
+        }
+    </ul>
+</li>

@@ -21,7 +21,7 @@ namespace COMICZONE.Controllers
         }
 
         // GET: /Products/Details/5
-        public async Task<IActionResult> Detail(int id)
+        public async Task<IActionResult> Detail(int id, string tab = "detail")
         {
             var product = await _context.Products
                 .Include(p => p.Pictures)
@@ -36,6 +36,29 @@ namespace COMICZONE.Controllers
                 return NotFound();
             }
 
+            ViewBag.ActiveTab = tab; // Tab active
+
+            // Khai báo ngoài if/else
+            List<Product> RelatedByAuthor;
+
+            if (!string.IsNullOrWhiteSpace(product.Author))
+            {
+                RelatedByAuthor = await _context.Products
+                    .Include(p => p.Pictures)
+                    .Include(p => p.Artists)
+                    .Include(p => p.Tags)
+                    .Where(p => p.Id != product.Id &&
+                                !string.IsNullOrWhiteSpace(p.Author) &&
+                                p.Author.Trim().ToLower() == product.Author.Trim().ToLower())
+                    .OrderByDescending(p => p.ReleaseDate)
+                    .Take(8)
+                    .ToListAsync();
+            }
+            else
+            {
+                RelatedByAuthor = new List<Product>();
+            }
+
             // Nếu chưa có summary trong DB → tạo object mặc định
             if (product.ProductReviewSummary == null)
             {
@@ -47,7 +70,7 @@ namespace COMICZONE.Controllers
                     Lastupdated = null
                 };
             }
-
+            ViewBag.RelatedByAuthor = RelatedByAuthor;
             return View(product);
         }
 

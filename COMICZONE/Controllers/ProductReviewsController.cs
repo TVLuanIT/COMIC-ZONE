@@ -27,6 +27,27 @@ namespace COMICZONE.Controllers
             return View(await comiczoneContext.ToListAsync());
         }
 
+        public async Task<IActionResult> Reviews(int productId, int page = 1, int pageSize = 5)
+        {
+            var reviews = await _context.ProductReviews
+                .Include(r => r.User)
+                .Where(r => r.Productid == productId)
+                .OrderByDescending(r => r.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalCount = await _context.ProductReviews
+                .Where(r => r.Productid == productId)
+                .CountAsync();
+
+            ViewBag.ProductId = productId;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return PartialView("_ProductReviewList", reviews);
+        }
+
         // POST: ProductReviews/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -36,7 +57,7 @@ namespace COMICZONE.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction("Detail", "Products", new { id = review.Productid });
+                return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
             }
 
             // Gán thêm dữ liệu hệ thống
@@ -53,7 +74,8 @@ namespace COMICZONE.Controllers
             _context.ProductReviews.Add(review);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Detail", "Products", new { id = review.Productid });
+            // Thêm tab=comment để giữ tab bình luận
+            return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
         }
     }
 }

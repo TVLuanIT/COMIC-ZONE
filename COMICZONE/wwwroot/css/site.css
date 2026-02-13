@@ -23,21 +23,34 @@ body {
   flex-direction: column;
 }
 /* ================= NAVBAR ================= */
+.navbar .dropdown-toggle::after {
+    display: none;
+}
 .navbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1030; /* cao hơn content nhưng thấp hơn modal nếu có */
+    z-index: 1030;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-/* link trong navbar */
+
+/* link mặc định */
 .navbar .nav-link {
     position: relative;
     transition: color 0.25s ease;
-    color: #333;
+    color: #333 !important;
 }
+
+/* hover & khi dropdown mở */
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-item.dropdown.show .nav-link {
+    color: #dc3545 !important; /* đỏ thống nhất */
+}
+
+/* underline effect */
 .navbar .nav-link::after {
     content: "";
     position: absolute;
@@ -45,10 +58,39 @@ body {
     bottom: -4px;
     width: 0;
     height: 2px;
-    background-color: #dc3545; /* underline đỏ */
+    background-color: #dc3545;
     transition: width 0.25s ease;
 }
-.navbar .nav-link:hover::after {
+
+.navbar .nav-link:hover::after,
+.navbar .nav-item.dropdown.show .nav-link::after {
+    width: 100%;
+}
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0; /* tránh bị thụt xuống */
+}
+.nav-item.dropdown:hover .nav-link {
+    color: #dc3545 !important;
+}
+/* underline effect dùng ::before để tránh xung đột */
+.navbar .nav-link {
+    position: relative;
+}
+
+.navbar .nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background-color: #dc3545;
+    transition: width 0.25s ease;
+}
+
+.navbar .nav-link:hover::before,
+.navbar .nav-item.dropdown.show .nav-link::before {
     width: 100%;
 }
 /* ================= MAIN CONTENT ================= */
@@ -114,6 +156,7 @@ main {
         height: 70vh;    /* vẫn vừa với màn hình điện thoại */
     }
 }
+/* ================= SEARCH ================= */
 /*search*/
 .search-title {
     font-size: 1.6rem;
@@ -187,6 +230,7 @@ main {
         max-width: 100%;
     }
 }
+/* ================= SORT ================= */
 /*form sắp xếp*/
 .sort-form {
     max-width: 260px;
@@ -380,13 +424,70 @@ main {
     line-height: 1; /* căn theo chữ */
     vertical-align: middle;
 }
+/* Icon xoay khi collapse */
+.transition-icon {
+    transition: transform 0.3s;
+}
+
+.collapse.show + .transition-icon,
+button[aria-expanded="true"] .transition-icon {
+    transform: rotate(180deg);
+}
+
+/* Hover filter item */
+.filter-item:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
 /* ================= Filter List ================= */
 .filter-list {
-    padding-left: 0.5rem;
-    max-height: 250px; /* scroll nếu nhiều item */
+    padding: 0.25rem 0.5rem;
+    max-height: 220px; /* scroll nếu nhiều item */
     overflow-y: auto;
     margin-top: 0.25rem;
 }
+.filter-list li + li {
+    margin-top: 0.25rem;
+}
+.filter-item {
+    display: block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    color: #212529;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.filter-item:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+/* ================= Sidebar Filter Buttons ================= */
+.sidebar .btn {
+    display: flex;
+    justify-content: center;  /* căn giữa chữ + icon theo ngang */
+    align-items: center;      /* căn giữa theo dọc */
+    text-align: center;
+    font-weight: 600;
+    position: relative;
+}
+
+/* Icon mũi tên chuyển động */
+.transition-icon {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+/* Khi collapse đóng, icon xoay 0 độ; khi mở xoay 180 độ */
+.collapse.show + .transition-icon,
+.btn[aria-expanded="true"] .transition-icon {
+    transform: rotate(180deg);
+}
+
+/* Danh sách filter item */
 .filter-item {
     display: block;
     padding: 0.25rem 0.5rem;
@@ -399,6 +500,20 @@ main {
     background-color: #e9ecef;
     color: #0d6efd;
 }
+
+/* Scroll đẹp nếu nhiều item */
+.filter-list {
+    padding-left: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+}
+.filter-list::-webkit-scrollbar {
+    width: 6px;
+}
+.filter-list::-webkit-scrollbar-thumb {
+    background-color: #adb5bd;
+    border-radius: 3px;
+}
 /* ================= Scrollbar đẹp ================= */
 .filter-list::-webkit-scrollbar {
     width: 6px;
@@ -406,6 +521,11 @@ main {
 .filter-list::-webkit-scrollbar-thumb {
     background-color: #adb5bd;
     border-radius: 3px;
+}
+/* Firefox scrollbar */
+.filter-list {
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa; /* thumb màu #adb5bd, track #f8f9fa */
 }
 /* ================= Responsive ================= */
 @media (max-width: 768px) {
