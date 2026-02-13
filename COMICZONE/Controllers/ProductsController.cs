@@ -36,6 +36,18 @@ namespace COMICZONE.Controllers
                 return NotFound();
             }
 
+            // Nếu chưa có summary trong DB → tạo object mặc định
+            if (product.ProductReviewSummary == null)
+            {
+                product.ProductReviewSummary = new ProductReviewSummary
+                {
+                    Productid = product.Id,
+                    Totalreview = 0,
+                    Averagerating = 0,
+                    Lastupdated = null
+                };
+            }
+
             return View(product);
         }
 

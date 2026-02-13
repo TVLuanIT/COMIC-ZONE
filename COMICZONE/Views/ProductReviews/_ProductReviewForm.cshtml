@@ -1,0 +1,31 @@
+﻿@model COMICZONE.Models.ProductReview
+
+<div class="review-form-card">
+
+    <h4 class="review-form-title">Viết đánh giá</h4>
+
+    <form asp-action="Create" asp-controller="ProductReviews" method="post">
+
+        <input type="hidden" asp-for="Productid" />
+
+        <!-- Rating -->
+        <div class="star-rating">
+            @for (int i = 5; i >= 1; i--)
+            {
+                <input type="radio" asp-for="Rating" value="@i" id="star-@i" />
+                <label for="star-@i">&#9733;</label>
+            }
+        </div>
+
+        <!-- Nội dung -->
+        <textarea asp-for="Reviewcontent"
+                  class="review-textarea"
+                  placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này...">
+        </textarea>
+
+        <button type="submit" class="review-submit-btn">
+            Gửi đánh giá
+        </button>
+
+    </form>
+</div>

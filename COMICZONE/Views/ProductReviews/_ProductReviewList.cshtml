@@ -1,0 +1,64 @@
+﻿@model IEnumerable<COMICZONE.Models.ProductReview>
+
+<div class="review-list-section">
+
+    <h4 class="review-list-title">Đánh giá từ khách hàng</h4>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="no-review">
+            Chưa có đánh giá nào cho sản phẩm này.
+        </div>
+    }
+    else
+    {
+        @foreach (var review in Model)
+        {
+            <div class="review-card">
+
+                <div class="review-header">
+                    <div class="review-user">
+                        <div class="review-avatar">
+                            @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                        </div>
+
+                        <div>
+                            <div class="review-username">
+                                @(review.User?.Username ?? "Người dùng ẩn danh")
+                            </div>
+                            <div class="review-date">
+                                @(review.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= review.Rating)
+                            {
+                                <span class="star filled">&#9733;</span>
+                            }
+                            else
+                            {
+                                <span class="star">&#9733;</span>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="review-content">
+                    @if (!string.IsNullOrWhiteSpace(review.Reviewcontent))
+                    {
+                        @review.Reviewcontent
+                    }
+                    else
+                    {
+                        <span class="text-muted"><em>Người dùng chưa viết nội dung</em></span>
+                    }
+                </div>
+
+            </div>
+        }
+    }
+</div>
