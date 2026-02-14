@@ -19,6 +19,11 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult About()
+        {
+            return View();
+        }
+
         // GET: Home
         public async Task<IActionResult> Index(string? keyword)
         {
