@@ -755,3 +755,28 @@ button[aria-expanded="true"] .transition-icon {
     font-size: 13px;
     color: #999;
 }
+/* ================= ABOUT US ================= */
+.about-hero {
+    height: 350px;
+    background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('/images/about_banner.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.hero-content {
+    animation: fadeInUp 1s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
