@@ -15,13 +15,13 @@
 }
 
 <section class="py-5">
-    <div class="container d-flex">
-        <div class="d-flex align-items-start">            <!-- flex container cho sidebar + main -->
+    <div class="container">
+        <div class="row">
             <!-- COLUMN LEFT -->
-            <<div class="sidebar col-md-3 me-3">
+            <div class="col-md-3">
                 @await Html.PartialAsync("_ProductSidebarFilters", ViewBag.SidebarFilters as Dictionary<string, List<string>>)
             </div>
-            <div class="main-content flex-grow-1">
+            <div class="col-md-9">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="fw-bold">@ViewBag.SectionTitle</h2>
                     <!-- Dropdown sắp xếp -->
@@ -47,14 +47,14 @@
                     {
                         <div class="col">
                             <div class="product-card">
-                                <a asp-action="Detail" asp-route-id="@item.Id" class="product-img">
+                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-img">
                                     <img src="@item.GetImagePath()" alt="@item.Name" />
                                 </a>
                                 <div class="product-body">
                                     <div class="product-price">
                                         @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
                                     </div>
-                                    <a asp-action="Detail" asp-route-id="@item.Id" class="product-name">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-name">
                                         @item.Name
                                     </a>
                                 </div>
@@ -73,7 +73,8 @@
                                    asp-action="Index"
                                    asp-route-page="@(ViewBag.CurrentPage - 1)"
                                    asp-route-sortOrder="@ViewBag.CurrentSort"
-                                   asp-route-keyword="@ViewBag.Keyword">
+                                   asp-route-keyword="@ViewBag.Keyword"
+                                   asp-route-author="@ViewBag.SelectedAuthor">
                                     <i class="bi bi-chevron-left"></i>
                                 </a>
                             </li>
@@ -84,7 +85,8 @@
                                        asp-action="Index"
                                        asp-route-page="@i"
                                        asp-route-sortOrder="@ViewBag.CurrentSort"
-                                       asp-route-keyword="@ViewBag.Keyword">
+                                       asp-route-keyword="@ViewBag.Keyword"
+                                       asp-route-author="@ViewBag.SelectedAuthor">
                                         @i
                                     </a>
                                 </li>
@@ -95,7 +97,8 @@
                                    asp-action="Index"
                                    asp-route-page="@(ViewBag.CurrentPage + 1)"
                                    asp-route-sortOrder="@ViewBag.CurrentSort"
-                                   asp-route-keyword="@ViewBag.Keyword">
+                                   asp-route-keyword="@ViewBag.Keyword"
+                                   asp-route-author="@ViewBag.SelectedAuthor">
                                     <i class="bi bi-chevron-right"></i>
                                 </a>
                             </li>

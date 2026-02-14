@@ -1,4 +1,5 @@
 ﻿@model List<string>
+@using Microsoft.AspNetCore.Routing
 
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
@@ -8,11 +9,26 @@
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
         @foreach (var group in Model)
         {
+            // map group sang paramName
+            var paramName = group switch
+            {
+                "Tác giả" => "author",
+                "Họa sĩ" => "artist",
+                "Dịch giả" => "translator",
+                "Series" => "series",
+                "Tag" => "tag",
+                "NXB" => "publisher",
+                "Nhà phát hành" => "distributor",
+                _ => "keyword"
+            };
+
+            var routeValues = new RouteValueDictionary();
+            routeValues["activeGroup"] = paramName; // chỉ gửi nhóm được chọn
+            routeValues["page"] = 1;
+
             <li>
                 <a class="dropdown-item"
-                   asp-controller="Products"
-                   asp-action="Index"
-                   asp-route-activeGroup="@group">
+                   href="@Url.Action("Index", "Products", routeValues)">
                     @group
                 </a>
             </li>

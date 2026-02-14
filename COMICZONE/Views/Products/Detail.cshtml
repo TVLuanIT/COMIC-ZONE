@@ -70,15 +70,39 @@
                         {
                             <tr>
                                 <td class="fw-semibold">Tác giả</td>
-                                <td>@Model.Author</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-author="@Model.Author"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Author
+                                    </a>
+                                </td>
                             </tr>
                         }
-                        @if (Model.Artists.Any())
+                        @if (Model.Artists != null && Model.Artists.Any())
                         {
                             <tr>
                                 <td class="fw-semibold">Họa sĩ</td>
                                 <td>
-                                    @string.Join(", ", Model.Artists.Select(a => a.Name))
+                                    @{
+                                        var artists = Model.Artists.ToList();
+                                    }
+
+                                    @for (int i = 0; i < artists.Count; i++)
+                                    {
+                                        <a asp-action="Index"
+                                           asp-controller="Products"
+                                           asp-route-artist="@artists[i].Name"
+                                           class="text-decoration-none fw-semibold">
+                                            @artists[i].Name
+                                        </a>
+
+                                        if (i < artists.Count - 1)
+                                        {
+                                            <span>, </span>
+                                        }
+                                    }
                                 </td>
                             </tr>
                         }
@@ -86,14 +110,28 @@
                         {
                             <tr>
                                 <td class="fw-semibold">Dịch giả</td>
-                                <td>@Model.Translator</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-translator="@Model.Translator"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Translator
+                                    </a>
+                                </td>
                             </tr>
                         }
                         @if (!string.IsNullOrWhiteSpace(Model.Series))
                         {
                             <tr>
                                 <td class="fw-semibold">Series</td>
-                                <td>@Model.Series</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-series="@Model.Series"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Series
+                                    </a>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -108,12 +146,17 @@
                     </div>
                 }
                 <!-- TAG -->
-                @if (Model.Tags.Any())
+                @if (Model.Tags != null && Model.Tags.Any())
                 {
                     <div class="mt-3">
                         @foreach (var tag in Model.Tags)
                         {
-                            <span class="badge bg-secondary me-1">@tag.Name</span>
+                            <a asp-action="Index"
+                               asp-controller="Products"
+                               asp-route-tag="@tag.Name"
+                               class="badge bg-secondary me-1 text-decoration-none">
+                                @tag.Name
+                            </a>
                         }
                     </div>
                 }
@@ -148,7 +191,17 @@
                     <tbody>
                         <tr>
                             <th style="width:20%">Nhà xuất bản</th>
-                            <td>@Model.Publisher</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(Model.Publisher))
+                                {
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-publisher="@Model.Publisher"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Publisher
+                                    </a>
+                                }
+                            </td>
                             <th>Ngày phát hành</th>
                             <td>@Model.ReleaseDate?.ToString("dd/MM/yyyy")</td>
                         </tr>
@@ -172,7 +225,17 @@
                         </tr>
                         <tr>
                             <th>Nhà phát hành</th>
-                            <td colspan="3">@Model.Distributor</td>
+                            <td colspan="3">
+                                @if (!string.IsNullOrWhiteSpace(Model.Distributor))
+                                {
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-distributor="@Model.Distributor"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Distributor
+                                    </a>
+                                }
+                            </td>
                         </tr>
                     </tbody>
                 </table>

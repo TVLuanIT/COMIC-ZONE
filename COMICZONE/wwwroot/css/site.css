@@ -284,7 +284,7 @@ main {
     opacity: 0.4;
     pointer-events: none;
 }
-/* ===== PRODUCT CARD ===== */
+/* ================= PRODUCT CARD ================= */
 .product-card {
     background: #fff;
     border-radius: 14px;
@@ -302,12 +302,13 @@ main {
     display: block;
     background: #f8f9fa;
     padding: 12px;
+    aspect-ratio: 3/4; /* ép khung tại đây */
+    overflow: hidden;
 }
 .product-img img {
     width: 100%;
-    height: auto;        /* cho ảnh tự cao theo tỉ lệ */
-    aspect-ratio: 3/4;   /* tỉ lệ ảnh (rộng 3, cao 4) */
-    object-fit: cover;    /* ảnh phủ khung */
+    height: 100%;        /* QUAN TRỌNG */
+    object-fit: cover;   /* lấp đầy khung */
     transition: transform 0.35s ease;
 }
 .product-card:hover img {

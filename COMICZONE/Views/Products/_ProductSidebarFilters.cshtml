@@ -1,65 +1,53 @@
-﻿@model IDictionary<string, List<string>>
+﻿@using Microsoft.AspNetCore.Routing
 
 @{
     var activeGroup = ViewBag.ActiveGroup as string;
+    var selectedValue = ViewBag.SelectedValue as string;
 }
 
-<div class="sidebar no-frame">
-    <div class="sidebar p-3 border rounded">
+@foreach (var filterGroup in Model)
+{
+    var key = filterGroup.Key;
+    string paramName = key switch
+    {
+        "Tác giả" => "author",
+        "Họa sĩ" => "artist",
+        "Dịch giả" => "translator",
+        "Series" => "series",
+        "Tag" => "tag",
+        "NXB" => "publisher",
+        "Nhà phát hành" => "distributor",
+        _ => "keyword"
+    };
 
-        <!-- Tiêu đề Danh mục chung -->
-        <div class="mb-3">
-            <button class="btn btn-primary w-100 d-flex justify-content-between align-items-center"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#sidebarFiltersContent"
-                    aria-expanded="true"
-                    aria-controls="sidebarFiltersContent">
-                Danh mục
-                <i class="bi bi-chevron-down transition-icon"></i>
-            </button>
-        </div>
+    var isActive = activeGroup == paramName;
+    var collapseId = "collapse-" + paramName;
 
-        <!-- Nội dung filter -->
-        <div class="collapse show" id="sidebarFiltersContent">
-            @if (Model != null && Model.Any())
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#@collapseId"
+                aria-expanded="@isActive">
+            @key
+            <i class="bi bi-chevron-down"></i>
+        </button>
+
+        <ul class="list-unstyled collapse @(isActive ? "show" : "") mt-2 ms-2" id="@collapseId">
+            @foreach (var item in filterGroup.Value)
             {
-                foreach (var filterGroup in Model)
-                {
-                    var key = filterGroup.Key;
-                    var collapseId = "collapse-" + key.Replace(" ", "").ToLower();
-                    var isActive = activeGroup == key;
+                var isSelected = selectedValue == item;
 
-                    <div class="mb-3">
-                        <!-- Nhóm filter với button collapse -->
-                        <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#@collapseId"
-                                aria-expanded="@isActive"
-                                aria-controls="@collapseId">
-                            @filterGroup.Key
-                            <i class="bi bi-chevron-down transition-icon"></i>
-                        </button>
+                var routeValues = new RouteValueDictionary();
+                routeValues[paramName] = item;
 
-                        <ul class="list-unstyled collapse @(isActive ? "show" : "") mt-2 ms-2" id="@collapseId">
-                            @foreach (var item in filterGroup.Value)
-                            {
-                                <li>
-                                    <a class="d-block py-1 text-decoration-none text-dark filter-item"
-                                       href="@Url.Action("Index", "Products", new { keyword = item, activeGroup = filterGroup.Key })">
-                                        @item
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
+                <li>
+                    <a class="d-block py-1 text-decoration-none @(isSelected ? "fw-bold text-primary" : "text-dark")"
+                       href="@Url.Action("Index", "Products", routeValues)">
+                        @item
+                    </a>
+                </li>
             }
-            else
-            {
-                <p class="text-muted">Không có bộ lọc nào.</p>
-            }
-        </div>
+        </ul>
     </div>
-</div>
+}
