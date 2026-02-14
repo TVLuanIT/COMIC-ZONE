@@ -28,9 +28,17 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm fixed-top">
             <div class="container">
                 <!-- Logo -->
-                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                    COMIC<span class="text-danger">ZONE</span>
-                </a>
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                        <img src="~/images/logo-nobg.png"
+                             asp-append-version="true"
+                             alt="ComicZone Logo"
+                             style="height:40px; width:auto; margin-right:10px;" />
+                    </a>
+                    <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                        COMIC<span class="text-danger">ZONE</span>
+                    </a>
+                </div>
 
                 <!-- Mobile toggle -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -46,10 +54,10 @@
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Comic" asp-action="Index">Truyện tranh</a>
+                            @await Component.InvokeAsync("NavCategories")
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Category" asp-action="Index">Thể loại</a>
+                            <a class="nav-link" asp-controller="Category" asp-action="Index" >Về chúng tôi</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Cart" asp-action="Index">
@@ -82,9 +90,20 @@
 
                 <!-- Brand -->
                 <div class="col-md-4 mb-3">
-                    <h5 class="fw-bold text-warning">COMICZONE</h5>
-                    <p class="small mb-0">
-                        Cửa hàng truyện tranh Nhật Bản <br>
+                    <div class="d-flex align-items-center">
+                        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                            <img src="~/images/logo.png"
+                                 asp-append-version="true"
+                                 alt="ComicZone Logo"
+                                 style="height:40px; width:auto; margin-right:10px;" />
+						</a>
+                        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                            <h5 class="fw-bold text-warning mb-0">COMICZONE</h5>
+						</a>
+                    </div>
+
+                    <p class="small mb-0 mt-2">
+                        Cửa hàng truyện tranh Nhật Bản
                     </p>
                 </div>
 

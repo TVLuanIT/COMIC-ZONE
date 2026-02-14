@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("TAGS")]
+[Table("TAG")]
 [Index("Name", Name = "UQ__TAGS__D9C1FA00C06004D3", IsUnique = true)]
 public partial class Tag
 {

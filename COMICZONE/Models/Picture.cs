@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("PICTURES")]
+[Table("PICTURE")]
 public partial class Picture
 {
     [Key]

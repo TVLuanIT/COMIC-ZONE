@@ -1,0 +1,71 @@
+﻿@model IEnumerable<COMICZONE.Models.ProductReview>
+@{
+    var productId = ViewBag.ProductId;
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="review-list-section">
+    <h4 class="review-list-title">Đánh giá từ khách hàng</h4>
+
+    @if (!Model.Any())
+    {
+        <div class="no-review">Chưa có đánh giá nào cho sản phẩm này.</div>
+    }
+    else
+    {
+        @foreach (var review in Model)
+        {
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-user">
+                        <div class="review-avatar">
+                            @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                        </div>
+                        <div>
+                            <div class="review-username">@review.User?.Username ?? "Người dùng ẩn danh"</div>
+                            <div class="review-date">@review.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? "-"</div>
+                        </div>
+                    </div>
+                    <div class="review-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
+                        }
+                    </div>
+                </div>
+                <div class="review-content">
+                    @(string.IsNullOrWhiteSpace(review.Reviewcontent) ? "<em class='text-muted'>Người dùng chưa viết nội dung</em>" : review.Reviewcontent)
+                </div>
+            </div>
+        }
+    }
+
+    <!-- PHÂN TRANG -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Review pagination">
+            <ul class="pagination justify-content-center mt-3">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link review-page-link" href="#" data-page="@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function(){
+            $('.review-page-link').click(function(e){
+                e.preventDefault();
+                var page = $(this).data('page');
+                var productId = '@productId';
+                $('#comment').load('@Url.Action("Reviews", "ProductReviews")?productId=' + productId + '&page=' + page);
+            });
+        });
+    </script>
+}

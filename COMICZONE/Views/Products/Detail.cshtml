@@ -1,0 +1,272 @@
+﻿@model COMICZONE.Models.Product
+@using System.Globalization;
+@using COMICZONE.Extensions;
+
+@{
+    ViewBag.Title = Model.Name;
+    var priceText = Model.Price.HasValue
+        ? string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0} ₫", Model.Price)
+        : "Liên hệ";
+	var RelatedByAuthor = ViewBag.RelatedByAuthor as IEnumerable<COMICZONE.Models.Product>;
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- CỘT TRÁI: HÌNH ẢNH -->
+            <div class="col-md-5">
+                @if (Model.Pictures != null && Model.Pictures.Any())
+                {
+                    <div class="border rounded p-3 bg-light">
+                        <img class="img-fluid rounded"
+                             src="@Model.GetImagePath()"
+                             alt="@Model.Name" />
+                    </div>
+                    @if (Model.Pictures.Count > 1)
+                    {
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            @foreach (var pic in Model.Pictures.Skip(1))
+                            {
+                                <img src="@pic.FileName"
+                                     class="img-thumbnail"
+                                     style="width:80px;height:auto;"
+                                     alt="@Model.Name" />
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="border rounded p-5 text-center text-muted">
+                        Không có hình ảnh
+                    </div>
+                }
+            </div>
+            <!-- CỘT PHẢI: THÔNG TIN -->
+            <div class="col-md-7">
+                <h1 class="fw-bold mb-3">@Model.Name</h1>
+
+                <div class="fs-3 text-danger fw-semibold mb-3">
+                    @priceText
+                </div>
+
+                @if (Model.StockQuantity.HasValue)
+                {
+                    <p class="mb-3">
+                        <strong>Tình trạng:</strong>
+                        @if (Model.StockQuantity > 0)
+                        {
+                            <span class="text-success">Còn hàng</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Hết hàng</span>
+                        }
+                    </p>
+                }
+                <table class="table table-sm table-borderless">
+                    <tbody>
+                        @if (!string.IsNullOrWhiteSpace(Model.Author))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Tác giả</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-author="@Model.Author"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Author
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Artists != null && Model.Artists.Any())
+                        {
+                            <tr>
+                                <td class="fw-semibold">Họa sĩ</td>
+                                <td>
+                                    @{
+                                        var artists = Model.Artists.ToList();
+                                    }
+
+                                    @for (int i = 0; i < artists.Count; i++)
+                                    {
+                                        <a asp-action="Index"
+                                           asp-controller="Products"
+                                           asp-route-artist="@artists[i].Name"
+                                           class="text-decoration-none fw-semibold">
+                                            @artists[i].Name
+                                        </a>
+
+                                        if (i < artists.Count - 1)
+                                        {
+                                            <span>, </span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Translator))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Dịch giả</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-translator="@Model.Translator"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Translator
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Series))
+                        {
+                            <tr>
+                                <td class="fw-semibold">Series</td>
+                                <td>
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-series="@Model.Series"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Series
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <!--DESCRIPTION-->
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <div class="product-summary">
+                        <h3 class="summary-title">Tóm tắt nội dung</h3>
+                        <p class="summary-text" id="desc-@Model.Id" data-full="@Model.Description"></p>
+                        <button class="toggle-btn" onclick="ProductSummary.toggle(@Model.Id)">Xem thêm</button>
+                    </div>
+                }
+                <!-- TAG -->
+                @if (Model.Tags != null && Model.Tags.Any())
+                {
+                    <div class="mt-3">
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <a asp-action="Index"
+                               asp-controller="Products"
+                               asp-route-tag="@tag.Name"
+                               class="badge bg-secondary me-1 text-decoration-none">
+                                @tag.Name
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <ul class="nav nav-tabs justify-content-center mt-5" id="productTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(ViewBag.ActiveTab == "detail" ? "active" : "")"
+                        id="detail-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#detail"
+                        type="button"
+                        role="tab">
+                    Thông tin chi tiết
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(ViewBag.ActiveTab == "comment" ? "active" : "")"
+                        id="comment-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#comment"
+                        type="button"
+                        role="tab">
+                    Bình luận
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content border border-top-0 p-4" id="productTabContent">
+            <!-- TAB: THÔNG TIN CHI TIẾT -->
+            <div class="tab-pane fade @(ViewBag.ActiveTab == "detail" ? "show active" : "")" id="detail" role="tabpanel">
+                <table class="table table-bordered align-middle">
+                    <tbody>
+                        <tr>
+                            <th style="width:20%">Nhà xuất bản</th>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(Model.Publisher))
+                                {
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-publisher="@Model.Publisher"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Publisher
+                                    </a>
+                                }
+                            </td>
+                            <th>Ngày phát hành</th>
+                            <td>@Model.ReleaseDate?.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Số trang</th>
+                            <td>@Model.Pages</td>
+                            <th>Hình thức</th>
+                            <td>@Model.Format</td>
+                        </tr>
+                        <tr>
+                            <th>Kích thước</th>
+                            <td>@Model.Size</td>
+                            <th>Trọng lượng</th>
+                            <td>@Model.Weight</td>
+                        </tr>
+                        <tr>
+                            <th>Minh họa</th>
+                            <td>@Model.IllustrationType</td>
+                            <th>Độ tuổi</th>
+                            <td>@Model.AgeGroup</td>
+                        </tr>
+                        <tr>
+                            <th>Nhà phát hành</th>
+                            <td colspan="3">
+                                @if (!string.IsNullOrWhiteSpace(Model.Distributor))
+                                {
+                                    <a asp-action="Index"
+                                       asp-controller="Products"
+                                       asp-route-distributor="@Model.Distributor"
+                                       class="text-decoration-none fw-semibold">
+                                        @Model.Distributor
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- TAB: BÌNH LUẬN -->
+            <div class="tab-pane fade @(ViewBag.ActiveTab == "comment" ? "show active" : "")" id="comment" role="tabpanel">
+                <!-- Form đánh giá -->
+                <div class="review-block review-form-block">
+                    @await Html.PartialAsync("~/Views/ProductReviewSummaries/_ProductReviewSummaries.cshtml", Model.ProductReviewSummary)
+                </div>
+                <!-- Form đánh giá -->
+                <div class="review-block review-form-block">
+                    @await Html.PartialAsync("~/Views/ProductReviews/_ProductReviewForm.cshtml", new COMICZONE.Models.ProductReview { Productid = Model.Id })
+                </div>
+                <!-- Danh sách review -->
+                <div class="review-block review-list-block">
+                    @await Html.PartialAsync("~/Views/ProductReviews/_ProductReviewList.cshtml", Model.ProductReviews)
+                </div>
+            </div>
+        </div>
+        @if (RelatedByAuthor != null && RelatedByAuthor.Any())
+        {
+            // Thay vì @{} bên trong, viết code thẳng
+            ViewBag.SectionTitle = "Cùng Tác Giả";
+            ViewBag.SectionIcon = "bi-person text-info";
+            ViewBag.CarouselId = "sameAuthorCarousel";
+            ViewBag.ViewMoreLink = Url.Action("Index", "Products", new { author = Model.Author });
+            ViewBag.SectionDescription = $"Các tựa truyện khác của tác giả {Model.Author}.";
+            ViewBag.BackgroundClass = "bg-light";
+
+            @await Html.PartialAsync("_HomeProduct.cshtml", RelatedByAuthor)
+        }
+    </div>
+</section>

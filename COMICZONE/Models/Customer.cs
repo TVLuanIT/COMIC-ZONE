@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("CUSTOMERS")]
+[Table("CUSTOMER")]
 [Index("Userid", Name = "UQ__CUSTOMER__7B9E7F34BE78050D", IsUnique = true)]
 public partial class Customer
 {
