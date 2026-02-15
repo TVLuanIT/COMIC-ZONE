@@ -52,6 +52,9 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
+            // Encode để tránh lỗi tên có dấu
+            var encodedName = Uri.EscapeDataString(username);
+
             var user = new User
             {
                 Username = username,
@@ -59,7 +62,9 @@ namespace COMICZONE.Controllers
                 Passwordhash = BCrypt.Net.BCrypt.HashPassword(password),
                 Role = "User",
                 Isactive = true,
-                Createdat = DateTime.Now
+                Createdat = DateTime.Now,
+
+                Avatar = $"https://ui-avatars.com/api/?name={encodedName}&background=random&color=fff"
             };
 
             _context.Users.Add(user);
@@ -69,6 +74,7 @@ namespace COMICZONE.Controllers
             HttpContext.Session.SetString("UserId", user.Id.ToString());
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("UserRole", user.Role);
+            HttpContext.Session.SetString("Avatar", user.Avatar); // 👈 thêm dòng này
 
             return RedirectToAction("Index", "Home");
         }
@@ -93,7 +99,6 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
-            // Lấy user từ database
             var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Isactive);
             if (user == null)
             {
@@ -101,7 +106,6 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
-            // Kiểm tra mật khẩu
             bool passwordValid = BCrypt.Net.BCrypt.Verify(password, user.Passwordhash);
             if (!passwordValid)
             {
@@ -109,12 +113,22 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
+            // FALLBACK AVATAR CHO USER CŨ
+            if (string.IsNullOrEmpty(user.Avatar))
+            {
+                var encodedName = Uri.EscapeDataString(user.Username);
+
+                user.Avatar = $"https://ui-avatars.com/api/?name={encodedName}&background=random&color=fff";
+
+                _context.SaveChanges(); // Lưu lại DB
+            }
+
             // Tạo session
             HttpContext.Session.SetString("UserId", user.Id.ToString());
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("UserRole", user.Role);
+            HttpContext.Session.SetString("Avatar", user.Avatar); // thêm dòng này
 
-            // Nếu rememberMe = true, có thể set cookie dài hạn
             if (rememberMe)
             {
                 // TODO: implement cookie login

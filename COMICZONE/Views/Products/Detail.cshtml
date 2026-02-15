@@ -266,7 +266,7 @@
             ViewBag.SectionDescription = $"Các tựa truyện khác của tác giả {Model.Author}.";
             ViewBag.BackgroundClass = "bg-light";
 
-            @await Html.PartialAsync("_HomeProduct.cshtml", RelatedByAuthor)
+            @await Html.PartialAsync("~/Views/Home/_HomeProduct.cshtml", RelatedByAuthor)
         }
     </div>
 </section>

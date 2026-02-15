@@ -1,28 +1,64 @@
 ﻿@{
     var username = Context.Session.GetString("Username");
+    var avatar = Context.Session.GetString("Avatar");
 }
 
 <ul class="navbar-nav">
     @if (!string.IsNullOrEmpty(username))
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Authentication" asp-action="Profile">
-                Hello @username!
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center"
+               href="#"
+               data-bs-toggle="dropdown">
+
+                <img src="@avatar"
+                     class="rounded-circle me-2"
+                     width="35"
+                     height="35"
+                     style="object-fit:cover;" />
+
+                @username
             </a>
-        </li>
-        <li class="nav-item">
-            <form class="form-inline" asp-controller="Authentication" asp-action="Logout" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-            </form>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="Authentication"
+                       asp-action="Profile">
+                        Trang cá nhân
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <form asp-controller="Authentication"
+                          asp-action="Logout"
+                          method="post">
+                        <button type="submit" class="dropdown-item text-danger">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Authentication" asp-action="Register">Register</a>
+            <a class="nav-link"
+               asp-controller="Authentication"
+               asp-action="Register">
+                Register
+            </a>
         </li>
+
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Authentication" asp-action="Login">Login</a>
+            <a class="nav-link"
+               asp-controller="Authentication"
+               asp-action="Login">
+                Login
+            </a>
         </li>
     }
 </ul>
