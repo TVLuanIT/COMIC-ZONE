@@ -46,6 +46,8 @@
                                        required autocomplete="new-password" />
                             </div>
 
+                            <!-- Đây là hidden input để giữ ReturnUrl -->
+                            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
                             <button type="submit" class="btn btn-success w-100 fw-bold">Đăng ký</button>
                         </form>
 

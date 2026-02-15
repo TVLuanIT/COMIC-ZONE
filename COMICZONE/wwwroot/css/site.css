@@ -802,3 +802,6 @@ button[aria-expanded="true"] .transition-icon {
     object-fit: cover; /* đảm bảo ảnh vừa vặn và không méo */
     display: block;
 }
+.review-card .dropdown-toggle::after {
+    display: none;
+}

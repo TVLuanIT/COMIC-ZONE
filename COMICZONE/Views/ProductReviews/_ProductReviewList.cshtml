@@ -5,8 +5,10 @@
     var totalPages = ViewBag.TotalPages ?? 1;
 
     // Lấy user hiện tại
-    var UserId = ViewBag.UserId as int? ?? 0;
-    var UserRole = ViewBag.UserRole as string ?? "User";
+    var UserIdStr = Context.Session.GetString("UserId");
+    var UserRoleStr = Context.Session.GetString("UserRole");
+    int UserId = string.IsNullOrEmpty(UserIdStr) ? 0 : int.Parse(UserIdStr);
+    string UserRole = string.IsNullOrEmpty(UserRoleStr) ? "User" : UserRoleStr;
 }
 
 <div class="review-list-section">
@@ -20,7 +22,11 @@
     {
         @foreach (var review in Model)
         {
-            <div class="review-card">
+            // Kiểm tra user đã like chưa
+            bool liked = UserId != 0 && review.ProductReviewLikes.Any(l => l.Userid == UserId);
+            int likeCount = review.ProductReviewLikes.Count;
+
+            <div class="review-card mb-3">
                 <div class="review-header d-flex justify-content-between">
                     <div class="d-flex">
                         <div class="review-avatar me-2">
@@ -36,35 +42,35 @@
                     <div>
                         <div class="review-username">
                             @(
-                                string.IsNullOrWhiteSpace(review.User?.Username)
-                                ? "Người dùng ẩn danh"
-                                : char.ToUpper(review.User.Username[0]) + review.User.Username.Substring(1)
-                            )
+                                                    string.IsNullOrWhiteSpace(review.User?.Username)
+                                                    ? "Người dùng ẩn danh"
+                                                    : char.ToUpper(review.User.Username[0]) + review.User.Username.Substring(1)
+                                                    )
                         </div>
                         <div class="review-date">
                         @{
-                            string timeAgo = "-";
-                            if (review.Createdat.HasValue)
-                            {
-                                var diff = DateTime.Now - review.Createdat.Value;
-                                if (diff.TotalMinutes < 1)
-                                    timeAgo = "Vừa xong";
-                                else if (diff.TotalHours < 1)
-                                    timeAgo = $"{(int)diff.TotalMinutes} phút trước";
-                                else if (diff.TotalDays < 1)
-                                    timeAgo = $"{(int)diff.TotalHours} giờ trước";
-                                else
-                                    timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
-                            }
-                        }
-                        @timeAgo
+                                    string timeAgo = "-";
+                                    if (review.Createdat.HasValue)
+                                    {
+                                        var diff = DateTime.Now - review.Createdat.Value;
+                                        if (diff.TotalMinutes < 1)
+                                            timeAgo = "Vừa xong";
+                                        else if (diff.TotalHours < 1)
+                                            timeAgo = $"{(int)diff.TotalMinutes} phút trước";
+                                        else if (diff.TotalDays < 1)
+                                            timeAgo = $"{(int)diff.TotalHours} giờ trước";
+                                        else
+                                            timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
+                                    }
+                                }
+                                @timeAgo
                             </div>
                         </div>
                     </div>
 
                     <!-- Menu 3 chấm -->
                     <div class="dropdown">
-                        <button class="btn btn-sm dropdown-toggle" type="button" id="menu-@review.Reviewid"
+                        <button class="btn btn-sm" type="button" id="menu-@review.Reviewid"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                             &hellip;
                         </button>
@@ -93,16 +99,30 @@
                     }
             </div>
 
-            <div class="review-content">
+            <div class="review-content mb-2">
                 @(string.IsNullOrWhiteSpace(review.Reviewcontent)
                             ? "<em class='text-muted'>Người dùng chưa viết nội dung</em>"
                             : review.Reviewcontent)
         </div>
-    </div>
+
+                <div class="review-like d-flex gap-2">
+                    <!-- Nút Like -->
+                    <button class="btn btn-sm btn-outline-primary review-like-btn @(liked ? "liked" : "")"
+                            data-id="@review.Reviewid"
+                            data-userid="@UserId">
+                        👍 Like (<span class="like-count">@likeCount</span>)
+                    </button>
+
+                    <!-- Nút Dislike (chỉ hiển thị, không có chức năng server) -->
+                    <button class="btn btn-sm btn-outline-secondary review-dislike-btn">
+                        👎 Dislike
+                    </button>
+                </div>
+            </div>
         }
     }
 
-    <!-- PHÂN TRANG -->
+    @* PHÂN TRANG *@
     @if (totalPages > 1)
     {
         <nav aria-label="Review pagination">

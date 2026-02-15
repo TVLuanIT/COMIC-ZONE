@@ -21,11 +21,44 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
-        // GET: ProductReviews
-        public async Task<IActionResult> Index()
+        [HttpPost]
+        public async Task<IActionResult> ToggleLike(int reviewId)
         {
-            var comiczoneContext = _context.ProductReviews.Include(p => p.Product).Include(p => p.User);
-            return View(await comiczoneContext.ToListAsync());
+            string? userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                // Người dùng chưa đăng nhập → trả về lỗi để JS chỉ toggle màu
+                return Json(new { success = false, message = "Bạn cần đăng nhập để like" });
+            }
+
+            int userId = int.Parse(userIdStr);
+
+            // Kiểm tra xem người dùng đã like chưa
+            var existingLike = await _context.ProductReviewLikes
+                .FirstOrDefaultAsync(l => l.Reviewid == reviewId && l.Userid == userId);
+
+            if (existingLike != null)
+            {
+                _context.ProductReviewLikes.Remove(existingLike);
+            }
+            else
+            {
+                _context.ProductReviewLikes.Add(new ProductReviewLike
+                {
+                    Reviewid = reviewId,
+                    Userid = userId,
+                    Createdat = DateTime.Now
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Lấy lại số lượt like
+            var likeCount = await _context.ProductReviewLikes
+                .CountAsync(l => l.Reviewid == reviewId);
+
+            return Json(new { success = true, likeCount });
         }
 
         public async Task<IActionResult> Reviews(int productId, int page = 1, int pageSize = 5)
@@ -46,6 +79,13 @@ namespace COMICZONE.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
+            // Lấy UserId và UserRole từ session
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            ViewBag.UserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
+
+            var roleStr = HttpContext.Session.GetString("UserRole");
+            ViewBag.UserRole = string.IsNullOrEmpty(roleStr) ? "User" : roleStr;
+
             return PartialView("_ProductReviewList", reviews);
         }
 
@@ -56,27 +96,22 @@ namespace COMICZONE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductReview review)
         {
-            // Kiểm tra người dùng đã login chưa
             var userId = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userId))
             {
-                // Chuyển tới trang login tự tạo của bạn
-                return RedirectToAction("Login", "Authentication");
+                // Chuyển tới login, kèm ReturnUrl
+                string returnUrl = Url.Action("Detail", "Products", new { id = review.Productid, tab = "comment" }) ?? "/";
+                return RedirectToAction("Login", "Authentication", new { returnUrl });
             }
 
-            // Gán UserId từ session
+            // Gán UserId
             review.Userid = int.Parse(userId);
-
-            // Gán thời gian tạo
             review.Createdat = DateTime.Now;
 
-            // Lưu review
             _context.ProductReviews.Add(review);
             await _context.SaveChangesAsync();
 
-            // Quay lại trang chi tiết sản phẩm
-            return RedirectToAction("Detail", "Products",
-                new { id = review.Productid, tab = "comment" });
+            return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
         }
     }
 }

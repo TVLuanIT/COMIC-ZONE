@@ -37,6 +37,8 @@
                                 <label for="rememberMe" class="form-check-label">Ghi nhớ đăng nhập</label>
                             </div>
 
+                            <!-- Đây là hidden input để giữ ReturnUrl -->
+                            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
                             <button type="submit" class="btn btn-primary w-100 fw-bold">Đăng nhập</button>
                         </form>
 
