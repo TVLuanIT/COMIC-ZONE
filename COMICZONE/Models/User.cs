@@ -36,6 +36,10 @@ public partial class User
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime Createdat { get; set; }
 
+    [Column("AVATAR")]
+    [StringLength(500)]
+    public string? Avatar { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
 
