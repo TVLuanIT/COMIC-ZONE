@@ -8,6 +8,7 @@ using COMICZONE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace COMICZONE.Controllers
 {
@@ -55,27 +56,27 @@ namespace COMICZONE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductReview review)
         {
-            if (!ModelState.IsValid)
+            // Kiểm tra người dùng đã login chưa
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
+                // Chuyển tới trang login tự tạo của bạn
+                return RedirectToAction("Login", "Authentication");
             }
 
-            // Gán thêm dữ liệu hệ thống
+            // Gán UserId từ session
+            review.Userid = int.Parse(userId);
+
+            // Gán thời gian tạo
             review.Createdat = DateTime.Now;
-            review.Isapproved = true; // hoặc false nếu cần duyệt
 
-            // Nếu có login thì lấy UserId
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userId))
-            {
-                review.Userid = int.Parse(userId);
-            }
-
+            // Lưu review
             _context.ProductReviews.Add(review);
             await _context.SaveChangesAsync();
 
-            // Thêm tab=comment để giữ tab bình luận
-            return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
+            // Quay lại trang chi tiết sản phẩm
+            return RedirectToAction("Detail", "Products",
+                new { id = review.Productid, tab = "comment" });
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿const ProductSummary = (() => {
+﻿// wwwroot/js/product-summary.js
+
+const ProductSummary = (() => {
     const maxLength = 250; // số ký tự hiển thị ban đầu
 
     const init = () => {
@@ -33,4 +35,38 @@
     return { init, toggle };
 })();
 
-document.addEventListener('DOMContentLoaded', ProductSummary.init);
+const ProductReviews = (() => {
+    let productId;
+
+    const init = (id) => {
+        productId = id;
+        loadReviewsFirstTime();
+        initPagination();
+    };
+
+    const loadReviewsFirstTime = () => {
+        $('#review-list-container').load(`/ProductReviews/Reviews?productId=${productId}`);
+    };
+
+    const initPagination = () => {
+        $(document).on('click', '.review-page-link', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            $('#review-list-container').load(`/ProductReviews/Reviews?productId=${productId}&page=${page}`);
+        });
+    };
+
+    return { init };
+})();
+
+// Khi trang load xong
+document.addEventListener('DOMContentLoaded', () => {
+    ProductSummary.init();
+
+    // Truyền productId từ Razor view
+    const productIdElement = document.getElementById('product-id');
+    if (productIdElement) {
+        const id = productIdElement.value;
+        ProductReviews.init(id);
+    }
+});

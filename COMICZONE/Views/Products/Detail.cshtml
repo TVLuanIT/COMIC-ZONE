@@ -242,6 +242,8 @@
             </div>
             <!-- TAB: BÌNH LUẬN -->
             <div class="tab-pane fade @(ViewBag.ActiveTab == "comment" ? "show active" : "")" id="comment" role="tabpanel">
+                <!-- Hidden input chứa ProductId để JS dùng -->
+                <input type="hidden" id="product-id" value="@Model.Id" />
                 <!-- Form đánh giá -->
                 <div class="review-block review-form-block">
                     @await Html.PartialAsync("~/Views/ProductReviewSummaries/_ProductReviewSummaries.cshtml", Model.ProductReviewSummary)

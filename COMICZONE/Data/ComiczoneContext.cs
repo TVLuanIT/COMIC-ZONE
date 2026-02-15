@@ -183,7 +183,6 @@ public partial class ComiczoneContext : DbContext
             entity.HasKey(e => e.Reviewid).HasName("PK__PRODUCT___DDDCEB4A41B2EC7A");
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Isapproved).HasDefaultValue(true);
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
                 .OnDelete(DeleteBehavior.ClientSetNull)
