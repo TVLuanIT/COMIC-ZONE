@@ -32,6 +32,12 @@ public partial class ProductReview
 
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
+    [NotMapped]
+    public int LikeCount { get; set; }
+    [NotMapped] // Không tạo cột trong database
+    public bool IsLikedByUser { get; set; }
+    [NotMapped]
+    public bool IsDislikedByUser { get; set; }
 
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]

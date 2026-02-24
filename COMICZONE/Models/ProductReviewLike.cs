@@ -21,6 +21,8 @@ public partial class ProductReviewLike
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime? Createdat { get; set; }
 
+    public bool? IsLike { get; set; }
+
     [ForeignKey("Reviewid")]
     [InverseProperty("ProductReviewLikes")]
     public virtual ProductReview Review { get; set; } = null!;

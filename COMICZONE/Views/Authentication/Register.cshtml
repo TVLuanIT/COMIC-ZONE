@@ -53,7 +53,11 @@
 
                         <p class="text-center mt-3 mb-0">
                             Đã có tài khoản?
-                            <a asp-controller="Authentication" asp-action="Login">Đăng nhập</a>
+                            <a asp-controller="Authentication"
+                               asp-action="Login"
+                               asp-route-returnUrl="@ViewBag.ReturnUrl">
+                                Đăng nhập
+                            </a>
                         </p>
                     </div>
                 </div>

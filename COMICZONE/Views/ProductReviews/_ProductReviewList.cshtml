@@ -22,10 +22,6 @@
     {
         @foreach (var review in Model)
         {
-            // Kiểm tra user đã like chưa
-            bool liked = UserId != 0 && review.ProductReviewLikes.Any(l => l.Userid == UserId);
-            int likeCount = review.ProductReviewLikes.Count;
-
             <div class="review-card mb-3">
                 <div class="review-header d-flex justify-content-between">
                     <div class="d-flex">
@@ -38,17 +34,20 @@
                             {
                                 @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
                             }
-                    </div>
-                    <div>
-                        <div class="review-username">
-                            @(
-                                                    string.IsNullOrWhiteSpace(review.User?.Username)
-                                                    ? "Người dùng ẩn danh"
-                                                    : char.ToUpper(review.User.Username[0]) + review.User.Username.Substring(1)
-                                                    )
                         </div>
-                        <div class="review-date">
-                        @{
+                        <div>
+                            <div class="review-username">
+                                @if (string.IsNullOrWhiteSpace(review.User?.Username))
+                                {
+                                    <span>Người dùng ẩn danh</span>
+                                }
+                                else
+                                {
+                                    <span>@review.User.Username</span>
+                                }
+                            </div>
+                            <div class="review-date">
+                                @{
                                     string timeAgo = "-";
                                     if (review.Createdat.HasValue)
                                     {
@@ -67,7 +66,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Menu 3 chấm -->
                     <div class="dropdown">
                         <button class="btn btn-sm" type="button" id="menu-@review.Reviewid"
@@ -77,7 +75,7 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-@review.Reviewid">
                             @if (review.Userid == UserId)
                             {
-                                <li><a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">Sửa</a></li>
+                                <li><a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">Chỉnh Sửa</a></li>
                                 <li><a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">Xóa</a></li>
                             }
                             else if (UserRole == "Admin")
@@ -91,31 +89,33 @@
                         </ul>
                     </div>
                 </div>
-
                 <div class="review-stars mt-1 mb-2">
                     @for (int i = 1; i <= 5; i++)
                     {
                         <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
                     }
-            </div>
-
-            <div class="review-content mb-2">
-                @(string.IsNullOrWhiteSpace(review.Reviewcontent)
-                            ? "<em class='text-muted'>Người dùng chưa viết nội dung</em>"
-                            : review.Reviewcontent)
-        </div>
-
-                <div class="review-like d-flex gap-2">
-                    <!-- Nút Like -->
-                    <button class="btn btn-sm btn-outline-primary review-like-btn @(liked ? "liked" : "")"
-                            data-id="@review.Reviewid"
-                            data-userid="@UserId">
-                        👍 Like (<span class="like-count">@likeCount</span>)
+                </div>
+                <div class="review-content mb-2">
+                    @(string.IsNullOrWhiteSpace(review.Reviewcontent)
+                                ? "<em class='text-muted'>Người dùng chưa viết nội dung</em>"
+                                : review.Reviewcontent)
+                </div>
+                <div class="review-actions mt-2">
+                    <!-- LIKE -->
+                    <button class="reaction-btn toggle-like @(review.IsLikedByUser ? "liked" : "")"
+                            data-review-id="@review.Reviewid">
+                        <svg class="icon like-icon" viewBox="0 0 24 24">
+                            <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
+                        </svg>
+                        <span class="like-count">@review.LikeCount</span>
                     </button>
 
-                    <!-- Nút Dislike (chỉ hiển thị, không có chức năng server) -->
-                    <button class="btn btn-sm btn-outline-secondary review-dislike-btn">
-                        👎 Dislike
+                    <!-- DISLIKE -->
+                    <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
+                            data-review-id="@review.Reviewid">
+                        <svg class="icon dislike-icon" viewBox="0 0 24 24">
+                            <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
+                        </svg>
                     </button>
                 </div>
             </div>

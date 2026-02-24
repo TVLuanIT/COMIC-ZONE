@@ -44,7 +44,11 @@
 
                         <p class="text-center mt-3 mb-0">
                             Chưa có tài khoản?
-                            <a asp-controller="Authentication" asp-action="Register">Đăng ký</a>
+                            <a asp-controller="Authentication"
+                               asp-action="Register"
+                               asp-route-returnUrl="@ViewBag.ReturnUrl">
+                                Đăng ký
+                            </a>
                         </p>
                     </div>
                 </div>
