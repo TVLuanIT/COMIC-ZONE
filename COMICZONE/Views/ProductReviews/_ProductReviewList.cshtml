@@ -28,7 +28,7 @@
                         <div class="review-avatar me-2">
                             @if (!string.IsNullOrEmpty(review.User?.Avatar))
                             {
-                                <img src="@review.User.Avatar" alt="Avatar" class="avatar-img rounded-circle" />
+                                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
                             }
                             else
                             {
@@ -132,8 +132,7 @@
                     <div class="reply-form-container mt-2" id="reply-form-@review.Reviewid" style="display:none;">
                         <form class="reply-form d-flex gap-2" data-review-id="@review.Reviewid">
                             <!-- Avatar người dùng -->
-                            <img src="@(ViewBag.Avatar ?? "/images/default-avatar.png")"
-                                 alt="avatar" class="rounded-circle" width="32" height="32" />
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
 
                             <div class="flex-grow-1 d-flex flex-column">
                                 <!-- Textbox kéo dài toàn bộ -->
