@@ -43,6 +43,7 @@ const ProductReviews = (() => {
         loadReviewsFirstTime();
         initPagination();
         initReactionButtons();
+        ProductReplies.initReplyButtons(); // khởi tạo reply
     };
 
     const loadReviewsFirstTime = () => {
@@ -60,7 +61,7 @@ const ProductReviews = (() => {
             const page = $(this).data('page');
             $('#review-list-container')
                 .load(`/ProductReviews/Reviews?productId=${productId}&page=${page}`, () => {
-                    initReactionButtons(); // ✅ gọi ở đây
+                    initReactionButtons(); // gọi ở đây
                 });
         });
     };
@@ -127,6 +128,77 @@ const ProductReviews = (() => {
     };
 
     return { init };
+})();
+
+const ProductReplies = (() => {
+
+    const initReplyButtons = () => {
+        // Mở / ẩn khung reply
+        $(document).off('click', '.toggle-reply');
+        $(document).on('click', '.toggle-reply', function (e) {
+            e.preventDefault();
+            const reviewId = $(this).data('review-id');
+            const container = $(`#reply-form-${reviewId}`);
+
+            if (container.length === 0) {
+                // Chưa login → redirect login
+                // Lấy URL hiện tại
+                const currentUrl = window.location.pathname + window.location.search;
+                window.location.href = `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+                return;
+            }
+
+            // Toggle hiển thị form
+            container.slideToggle();
+        });
+
+        // Hủy reply
+        $(document).off('click', '.cancel-reply');
+        $(document).on('click', '.cancel-reply', function (e) {
+            e.preventDefault();
+            $(this).closest('.reply-form-container').slideUp();
+        });
+
+        // Submit reply
+        $(document).off('submit', '.reply-form');
+        $(document).on('submit', '.reply-form', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            const reviewId = form.data('review-id');
+            const content = form.find('input, textarea').val().trim();
+            if (!content) return;
+
+            $.ajax({
+                url: '/ProductReviews/AddReply',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ reviewId, content }),
+                success: function (res) {
+                    if (res.success) {
+                        // Xóa nội dung và ẩn form
+                        form.find('input, textarea').val('');
+                        form.closest('.reply-form-container').slideUp();
+
+                        // Thêm reply mới vào danh sách hiển thị
+                        let replyHtml = `
+                            <div class="reply-item mt-2 ps-5">
+                                <strong>${res.username}</strong>: ${res.content}
+                            </div>
+                        `;
+                        $(`#reply-list-${reviewId}`).append(replyHtml);
+                    } else {
+                        alert('Gửi phản hồi thất bại!');
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra, vui lòng thử lại.');
+                }
+            });
+        });
+    };
+
+    return { initReplyButtons };
+
 })();
 
 // Khi trang load xong

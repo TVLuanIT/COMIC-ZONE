@@ -1,5 +1,8 @@
 ﻿@{
     ViewBag.Title = "Đăng ký";
+    string returnUrl = ViewBag.ReturnUrl as string
+                       ?? Context.Request.Query["returnUrl"].FirstOrDefault()
+                       ?? "/";
 }
 
 <section class="py-5 bg-light min-vh-100 d-flex align-items-center">
@@ -18,6 +21,7 @@
                         }
 
                         <form asp-action="Register" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
                             <div class="mb-3">
                                 <label for="username" class="form-label">Tên người dùng</label>
                                 <input type="text" name="username" id="username"
@@ -46,8 +50,6 @@
                                        required autocomplete="new-password" />
                             </div>
 
-                            <!-- Đây là hidden input để giữ ReturnUrl -->
-                            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
                             <button type="submit" class="btn btn-success w-100 fw-bold">Đăng ký</button>
                         </form>
 

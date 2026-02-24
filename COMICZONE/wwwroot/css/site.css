@@ -847,3 +847,34 @@ button[aria-expanded="true"] .transition-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
+/* ===== YouTube Style Reply Buttons ===== */
+.reaction-btn.toggle-reply {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #606060; /* giống YouTube */
+    display: inline-flex;
+    align-items: center;
+    gap: 4px; /* khoảng cách icon và chữ */
+    padding: 0;
+}
+
+.reaction-btn.toggle-reply:hover {
+    color: #065fd4; /* xanh khi hover */
+}
+
+.reply-icon {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.reply-text {
+    font-size: 0.85rem;
+}
+.reply-form-container .reply-form input {
+    width: 100%; /* textbox luôn chiếm hết chiều ngang còn lại */
+}
+
+.reply-form-container .reply-form img {
+    flex-shrink: 0; /* avatar không bị co nhỏ */
+}

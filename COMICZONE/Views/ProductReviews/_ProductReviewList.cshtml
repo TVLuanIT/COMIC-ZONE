@@ -9,8 +9,8 @@
     var UserRoleStr = Context.Session.GetString("UserRole");
     int UserId = string.IsNullOrEmpty(UserIdStr) ? 0 : int.Parse(UserIdStr);
     string UserRole = string.IsNullOrEmpty(UserRoleStr) ? "User" : UserRoleStr;
+    bool isLoggedIn = UserId > 0; // UserId lấy từ session
 }
-
 <div class="review-list-section">
     <h4 class="review-list-title">Đánh giá từ khách hàng</h4>
 
@@ -34,6 +34,7 @@
                             {
                                 @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
                             }
+
                         </div>
                         <div>
                             <div class="review-username">
@@ -45,6 +46,7 @@
                                 {
                                     <span>@review.User.Username</span>
                                 }
+
                             </div>
                             <div class="review-date">
                                 @{
@@ -94,6 +96,7 @@
                     {
                         <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
                     }
+
                 </div>
                 <div class="review-content mb-2">
                     @(string.IsNullOrWhiteSpace(review.Reviewcontent)
@@ -109,7 +112,6 @@
                         </svg>
                         <span class="like-count">@review.LikeCount</span>
                     </button>
-
                     <!-- DISLIKE -->
                     <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
                             data-review-id="@review.Reviewid">
@@ -117,7 +119,35 @@
                             <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
                         </svg>
                     </button>
+                    <!-- REPLY -->
+                    <button class="reaction-btn toggle-reply"
+                            data-review-id="@review.Reviewid"
+                            title="Trả lời">
+                        <span class="reply-text">Phản hồi</span>
+                    </button>
                 </div>
+                @if (isLoggedIn)
+                {
+                    <!-- Form trả lời ẩn sẵn, hiện ngay dưới nút like/dislike -->
+                    <div class="reply-form-container mt-2" id="reply-form-@review.Reviewid" style="display:none;">
+                        <form class="reply-form d-flex gap-2" data-review-id="@review.Reviewid">
+                            <!-- Avatar người dùng -->
+                            <img src="@(ViewBag.Avatar ?? "/images/default-avatar.png")"
+                                 alt="avatar" class="rounded-circle" width="32" height="32" />
+
+                            <div class="flex-grow-1 d-flex flex-column">
+                                <!-- Textbox kéo dài toàn bộ -->
+                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Viết phản hồi..." />
+
+                                <!-- Nút gửi / hủy căn bên phải -->
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="submit" class="btn btn-sm btn-primary">Gửi</button>
+                                    <button type="button" class="btn btn-sm btn-secondary cancel-reply">Hủy</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                }
             </div>
         }
     }
