@@ -148,6 +148,22 @@ const ProductReplies = (() => {
                 return;
             }
 
+            // Nếu có data-user (người được reply), set vào form
+            const replyToUserId = $(this).data('reply-to-user-id');      // thêm attribute vào nút reply
+            const replyToUsername = $(this).data('reply-to-username');    // thêm attribute vào nút reply
+
+            const textarea = container.find('textarea');
+
+            if (replyToUsername) {
+                textarea.val(`@${replyToUsername} `); // tự động điền @username
+            } else {
+                textarea.val(''); // mặc định rỗng
+            }
+
+            container.find('form')
+                .attr('data-reply-to-user-id', replyToUserId || '')
+                .attr('data-reply-to-username', replyToUsername || '');
+
             // Toggle hiển thị form
             container.slideToggle();
         });
@@ -165,20 +181,26 @@ const ProductReplies = (() => {
             e.preventDefault();
             const form = $(this);
             const reviewId = form.data('review-id');
-            const content = form.find('input, textarea').val().trim();
+            const replyToUserId = form.data('reply-to-user-id');
+            const content = form.find('textarea').val().trim();
             if (!content) return;
 
             $.ajax({
                 url: '/ProductReviews/AddReply',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ reviewId, content }),
+                data: JSON.stringify({
+                    ReviewId: reviewId,
+                    Content: content,
+                    ReplyToUserId: replyToUserId ? parseInt(replyToUserId) : null
+                }),
                 success: function (res) {
                     if (res.success) {
                         // Xóa nội dung và ẩn form
-                        form.find('input, textarea').val('');
+                        form.find('textarea').val('');
                         form.closest('.reply-form-container').slideUp();
 
+                        let mention = res.replytouserUsername ? `@${res.replytouserUsername} ` : '';
                         // Thêm reply mới vào danh sách hiển thị
                         let replyHtml = `
                             <div class="reply-item mt-2 ps-5">

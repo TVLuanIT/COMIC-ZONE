@@ -34,8 +34,10 @@ public partial class ProductReview
     public DateTime? Updatedat { get; set; }
     [NotMapped]
     public int LikeCount { get; set; }
-    [NotMapped] // Không tạo cột trong database
+
+    [NotMapped]
     public bool IsLikedByUser { get; set; }
+
     [NotMapped]
     public bool IsDislikedByUser { get; set; }
 
@@ -45,6 +47,9 @@ public partial class ProductReview
 
     [InverseProperty("Review")]
     public virtual ICollection<ProductReviewLike> ProductReviewLikes { get; set; } = new List<ProductReviewLike>();
+
+    [InverseProperty("Review")]
+    public virtual ICollection<ProductReviewReply> ProductReviewReplies { get; set; } = new List<ProductReviewReply>();
 
     [InverseProperty("Review")]
     public virtual ICollection<ProductReviewReport> ProductReviewReports { get; set; } = new List<ProductReviewReport>();

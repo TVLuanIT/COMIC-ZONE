@@ -1,0 +1,56 @@
+﻿@model IEnumerable<COMICZONE.Models.ProductReviewReply>
+
+@foreach (var reply in Model)
+{
+    <div class="reply-item mb-2 ps-3">
+        <div class="d-flex align-items-start mb-1">
+            <!-- Avatar người gửi reply -->
+            <div class="reply-avatar me-2">
+                @if (!string.IsNullOrEmpty(reply.User?.Avatar))
+                {
+                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.Avatar, size = 24 })
+                }
+                else
+                {
+                    @(reply.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                }
+            </div>
+
+            <div class="flex-grow-1">
+                <!-- Tên người gửi + người được reply -->
+                <div class="d-flex align-items-center mb-1 gap-1">
+                    <strong>@(reply.User?.Username ?? "Người dùng ẩn danh")</strong>
+
+                    @if (reply.Replytouser != null)
+                    {
+                        <div class="d-flex align-items-center gap-1">
+                            <!-- Avatar người được reply -->
+                            <div class="reply-avatar me-1">
+                                @if (!string.IsNullOrEmpty(reply.Replytouser.Avatar))
+                                {
+                                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.Replytouser.Avatar, size = 20 })
+                                }
+                                else
+                                {
+                                    @(reply.Replytouser.Username?.Substring(0, 1).ToUpper() ?? "U")
+                                }
+                            </div>
+                            <!-- Tên người được reply -->
+                            <span class="text-primary">@(@reply.Replytouser.Username)</span>
+                        </div>
+                    }
+                </div>
+
+                <!-- Nội dung reply -->
+                <div class="reply-content mb-1">
+                    @reply.Replycontent
+                </div>
+
+                <!-- Thời gian -->
+                <div class="reply-date text-muted" style="font-size:0.8rem;">
+                    @reply.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? "-"
+                </div>
+            </div>
+        </div>
+    </div>
+}

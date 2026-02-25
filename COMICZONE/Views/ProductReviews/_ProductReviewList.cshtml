@@ -99,9 +99,14 @@
 
                 </div>
                 <div class="review-content mb-2">
-                    @(string.IsNullOrWhiteSpace(review.Reviewcontent)
-                                ? "<em class='text-muted'>Người dùng chưa viết nội dung</em>"
-                                : review.Reviewcontent)
+                    @if (string.IsNullOrWhiteSpace(review.Reviewcontent))
+                    {
+                        <em class="text-muted">Người dùng chưa viết nội dung</em>
+                    }
+                    else
+                    {
+                        @review.Reviewcontent
+                    }
                 </div>
                 <div class="review-actions mt-2">
                     <!-- LIKE -->
@@ -122,29 +127,17 @@
                     <!-- REPLY -->
                     <button class="reaction-btn toggle-reply"
                             data-review-id="@review.Reviewid"
+                            data-reply-to-user-id="@review.Userid"
+                            data-reply-to-username="@review.User?.Username"
                             title="Trả lời">
                         <span class="reply-text">Phản hồi</span>
                     </button>
                 </div>
                 @if (isLoggedIn)
                 {
-                    <!-- Form trả lời ẩn sẵn, hiện ngay dưới nút like/dislike -->
-                    <div class="reply-form-container mt-2" id="reply-form-@review.Reviewid" style="display:none;">
-                        <form class="reply-form d-flex gap-2" data-review-id="@review.Reviewid">
-                            <!-- Avatar người dùng -->
-                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
-
-                            <div class="flex-grow-1 d-flex flex-column">
-                                <!-- Textbox kéo dài toàn bộ -->
-                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Viết phản hồi..." />
-
-                                <!-- Nút gửi / hủy căn bên phải -->
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button type="submit" class="btn btn-sm btn-primary">Gửi</button>
-                                    <button type="button" class="btn btn-sm btn-secondary cancel-reply">Hủy</button>
-                                </div>
-                            </div>
-                        </form>
+                    @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
+                    <div class="reply-list mt-2" id="reply-list-@review.Reviewid">
+                        @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml", review.ProductReviewReplies)
                     </div>
                 }
             </div>

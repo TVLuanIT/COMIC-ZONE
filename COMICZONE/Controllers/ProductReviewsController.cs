@@ -22,6 +22,13 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public class ReplyRequest
+        {
+            public int ReviewId { get; set; }
+            public string Content { get; set; } = "";
+            public int? ReplyToUserId { get; set; } // THÊM thuộc tính reply tới ai
+        }
+
         [HttpPost]
         public async Task<IActionResult> ToggleDislike(int reviewId)
         {
@@ -120,6 +127,20 @@ namespace COMICZONE.Controllers
             });
         }
 
+        // GET: /ProductReviews/Replies?reviewId=19
+        public async Task<IActionResult> Replies(int reviewId)
+        {
+            // Lấy tất cả reply của review, kèm User
+            var replies = await _context.ProductReviewReplies
+                .Where(r => r.Reviewid == reviewId)
+                .Include(r => r.User)
+                .OrderBy(r => r.Createdat)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return PartialView("_ProductReviewReplies", replies);
+        }
+
         public async Task<IActionResult> Reviews(int productId, int page = 1, int pageSize = 5)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -162,12 +183,53 @@ namespace COMICZONE.Controllers
             return PartialView("_ProductReviewList", reviewsWithStatus);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddReply([FromBody] ReplyRequest model)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            int userId = int.Parse(userIdStr);
+
+            var review = await _context.ProductReviews.FindAsync(model.ReviewId);
+            if (review == null) return NotFound();
+
+            var reply = new ProductReviewReply
+            {
+                Reviewid = model.ReviewId,
+                Userid = userId,
+                Replycontent = model.Content,
+                Createdat = DateTime.Now,
+                Replytouserid = model.ReplyToUserId  // gán ID người được reply
+            };
+
+            _context.ProductReviewReplies.Add(reply);
+            await _context.SaveChangesAsync();
+
+            // Lấy thông tin user gửi và user được reply (nếu có)
+            var user = await _context.Users.FindAsync(userId);
+            User? replyToUser = null;
+            if (model.ReplyToUserId.HasValue)
+            {
+                replyToUser = reply.Replytouserid.HasValue
+                    ? await _context.Users.FindAsync(reply.Replytouserid.Value)
+                    : null;
+            }
+
+            return Json(new
+            {
+                success = true,
+                username = user?.Username ?? "Người dùng ẩn danh",
+                content = reply.Replycontent,
+                replytouserUsername = replyToUser?.Username // trả về để JS hiển thị @username
+            });
+        }
+
         // POST: ProductReviews/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductReview review)
+        public async Task<IActionResult> AddReview(ProductReview review)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
 
@@ -198,7 +260,7 @@ namespace COMICZONE.Controllers
             }
             else
             {
-                // 👉 Nếu chưa có thì thêm mới
+                //  Nếu chưa có thì thêm mới
                 review.Userid = userId;
                 review.Createdat = DateTime.Now;
 
