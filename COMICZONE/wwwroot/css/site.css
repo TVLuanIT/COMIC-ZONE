@@ -771,7 +771,7 @@ button[aria-expanded="true"] .transition-icon {
     display: none;
 }
 
-/* ===== YouTube Style Reaction Buttons ===== */
+/* ===== Reaction Buttons ===== */
 .review-actions {
     display: flex;
     align-items: center;
@@ -813,7 +813,7 @@ button[aria-expanded="true"] .transition-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
-/* ===== YouTube Style Reply Buttons ===== */
+/* ===== Reply Buttons ===== */
 .reaction-btn.toggle-reply {
     border: none;
     background: transparent;
@@ -847,4 +847,47 @@ button[aria-expanded="true"] .transition-icon {
     object-fit: cover; /* giữ tỉ lệ ảnh, cắt nếu cần */
     border-radius: 50%; /* tròn */
     display: inline-block;
+}
+
+/* ================= REPLY LIST ================= */
+.reply-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px; /* giống review */
+}
+
+.reply-actions .reaction-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Icon base giống review */
+.reply-actions .icon {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: #606060;
+    stroke-width: 2;
+    transition: 0.2s ease;
+}
+
+/* Hover */
+.reply-actions .reaction-btn:hover .icon {
+    stroke: #000;
+}
+
+/* LIKE active */
+.reply-toggle-like.liked .like-icon {
+    fill: #065fd4;
+    stroke: #065fd4;
+}
+
+/* DISLIKE active */
+.reply-toggle-dislike.disliked .dislike-icon {
+    fill: #065fd4;
+    stroke: #065fd4;
 }

@@ -1,56 +1,77 @@
 ﻿@model IEnumerable<COMICZONE.Models.ProductReviewReply>
 
-@foreach (var reply in Model)
-{
-    <div class="reply-item mb-2 ps-3">
-        <div class="d-flex align-items-start mb-1">
-            <!-- Avatar người gửi reply -->
-            <div class="reply-avatar me-2">
-                @if (!string.IsNullOrEmpty(reply.User?.Avatar))
-                {
-                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.Avatar, size = 24 })
-                }
-                else
-                {
-                    @(reply.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
-                }
-            </div>
+@{
+    var userIdStr = Context.Session.GetString("UserId");
+    var userRoleStr = Context.Session.GetString("UserRole");
+    int currentUserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
+    string currentUserRole = string.IsNullOrEmpty(userRoleStr) ? "User" : userRoleStr;
 
-            <div class="flex-grow-1">
-                <!-- Tên người gửi + người được reply -->
-                <div class="d-flex align-items-center mb-1 gap-1">
-                    <strong>@(reply.User?.Username ?? "Người dùng ẩn danh")</strong>
+    int batchSize = 5;
+    int totalReplies = Model.Count();
+}
 
-                    @if (reply.Replytouser != null)
-                    {
-                        <div class="d-flex align-items-center gap-1">
-                            <!-- Avatar người được reply -->
-                            <div class="reply-avatar me-1">
-                                @if (!string.IsNullOrEmpty(reply.Replytouser.Avatar))
+<div class="reply-list-container" data-review-id="@Model.FirstOrDefault()?.Reviewid">
+    <button class="show-replies-btn btn btn-link p-0 mb-2" data-batch-size="@batchSize">
+        @totalReplies phản hồi
+    </button>
+
+    <div class="reply-list">
+        @foreach (var reply in Model)
+        {
+            <div class="reply-item mb-2 ps-3" data-reply-id="@reply.Replyid" style="display:none;">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <div class="d-flex flex-grow-1">
+                        <!-- Avatar người gửi reply -->
+                        <div class="reply-avatar me-2">
+                            @if (!string.IsNullOrEmpty(reply.User?.Avatar))
+                            {
+                                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.Avatar, size = 24 })
+                            }
+                            else
+                            {
+                                @(reply.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                            }
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <!-- Tên người gửi + người được reply -->
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <strong>@(reply.User?.Username ?? "Người dùng ẩn danh")</strong>
+                                @if (reply.Replytouser != null)
                                 {
-                                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.Replytouser.Avatar, size = 20 })
-                                }
-                                else
-                                {
-                                    @(reply.Replytouser.Username?.Substring(0, 1).ToUpper() ?? "U")
+                                    <span class="text-primary ms-1">@reply.Replytouser.Username</span>
                                 }
                             </div>
-                            <!-- Tên người được reply -->
-                            <span class="text-primary">@(@reply.Replytouser.Username)</span>
+
+                            <!-- Nội dung reply -->
+                            <div class="reply-content mb-1">@reply.Replycontent</div>
+
+                            <!-- Thời gian -->
+                            <div class="reply-date text-muted" style="font-size:0.8rem;">
+                                @(reply.Createdat.HasValue? reply.Createdat.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+                            </div>
+
+                            <!-- Like/Dislike -->
+                            <div class="reply-actions mt-1">
+                                <button class="reaction-btn reply-toggle-like @(reply.IsLikedByUser ? "liked" : "")"
+                                        data-reply-id="@reply.Replyid">
+                                    <svg class="icon like-icon" viewBox="0 0 24 24">
+                                        <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
+                                    </svg>
+                                    <span class="like-count">@reply.LikeCount</span>
+                                </button>
+
+                                <button class="reaction-btn reply-toggle-dislike @(reply.IsDislikedByUser ? "disliked" : "")"
+                                        data-reply-id="@reply.Replyid">
+                                    <svg class="icon dislike-icon" viewBox="0 0 24 24">
+                                        <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                    }
-                </div>
-
-                <!-- Nội dung reply -->
-                <div class="reply-content mb-1">
-                    @reply.Replycontent
-                </div>
-
-                <!-- Thời gian -->
-                <div class="reply-date text-muted" style="font-size:0.8rem;">
-                    @reply.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? "-"
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
-}
+</div>

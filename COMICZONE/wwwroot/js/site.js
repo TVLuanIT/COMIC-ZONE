@@ -43,7 +43,8 @@ const ProductReviews = (() => {
         loadReviewsFirstTime();
         initPagination();
         initReactionButtons();
-        ProductReplies.initReplyButtons(); // khởi tạo reply
+        ProductReplies.initReplyButtons(); // khởi tạo reply form
+        ProductReplies.initReplyReactionButtons(); // khởi tạo nút like/dislike cho reply
     };
 
     const loadReviewsFirstTime = () => {
@@ -52,6 +53,9 @@ const ProductReviews = (() => {
             .then(html => {
                 document.getElementById("review-container").innerHTML = html;
                 initReactionButtons(); // gắn lại nút like
+
+                // KHỞI TẠO hiển thị reply theo batch sau khi load xong
+                ProductReplies.initReplyList();
             });
     };
 
@@ -131,6 +135,8 @@ const ProductReviews = (() => {
 })();
 
 const ProductReplies = (() => {
+
+    const batchSize = 5; // số reply hiển thị mỗi lần, có thể thay đổi
 
     const initReplyButtons = () => {
         // Mở / ẩn khung reply
@@ -219,7 +225,97 @@ const ProductReplies = (() => {
         });
     };
 
-    return { initReplyButtons };
+    const initReplyReactionButtons = () => {
+        // Xóa các handler cũ tránh bind trùng
+        $(document).off('click', '.reply-toggle-like');
+        $(document).off('click', '.reply-toggle-dislike');
+
+        // LIKE
+        $(document).on('click', '.reply-toggle-like', function (e) {
+            e.preventDefault();
+
+            const likeBtn = $(this);
+            const replyId = likeBtn.data('reply-id');
+            const container = likeBtn.closest('.reply-actions');
+            const dislikeBtn = container.find('.reply-toggle-dislike');
+
+            $.post('/ProductReviews/ToggleReplyLike', { replyId: replyId }, function (res) {
+                if (!res.success) return;
+
+                // Cập nhật số lượng like
+                likeBtn.find('.like-count').text(res.likeCount);
+
+                if (res.isLiked) {
+                    likeBtn.addClass('liked');
+                    dislikeBtn.removeClass('disliked');
+                } else {
+                    likeBtn.removeClass('liked');
+                }
+            });
+        });
+
+        // DISLIKE
+        $(document).on('click', '.reply-toggle-dislike', function (e) {
+            e.preventDefault();
+
+            const dislikeBtn = $(this);
+            const replyId = dislikeBtn.data('reply-id');
+            const container = dislikeBtn.closest('.reply-actions');
+            const likeBtn = container.find('.reply-toggle-like');
+
+            $.post('/ProductReviews/ToggleReplyDislike', { replyId: replyId }, function (res) {
+                if (!res.success) return;
+
+                if (res.isDisliked) {
+                    dislikeBtn.addClass('disliked');
+                    likeBtn.removeClass('liked');
+                } else {
+                    dislikeBtn.removeClass('disliked');
+                }
+            });
+        });
+    };
+
+    const initReplyList = () => {
+        const replyContainers = document.querySelectorAll('.reply-list-container');
+
+        replyContainers.forEach(container => {
+            const showBtn = container.querySelector('.show-replies-btn');
+            const replies = Array.from(container.querySelectorAll('.reply-item'));
+            let shownCount = 0;
+            const batchSize = parseInt(showBtn.dataset.batchSize) || 5;
+
+            // ĐƯA NÚT XUỐNG CUỐI
+            container.appendChild(showBtn);
+
+            // Ẩn tất cả reply ban đầu
+            replies.forEach(r => r.style.display = 'none');
+
+            showBtn.addEventListener('click', () => {
+                const remaining = replies.length - shownCount;
+                const toShow = Math.min(batchSize, remaining);
+
+                for (let i = shownCount; i < shownCount + toShow; i++) {
+                    replies[i].style.display = 'block';
+                }
+
+                shownCount += toShow;
+
+                const left = replies.length - shownCount;
+                if (left > 0) {
+                    showBtn.innerText = `${left} phản hồi còn lại`;
+                } else {
+                    showBtn.style.display = 'none';
+                }
+            });
+        });
+    };
+
+    return {
+        initReplyButtons,
+        initReplyReactionButtons,
+        initReplyList
+    };
 
 })();
 
@@ -233,6 +329,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseInt(productIdElement.value);
         if (!isNaN(id)) {
             ProductReviews.init(id);
+
+            // KHỞI TẠO HIỂN THỊ REPLY THEO BATCH
+            // Ở đây gọi sau khi loadReviewFirstTime xong (HTML đã render)
+            setTimeout(() => {
+                ProductReplies.initReplyList();
+            }, 500); // delay 0.5s để DOM load xong
         }
     }
 });

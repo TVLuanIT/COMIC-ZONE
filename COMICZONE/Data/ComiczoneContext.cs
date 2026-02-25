@@ -36,6 +36,8 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<ProductReviewReply> ProductReviewReplies { get; set; }
 
+    public virtual DbSet<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; }
+
     public virtual DbSet<ProductReviewReport> ProductReviewReports { get; set; }
 
     public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
@@ -219,6 +221,15 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReplies).HasConstraintName("FK_REPLY_REVIEW");
 
             entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReplyUsers).HasConstraintName("FK_REPLY_USER");
+        });
+
+        modelBuilder.Entity<ProductReviewReplyLike>(entity =>
+        {
+            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReplyLikes).HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_REPLY");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReplyLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_USER");
         });
 
         modelBuilder.Entity<ProductReviewReport>(entity =>

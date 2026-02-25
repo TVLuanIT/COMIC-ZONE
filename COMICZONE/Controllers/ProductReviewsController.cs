@@ -30,6 +30,100 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ToggleReplyLike(int replyId)
+        {
+            string? userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            int userId = int.Parse(userIdStr);
+
+            var existing = await _context.ProductReviewReplyLikes
+                .FirstOrDefaultAsync(x => x.Replyid == replyId && x.Userid == userId);
+
+            bool isLiked;
+
+            if (existing == null)
+            {
+                _context.ProductReviewReplyLikes.Add(new ProductReviewReplyLike
+                {
+                    Replyid = replyId,
+                    Userid = userId,
+                    Createdat = DateTime.Now,
+                    Islike = true
+                });
+                isLiked = true;
+            }
+            else
+            {
+                if (existing.Islike == true)
+                {
+                    // Nếu đã like → bỏ like
+                    _context.ProductReviewReplyLikes.Remove(existing);
+                    isLiked = false;
+                }
+                else
+                {
+                    // Nếu đang dislike → chuyển sang like
+                    existing.Islike = true;
+                    isLiked = true;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            var likeCount = await _context.ProductReviewReplyLikes
+                .CountAsync(x => x.Replyid == replyId && x.Islike == true);
+
+            return Json(new
+            {
+                success = true,
+                likeCount = likeCount,
+                isLiked = isLiked
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleReplyDislike(int replyId)
+        {
+            string? userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            int userId = int.Parse(userIdStr);
+
+            var existing = await _context.ProductReviewReplyLikes
+                .FirstOrDefaultAsync(x => x.Replyid == replyId && x.Userid == userId);
+
+            bool isDisliked;
+
+            if (existing == null)
+            {
+                _context.ProductReviewReplyLikes.Add(new ProductReviewReplyLike
+                {
+                    Replyid = replyId,
+                    Userid = userId,
+                    Createdat = DateTime.Now,
+                    Islike = false
+                });
+                isDisliked = true;
+            }
+            else
+            {
+                // nếu trước đó like thì đổi sang dislike, nếu dislike thì bỏ dislike
+                isDisliked = existing.Islike == false ? false : true;
+                existing.Islike = isDisliked ? false : (bool?)null;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var likeCount = await _context.ProductReviewReplyLikes
+                .CountAsync(x => x.Replyid == replyId && x.Islike == true);
+
+            return Json(new { success = true, likeCount = likeCount, isDisliked = isDisliked });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> ToggleDislike(int reviewId)
         {
             string? userIdStr = HttpContext.Session.GetString("UserId");
@@ -130,15 +224,34 @@ namespace COMICZONE.Controllers
         // GET: /ProductReviews/Replies?reviewId=19
         public async Task<IActionResult> Replies(int reviewId)
         {
-            // Lấy tất cả reply của review, kèm User
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            int currentUserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
+
             var replies = await _context.ProductReviewReplies
                 .Where(r => r.Reviewid == reviewId)
                 .Include(r => r.User)
+                .Include(r => r.Replytouser)
                 .OrderBy(r => r.Createdat)
                 .AsNoTracking()
                 .ToListAsync();
 
-            return PartialView("_ProductReviewReplies", replies);
+            // Thêm các thuộc tính like/dislike
+            var repliesWithStatus = replies.Select(r => new ProductReviewReply
+            {
+                Replyid = r.Replyid,
+                Reviewid = r.Reviewid,
+                Replycontent = r.Replycontent,
+                Createdat = r.Createdat,
+                Userid = r.Userid,
+                User = r.User,
+                Replytouserid = r.Replytouserid,
+                Replytouser = r.Replytouser,
+                LikeCount = _context.ProductReviewReplyLikes.Count(l => l.Replyid == r.Replyid && l.Islike == true),
+                IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == r.Replyid && l.Userid == currentUserId && l.Islike == true),
+                IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == r.Replyid && l.Userid == currentUserId && l.Islike == false)
+            }).ToList();
+
+            return PartialView("_ProductReviewReplies", repliesWithStatus);
         }
 
         public async Task<IActionResult> Reviews(int productId, int page = 1, int pageSize = 5)
@@ -153,6 +266,8 @@ namespace COMICZONE.Controllers
 
             var reviews = await query
                 .Include(r => r.User)
+                .Include(r => r.ProductReviewReplies)               // ← thêm dòng này
+                    .ThenInclude(reply => reply.User)
                 .OrderByDescending(r => r.Createdat)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -168,6 +283,7 @@ namespace COMICZONE.Controllers
                 Createdat = r.Createdat,
                 Userid = r.Userid,
                 User = r.User,
+                ProductReviewReplies = r.ProductReviewReplies,
                 LikeCount = _context.ProductReviewLikes
                     .Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
                 IsLikedByUser = _context.ProductReviewLikes

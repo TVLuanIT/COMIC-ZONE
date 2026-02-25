@@ -27,6 +27,17 @@ public partial class ProductReviewReply
 
     [Column("REPLYTOUSERID")]
     public int? Replytouserid { get; set; }
+    [NotMapped]
+    public int LikeCount { get; set; }
+
+    [NotMapped]
+    public bool IsLikedByUser { get; set; }
+
+    [NotMapped]
+    public bool IsDislikedByUser { get; set; }
+
+    [InverseProperty("Reply")]
+    public virtual ICollection<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; } = new List<ProductReviewReplyLike>();
 
     [ForeignKey("Replytouserid")]
     [InverseProperty("ProductReviewReplyReplytousers")]

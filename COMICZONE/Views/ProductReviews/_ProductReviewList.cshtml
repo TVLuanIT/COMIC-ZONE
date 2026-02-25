@@ -133,13 +133,15 @@
                         <span class="reply-text">Phản hồi</span>
                     </button>
                 </div>
+                @* Form chỉ hiện khi login *@
                 @if (isLoggedIn)
                 {
                     @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
-                    <div class="reply-list mt-2" id="reply-list-@review.Reviewid">
-                        @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml", review.ProductReviewReplies)
-                    </div>
                 }
+                @* Danh sách reply luôn hiển thị *@
+                <div class="reply-list mt-2" id="reply-list-@review.Reviewid">
+                    @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml", review.ProductReviewReplies)
+                </div>
             </div>
         }
     }
