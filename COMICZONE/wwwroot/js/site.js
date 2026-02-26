@@ -1,4 +1,4 @@
-﻿// wwwroot/js/product-summary.js
+﻿// wwwroot/js/site.js
 
 const ProductSummary = (() => {
     const maxLength = 250; // số ký tự hiển thị ban đầu
@@ -45,6 +45,7 @@ const ProductReviews = (() => {
         initReactionButtons();
         ProductReplies.initReplyButtons(); // khởi tạo reply form
         ProductReplies.initReplyReactionButtons(); // khởi tạo nút like/dislike cho reply
+        ProductReplies.initReplyToReplyButtons(); // khởi tạo nút reply-to-reply
     };
 
     const loadReviewsFirstTime = () => {
@@ -66,6 +67,11 @@ const ProductReviews = (() => {
             $('#review-list-container')
                 .load(`/ProductReviews/Reviews?productId=${productId}&page=${page}`, () => {
                     initReactionButtons(); // gọi ở đây
+
+                    ProductReplies.initReplyButtons();
+                    ProductReplies.initReplyReactionButtons();
+                    ProductReplies.initReplyList();
+                    ProductReplies.initReplyToReplyButtons();
                 });
         });
     };
@@ -311,10 +317,56 @@ const ProductReplies = (() => {
         });
     };
 
+    const initReplyToReplyButtons = () => {
+
+        $(document).off('click', '.reply-to-reply');
+
+        $(document).on('click', '.reply-to-reply', function (e) {
+            e.preventDefault();
+
+            const reviewId = $(this).data('review-id');
+            const replyToUserId = $(this).data('reply-to-user-id');
+            const replyToUsername = $(this).data('reply-to-username');
+
+            const formContainer = $(`#reply-form-${reviewId}`);
+
+            if (formContainer.length === 0) {
+                const currentUrl = window.location.pathname + window.location.search;
+                window.location.href =
+                    `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+                return;
+            }
+
+            const textarea = formContainer.find('textarea');
+
+            // Điền @username
+            if (replyToUsername) {
+                textarea.val(`@${replyToUsername} `);
+            }
+
+            // Set data cho form
+            formContainer.find('form')
+                .attr('data-reply-to-user-id', replyToUserId || '')
+                .attr('data-reply-to-username', replyToUsername || '');
+
+            formContainer.slideDown(() => {
+                const textareaEl = textarea.get(0);
+                if (textareaEl) {
+                    textareaEl.focus();
+                    textareaEl.setSelectionRange(
+                        textareaEl.value.length,
+                        textareaEl.value.length
+                    );
+                }
+            });
+        });
+    };
+
     return {
         initReplyButtons,
         initReplyReactionButtons,
-        initReplyList
+        initReplyList,
+        initReplyToReplyButtons
     };
 
 })();
@@ -330,11 +382,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(id)) {
             ProductReviews.init(id);
 
-            // KHỞI TẠO HIỂN THỊ REPLY THEO BATCH
-            // Ở đây gọi sau khi loadReviewFirstTime xong (HTML đã render)
-            setTimeout(() => {
-                ProductReplies.initReplyList();
-            }, 500); // delay 0.5s để DOM load xong
+            //// KHỞI TẠO HIỂN THỊ REPLY THEO BATCH
+            //// Ở đây gọi sau khi loadReviewFirstTime xong (HTML đã render)
+            //setTimeout(() => {
+            //    ProductReplies.initReplyList();
+            //}, 500); // delay 0.5s để DOM load xong
         }
     }
 });
