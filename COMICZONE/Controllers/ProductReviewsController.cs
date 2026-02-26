@@ -283,14 +283,37 @@ namespace COMICZONE.Controllers
                 Createdat = r.Createdat,
                 Userid = r.Userid,
                 User = r.User,
-                ProductReviewReplies = r.ProductReviewReplies,
-                LikeCount = _context.ProductReviewLikes
-                    .Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
-                IsLikedByUser = _context.ProductReviewLikes
-                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
-                IsDislikedByUser = _context.ProductReviewLikes
-                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value))
-            }).ToList();
+                ProductReviewReplies = r.ProductReviewReplies.Select(reply => new ProductReviewReply
+                {
+                    Replyid = reply.Replyid,
+                    Reviewid = reply.Reviewid,
+                    Replycontent = reply.Replycontent,
+                    Createdat = reply.Createdat,
+                    Userid = reply.Userid,
+                    User = reply.User,
+                    Replytouserid = reply.Replytouserid,
+                    Replytouser = reply.Replytouser,
+
+                    LikeCount = _context.ProductReviewReplyLikes
+                        .Count(l => l.Replyid == reply.Replyid && l.Islike == true),
+
+                                    IsLikedByUser = _context.ProductReviewReplyLikes
+                        .Any(l => l.Replyid == reply.Replyid
+                               && l.Userid == userId
+                               && l.Islike == true),
+
+                                    IsDislikedByUser = _context.ProductReviewReplyLikes
+                        .Any(l => l.Replyid == reply.Replyid
+                               && l.Userid == userId
+                               && l.Islike == false)
+                                }).ToList(),
+                                LikeCount = _context.ProductReviewLikes
+                                    .Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
+                                IsLikedByUser = _context.ProductReviewLikes
+                                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
+                                IsDislikedByUser = _context.ProductReviewLikes
+                                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value))
+                            }).ToList();
 
             ViewBag.ProductId = productId;
             ViewBag.CurrentPage = page;
