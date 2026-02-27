@@ -221,6 +221,35 @@ namespace COMICZONE.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Report(int? reviewId, int? replyId, string reason)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            int userId = int.Parse(userIdStr);
+
+            // Kiểm tra đã báo cáo chưa
+            bool exists = await _context.ProductReviewReports
+                .AnyAsync(r => r.Reviewid == reviewId && r.Replyid == replyId && r.Userid == userId);
+            if (exists)
+                return Json(new { success = false, message = "Bạn đã báo cáo trước đó." });
+
+            var report = new ProductReviewReport
+            {
+                Reviewid = reviewId,
+                Replyid = replyId,
+                Userid = userId,
+                Reason = reason,
+                Status = "PENDING",
+                Createdat = DateTime.Now
+            };
+
+            _context.ProductReviewReports.Add(report);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Báo cáo thành công!" });
+        }
+
         // GET: /ProductReviews/Replies?reviewId=19
         public async Task<IActionResult> Replies(int reviewId)
         {

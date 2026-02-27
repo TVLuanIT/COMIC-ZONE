@@ -237,8 +237,13 @@ public partial class ComiczoneContext : DbContext
             entity.HasKey(e => e.Reportid).HasName("PK__PRODUCT___A85DEB2D0B3B8B15");
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("PENDING");
 
-            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports).HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
+            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReports).HasConstraintName("FK_REPORT_REPLY");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
 
             entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReports)
                 .OnDelete(DeleteBehavior.ClientSetNull)

@@ -371,9 +371,46 @@ const ProductReplies = (() => {
 
 })();
 
+const ProductReport = (() => {
+    const init = () => {
+        $(document).off('click', '.report-review');
+        $(document).on('click', '.report-review', function (e) {
+            e.preventDefault();
+
+            const reviewId = $(this).data('review-id');
+            const replyId = $(this).data('reply-id') || null;
+
+            // Hiển thị modal
+            const modal = $('#reportModal');
+            modal.find('input[name="ReviewId"]').val(reviewId);
+            modal.find('input[name="ReplyId"]').val(replyId);
+            modal.modal('show');
+        });
+
+        $(document).off('submit', '#reportForm');
+        $(document).on('submit', '#reportForm', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            const data = form.serialize();
+
+            $.post('/ProductReviews/Report', data, function (res) {
+                if (res.success) {
+                    alert('Báo cáo thành công!');
+                    form.closest('.modal').modal('hide');
+                } else {
+                    alert('Báo cáo thất bại!');
+                }
+            });
+        });
+    };
+
+    return { init };
+})();
+
 // Khi trang load xong
 document.addEventListener('DOMContentLoaded', () => {
     ProductSummary.init();
+    ProductReport.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');

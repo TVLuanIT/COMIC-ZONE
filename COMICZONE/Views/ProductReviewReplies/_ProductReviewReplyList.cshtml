@@ -8,6 +8,11 @@
 
     int batchSize = 5;
     int totalReplies = Model.Count();
+
+    bool isLoggedIn = currentUserId > 0;
+
+	// Lấy productId từ RouteData (nếu có)
+    int productId = ViewBag.ProductId is int id ? id : 0;
 }
 
 <div class="reply-list-container" data-review-id="@Model.FirstOrDefault()?.Reviewid">
@@ -89,11 +94,10 @@
                             &hellip;
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end"
-                            aria-labelledby="reply-menu-@reply.Replyid">
-
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reply-menu-@reply.Replyid">
                             @if (reply.Userid == currentUserId)
                             {
+                                <!-- Reply của chính họ -->
                                 <li>
                                     <a class="dropdown-item edit-reply" href="#" data-id="@reply.Replyid">
                                         Chỉnh sửa
@@ -107,6 +111,7 @@
                             }
                             else if (currentUserRole == "Admin")
                             {
+                                <!-- Admin có quyền xóa tất cả -->
                                 <li>
                                     <a class="dropdown-item delete-reply" href="#" data-id="@reply.Replyid">
                                         Xóa
@@ -115,13 +120,24 @@
                             }
                             else
                             {
+                                <!-- Người dùng khác hoặc chưa login -->
                                 <li>
-                                    <a class="dropdown-item report-reply" href="#" data-id="@reply.Replyid">
-                                        Báo cáo vi phạm
-                                    </a>
+                                    @if (!isLoggedIn)
+                                    {
+                                        <a class="dropdown-item" href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                            Báo cáo vi phạm
+                                        </a>
+                                    }
+                                    else if (reply.Userid != currentUserId) // đã login và không phải owner
+                                    {
+                                        <a href="#" class="dropdown-item report-review"
+                                           data-review-id="@reply.Reviewid"
+                                           data-reply-id="@reply.Replyid">
+                                            Báo cáo vi phạm
+                                        </a>
+                                    }
                                 </li>
                             }
-
                         </ul>
                     </div>
                 </div>
@@ -129,3 +145,5 @@
         }
     </div>
 </div>
+
+@await Html.PartialAsync("~/Views/ProductReviews/_Report.cshtml")

@@ -1,6 +1,12 @@
 ﻿@model IEnumerable<COMICZONE.Models.ProductReview>
 @{
-    var productId = ViewBag.ProductId;
+    // Lấy ProductId an toàn từ ViewBag
+    int productId = ViewBag.ProductId is int id ? id : 0;
+
+    // Clone ViewData rồi ghi đè ProductId nếu cần
+    var replyViewData = new ViewDataDictionary(ViewData);
+    replyViewData["ProductId"] = productId;
+
     var currentPage = ViewBag.CurrentPage ?? 1;
     var totalPages = ViewBag.TotalPages ?? 1;
 
@@ -80,16 +86,48 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-@review.Reviewid">
                             @if (review.Userid == UserId)
                             {
-                                <li><a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">Chỉnh Sửa</a></li>
-                                <li><a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">Xóa</a></li>
+                                <!-- Review của chính họ -->
+                                <li>
+                                    <a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">
+                                        Chỉnh Sửa
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
+                                        Xóa
+                                    </a>
+                                </li>
                             }
                             else if (UserRole == "Admin")
                             {
-                                <li><a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">Xóa</a></li>
+                                <!-- Admin có quyền xóa tất cả -->
+                                <li>
+                                    <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
+                                        Xóa
+                                    </a>
+                                </li>
                             }
                             else
                             {
-                                <li><a class="dropdown-item report-review" href="#" data-id="@review.Reviewid">Báo cáo vi phạm</a></li>
+                                <!-- Người dùng đã login và không phải owner -->
+                                <li>
+                                    @if (!isLoggedIn)
+                                    {
+                                        <a class="dropdown-item"
+                                           href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                            Báo cáo vi phạm
+                                        </a>
+                                    }
+                                    else if (review.Userid != UserId) // đã login và không phải owner
+                                    {
+                                        <a class="dropdown-item report-review"
+                                           href="#"
+                                           data-review-id="@review.Reviewid"
+                                           data-reply-id="">
+                                            Báo cáo vi phạm
+                                        </a>
+                                    }
+                                </li>
                             }
                         </ul>
                     </div>
@@ -142,9 +180,10 @@
                     @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
                 }
                 @* Danh sách reply luôn hiển thị *@
-                <div class="reply-list mt-2" id="reply-list-@review.Reviewid">
-                    @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml", review.ProductReviewReplies)
-                </div>
+                @await Html.PartialAsync(
+                "~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml",
+                review.ProductReviewReplies
+                )
             </div>
         }
     }
@@ -164,3 +203,5 @@
         </nav>
     }
 </div>
+
+@await Html.PartialAsync("_Report.cshtml")
