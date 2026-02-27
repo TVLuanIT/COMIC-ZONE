@@ -16,9 +16,12 @@
 }
 
 <div class="reply-list-container" data-review-id="@Model.FirstOrDefault()?.Reviewid">
-    <button class="show-replies-btn btn btn-link p-0 mb-2" data-batch-size="@batchSize">
-        @totalReplies phản hồi
-    </button>
+    @if (totalReplies > 0)
+    {
+        <button class="show-replies-btn btn btn-link p-0 mb-2" data-batch-size="@batchSize">
+            @totalReplies phản hồi
+        </button>
+    }
 
     <div class="reply-list">
         @foreach (var reply in Model)

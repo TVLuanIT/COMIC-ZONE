@@ -272,6 +272,8 @@ const ProductReplies = (() => {
             $.post('/ProductReviews/ToggleReplyDislike', { replyId: replyId }, function (res) {
                 if (!res.success) return;
 
+                likeBtn.find('.like-count').text(res.likeCount);
+
                 if (res.isDisliked) {
                     dislikeBtn.addClass('disliked');
                     likeBtn.removeClass('liked');
@@ -288,6 +290,9 @@ const ProductReplies = (() => {
         replyContainers.forEach(container => {
             const showBtn = container.querySelector('.show-replies-btn');
             const replies = Array.from(container.querySelectorAll('.reply-item'));
+
+            if (!showBtn || replies.length === 0) return;
+
             let shownCount = 0;
             const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
 
@@ -373,7 +378,8 @@ const ProductReplies = (() => {
 
 const ProductReport = (() => {
     const init = () => {
-        // click nút Báo cáo
+
+        // ================= CLICK REPORT =================
         $(document).off('click', '.report-review');
         $(document).on('click', '.report-review', function (e) {
             e.preventDefault();
@@ -407,7 +413,7 @@ const ProductReport = (() => {
             modal.modal('show');
         });
 
-        // submit form báo cáo
+        // ================= SUBMIT REPORT =================
         $(document).off('submit', '#reportForm');
         $(document).on('submit', '#reportForm', function (e) {
             e.preventDefault();
@@ -418,7 +424,7 @@ const ProductReport = (() => {
 
             submitBtn.prop('disabled', true).text('Đang gửi...');
 
-            const formData = form.serialize(); // 🔥 TỰ ĐỘNG gồm token + ReviewId + ReplyId + Reason
+            const formData = form.serialize(); // TỰ ĐỘNG gồm token + ReviewId + ReplyId + Reason
 
             $.ajax({
                 url: '/ProductReviews/Report',
@@ -434,6 +440,8 @@ const ProductReport = (() => {
                             icon: 'success',
                             title: 'Thành công',
                             text: 'Báo cáo đã được gửi.'
+                        }).then(() => {
+                            location.reload(); // Reload sau khi người dùng bấm OK
                         });
                     } else {
                         Swal.fire({
