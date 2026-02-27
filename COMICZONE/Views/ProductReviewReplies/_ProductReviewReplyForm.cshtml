@@ -1,14 +1,15 @@
 ﻿@model COMICZONE.Models.ProductReview
 @{
     var reviewId = Model.Reviewid;
-    var userAvatar = Model.User?.Avatar;
+    var currentAvatar = Context.Session.GetString("Avatar");
+    // var currentAvatar = ViewBag.CurrentUserAvatar as string;
     var username = Model.User?.Username ?? "Người dùng ẩn danh";
 }
 
 <div class="reply-form-container mt-2" id="reply-form-@reviewId" style="display:none;">
     <form class="reply-form d-flex gap-2" data-review-id="@reviewId">
         <!-- Avatar người dùng -->
-        @await Component.InvokeAsync("UserAvatar", new { avatarUrl = userAvatar, size = 32 })
+        @await Component.InvokeAsync("UserAvatar", new { avatarUrl = currentAvatar, size = 32 })
 
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Textarea -->
