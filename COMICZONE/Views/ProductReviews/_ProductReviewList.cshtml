@@ -120,12 +120,38 @@
                                     }
                                     else if (review.Userid != UserId) // đã login và không phải owner
                                     {
-                                        <a class="dropdown-item report-review"
-                                           href="#"
-                                           data-review-id="@review.Reviewid"
-                                           data-reply-id="">
-                                            Báo cáo vi phạm
-                                        </a>
+                                        if (!review.IsReportedByUser)
+                                        {
+                                            <a class="dropdown-item report-review"
+                                               href="#"
+                                               data-review-id="@review.Reviewid"
+                                               data-reply-id=""
+                                               data-reported="false"
+                                               data-status="">
+                                                Báo cáo vi phạm
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="dropdown-item text-muted small">
+                                                @if (review.ReportStatus == "Pending")
+                                                {
+                                                    <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
+                                                }
+                                                else if (review.ReportStatus == "Approved")
+                                                {
+                                                    <text>Báo cáo đã được duyệt</text>
+                                                }
+                                                else if (review.ReportStatus == "Rejected")
+                                                {
+                                                    <text>Báo cáo đã bị từ chối</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                }
+                                            </span>
+                                        }
                                     }
                                 </li>
                             }
@@ -185,6 +211,7 @@
                 review.ProductReviewReplies
                 )
             </div>
+            @await Html.PartialAsync("_Report.cshtml")
         }
     }
 
@@ -203,5 +230,3 @@
         </nav>
     }
 </div>
-
-@await Html.PartialAsync("_Report.cshtml")

@@ -22,13 +22,6 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
-        public class ReplyRequest
-        {
-            public int ReviewId { get; set; }
-            public string Content { get; set; } = "";
-            public int? ReplyToUserId { get; set; } // THÊM thuộc tính reply tới ai
-        }
-
         [HttpPost]
         public async Task<IActionResult> ToggleReplyLike(int replyId)
         {
@@ -88,7 +81,7 @@ namespace COMICZONE.Controllers
         {
             string? userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
-                return Json(new { success = false, message = "Chưa đăng nhập" });
+                return Json(new { success = false });
 
             int userId = int.Parse(userIdStr);
 
@@ -106,13 +99,23 @@ namespace COMICZONE.Controllers
                     Createdat = DateTime.Now,
                     Islike = false
                 });
+
                 isDisliked = true;
             }
             else
             {
-                // nếu trước đó like thì đổi sang dislike, nếu dislike thì bỏ dislike
-                isDisliked = existing.Islike == false ? false : true;
-                existing.Islike = isDisliked ? false : (bool?)null;
+                if (existing.Islike == false)
+                {
+                    // đã dislike → bỏ dislike
+                    _context.ProductReviewReplyLikes.Remove(existing);
+                    isDisliked = false;
+                }
+                else
+                {
+                    // đang like → chuyển sang dislike
+                    existing.Islike = false;
+                    isDisliked = true;
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -120,7 +123,12 @@ namespace COMICZONE.Controllers
             var likeCount = await _context.ProductReviewReplyLikes
                 .CountAsync(x => x.Replyid == replyId && x.Islike == true);
 
-            return Json(new { success = true, likeCount = likeCount, isDisliked = isDisliked });
+            return Json(new
+            {
+                success = true,
+                likeCount,
+                isDisliked
+            });
         }
 
         [HttpPost]
@@ -222,32 +230,49 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Report(int? reviewId, int? replyId, string reason)
+        [ValidateAntiForgeryToken]
+        public IActionResult Report(ReportProductReviewRequest request)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            if (string.IsNullOrEmpty(userIdStr))
+                return Json(new { success = false, message = "Bạn cần đăng nhập." });
+
             int userId = int.Parse(userIdStr);
 
-            // Kiểm tra đã báo cáo chưa
-            bool exists = await _context.ProductReviewReports
-                .AnyAsync(r => r.Reviewid == reviewId && r.Replyid == replyId && r.Userid == userId);
-            if (exists)
-                return Json(new { success = false, message = "Bạn đã báo cáo trước đó." });
+            if (string.IsNullOrWhiteSpace(request.Reason))
+                return Json(new { success = false, message = "Vui lòng nhập lý do." });
+
+            if ((request.ReviewId == null && request.ReplyId == null) ||
+                (request.ReviewId != null && request.ReplyId != null))
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            bool alreadyReported = _context.ProductReviewReports.Any(r =>
+                r.Userid == userId &&
+                (
+                    (request.ReviewId != null && r.Reviewid == request.ReviewId) ||
+                    (request.ReplyId != null && r.Replyid == request.ReplyId)
+                )
+            );
+
+            if (alreadyReported)
+                return Json(new { success = false, message = "Bạn đã báo cáo nội dung này rồi." });
 
             var report = new ProductReviewReport
             {
-                Reviewid = reviewId,
-                Replyid = replyId,
                 Userid = userId,
-                Reason = reason,
-                Status = "PENDING",
-                Createdat = DateTime.Now
+                Reviewid = request.ReviewId,
+                Replyid = request.ReplyId,
+                Reason = request.Reason,
+                Createdat = DateTime.Now,
+                Status = "Pending"
             };
 
             _context.ProductReviewReports.Add(report);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return Json(new { success = true, message = "Báo cáo thành công!" });
+            return Json(new { success = true });
         }
 
         // GET: /ProductReviews/Replies?reviewId=19
@@ -323,26 +348,30 @@ namespace COMICZONE.Controllers
                     Replytouserid = reply.Replytouserid,
                     Replytouser = reply.Replytouser,
 
-                    LikeCount = _context.ProductReviewReplyLikes
-                        .Count(l => l.Replyid == reply.Replyid && l.Islike == true),
+                    LikeCount = _context.ProductReviewReplyLikes.Count(l => l.Replyid == reply.Replyid && l.Islike == true),
+                    IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == true),
+                    IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == false),
 
-                                    IsLikedByUser = _context.ProductReviewReplyLikes
-                        .Any(l => l.Replyid == reply.Replyid
-                               && l.Userid == userId
-                               && l.Islike == true),
+                    // trạng thái báo cáo
+                    IsReportedByUser = _context.ProductReviewReports
+                        .Any(rp => rp.Replyid == reply.Replyid && rp.Userid == userId && rp.Status == "Pending"),
+                    ReportStatus = _context.ProductReviewReports
+                        .Where(rp => rp.Replyid == reply.Replyid && rp.Userid == userId)
+                        .Select(rp => rp.Status)
+                        .FirstOrDefault()
+                }).ToList(),
 
-                                    IsDislikedByUser = _context.ProductReviewReplyLikes
-                        .Any(l => l.Replyid == reply.Replyid
-                               && l.Userid == userId
-                               && l.Islike == false)
-                                }).ToList(),
-                                LikeCount = _context.ProductReviewLikes
-                                    .Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
-                                IsLikedByUser = _context.ProductReviewLikes
-                                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
-                                IsDislikedByUser = _context.ProductReviewLikes
-                                    .Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value))
-                            }).ToList();
+                LikeCount = _context.ProductReviewLikes.Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
+                IsLikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
+                IsDislikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value)),
+
+                // trạng thái báo cáo cho review
+                IsReportedByUser = _context.ProductReviewReports.Any(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId && rp.Status == "Pending"),
+                ReportStatus = _context.ProductReviewReports
+        .Where(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId)
+        .Select(rp => rp.Status)
+        .FirstOrDefault()
+            }).ToList();
 
             ViewBag.ProductId = productId;
             ViewBag.CurrentPage = page;
@@ -354,6 +383,9 @@ namespace COMICZONE.Controllers
         [HttpPost]
         public async Task<IActionResult> AddReply([FromBody] ReplyRequest model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             int userId = int.Parse(userIdStr);

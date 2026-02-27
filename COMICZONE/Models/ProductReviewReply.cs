@@ -35,6 +35,11 @@ public partial class ProductReviewReply
 
     [NotMapped]
     public bool IsDislikedByUser { get; set; }
+    [NotMapped]
+    public bool IsReportedByUser { get; set; } = false;
+
+    [NotMapped]
+    public string? ReportStatus { get; set; }
     [InverseProperty("Reply")]
     public virtual ICollection<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; } = new List<ProductReviewReplyLike>();
 

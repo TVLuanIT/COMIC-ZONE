@@ -40,6 +40,11 @@ public partial class ProductReview
 
     [NotMapped]
     public bool IsDislikedByUser { get; set; }
+    [NotMapped]
+    public bool IsReportedByUser { get; set; } = false;
+
+    [NotMapped]
+    public string? ReportStatus { get; set; }
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]
     public virtual Product Product { get; set; } = null!;

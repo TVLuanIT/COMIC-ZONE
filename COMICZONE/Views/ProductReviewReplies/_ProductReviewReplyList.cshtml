@@ -130,11 +130,38 @@
                                     }
                                     else if (reply.Userid != currentUserId) // đã login và không phải owner
                                     {
-                                        <a href="#" class="dropdown-item report-review"
-                                           data-review-id="@reply.Reviewid"
-                                           data-reply-id="@reply.Replyid">
-                                            Báo cáo vi phạm
-                                        </a>
+                                        if (!reply.IsReportedByUser)
+                                        {
+                                            <a class="dropdown-item report-review"
+                                               href="#"
+                                               data-review-id=""
+                                               data-reply-id="@reply.Replyid"
+                                               data-reported="false"
+                                               data-status="">
+                                                Báo cáo vi phạm
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="dropdown-item text-muted small">
+                                                @if (reply.ReportStatus == "Pending")
+                                                {
+                                                    <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
+                                                }
+                                                else if (reply.ReportStatus == "Approved")
+                                                {
+                                                    <text>Báo cáo đã được duyệt</text>
+                                                }
+                                                else if (reply.ReportStatus == "Rejected")
+                                                {
+                                                    <text>Báo cáo đã bị từ chối</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                }
+                                            </span>
+                                        }
                                     }
                                 </li>
                             }

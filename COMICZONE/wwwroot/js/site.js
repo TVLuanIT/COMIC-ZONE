@@ -289,7 +289,7 @@ const ProductReplies = (() => {
             const showBtn = container.querySelector('.show-replies-btn');
             const replies = Array.from(container.querySelectorAll('.reply-item'));
             let shownCount = 0;
-            const batchSize = parseInt(showBtn.dataset.batchSize) || 5;
+            const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
 
             // ĐƯA NÚT XUỐNG CUỐI
             container.appendChild(showBtn);
@@ -299,7 +299,7 @@ const ProductReplies = (() => {
 
             showBtn.addEventListener('click', () => {
                 const remaining = replies.length - shownCount;
-                const toShow = Math.min(batchSize, remaining);
+                const toShow = Math.min(batch, remaining);
 
                 for (let i = shownCount; i < shownCount + toShow; i++) {
                     replies[i].style.display = 'block';
@@ -373,32 +373,86 @@ const ProductReplies = (() => {
 
 const ProductReport = (() => {
     const init = () => {
+        // click nút Báo cáo
         $(document).off('click', '.report-review');
         $(document).on('click', '.report-review', function (e) {
             e.preventDefault();
 
-            const reviewId = $(this).data('review-id');
-            const replyId = $(this).data('reply-id') || null;
+            const reviewIdRaw = $(this).attr('data-review-id');
+            const replyIdRaw = $(this).attr('data-reply-id');
 
-            // Hiển thị modal
+            const reviewId = reviewIdRaw ? parseInt(reviewIdRaw) : null;
+            const replyId = replyIdRaw ? parseInt(replyIdRaw) : null;
+
+            const reported = $(this).data('reported'); // true/false
+            const status = $(this).data('status'); // Pending, Approved, etc.
+
+            if (reported) {
+                let msg = 'Bạn đã gửi báo cáo cho đánh giá/ phản hồi này.';
+                if (status === 'Pending') msg = 'Bạn đã gửi báo cáo (đang chờ xử lý)';
+                else if (status === 'Approved') msg = 'Báo cáo đã được duyệt';
+                else if (status === 'Rejected') msg = 'Báo cáo đã bị từ chối';
+
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Thông báo',
+                    text: msg
+                });
+                return;
+            }
+
             const modal = $('#reportModal');
-            modal.find('input[name="ReviewId"]').val(reviewId);
-            modal.find('input[name="ReplyId"]').val(replyId);
+            modal.find('input[name="ReviewId"]').val(reviewId ?? '');
+            modal.find('input[name="ReplyId"]').val(replyId ?? '');
             modal.modal('show');
         });
 
+        // submit form báo cáo
         $(document).off('submit', '#reportForm');
         $(document).on('submit', '#reportForm', function (e) {
             e.preventDefault();
-            const form = $(this);
-            const data = form.serialize();
 
-            $.post('/ProductReviews/Report', data, function (res) {
-                if (res.success) {
-                    alert('Báo cáo thành công!');
-                    form.closest('.modal').modal('hide');
-                } else {
-                    alert('Báo cáo thất bại!');
+            const form = $(this);
+            const submitBtn = form.find('button[type="submit"]');
+            const originalText = submitBtn.text();
+
+            submitBtn.prop('disabled', true).text('Đang gửi...');
+
+            const formData = form.serialize(); // 🔥 TỰ ĐỘNG gồm token + ReviewId + ReplyId + Reason
+
+            $.ajax({
+                url: '/ProductReviews/Report',
+                type: 'POST',
+                data: formData,
+                success: function (res) {
+                    submitBtn.prop('disabled', false).text(originalText);
+
+                    if (res.success) {
+                        $('#reportModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Báo cáo đã được gửi.'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Thông báo',
+                            text: res.message
+                        });
+                    }
+                },
+                error: function (err) {
+                    submitBtn.prop('disabled', false).text(originalText);
+
+                    console.log(err);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Có lỗi xảy ra khi gửi báo cáo.'
+                    });
                 }
             });
         });
