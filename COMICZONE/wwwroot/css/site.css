@@ -813,34 +813,7 @@ button[aria-expanded="true"] .transition-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
-/* ===== Reply Buttons ===== */
-.reaction-btn.toggle-reply {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    color: #606060; /* giống YouTube */
-    display: inline-flex;
-    align-items: center;
-    gap: 4px; /* khoảng cách icon và chữ */
-    padding: 0;
-}
 
-.reaction-btn.toggle-reply:hover {
-    color: #065fd4; /* xanh khi hover */
-}
-
-.reply-icon {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.reply-text {
-    font-size: 0.95rem; /* ~15px */
-    line-height: 1.5;
-}
-.reply-form-container .reply-form input {
-    width: 100%; /* textbox luôn chiếm hết chiều ngang còn lại */
-}
 /* ===== AVATAR IMG ===== */
 .avatar-img {
     width: var(--avatar-size, 32px); /* default 32px nếu không truyền size */
@@ -849,8 +822,8 @@ button[aria-expanded="true"] .transition-icon {
     border-radius: 50%; /* tròn */
     display: inline-block;
 }
-/* ================= REPLY ACTIONS ================= */
 
+/* ================= REPLY ACTIONS ================= */
 .reply-actions {
     display: flex;
     align-items: center;
@@ -972,4 +945,82 @@ button[aria-expanded="true"] .transition-icon {
     color: #1877f2;
     font-weight: 600;
     text-decoration: none;
+}
+
+/* ================= Edit Review Form Buttons ================= */
+.edit-review-form .btn {
+    min-width: 70px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* Nút Lưu */
+.edit-review-form .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.edit-review-form .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+    opacity: 0.95;
+}
+
+/* Nút Hủy */
+.edit-review-form .btn-outline-secondary {
+    color: #495057;
+    border-color: #ced4da;
+    background-color: #f8f9fa;
+}
+
+.edit-review-form .btn-outline-secondary:hover {
+    color: #212529;
+    border-color: #adb5bd;
+    background-color: #e2e6ea;
+    opacity: 0.95;
+}
+
+/* Optional: hover shadow effect */
+.edit-review-form .btn:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ================= Reply Form Buttons (same as Edit Review Form) ================= */
+.reply-form .btn {
+    min-width: 70px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Nút Gửi */
+.reply-form .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.reply-form .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+    opacity: 0.95;
+}
+
+/* Nút Hủy */
+.reply-form .btn-secondary,
+.reply-form .btn-outline-secondary {
+    color: #495057;
+    border-color: #ced4da;
+    background-color: #f8f9fa;
+}
+
+.reply-form .btn-secondary:hover,
+.reply-form .btn-outline-secondary:hover {
+    color: #212529;
+    border-color: #adb5bd;
+    background-color: #e2e6ea;
+    opacity: 0.95;
 }

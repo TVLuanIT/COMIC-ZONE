@@ -335,6 +335,7 @@ namespace COMICZONE.Controllers
                 Reviewcontent = r.Reviewcontent,
                 Rating = r.Rating,
                 Createdat = r.Createdat,
+                Updatedat = r.Updatedat,
                 Userid = r.Userid,
                 User = r.User,
                 ProductReviewReplies = r.ProductReviewReplies.Select(reply => new ProductReviewReply
@@ -435,6 +436,11 @@ namespace COMICZONE.Controllers
 
             if (string.IsNullOrEmpty(userIdStr))
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Bạn chưa đăng nhập." });
+                }
+
                 string returnUrl = Url.Action("Detail", "Products",
                     new { id = review.Productid, tab = "comment" }) ?? "/";
 
@@ -443,7 +449,25 @@ namespace COMICZONE.Controllers
 
             int userId = int.Parse(userIdStr);
 
-            //  KIỂM TRA ĐÃ REVIEW CHƯA
+            // Trim nội dung trước
+            if (review.Reviewcontent != null)
+            {
+                review.Reviewcontent = review.Reviewcontent.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(review.Reviewcontent))
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Nội dung đánh giá không được để trống." });
+                }
+
+                TempData["ReviewError"] = "Nội dung đánh giá không được để trống.";
+                return RedirectToAction("Detail", "Products",
+                    new { id = review.Productid, tab = "comment" });
+            }
+
+            // Kiểm tra đã review chưa
             var existingReview = await _context.ProductReviews
                 .FirstOrDefaultAsync(r =>
                     r.Productid == review.Productid &&
@@ -451,21 +475,30 @@ namespace COMICZONE.Controllers
 
             if (existingReview != null)
             {
-                //  Nếu đã có thì UPDATE thay vì thêm mới
                 existingReview.Reviewcontent = review.Reviewcontent;
-                existingReview.Rating = review.Rating;   // nếu có cột Rating
-                existingReview.Createdat = DateTime.Now;
+
+                if (review.Rating >= 1 && review.Rating <= 5)
+                    existingReview.Rating = review.Rating;
+
+                // Không thay Createdat
+                existingReview.Updatedat = DateTime.Now; // <-- cập nhật thời gian chỉnh sửa
 
                 await _context.SaveChangesAsync();
             }
             else
             {
-                //  Nếu chưa có thì thêm mới
                 review.Userid = userId;
                 review.Createdat = DateTime.Now;
+                review.Updatedat = null; // review mới thì chưa chỉnh sửa
 
                 _context.ProductReviews.Add(review);
                 await _context.SaveChangesAsync();
+            }
+
+            // Nếu AJAX request → trả JSON
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, updatedContent = review.Reviewcontent });
             }
 
             return RedirectToAction("Detail", "Products",

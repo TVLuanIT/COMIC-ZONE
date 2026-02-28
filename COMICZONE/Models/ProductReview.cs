@@ -25,7 +25,7 @@ public partial class ProductReview
 
     [Column("REVIEWCONTENT")]
     [StringLength(1000)]
-    public string? Reviewcontent { get; set; }
+    public string Reviewcontent { get; set; } = null!;
 
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime? Createdat { get; set; }
@@ -45,6 +45,7 @@ public partial class ProductReview
 
     [NotMapped]
     public string? ReportStatus { get; set; }
+
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]
     public virtual Product Product { get; set; } = null!;

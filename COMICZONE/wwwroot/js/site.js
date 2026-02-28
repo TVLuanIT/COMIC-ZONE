@@ -43,6 +43,8 @@ const ProductReviews = (() => {
         loadReviewsFirstTime();
         initPagination();
         initReactionButtons();
+        initEditReview();
+
         ProductReplies.initReplyButtons(); // khởi tạo reply form
         ProductReplies.initReplyReactionButtons(); // khởi tạo nút like/dislike cho reply
         ProductReplies.initReplyToReplyButtons(); // khởi tạo nút reply-to-reply
@@ -132,6 +134,60 @@ const ProductReviews = (() => {
                 // Cập nhật số like nếu server trả về
                 if (res.likeCount !== undefined) {
                     likeBtn.find('.like-count').text(res.likeCount);
+                }
+            });
+        });
+    };
+
+    const initEditReview = () => {
+        // Mở form edit
+        $(document).off('click', '.edit-review');
+        $(document).on('click', '.edit-review', function (e) {
+            e.preventDefault();
+            const reviewId = $(this).data('id');
+
+            $('#review-text-' + reviewId).hide();
+            $('.edit-review-form[data-review-id="' + reviewId + '"]').removeClass('d-none');
+        });
+
+        // Hủy edit
+        $(document).off('click', '.cancel-edit');
+        $(document).on('click', '.cancel-edit', function () {
+            const form = $(this).closest('.edit-review-form');
+            form.addClass('d-none');
+            form.siblings('.review-text').show();
+        });
+
+        // Submit edit
+        $(document).off('submit', '.edit-review-form');
+        $(document).on('submit', '.edit-review-form', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            const reviewId = form.find('input[name="Reviewid"]').val();
+            const productId = form.find('input[name="Productid"]').val();
+            const content = form.find('textarea[name="Reviewcontent"]').val().trim();
+
+            if (!content) return;
+
+            // serialize form sẽ tự gửi token + tất cả input
+            const formData = form.serialize();
+
+            $.ajax({
+                url: '/ProductReviews/AddReview',
+                type: 'POST',
+                data: formData,
+                success: function (res) {
+                    // Cập nhật nội dung review và ẩn form
+                    $('#review-text-' + reviewId).text(content).show();
+                    form.addClass('d-none');
+
+                    // Hiển thị "(đã chỉnh sửa)" bên cạnh username
+                    $('#review-text-' + reviewId).closest('.review-card')
+                        .find('.edit-label')
+                        .removeClass('d-none');
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra khi cập nhật đánh giá!');
                 }
             });
         });

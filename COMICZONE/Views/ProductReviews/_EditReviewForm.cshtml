@@ -1,0 +1,17 @@
+﻿@model COMICZONE.Models.ProductReview
+
+<form class="edit-review-form d-none" data-review-id="@Model.Reviewid">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Productid" value="@Model.Productid" />
+    <input type="hidden" name="Reviewid" value="@Model.Reviewid" />
+
+    <textarea class="form-control edit-textarea mb-2"
+              name="Reviewcontent"
+              rows="3"
+              placeholder="Chỉnh sửa đánh giá...">@Model.Reviewcontent</textarea>
+
+    <div class="d-flex gap-2 justify-content-end">
+        <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary cancel-edit">Hủy</button>
+    </div>
+</form>

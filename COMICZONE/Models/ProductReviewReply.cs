@@ -40,6 +40,7 @@ public partial class ProductReviewReply
 
     [NotMapped]
     public string? ReportStatus { get; set; }
+
     [InverseProperty("Reply")]
     public virtual ICollection<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; } = new List<ProductReviewReplyLike>();
 
