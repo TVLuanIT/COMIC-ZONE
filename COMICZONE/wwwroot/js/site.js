@@ -176,8 +176,11 @@ const ProductReplies = (() => {
                 .attr('data-reply-to-user-id', replyToUserId || '')
                 .attr('data-reply-to-username', replyToUsername || '');
 
-            // Toggle hiển thị form
-            container.slideToggle();
+            // Đóng tất cả form khác trước
+            $('.reply-form-container').not(container).slideUp();
+
+            // Toggle form hiện tại
+            container.stop(true, true).slideToggle();
         });
 
         // Hủy reply
@@ -293,17 +296,35 @@ const ProductReplies = (() => {
 
             if (!showBtn || replies.length === 0) return;
 
-            let shownCount = 0;
+            const total = replies.length;
             const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
 
-            // ĐƯA NÚT XUỐNG CUỐI
+            let shownCount = 0;
+            let expanded = false;
+
+            // Đưa nút xuống cuối
             container.appendChild(showBtn);
 
-            // Ẩn tất cả reply ban đầu
-            replies.forEach(r => r.style.display = 'none');
+            // Hàm reset về trạng thái ban đầu
+            const resetReplies = () => {
+                replies.forEach(r => r.style.display = 'none');
+                shownCount = 0;
+                expanded = false;
+                showBtn.innerText = `${total} phản hồi`;
+            };
+
+            // Khởi tạo ban đầu
+            resetReplies();
 
             showBtn.addEventListener('click', () => {
-                const remaining = replies.length - shownCount;
+
+                // Nếu đang expanded → thu gọn lại
+                if (expanded) {
+                    resetReplies();
+                    return;
+                }
+
+                const remaining = total - shownCount;
                 const toShow = Math.min(batch, remaining);
 
                 for (let i = shownCount; i < shownCount + toShow; i++) {
@@ -312,11 +333,13 @@ const ProductReplies = (() => {
 
                 shownCount += toShow;
 
-                const left = replies.length - shownCount;
+                const left = total - shownCount;
+
                 if (left > 0) {
                     showBtn.innerText = `${left} phản hồi còn lại`;
                 } else {
-                    showBtn.style.display = 'none';
+                    showBtn.innerText = 'Ẩn phản hồi';
+                    expanded = true;
                 }
             });
         });
@@ -353,6 +376,9 @@ const ProductReplies = (() => {
             formContainer.find('form')
                 .attr('data-reply-to-user-id', replyToUserId || '')
                 .attr('data-reply-to-username', replyToUsername || '');
+
+            // Đóng form khác trước
+            $('.reply-form-container').not(formContainer).slideUp();
 
             formContainer.slideDown(() => {
                 const textareaEl = textarea.get(0);

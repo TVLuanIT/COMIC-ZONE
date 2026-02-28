@@ -835,7 +835,8 @@ button[aria-expanded="true"] .transition-icon {
 }
 
 .reply-text {
-    font-size: 0.85rem;
+    font-size: 0.95rem; /* ~15px */
+    line-height: 1.5;
 }
 .reply-form-container .reply-form input {
     width: 100%; /* textbox luôn chiếm hết chiều ngang còn lại */
@@ -915,7 +916,6 @@ button[aria-expanded="true"] .transition-icon {
 }
 
 /* ================= 3-DOT ACTION MENU (Review + Reply) ================= */
-
 .action-menu-btn {
     background: transparent;
     border: none;
@@ -943,4 +943,33 @@ button[aria-expanded="true"] .transition-icon {
 #reportModal .modal-dialog {
     margin-left: auto;
     margin-right: auto;
+}
+
+/* ================= SHOW / HIDE REPLIES BUTTON ================= */
+.show-replies-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 6px;
+
+    font-size: 16px;
+    font-weight: 500;
+    color: #65676b;
+    cursor: pointer;
+
+    text-decoration: none;   /* bỏ gạch chân */
+    transition: color 0.2s ease;
+}
+
+/* Hover */
+.show-replies-btn:hover {
+    color: #1877f2;
+    text-decoration: none;   /* đảm bảo không bị gạch */
+}
+
+/* Khi ở trạng thái Ẩn phản hồi */
+.show-replies-btn.hide-mode {
+    color: #1877f2;
+    font-weight: 600;
+    text-decoration: none;
 }
