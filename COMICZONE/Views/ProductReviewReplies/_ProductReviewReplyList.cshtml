@@ -171,9 +171,10 @@
                         </ul>
                     </div>
                 </div>
+                <div class="reply-form-container mt-2">
+                    @await Html.PartialAsync("~/Views/ProductReviews/_ReportReviewForm.cshtml")
+                </div>
             </div>
         }
     </div>
 </div>
-
-@await Html.PartialAsync("~/Views/ProductReviews/_ReportReviewForm.cshtml")

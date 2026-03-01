@@ -409,6 +409,7 @@ const ProductReplies = (() => {
             e.preventDefault();
 
             const reviewId = $(this).data('review-id');
+            const replyId = $(this).data('reply-id');
             const replyToUserId = $(this).data('reply-to-user-id');
             const replyToUsername = $(this).data('reply-to-username');
 
@@ -421,31 +422,45 @@ const ProductReplies = (() => {
                 return;
             }
 
-            const textarea = formContainer.find('textarea');
+            const currentReplyItem = $(this).closest('.reply-item');
 
-            // Điền @username
-            if (replyToUsername) {
-                textarea.val(`@${replyToUsername} `);
+            // Kiểm tra form đang nằm dưới reply nào
+            const isSameReply =
+                formContainer.parent().get(0) === currentReplyItem.get(0);
+
+            // Nếu đang mở và click lại cùng reply → đóng
+            if (formContainer.is(':visible') && isSameReply) {
+                formContainer.slideUp();
+                return;
             }
 
-            // Set data cho form
+            // Nếu đang mở ở reply khác → chỉ đóng animation trước
+            if (formContainer.is(':visible') && !isSameReply) {
+                formContainer.stop(true, true).hide();
+            }
+
+            // Move form xuống reply mới
+            currentReplyItem.append(formContainer);
+            formContainer
+                .hide()
+                .slideDown(500)
+                .fadeTo(500, 1);
+
+            const textarea = formContainer.find('textarea');
+            textarea.val(replyToUsername ? `@${replyToUsername} ` : '');
+
             formContainer.find('form')
                 .attr('data-reply-to-user-id', replyToUserId || '')
-                .attr('data-reply-to-username', replyToUsername || '');
+                .attr('data-parent-reply-id', replyId || '');
 
-            // Đóng form khác trước
-            $('.reply-form-container').not(formContainer).slideUp();
-
-            formContainer.slideDown(() => {
-                const textareaEl = textarea.get(0);
-                if (textareaEl) {
-                    textareaEl.focus();
-                    textareaEl.setSelectionRange(
-                        textareaEl.value.length,
-                        textareaEl.value.length
-                    );
-                }
-            });
+            const textareaEl = textarea.get(0);
+            if (textareaEl) {
+                textareaEl.focus();
+                textareaEl.setSelectionRange(
+                    textareaEl.value.length,
+                    textareaEl.value.length
+                );
+            }
         });
     };
 
