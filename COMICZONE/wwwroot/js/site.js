@@ -1,5 +1,30 @@
 ﻿// wwwroot/js/site.js
 
+function showLoginRequired(message) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Yêu cầu đăng nhập',
+        text: message,
+        confirmButtonText: 'Đăng nhập',
+        cancelButtonText: 'Hủy',
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const currentUrl = window.location.pathname + window.location.search;
+            window.location.href =
+                `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+        }
+    });
+}
+
+function checkLoginStatus() {
+    const reviewRoot = document.getElementById('review-container');
+    return reviewRoot?.dataset.loggedin === "true";
+}
+
 const ProductSummary = (() => {
     const maxLength = 250; // số ký tự hiển thị ban đầu
 
@@ -54,9 +79,11 @@ const ProductReviews = (() => {
         fetch('/ProductReviews/Reviews?productId=' + productId)
             .then(response => response.text())
             .then(html => {
-                document.getElementById("review-container").innerHTML = html;
-                initReactionButtons(); // gắn lại nút like
+                const container = document.getElementById("review-container");
+                container.innerHTML = html;
+                container.setAttribute("data-loggedin", "true"); // hoặc đọc từ server
 
+                initReactionButtons(); // gắn lại nút like
                 // KHỞI TẠO hiển thị reply theo batch sau khi load xong
                 ProductReplies.initReplyList();
             });
@@ -140,6 +167,16 @@ const ProductReviews = (() => {
     };
 
     const initEditReview = () => {
+        $(document).on('submit', '#add-review-form', function (e) {
+
+            if (!checkLoginStatus()) {
+                e.preventDefault();
+                showLoginRequired('Bạn cần đăng nhập nếu muốn gửi đánh giá.');
+                return;
+            }
+
+        });
+
         // Mở form edit
         $(document).off('click', '.edit-review');
         $(document).on('click', '.edit-review', function (e) {
@@ -208,11 +245,8 @@ const ProductReplies = (() => {
             const reviewId = $(this).data('review-id');
             const container = $(`#reply-form-${reviewId}`);
 
-            if (container.length === 0) {
-                // Chưa login → redirect login
-                // Lấy URL hiện tại
-                const currentUrl = window.location.pathname + window.location.search;
-                window.location.href = `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+            if (!checkLoginStatus()) {
+                showLoginRequired('Bạn cần đăng nhập nếu muốn gửi phản hồi.');
                 return;
             }
 
@@ -233,17 +267,36 @@ const ProductReplies = (() => {
                 .attr('data-reply-to-username', replyToUsername || '');
 
             // Đóng tất cả form khác trước
-            $('.reply-form-container').not(container).slideUp();
+            //$('.reply-form-container').not(container).slideUp();
 
-            // Toggle form hiện tại
-            container.stop(true, true).slideToggle();
+            // Chỉ mở form nếu đang bị ẩn
+            if (!container.is(':visible')) {
+                container.stop(true, true).slideDown();
+            }
         });
 
         // Hủy reply
         $(document).off('click', '.cancel-reply');
         $(document).on('click', '.cancel-reply', function (e) {
             e.preventDefault();
-            $(this).closest('.reply-form-container').slideUp();
+
+            const formContainer = $(this).closest('.reply-form-container');
+
+            // Nếu là form clone (reply-to-reply)
+            if (formContainer.hasClass('clone-form')) {
+                formContainer.slideUp(function () {
+                    $(this).remove(); // xóa luôn khỏi DOM
+                });
+                return;
+            }
+
+            // Nếu là form gốc của review
+            const reviewId = formContainer.data('review-id');
+
+            formContainer.slideUp();
+
+            const anchor = $(`#review-reply-anchor-${reviewId}`);
+            anchor.after(formContainer);
         });
 
         // Submit reply
@@ -413,47 +466,42 @@ const ProductReplies = (() => {
             const replyToUserId = $(this).data('reply-to-user-id');
             const replyToUsername = $(this).data('reply-to-username');
 
-            const formContainer = $(`#reply-form-${reviewId}`);
+            const originalForm = $(`#reply-form-${reviewId}`);
 
-            if (formContainer.length === 0) {
-                const currentUrl = window.location.pathname + window.location.search;
-                window.location.href =
-                    `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+            if (!checkLoginStatus()) {
+                showLoginRequired('Bạn cần đăng nhập nếu muốn gửi phản hồi.');
                 return;
             }
 
             const currentReplyItem = $(this).closest('.reply-item');
 
-            // Kiểm tra form đang nằm dưới reply nào
-            const isSameReply =
-                formContainer.parent().get(0) === currentReplyItem.get(0);
-
-            // Nếu đang mở và click lại cùng reply → đóng
-            if (formContainer.is(':visible') && isSameReply) {
-                formContainer.slideUp();
-                return;
+            // KIỂM TRA đã có form trong reply này chưa
+            if (currentReplyItem.find('.reply-form-container.clone-form').length > 0) {
+                return; // đã có form rồi → không tạo thêm
             }
 
-            // Nếu đang mở ở reply khác → chỉ đóng animation trước
-            if (formContainer.is(':visible') && !isSameReply) {
-                formContainer.stop(true, true).hide();
-            }
+            // Clone form
+            const clonedForm = originalForm.clone(true);
 
-            // Move form xuống reply mới
-            currentReplyItem.append(formContainer);
-            formContainer
-                .hide()
-                .slideDown(500)
-                .fadeTo(500, 1);
+            clonedForm
+                .removeAttr('id') // tránh trùng id
+                .addClass('clone-form'); // đánh dấu là form clone
 
-            const textarea = formContainer.find('textarea');
-            textarea.val(replyToUsername ? `@${replyToUsername} ` : '');
+            // Reset nội dung
+            clonedForm.find('textarea')
+                .val(replyToUsername ? `@${replyToUsername} ` : '');
 
-            formContainer.find('form')
+            // Set lại data
+            clonedForm.find('form')
                 .attr('data-reply-to-user-id', replyToUserId || '')
                 .attr('data-parent-reply-id', replyId || '');
 
-            const textareaEl = textarea.get(0);
+            // Thêm xuống reply
+            currentReplyItem.append(clonedForm);
+
+            clonedForm.hide().slideDown();
+
+            const textareaEl = clonedForm.find('textarea').get(0);
             if (textareaEl) {
                 textareaEl.focus();
                 textareaEl.setSelectionRange(
@@ -566,8 +614,10 @@ const ProductReport = (() => {
     return { init };
 })();
 
-// Khi trang load xong
 document.addEventListener('DOMContentLoaded', () => {
+
+    console.log("Login status:", checkLoginStatus());
+
     ProductSummary.init();
     ProductReport.init();
 

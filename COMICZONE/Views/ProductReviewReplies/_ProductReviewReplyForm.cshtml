@@ -6,7 +6,10 @@
     var username = Model.User?.Username ?? "Người dùng ẩn danh";
 }
 
-<div class="reply-form-container mt-2" id="reply-form-@reviewId" style="display:none;">
+<div class="reply-form-container mt-2"
+    id="reply-form-@reviewId"
+    data-review-id="@Model.Reviewid"
+    style="display:none;">
     <form class="reply-form d-flex gap-2" data-review-id="@reviewId">
         <!-- Avatar người dùng -->
         @await Component.InvokeAsync("UserAvatar", new { avatarUrl = currentAvatar, size = 32 })
