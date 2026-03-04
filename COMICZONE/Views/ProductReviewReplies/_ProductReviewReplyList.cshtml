@@ -15,7 +15,11 @@
     int productId = ViewBag.ProductId is int id ? id : 0;
 }
 
-<div class="reply-list-container" data-review-id="@Model.FirstOrDefault()?.Reviewid">
+@Html.AntiForgeryToken()
+<div class="reply-list-container"
+     data-review-id="@Model.FirstOrDefault()?.Reviewid"
+     data-loggedin="@isLoggedIn.ToString().ToLower()"
+     data-productid="@productId">
     @if (totalReplies > 0)
     {
         <button class="show-replies-btn btn btn-link p-0 mb-2" data-batch-size="@batchSize">

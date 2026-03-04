@@ -17,222 +17,224 @@
     string UserRole = string.IsNullOrEmpty(UserRoleStr) ? "User" : UserRoleStr;
     bool isLoggedIn = UserId > 0; // UserId lấy từ session
 }
-<div id="review-container" data-loggedin="@isLoggedIn.ToString().ToLower()">
-    <div class="review-list-section">
-        <h4 class="review-list-title">Đánh giá từ khách hàng</h4>
 
-        @if (!Model.Any())
+<div class="review-list-section"
+     data-loggedin="@isLoggedIn.ToString().ToLower()"
+     data-productid="@productId">
+    <h4 class="review-list-title">Đánh giá từ khách hàng</h4>
+
+    @if (!Model.Any())
+    {
+        <div class="no-review">Chưa có đánh giá nào cho sản phẩm này.</div>
+    }
+    else
+    {
+        @foreach (var review in Model)
         {
-            <div class="no-review">Chưa có đánh giá nào cho sản phẩm này.</div>
-        }
-        else
-        {
-            @foreach (var review in Model)
-            {
-                <div class="review-card mb-3">
-                    <div class="review-header d-flex justify-content-between">
-                        <div class="d-flex">
-                            <div class="review-avatar me-2">
-                                @if (!string.IsNullOrEmpty(review.User?.Avatar))
+            <div class="review-card mb-3">
+                <div class="review-header d-flex justify-content-between">
+                    <div class="d-flex">
+                        <div class="review-avatar me-2">
+                            @if (!string.IsNullOrEmpty(review.User?.Avatar))
+                            {
+                                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
+                            }
+                            else
+                            {
+                                @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                            }
+
+                        </div>
+                        <div>
+                            <div class="review-username">
+                                @if (string.IsNullOrWhiteSpace(review.User?.Username))
                                 {
-                                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
+                                    <span>Người dùng ẩn danh</span>
                                 }
                                 else
                                 {
-                                    @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                                    <span class="username-text">@review.User.Username</span>
+                                    <span class="edit-label text-muted small ms-1 @(review.Updatedat.HasValue ? "" : "d-none")">
+                                        (đã chỉnh sửa)
+                                    </span>
                                 }
-
                             </div>
-                            <div>
-                                <div class="review-username">
-                                    @if (string.IsNullOrWhiteSpace(review.User?.Username))
+                            <div class="review-date">
+                                @{
+                                    string timeAgo = "-";
+                                    if (review.Createdat.HasValue)
                                     {
-                                        <span>Người dùng ẩn danh</span>
+                                        var diff = DateTime.Now - review.Createdat.Value;
+                                        if (diff.TotalMinutes < 1)
+                                            timeAgo = "Vừa xong";
+                                        else if (diff.TotalHours < 1)
+                                            timeAgo = $"{(int)diff.TotalMinutes} phút trước";
+                                        else if (diff.TotalDays < 1)
+                                            timeAgo = $"{(int)diff.TotalHours} giờ trước";
+                                        else
+                                            timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
                                     }
-                                    else
-                                    {
-                                        <span class="username-text">@review.User.Username</span>
-                                        <span class="edit-label text-muted small ms-1 @(review.Updatedat.HasValue ? "" : "d-none")">
-                                            (đã chỉnh sửa)
-                                        </span>
-                                    }
-                                </div>
-                                <div class="review-date">
-                                    @{
-                                        string timeAgo = "-";
-                                        if (review.Createdat.HasValue)
-                                        {
-                                            var diff = DateTime.Now - review.Createdat.Value;
-                                            if (diff.TotalMinutes < 1)
-                                                timeAgo = "Vừa xong";
-                                            else if (diff.TotalHours < 1)
-                                                timeAgo = $"{(int)diff.TotalMinutes} phút trước";
-                                            else if (diff.TotalDays < 1)
-                                                timeAgo = $"{(int)diff.TotalHours} giờ trước";
-                                            else
-                                                timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
-                                        }
-                                    }
-                                    @timeAgo
-                                </div>
+                                }
+                                @timeAgo
                             </div>
                         </div>
-                        <!-- Menu 3 chấm -->
-                        <div class="dropdown">
-                            <button class="action-menu-btn"
-                                    type="button"
-                                    id="menu-@review.Reviewid"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                &hellip;
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-@review.Reviewid">
-                                @if (review.Userid == UserId)
-                                {
-                                    <!-- Review của chính họ -->
-                                    <li>
-                                        <a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">
-                                            Chỉnh Sửa
+                    </div>
+                    <!-- Menu 3 chấm -->
+                    <div class="dropdown">
+                        <button class="action-menu-btn"
+                                type="button"
+                                id="menu-@review.Reviewid"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            &hellip;
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-@review.Reviewid">
+                            @if (review.Userid == UserId)
+                            {
+                                <!-- Review của chính họ -->
+                                <li>
+                                    <a class="dropdown-item edit-review" href="#" data-id="@review.Reviewid">
+                                        Chỉnh Sửa
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
+                                        Xóa
+                                    </a>
+                                </li>
+                            }
+                            else if (UserRole == "Admin")
+                            {
+                                <!-- Admin có quyền xóa tất cả -->
+                                <li>
+                                    <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
+                                        Xóa
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <!-- Người dùng đã login và không phải owner -->
+                                <li>
+                                    @if (!isLoggedIn)
+                                    {
+                                        <a class="dropdown-item"
+                                           href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                            Báo cáo vi phạm
                                         </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
-                                            Xóa
-                                        </a>
-                                    </li>
-                                }
-                                else if (UserRole == "Admin")
-                                {
-                                    <!-- Admin có quyền xóa tất cả -->
-                                    <li>
-                                        <a class="dropdown-item delete-review" href="#" data-id="@review.Reviewid">
-                                            Xóa
-                                        </a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <!-- Người dùng đã login và không phải owner -->
-                                    <li>
-                                        @if (!isLoggedIn)
+                                    }
+                                    else if (review.Userid != UserId) // đã login và không phải owner
+                                    {
+                                        if (!review.IsReportedByUser)
                                         {
-                                            <a class="dropdown-item"
-                                               href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                            <a class="dropdown-item report-review"
+                                               href="#"
+                                               data-review-id="@review.Reviewid"
+                                               data-reply-id=""
+                                               data-reported="false"
+                                               data-status="">
                                                 Báo cáo vi phạm
                                             </a>
                                         }
-                                        else if (review.Userid != UserId) // đã login và không phải owner
+                                        else
                                         {
-                                            if (!review.IsReportedByUser)
-                                            {
-                                                <a class="dropdown-item report-review"
-                                                   href="#"
-                                                   data-review-id="@review.Reviewid"
-                                                   data-reply-id=""
-                                                   data-reported="false"
-                                                   data-status="">
-                                                    Báo cáo vi phạm
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="dropdown-item text-muted small">
-                                                    @if (review.ReportStatus == "Pending")
-                                                    {
-                                                        <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
-                                                    }
-                                                    else if (review.ReportStatus == "Approved")
-                                                    {
-                                                        <text>Báo cáo đã được duyệt</text>
-                                                    }
-                                                    else if (review.ReportStatus == "Rejected")
-                                                    {
-                                                        <text>Báo cáo đã bị từ chối</text>
-                                                    }
-                                                    else
-                                                    {
-                                                        <text>Bạn đã gửi báo cáo cho đánh giá này</text>
-                                                    }
-                                                </span>
-                                            }
+                                            <span class="dropdown-item text-muted small">
+                                                @if (review.ReportStatus == "Pending")
+                                                {
+                                                    <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
+                                                }
+                                                else if (review.ReportStatus == "Approved")
+                                                {
+                                                    <text>Báo cáo đã được duyệt</text>
+                                                }
+                                                else if (review.ReportStatus == "Rejected")
+                                                {
+                                                    <text>Báo cáo đã bị từ chối</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                }
+                                            </span>
                                         }
-                                    </li>
-                                }
-                            </ul>
-                        </div>
+                                    }
+                                </li>
+                            }
+                        </ul>
                     </div>
-                    <div class="review-stars mt-1 mb-2">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
-                        }
-
-                    </div>
-                    <div class="review-content mb-2">
-                        <div class="review-text" id="review-text-@review.Reviewid">
-                            @review.Reviewcontent
-                        </div>
-
-                        @await Html.PartialAsync("_EditReviewForm.cshtml", review)
-                    </div>
-                    <div class="review-actions mt-2">
-                        <!-- LIKE -->
-                        <button class="reaction-btn toggle-like @(review.IsLikedByUser ? "liked" : "")"
-                                data-review-id="@review.Reviewid">
-                            <svg class="icon like-icon" viewBox="0 0 24 24">
-                                <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
-                            </svg>
-                            <span class="like-count">@review.LikeCount</span>
-                        </button>
-                        <!-- DISLIKE -->
-                        <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
-                                data-review-id="@review.Reviewid">
-                            <svg class="icon dislike-icon" viewBox="0 0 24 24">
-                                <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
-                            </svg>
-                        </button>
-                        <!-- REPLY -->
-                        <button class="reaction-btn toggle-reply"
-                                data-review-id="@review.Reviewid"
-                                data-reply-to-user-id="@review.Userid"
-                                data-reply-to-username="@review.User?.Username"
-                                title="Trả lời">
-                            <span class="reply-text">💬 Phản hồi</span>
-                        </button>
-                    </div>
-
-                    @* neo cố định trong review *@
-                    <div id="review-reply-anchor-@review.Reviewid"></div>
-
-                    @* Form chỉ hiện khi login *@
-                    @if (isLoggedIn)
+                </div>
+                <div class="review-stars mt-1 mb-2">
+                    @for (int i = 1; i <= 5; i++)
                     {
-                        @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
+                        <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
                     }
-                    @* Danh sách reply luôn hiển thị *@
-                    @await Html.PartialAsync(
-                    "~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml",
-                        review.ProductReviewReplies
-                        )
-        </div>
-        @await Html.PartialAsync("_ReportReviewForm.cshtml")
+
+                </div>
+                <div class="review-content mb-2">
+                    <div class="review-text" id="review-text-@review.Reviewid">
+                        @review.Reviewcontent
+                    </div>
+
+                    @await Html.PartialAsync("_EditReviewForm.cshtml", review)
+                </div>
+                <div class="review-actions mt-2">
+                    <!-- LIKE -->
+                    <button class="reaction-btn toggle-like @(review.IsLikedByUser ? "liked" : "")"
+                            data-review-id="@review.Reviewid">
+                        <svg class="icon like-icon" viewBox="0 0 24 24">
+                            <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
+                        </svg>
+                        <span class="like-count">@review.LikeCount</span>
+                    </button>
+                    <!-- DISLIKE -->
+                    <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
+                            data-review-id="@review.Reviewid">
+                        <svg class="icon dislike-icon" viewBox="0 0 24 24">
+                            <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
+                        </svg>
+                    </button>
+                    <!-- REPLY -->
+                    <button class="reaction-btn toggle-reply"
+                            data-review-id="@review.Reviewid"
+                            data-reply-to-user-id="@review.Userid"
+                            data-reply-to-username="@review.User?.Username"
+                            title="Trả lời">
+                        <span class="reply-text">💬 Phản hồi</span>
+                    </button>
+                </div>
+
+                @* neo cố định trong review *@
+                <div id="review-reply-anchor-@review.Reviewid"></div>
+
+                @* Form chỉ hiện khi login *@
+                @if (isLoggedIn)
+                {
+                    @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
                 }
-        }
+                @* Danh sách reply luôn hiển thị *@
 
-        @* PHÂN TRANG *@
-        @if (totalPages > 1)
-        {
-            <nav aria-label="Review pagination">
-                <ul class="pagination justify-content-center mt-3">
-                    @for (int i = 1; i <= totalPages; i++)
-                    {
-                        <li class="page-item @(i == currentPage ? "active" : "")">
-                            <a class="page-link review-page-link" href="#" data-page="@i">@i</a>
-                        </li>
-                    }
-                </ul>
-            </nav>
+                @await Html.PartialAsync(
+                    "~/Views/ProductReviewReplies/_ProductReviewReplyList.cshtml",
+                    review.ProductReviewReplies
+                    )
+            </div>
+            @await Html.PartialAsync("_ReportReviewForm.cshtml")
         }
+    }
 
-    </div>
+    @* PHÂN TRANG *@
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Review pagination">
+            <ul class="pagination justify-content-center mt-3">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link review-page-link" href="#" data-page="@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+
 </div>

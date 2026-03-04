@@ -20,9 +20,21 @@ function showLoginRequired(message) {
     });
 }
 
-function checkLoginStatus() {
-    const reviewRoot = document.getElementById('review-container');
-    return reviewRoot?.dataset.loggedin === "true";
+///**
+// * Kiểm tra trạng thái đăng nhập của một container bất kỳ
+// * @param {string|jQuery} selector - selector CSS hoặc jQuery object
+// * @returns {boolean} true nếu đăng nhập, false nếu không
+// */
+function checkLoginStatus(selector) {
+    let container = (selector instanceof jQuery ? selector : $(selector)).first();
+    if (!container.length) return false;
+
+    const loggedInAttr = container.attr('data-loggedin');
+    return loggedInAttr === "true";
+}
+
+function getAntiForgeryToken() {
+    return document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 }
 
 const ProductSummary = (() => {
@@ -69,6 +81,8 @@ const ProductReviews = (() => {
         initPagination();
         initReactionButtons();
         initEditReview();
+        initDeleteReview();
+        initDeleteReply();
 
         ProductReplies.initReplyButtons(); // khởi tạo reply form
         ProductReplies.initReplyReactionButtons(); // khởi tạo nút like/dislike cho reply
@@ -81,7 +95,6 @@ const ProductReviews = (() => {
             .then(html => {
                 const container = document.getElementById("review-container");
                 container.innerHTML = html;
-                container.setAttribute("data-loggedin", "true"); // hoặc đọc từ server
 
                 initReactionButtons(); // gắn lại nút like
                 // KHỞI TẠO hiển thị reply theo batch sau khi load xong
@@ -225,6 +238,132 @@ const ProductReviews = (() => {
                 },
                 error: function () {
                     alert('Có lỗi xảy ra khi cập nhật đánh giá!');
+                }
+            });
+        });
+    };
+
+    const initDeleteReview = () => {
+
+        $(document).off('click', '.delete-review');
+        $(document).on('click', '.delete-review', function (e) {
+            e.preventDefault();
+
+            if (!checkLoginStatus()) {
+                showLoginRequired('Bạn cần đăng nhập nếu muốn xóa đánh giá.');
+                return;
+            }
+
+            const reviewId = $(this).data('id');
+            const reviewCard = $(this).closest('.review-card');
+
+            Swal.fire({
+                title: 'Bạn có chắc?',
+                text: "Đánh giá này sẽ bị xóa vĩnh viễn!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                $.ajax({
+                    url: '/ProductReviews/DeleteReview',
+                    type: 'POST',
+                    data: { reviewId: reviewId },
+                    success: function (res) {
+
+                        if (!res.success) {
+                            Swal.fire('Lỗi', res.message, 'error');
+                            return;
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã xóa!',
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+
+                        // Xóa khỏi UI bằng hiệu ứng
+                        reviewCard.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                    },
+                    error: function () {
+                        Swal.fire('Lỗi', 'Có lỗi xảy ra.', 'error');
+                    }
+                });
+
+            });
+
+        });
+    };
+
+    // XÓA REPLY
+    const initDeleteReply = () => {
+
+        // Xóa các sự kiện cũ để tránh bind trùng
+        $(document).off('click', '.delete-reply');
+
+        // Bắt sự kiện click xóa reply
+        $(document).on('click', '.delete-reply', function (e) {
+            e.preventDefault();
+
+            const replyId = $(this).data('id');
+            if (!replyId) return;
+
+            Swal.fire({
+                title: 'Xác nhận xóa',
+                text: "Bạn có chắc muốn xóa phản hồi này không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',    // màu nút Xóa
+                cancelButtonColor: '#3085d6',  // màu nút Hủy
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true           // ← đảo confirm/cancel: Xóa bên phải, Hủy bên trái
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Lấy token CSRF từ form (AntiForgeryToken)
+                    const token = $('input[name="__RequestVerificationToken"]').first().val();
+
+                    $.ajax({
+                        url: '/ProductReviews/DeleteReply',
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: token,
+                            replyId: replyId
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                // Xóa reply khỏi DOM
+                                $('.reply-item[data-reply-id="' + replyId + '"]').fadeOut(300, function () {
+                                    $(this).remove();
+
+                                    // Cập nhật số lượng phản hồi hiển thị
+                                    const container = $('.reply-list-container');
+                                    const btn = container.find('.show-replies-btn');
+                                    let count = container.find('.reply-item').length;
+                                    if (count > 0) {
+                                        btn.text(count + ' phản hồi');
+                                    } else {
+                                        btn.remove();
+                                    }
+                                });
+
+                                Swal.fire('Đã xóa!', 'Phản hồi đã được xóa.', 'success');
+                            } else {
+                                Swal.fire('Lỗi', response.message || 'Xóa thất bại', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Lỗi', 'Xóa thất bại do lỗi server', 'error');
+                        }
+                    });
                 }
             });
         });
@@ -615,8 +754,6 @@ const ProductReport = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    console.log("Login status:", checkLoginStatus());
 
     ProductSummary.init();
     ProductReport.init();

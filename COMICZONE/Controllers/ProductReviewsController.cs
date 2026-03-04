@@ -382,6 +382,46 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReply(int replyId)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+            int currentUserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
+
+            var reply = await _context.ProductReviewReplies
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Replyid == replyId);
+
+            if (reply == null)
+                return Json(new { success = false, message = "Không tìm thấy phản hồi" });
+
+            if (reply.Userid != currentUserId && userRole != "Admin")
+                return Json(new { success = false, message = "Bạn không có quyền xóa phản hồi này" });
+
+            try
+            {
+                // Xóa like/dislike liên quan
+                var likes = _context.ProductReviewReplyLikes.Where(l => l.Replyid == replyId);
+                _context.ProductReviewReplyLikes.RemoveRange(likes);
+
+                // Xóa báo cáo liên quan
+                var reports = _context.ProductReviewReports.Where(rp => rp.Replyid == replyId);
+                _context.ProductReviewReports.RemoveRange(reports);
+
+                // Cuối cùng xóa reply
+                _context.ProductReviewReplies.Remove(reply);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Xóa thất bại: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddReply([FromBody] ReplyRequest model)
         {
             if (!ModelState.IsValid)
@@ -423,6 +463,37 @@ namespace COMICZONE.Controllers
                 content = reply.Replycontent,
                 replytouserUsername = replyToUser?.Username // trả về để JS hiển thị @username
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            var review = await _context.ProductReviews
+                .Include(r => r.ProductReviewReplies)
+                .FirstOrDefaultAsync(r => r.Reviewid == reviewId);
+
+            if (review == null)
+                return Json(new { success = false, message = "Không tìm thấy đánh giá." });
+
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            int userId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
+
+            if (review.Userid != userId && userRole != "Admin")
+                return Json(new { success = false, message = "Bạn không có quyền xóa." });
+
+            // XÓA REPLIES TRƯỚC
+            if (review.ProductReviewReplies.Any())
+            {
+                _context.ProductReviewReplies.RemoveRange(review.ProductReviewReplies);
+            }
+
+            _context.ProductReviews.Remove(review);
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
 
         // POST: ProductReviews/Create
