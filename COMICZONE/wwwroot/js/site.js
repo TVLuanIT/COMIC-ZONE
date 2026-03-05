@@ -33,10 +33,6 @@ function checkLoginStatus(selector) {
     return loggedInAttr === "true";
 }
 
-function getAntiForgeryToken() {
-    return document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-}
-
 const ProductSummary = (() => {
     const maxLength = 250; // số ký tự hiển thị ban đầu
 
@@ -87,6 +83,7 @@ const ProductReviews = (() => {
         ProductReplies.initReplyButtons(); // khởi tạo reply form
         ProductReplies.initReplyReactionButtons(); // khởi tạo nút like/dislike cho reply
         ProductReplies.initReplyToReplyButtons(); // khởi tạo nút reply-to-reply
+        ProductReplies.initEditReply(); // khởi tạo edit reply
     };
 
     const loadReviewsFirstTime = () => {
@@ -114,6 +111,7 @@ const ProductReviews = (() => {
                     ProductReplies.initReplyReactionButtons();
                     ProductReplies.initReplyList();
                     ProductReplies.initReplyToReplyButtons();
+                    ProductReplies.initEditReply();
                 });
         });
     };
@@ -181,13 +179,11 @@ const ProductReviews = (() => {
 
     const initEditReview = () => {
         $(document).on('submit', '#add-review-form', function (e) {
-
-            if (!checkLoginStatus()) {
-                e.preventDefault();
-                showLoginRequired('Bạn cần đăng nhập nếu muốn gửi đánh giá.');
-                return;
+            const container_login = $(this).closest('[data-loggedin]'); // container chứa data-loggedin
+            if (!checkLoginStatus(container_login)) {
+                showLoginRequired('Bạn cần đăng nhập để gửi báo cáo.');
+                return false; // Dừng xử lý nếu chưa đăng nhập
             }
-
         });
 
         // Mở form edit
@@ -384,7 +380,9 @@ const ProductReplies = (() => {
             const reviewId = $(this).data('review-id');
             const container = $(`#reply-form-${reviewId}`);
 
-            if (!checkLoginStatus()) {
+            // Lấy container reply parent hoặc toàn bộ review container
+            const container_login = $(this).closest('[data-loggedin]');
+            if (!checkLoginStatus(container_login)) {
                 showLoginRequired('Bạn cần đăng nhập nếu muốn gửi phản hồi.');
                 return;
             }
@@ -462,15 +460,6 @@ const ProductReplies = (() => {
                         // Xóa nội dung và ẩn form
                         form.find('textarea').val('');
                         form.closest('.reply-form-container').slideUp();
-
-                        let mention = res.replytouserUsername ? `@${res.replytouserUsername} ` : '';
-                        // Thêm reply mới vào danh sách hiển thị
-                        let replyHtml = `
-                            <div class="reply-item mt-2 ps-5">
-                                <strong>${res.username}</strong>: ${res.content}
-                            </div>
-                        `;
-                        $(`#reply-list-${reviewId}`).append(replyHtml);
                     } else {
                         alert('Gửi phản hồi thất bại!');
                     }
@@ -607,7 +596,9 @@ const ProductReplies = (() => {
 
             const originalForm = $(`#reply-form-${reviewId}`);
 
-            if (!checkLoginStatus()) {
+            // Lấy container reply parent hoặc toàn bộ review container
+            const container_login = $(this).closest('[data-loggedin]');
+            if (!checkLoginStatus(container_login)) {
                 showLoginRequired('Bạn cần đăng nhập nếu muốn gửi phản hồi.');
                 return;
             }
@@ -651,11 +642,90 @@ const ProductReplies = (() => {
         });
     };
 
+    const initEditReply = () => {
+        // click vào nút edit reply
+        $(document).on("click", ".edit-reply", function (e) {
+            e.preventDefault();
+
+            const replyItem = $(this).closest(".reply-item");
+            const contentDiv = replyItem.find(".reply-content");
+            const editBox = replyItem.find(".reply-edit-container");
+            const textarea = replyItem.find(".edit-reply-text");
+
+            textarea.val(contentDiv.text().trim());
+
+            contentDiv.hide();
+            editBox.show();
+        });
+
+        //Nút HỦY
+        $(document).on("click", ".cancel-edit", function () {
+            const replyItem = $(this).closest(".reply-item");
+
+            replyItem.find(".reply-edit-container").hide();
+            replyItem.find(".reply-content").show();
+        });
+
+        //Nút LƯU (AJAX)
+        $(document).on("click", ".save-edit", function () {
+
+            const replyItem = $(this).closest(".reply-item");
+            const replyId = replyItem.data("reply-id");
+            const newContent = replyItem.find(".edit-reply-text").val();
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/ProductReviews/EditReply',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: token, // 🔥 gửi đúng cách
+                    replyId: replyId,
+                    content: newContent
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        // cập nhật nội dung
+                        replyItem.find(".reply-content")
+                            .text(newContent)
+                            .show();
+
+                        replyItem.find(".reply-edit-container").hide();
+
+                        // thêm "(đã chỉnh sửa)" nếu chưa có
+                        if (replyItem.find(".edited-label").length === 0) {
+                            replyItem.find(".reply-username strong")
+                                .append(' <span class="edited-label text-muted ms-1">(đã chỉnh sửa)</span>');
+                        }
+
+                        // cập nhật thời gian
+                        replyItem.find(".reply-date").text(res.updatedAt);
+
+                    } else {
+
+                        if (res.message === "Bạn cần đăng nhập.") {
+                            showLoginRequired(res.message);
+                            return;
+                        }
+
+                        alert(res.message);
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra.");
+                }
+            });
+        });
+    };
+
     return {
         initReplyButtons,
         initReplyReactionButtons,
         initReplyList,
-        initReplyToReplyButtons
+        initReplyToReplyButtons,
+        initEditReply
     };
 
 })();
@@ -674,27 +744,21 @@ const ProductReport = (() => {
             const reviewId = reviewIdRaw ? parseInt(reviewIdRaw) : null;
             const replyId = replyIdRaw ? parseInt(replyIdRaw) : null;
 
-            const reported = $(this).data('reported'); // true/false
-            const status = $(this).data('status'); // Pending, Approved, etc.
+            const modalElement = document.getElementById('reportModal');
 
-            if (reported) {
-                let msg = 'Bạn đã gửi báo cáo cho đánh giá/ phản hồi này.';
-                if (status === 'Pending') msg = 'Bạn đã gửi báo cáo (đang chờ xử lý)';
-                else if (status === 'Approved') msg = 'Báo cáo đã được duyệt';
-                else if (status === 'Rejected') msg = 'Báo cáo đã bị từ chối';
+            if (modalElement) {
 
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Thông báo',
-                    text: msg
-                });
-                return;
+                // reset form trước khi mở
+                const form = modalElement.querySelector('#reportForm');
+                if (form) form.reset();
+
+                // set giá trị input
+                modalElement.querySelector('input[name="ReviewId"]').value = reviewId ?? '';
+                modalElement.querySelector('input[name="ReplyId"]').value = replyId ?? '';
+
+                const bsModal = new bootstrap.Modal(modalElement);
+                bsModal.show();
             }
-
-            const modal = $('#reportModal');
-            modal.find('input[name="ReviewId"]').val(reviewId ?? '');
-            modal.find('input[name="ReplyId"]').val(replyId ?? '');
-            modal.modal('show');
         });
 
         // ================= SUBMIT REPORT =================
@@ -708,7 +772,7 @@ const ProductReport = (() => {
 
             submitBtn.prop('disabled', true).text('Đang gửi...');
 
-            const formData = form.serialize(); // TỰ ĐỘNG gồm token + ReviewId + ReplyId + Reason
+            const formData = form.serialize();
 
             $.ajax({
                 url: '/ProductReviews/Report',
@@ -718,16 +782,27 @@ const ProductReport = (() => {
                     submitBtn.prop('disabled', false).text(originalText);
 
                     if (res.success) {
-                        $('#reportModal').modal('hide');
+                        const modalElement = document.getElementById('reportModal');
+                        const bsModal = bootstrap.Modal.getInstance(modalElement);
+                        if (bsModal) {
+                            bsModal.hide();
+                        }
 
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
                             text: 'Báo cáo đã được gửi.'
                         }).then(() => {
-                            location.reload(); // Reload sau khi người dùng bấm OK
+                            window.location.href = window.location.pathname + "#comment";
                         });
                     } else {
+
+                        // Nếu chưa login → hiện popup login
+                        if (res.message === "Bạn cần đăng nhập.") {
+                            showLoginRequired(res.message);
+                            return;
+                        }
+
                         Swal.fire({
                             icon: 'warning',
                             title: 'Thông báo',
@@ -737,9 +812,7 @@ const ProductReport = (() => {
                 },
                 error: function (err) {
                     submitBtn.prop('disabled', false).text(originalText);
-
                     console.log(err);
-
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',

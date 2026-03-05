@@ -118,15 +118,22 @@
                                 <li>
                                     @if (!isLoggedIn)
                                     {
-                                        <a class="dropdown-item"
-                                           href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                        <!-- Chưa login: click sẽ hiện alert -->
+                                        <a class="dropdown-item report-review"
+                                           href="#"
+                                           data-review-id="@review.Reviewid"
+                                           data-reply-id=""
+                                           data-reported="false"
+                                           data-status="">
                                             Báo cáo vi phạm
                                         </a>
                                     }
-                                    else if (review.Userid != UserId) // đã login và không phải owner
+                                    else if (review.Userid != UserId)
                                     {
-                                        if (!review.IsReportedByUser)
+                                        <!-- Đã login & không phải owner -->
+                                        @if (!review.IsReportedByUser)
                                         {
+                                            <!-- Chưa báo cáo -->
                                             <a class="dropdown-item report-review"
                                                href="#"
                                                data-review-id="@review.Reviewid"
@@ -138,28 +145,33 @@
                                         }
                                         else
                                         {
+                                            <!-- Đã báo cáo: chỉ hiển thị trạng thái -->
                                             <span class="dropdown-item text-muted small">
-                                                @if (review.ReportStatus == "Pending")
+                                                @switch (review.ReportStatus)
                                                 {
-                                                    <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
-                                                }
-                                                else if (review.ReportStatus == "Approved")
-                                                {
-                                                    <text>Báo cáo đã được duyệt</text>
-                                                }
-                                                else if (review.ReportStatus == "Rejected")
-                                                {
-                                                    <text>Báo cáo đã bị từ chối</text>
-                                                }
-                                                else
-                                                {
-                                                    <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                    case "Pending":
+                                                        <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
+                                                        ;
+                                                        break;
+                                                    case "Approved":
+                                                        <text>Báo cáo đã được duyệt</text>
+                                                        ;
+                                                        break;
+                                                    case "Rejected":
+                                                        <text>Báo cáo đã bị từ chối</text>
+                                                        ;
+                                                        break;
+                                                    default:
+                                                        <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                        ;
+                                                        break;
                                                 }
                                             </span>
                                         }
                                     }
                                 </li>
                             }
+
                         </ul>
                     </div>
                 </div>

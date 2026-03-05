@@ -18,6 +18,7 @@ namespace COMICZONE.Controllers
         {
             _context = context;
         }
+        
         [HttpGet]
         public IActionResult Register(string? returnUrl = null)
         {
@@ -82,12 +83,14 @@ namespace COMICZONE.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+        
         [HttpPost]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+        
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {

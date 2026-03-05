@@ -27,6 +27,10 @@ public partial class ProductReviewReply
 
     [Column("REPLYTOUSERID")]
     public int? Replytouserid { get; set; }
+
+    [Column("UPDATEDAT", TypeName = "datetime")]
+    public DateTime? Updatedat { get; set; }
+
     [NotMapped]
     public int LikeCount { get; set; }
 
@@ -35,6 +39,7 @@ public partial class ProductReviewReply
 
     [NotMapped]
     public bool IsDislikedByUser { get; set; }
+    
     [NotMapped]
     public bool IsReportedByUser { get; set; } = false;
 

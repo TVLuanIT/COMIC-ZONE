@@ -43,12 +43,20 @@
                             {
                                 @(reply.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
                             }
+
                         </div>
 
                         <div class="flex-grow-1">
                             <!-- Tên người gửi + người được reply -->
-                            <div class="d-flex align-items-center gap-1 mb-1">
-                                <strong>@(reply.User?.Username ?? "Người dùng ẩn danh")</strong>
+                            <div class="d-flex align-items-center gap-1 mb-1 reply-username">
+                                <strong>
+                                    @(reply.User?.Username ?? "Người dùng ẩn danh")
+                                    @if (reply.Updatedat != null)
+                                    {
+                                        <span class="edited-label text-muted ms-1">(đã chỉnh sửa)</span>
+                                    }
+                                </strong>
+
                                 @if (reply.Replytouser != null)
                                 {
                                     <span class="text-primary ms-1">@reply.Replytouser.Username</span>
@@ -58,10 +66,22 @@
                             <!-- Nội dung reply -->
                             <div class="reply-content mb-1">@reply.Replycontent</div>
 
-                            <!-- Thời gian -->
-                            <div class="reply-date text-muted" style="font-size:0.8rem;">
-                                @(reply.Createdat.HasValue? reply.Createdat.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+                            <!-- FORM CHỈNH SỬA ĐÃ ẨN -->
+                            <div class="reply-edit-container mt-2" style="display:none;">
+                                <textarea class="form-control edit-reply-text" rows="2"></textarea>
+                                <div class="mt-1 text-end">
+                                    <button class="btn btn-sm btn-secondary cancel-edit">Hủy</button>
+                                    <button class="btn btn-sm btn-primary save-edit">Lưu</button>
+                                </div>
                             </div>
+
+                            <!-- Thời gian -->
+                        <div class="reply-date text-muted" style="font-size:0.8rem;">
+                            @(
+                                (reply.Updatedat ?? reply.Createdat)?
+                                .ToString("dd/MM/yyyy HH:mm") ?? "-"
+                            )
+                        </div>
 
                             <!-- Like/Dislike -->
                             <div class="reply-actions mt-1">
@@ -131,14 +151,22 @@
                                 <li>
                                     @if (!isLoggedIn)
                                     {
-                                        <a class="dropdown-item" href="/Authentication/Login?returnUrl=/Products/Detail/@productId">
+                                        <!-- Chưa login: click sẽ hiện alert, không redirect -->
+                                        <a class="dropdown-item report-review"
+                                           href="#"
+                                           data-review-id=""
+                                           data-reply-id="@reply.Replyid"
+                                           data-reported="false"
+                                           data-status="">
                                             Báo cáo vi phạm
                                         </a>
                                     }
-                                    else if (reply.Userid != currentUserId) // đã login và không phải owner
+                                    else if (reply.Userid != currentUserId)
                                     {
-                                        if (!reply.IsReportedByUser)
+                                        <!-- Đã login & không phải owner -->
+                                        @if (!reply.IsReportedByUser)
                                         {
+                                            <!-- Chưa báo cáo -->
                                             <a class="dropdown-item report-review"
                                                href="#"
                                                data-review-id=""
@@ -150,26 +178,31 @@
                                         }
                                         else
                                         {
+                                            <!-- Đã báo cáo: chỉ hiển thị trạng thái -->
                                             <span class="dropdown-item text-muted small">
-                                                @if (reply.ReportStatus == "Pending")
+                                                @switch (reply.ReportStatus)
                                                 {
-                                                    <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
-                                                }
-                                                else if (reply.ReportStatus == "Approved")
-                                                {
-                                                    <text>Báo cáo đã được duyệt</text>
-                                                }
-                                                else if (reply.ReportStatus == "Rejected")
-                                                {
-                                                    <text>Báo cáo đã bị từ chối</text>
-                                                }
-                                                else
-                                                {
-                                                    <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                    case "Pending":
+                                                        <text>Bạn đã gửi báo cáo (đang chờ xử lý)</text>
+                                                        ;
+                                                        break;
+                                                    case "Approved":
+                                                        <text>Báo cáo đã được duyệt</text>
+                                                        ;
+                                                        break;
+                                                    case "Rejected":
+                                                        <text>Báo cáo đã bị từ chối</text>
+                                                        ;
+                                                        break;
+                                                    default:
+                                                        <text>Bạn đã gửi báo cáo cho đánh giá này</text>
+                                                        ;
+                                                        break;
                                                 }
                                             </span>
                                         }
                                     }
+
                                 </li>
                             }
                         </ul>

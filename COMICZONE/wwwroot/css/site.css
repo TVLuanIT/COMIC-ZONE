@@ -1,4 +1,6 @@
+/* ========================================== */
 /* ================= GLOBAL ================= */
+/* ========================================== */
 html {
   font-size: 14px;
 }
@@ -22,7 +24,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* ========================================== */
 /* ================= NAVBAR ================= */
+/* ========================================== */
 .navbar .dropdown-toggle::after {
     display: none;
 }
@@ -35,21 +40,18 @@ body {
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-
 /* link mặc định */
 .navbar .nav-link {
     position: relative;
     transition: color 0.25s ease;
     color: #333 !important;
 }
-
 /* hover & khi dropdown mở */
 .navbar .nav-link:hover,
 .navbar .nav-link:focus,
 .navbar .nav-item.dropdown.show .nav-link {
     color: #dc3545 !important; /* đỏ thống nhất */
 }
-
 /* underline effect */
 .navbar .nav-link::after {
     content: "";
@@ -61,7 +63,6 @@ body {
     background-color: #dc3545;
     transition: width 0.25s ease;
 }
-
 .navbar .nav-link:hover::after,
 .navbar .nav-item.dropdown.show .nav-link::after {
     width: 100%;
@@ -77,7 +78,6 @@ body {
 .navbar .nav-link {
     position: relative;
 }
-
 .navbar .nav-link::before {
     content: "";
     position: absolute;
@@ -88,17 +88,22 @@ body {
     background-color: #dc3545;
     transition: width 0.25s ease;
 }
-
 .navbar .nav-link:hover::before,
 .navbar .nav-item.dropdown.show .nav-link::before {
     width: 100%;
 }
+
+/* ================================================ */
 /* ================= MAIN CONTENT ================= */
+/* ================================================ */
 main {
     flex: 1;
     padding-top: 90px; /* khoảng cách bằng navbar */
 }
+
+/* ================================================= */
 /* ================= MOBILE NAVBAR ================= */
+/* ================================================= */
 @media (max-width: 768px) {
     main {
         padding-top: 100px; /* ví dụ navbar cao hơn */
@@ -124,7 +129,10 @@ main {
     color: #0d6efd; /* đổi sang màu primary khi hover */
     transition: color 0.3s ease;
 }
-/* ================= BANNER ================= */
+
+/* ================================================= */
+/* ==================== BANNER ===================== */
+/* ================================================= */
 #homeBannerCarousel {
     position: relative;
     width: 100%;
@@ -156,7 +164,10 @@ main {
         height: 70vh;    /* vẫn vừa với màn hình điện thoại */
     }
 }
-/* ================= SEARCH ================= */
+
+/* ================================================= */
+/* ===================== SEARCH ==================== */
+/* ================================================= */
 /*search*/
 .search-title {
     font-size: 1.6rem;
@@ -230,7 +241,10 @@ main {
         max-width: 100%;
     }
 }
-/* ================= SORT ================= */
+
+/* ================================================= */
+/* ====================== SORT ===================== */
+/* ================================================= */
 /*form sắp xếp*/
 .sort-form {
     max-width: 260px;
@@ -284,7 +298,10 @@ main {
     opacity: 0.4;
     pointer-events: none;
 }
-/* ================= PRODUCT CARD ================= */
+
+/* ================================================= */
+/* ================= PRODUCT CARD ================== */
+/* ================================================= */
 .product-card {
     background: #fff;
     border-radius: 14px;
@@ -374,7 +391,10 @@ main {
     font-size: 0.9rem;
     color: #777;
 }
-/* ================= Sidebar ================= */
+
+/* ================================================= */
+/* ==================== Sidebar ==================== */
+/* ================================================= */
 .sidebar {
     position: sticky;
     top: 90px;
@@ -404,7 +424,10 @@ main {
 .main-content {
     flex-grow: 1; /* chiếm hết chỗ còn lại */
 }
+
+/* ================================================= */
 /* ================= Filter Header ================= */
+/* ================================================= */
 .filter-title a {
     display: flex;
     justify-content: space-between;
@@ -429,18 +452,19 @@ main {
 .transition-icon {
     transition: transform 0.3s;
 }
-
 .collapse.show + .transition-icon,
 button[aria-expanded="true"] .transition-icon {
     transform: rotate(180deg);
 }
-
 /* Hover filter item */
 .filter-item:hover {
     color: #0d6efd;
     text-decoration: underline;
 }
-/* ================= Filter List ================= */
+
+/* ================================================= */
+/* ================== Filter List ================== */
+/* ================================================= */
 .filter-list {
     padding: 0.25rem 0.5rem;
     max-height: 220px; /* scroll nếu nhiều item */
@@ -466,7 +490,10 @@ button[aria-expanded="true"] .transition-icon {
     background-color: #e9ecef;
     color: #0d6efd;
 }
+
+/* ========================================================== */
 /* ================= Sidebar Filter Buttons ================= */
+/* ========================================================== */
 .sidebar .btn {
     display: flex;
     justify-content: center;  /* căn giữa chữ + icon theo ngang */
@@ -475,19 +502,16 @@ button[aria-expanded="true"] .transition-icon {
     font-weight: 600;
     position: relative;
 }
-
 /* Icon mũi tên chuyển động */
 .transition-icon {
     margin-left: 0.5rem;
     transition: transform 0.3s ease;
 }
-
 /* Khi collapse đóng, icon xoay 0 độ; khi mở xoay 180 độ */
 .collapse.show + .transition-icon,
 .btn[aria-expanded="true"] .transition-icon {
     transform: rotate(180deg);
 }
-
 /* Danh sách filter item */
 .filter-item {
     display: block;
@@ -501,7 +525,6 @@ button[aria-expanded="true"] .transition-icon {
     background-color: #e9ecef;
     color: #0d6efd;
 }
-
 /* Scroll đẹp nếu nhiều item */
 .filter-list {
     padding-left: 0.5rem;
@@ -515,7 +538,10 @@ button[aria-expanded="true"] .transition-icon {
     background-color: #adb5bd;
     border-radius: 3px;
 }
-/* ================= Scrollbar đẹp ================= */
+
+/* ========================================================== */
+/* ===================== Scrollbar đẹp ====================== */
+/* ========================================================== */
 .filter-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -528,14 +554,20 @@ button[aria-expanded="true"] .transition-icon {
     scrollbar-width: thin;
     scrollbar-color: #adb5bd #f8f9fa; /* thumb màu #adb5bd, track #f8f9fa */
 }
-/* ================= Responsive ================= */
+
+/* ========================================================== */
+/* ======================= Responsive ======================= */
+/* ========================================================== */
 @media (max-width: 768px) {
     .sidebar {
         position: relative; /* bỏ sticky trên mobile */
         max-height: none;
     }
 }
-/* ================= PRODUCT SUMMARY ================= */
+
+/* ========================================================== */
+/* ==================== PRODUCT SUMMARY ===================== */
+/* ========================================================== */
 .product-summary {
     margin-bottom: 1.5rem;
 }
@@ -558,7 +590,10 @@ button[aria-expanded="true"] .transition-icon {
 .toggle-btn:hover {
     text-decoration: underline;
 }
-/* ================= PRODUCT REVIEW FORM ================= */
+
+/* ========================================================== */
+/* =================== PRODUCT REVIEW FORM ================== */
+/* ========================================================== */
 .review-form-card {
     background: #fff;
     border-radius: 12px;
@@ -567,39 +602,32 @@ button[aria-expanded="true"] .transition-icon {
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     text-align: center;
 }
-
 .review-form-title {
     font-weight: 600;
     margin-bottom: 20px;
 }
-
 .star-rating {
     display: flex;
     justify-content: center;
     flex-direction: row-reverse;
     margin-bottom: 20px;
 }
-
 .star-rating input {
     display: none;
 }
-
 .star-rating label {
     font-size: 32px;
     color: #ddd;
     cursor: pointer;
     transition: 0.3s;
 }
-
 .star-rating label:hover,
 .star-rating label:hover ~ label {
     color: #ffc107;
 }
-
 .star-rating input:checked ~ label {
     color: #ffc107;
 }
-
 .review-textarea {
     width: 100%;
     height: 120px;
@@ -610,13 +638,11 @@ button[aria-expanded="true"] .transition-icon {
     font-size: 14px;
     margin-bottom: 20px;
 }
-
 .review-textarea:focus {
     border-color: #ff6a00;
     outline: none;
     box-shadow: 0 0 5px rgba(255,106,0,0.3);
 }
-
 .review-submit-btn {
     background: #ff6a00;
     color: #fff;
@@ -626,11 +652,13 @@ button[aria-expanded="true"] .transition-icon {
     font-weight: 500;
     transition: 0.3s;
 }
-
 .review-submit-btn:hover {
     background: #e85c00;
 }
-/* ================= PRODUCT REVIEW ================= */
+
+/* ========================================================== */
+/* ===================== PRODUCT REVIEW ===================== */
+/* ========================================================== */
 .review-list-section {
     margin-top: 40px;
 }
@@ -646,7 +674,6 @@ button[aria-expanded="true"] .transition-icon {
     text-align: center;
     color: #777;
 }
-
 .review-card {
     background: #fff;
     border-radius: 12px;
@@ -654,44 +681,40 @@ button[aria-expanded="true"] .transition-icon {
     margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.06);
 }
-
 .review-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 .review-user {
     display: flex;
     align-items: center;
     gap: 12px;
 }
-
 .review-username {
     font-weight: 600;
 }
-
 .review-date {
     font-size: 13px;
     color: #888;
 }
-
 .review-stars .star {
     font-size: 18px;
     color: #ddd;
 }
-
 .review-stars .filled {
     color: #ffc107;
 }
-
 .review-content {
     margin-top: 15px;
     font-size: 14px;
     line-height: 1.6;
     color: #444;
 }
+
+/* ============================================================ */
 /* ================= PRODUCT REVIEW SUMMARIES ================= */
+/* ============================================================ */
 .review-summary-card {
     background: #fff;
     border-radius: 12px;
@@ -700,48 +723,43 @@ button[aria-expanded="true"] .transition-icon {
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     text-align: center;
 }
-
 .summary-main {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
 .rating-number {
     font-size: 48px;
     font-weight: bold;
     color: #ff6a00;
 }
-
 .rating-number span {
     font-size: 20px;
     color: #666;
 }
-
 .rating-stars {
     margin: 10px 0;
 }
-
 .star {
     font-size: 26px;
     color: #ddd;
 }
-
 .star.filled {
     color: #ffc107;
 }
-
 .review-count {
     font-size: 16px;
     color: #555;
 }
-
 .summary-update {
     margin-top: 10px;
     font-size: 13px;
     color: #999;
 }
-/* ================= ABOUT US ================= */
+
+/* ========================================================== */
+/* ======================== ABOUT US ======================== */
+/* ========================================================== */
 .about-hero {
     height: 350px;
     background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('/images/about_banner.png');
@@ -750,11 +768,9 @@ button[aria-expanded="true"] .transition-icon {
     background-repeat: no-repeat;
     position: relative;
 }
-
 .hero-content {
     animation: fadeInUp 1s ease;
 }
-
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -766,7 +782,10 @@ button[aria-expanded="true"] .transition-icon {
         transform: translateY(0);
     }
 }
-/* ================= PRODUCT REVIEW LIST ================= */
+
+/* ========================================================== */
+/* =================== PRODUCT REVIEW LIST ================== */
+/* ========================================================== */
 .review-card .dropdown-toggle::after {
     display: none;
 }
@@ -777,7 +796,6 @@ button[aria-expanded="true"] .transition-icon {
     align-items: center;
     gap: 14px;
 }
-
 .reaction-btn {
     background: transparent;
     border: none;
@@ -786,7 +804,6 @@ button[aria-expanded="true"] .transition-icon {
     align-items: center;
     gap: 6px;
 }
-
 /* Icon base */
 .icon {
     width: 22px;
@@ -796,25 +813,24 @@ button[aria-expanded="true"] .transition-icon {
     stroke-width: 2;
     transition: 0.2s ease;
 }
-
 /* Hover */
 .reaction-btn:hover .icon {
     stroke: #000;
 }
-
 /* LIKE active */
 .toggle-like.liked .like-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
-
 /* DISLIKE active */
 .toggle-dislike.disliked .dislike-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
 
-/* ===== AVATAR IMG ===== */
+/* ========================================================== */
+/* ======================= AVATAR IMG ======================= */
+/* ========================================================== */
 .avatar-img {
     width: var(--avatar-size, 32px); /* default 32px nếu không truyền size */
     height: var(--avatar-size, 32px);
@@ -823,13 +839,14 @@ button[aria-expanded="true"] .transition-icon {
     display: inline-block;
 }
 
-/* ================= REPLY ACTIONS ================= */
+/* ========================================================== */
+/* ===================== REPLY ACTIONS ====================== */
+/* ========================================================== */
 .reply-actions {
     display: flex;
     align-items: center;
     gap: 14px;
 }
-
 .reply-actions .reaction-btn {
     background: transparent;
     border: none;
@@ -842,11 +859,9 @@ button[aria-expanded="true"] .transition-icon {
     padding: 0;
     transition: 0.2s ease;
 }
-
 .reply-actions .reaction-btn:hover {
     color: #000;
 }
-
 /* Icon */
 .reply-actions .icon {
     width: 22px;
@@ -856,39 +871,35 @@ button[aria-expanded="true"] .transition-icon {
     stroke-width: 2;
     transition: 0.2s ease;
 }
-
 .reply-actions .reaction-btn:hover .icon {
     stroke: #000;
 }
-
 /* LIKE active */
 .reply-toggle-like.liked .like-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
-
 /* DISLIKE active */
 .reply-toggle-dislike.disliked .dislike-icon {
     fill: #065fd4;
     stroke: #065fd4;
 }
-
 /* REPLY text hover */
 .reply-to-reply:hover {
     color: #065fd4;
 }
-
 /* Hover show reply button */
 .reply-item .reply-to-reply {
     opacity: 0;
     transition: opacity 0.2s ease;
 }
-
 .reply-item:hover .reply-to-reply {
     opacity: 1;
 }
 
+/* ====================================================================== */
 /* ================= 3-DOT ACTION MENU (Review + Reply) ================= */
+/* ====================================================================== */
 .action-menu-btn {
     background: transparent;
     border: none;
@@ -899,26 +910,28 @@ button[aria-expanded="true"] .transition-icon {
     cursor: pointer;
     transition: 0.2s ease;
 }
-
 .action-menu-btn:hover {
     background-color: #f2f2f2;
     border-radius: 50%;
     color: #000;
 }
-
 .dropdown-menu {
     font-size: 0.9rem;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-/* ================= DIALOG REPORT REVIEW ================= */
+/* ========================================================== */
+/* ================== DIALOG REPORT REVIEW ================== */
+/* ========================================================== */
 #reportModal .modal-dialog {
     margin-left: auto;
     margin-right: auto;
 }
 
+/* ============================================================== */
 /* ================= SHOW / HIDE REPLIES BUTTON ================= */
+/* ============================================================== */
 .show-replies-btn {
     background: none;
     border: none;
@@ -933,13 +946,11 @@ button[aria-expanded="true"] .transition-icon {
     text-decoration: none;   /* bỏ gạch chân */
     transition: color 0.2s ease;
 }
-
 /* Hover */
 .show-replies-btn:hover {
     color: #1877f2;
     text-decoration: none;   /* đảm bảo không bị gạch */
 }
-
 /* Khi ở trạng thái Ẩn phản hồi */
 .show-replies-btn.hide-mode {
     color: #1877f2;
@@ -947,47 +958,46 @@ button[aria-expanded="true"] .transition-icon {
     text-decoration: none;
 }
 
+/* ============================================================ */
 /* ================= Edit Review Form Buttons ================= */
+/* ============================================================ */
 .edit-review-form .btn {
     min-width: 70px;
     font-weight: 500;
     border-radius: 4px;
     transition: all 0.2s ease;
 }
-
 /* Nút Lưu */
 .edit-review-form .btn-primary {
     background-color: #007bff;
     border-color: #007bff;
     color: #fff;
 }
-
 .edit-review-form .btn-primary:hover {
     background-color: #0069d9;
     border-color: #0062cc;
     opacity: 0.95;
 }
-
 /* Nút Hủy */
 .edit-review-form .btn-outline-secondary {
     color: #495057;
     border-color: #ced4da;
     background-color: #f8f9fa;
 }
-
 .edit-review-form .btn-outline-secondary:hover {
     color: #212529;
     border-color: #adb5bd;
     background-color: #e2e6ea;
     opacity: 0.95;
 }
-
 /* Optional: hover shadow effect */
 .edit-review-form .btn:hover {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* ================================================================================= */
 /* ================= Reply Form Buttons (same as Edit Review Form) ================= */
+/* ================================================================================= */
 .reply-form .btn {
     min-width: 70px;
     font-weight: 500;
@@ -995,20 +1005,17 @@ button[aria-expanded="true"] .transition-icon {
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 /* Nút Gửi */
 .reply-form .btn-primary {
     background-color: #007bff;
     border-color: #007bff;
     color: #fff;
 }
-
 .reply-form .btn-primary:hover {
     background-color: #0069d9;
     border-color: #0062cc;
     opacity: 0.95;
 }
-
 /* Nút Hủy */
 .reply-form .btn-secondary,
 .reply-form .btn-outline-secondary {
@@ -1016,7 +1023,6 @@ button[aria-expanded="true"] .transition-icon {
     border-color: #ced4da;
     background-color: #f8f9fa;
 }
-
 .reply-form .btn-secondary:hover,
 .reply-form .btn-outline-secondary:hover {
     color: #212529;

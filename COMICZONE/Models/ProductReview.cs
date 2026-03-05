@@ -32,6 +32,7 @@ public partial class ProductReview
 
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
+
     [NotMapped]
     public int LikeCount { get; set; }
 
