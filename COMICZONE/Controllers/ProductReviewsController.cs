@@ -277,6 +277,38 @@ namespace COMICZONE.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditReview(int reviewId, string reviewcontent)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+                return Json(new { success = false, message = "Bạn chưa đăng nhập." });
+
+            int userId = int.Parse(userIdStr);
+
+            var review = await _context.ProductReviews
+                .FirstOrDefaultAsync(r => r.Reviewid == reviewId);
+
+            if (review == null)
+                return Json(new { success = false, message = "Không tìm thấy đánh giá." });
+
+            if (review.Userid != userId)
+                return Json(new { success = false, message = "Bạn không có quyền sửa." });
+
+            review.Reviewcontent = reviewcontent;
+            review.Updatedat = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                updatedAt = review.Updatedat?.ToString("dd/MM/yyyy HH:mm")
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditReply(int replyId, string content)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");

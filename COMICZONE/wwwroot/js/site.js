@@ -219,18 +219,34 @@ const ProductReviews = (() => {
             const formData = form.serialize();
 
             $.ajax({
-                url: '/ProductReviews/AddReview',
+                url: '/ProductReviews/EditReview',
                 type: 'POST',
                 data: formData,
                 success: function (res) {
-                    // Cập nhật nội dung review và ẩn form
-                    $('#review-text-' + reviewId).text(content).show();
-                    form.addClass('d-none');
 
-                    // Hiển thị "(đã chỉnh sửa)" bên cạnh username
-                    $('#review-text-' + reviewId).closest('.review-card')
-                        .find('.edit-label')
-                        .removeClass('d-none');
+                    if (res.success) {
+
+                        $('#review-text-' + reviewId)
+                            .text(content)
+                            .show();
+
+                        form.addClass('d-none');
+
+                        // hiện label đã chỉnh sửa
+                        $('#review-text-' + reviewId)
+                            .closest('.review-card')
+                            .find('.edit-label')
+                            .removeClass('d-none');
+
+                        // cập nhật thời gian nếu có
+                        $('#review-text-' + reviewId)
+                            .closest('.review-card')
+                            .find('.review-date')
+                            .text(res.updatedAt);
+
+                    } else {
+                        alert(res.message);
+                    }
                 },
                 error: function () {
                     alert('Có lỗi xảy ra khi cập nhật đánh giá!');
@@ -340,15 +356,8 @@ const ProductReviews = (() => {
                                 $('.reply-item[data-reply-id="' + replyId + '"]').fadeOut(300, function () {
                                     $(this).remove();
 
-                                    // Cập nhật số lượng phản hồi hiển thị
-                                    const container = $('.reply-list-container');
-                                    const btn = container.find('.show-replies-btn');
-                                    let count = container.find('.reply-item').length;
-                                    if (count > 0) {
-                                        btn.text(count + ' phản hồi');
-                                    } else {
-                                        btn.remove();
-                                    }
+                                    // Re-init lại toàn bộ reply list
+                                    ProductReplies.initReplyList();
                                 });
 
                                 Swal.fire('Đã xóa!', 'Phản hồi đã được xóa.', 'success');
@@ -525,61 +534,77 @@ const ProductReplies = (() => {
     };
 
     const initReplyList = () => {
-        const replyContainers = document.querySelectorAll('.reply-list-container');
 
-        replyContainers.forEach(container => {
-            const showBtn = container.querySelector('.show-replies-btn');
-            const replies = Array.from(container.querySelectorAll('.reply-item'));
+        document.querySelectorAll('.reply-list-container')
+            .forEach(container => {
 
-            if (!showBtn || replies.length === 0) return;
+                const replies = Array.from(container.querySelectorAll('.reply-item'));
+                const showBtn = container.querySelector('.show-replies-btn');
 
-            const total = replies.length;
-            const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
-
-            let shownCount = 0;
-            let expanded = false;
-
-            // Đưa nút xuống cuối
-            container.appendChild(showBtn);
-
-            // Hàm reset về trạng thái ban đầu
-            const resetReplies = () => {
-                replies.forEach(r => r.style.display = 'none');
-                shownCount = 0;
-                expanded = false;
-                showBtn.innerText = `${total} phản hồi`;
-            };
-
-            // Khởi tạo ban đầu
-            resetReplies();
-
-            showBtn.addEventListener('click', () => {
-
-                // Nếu đang expanded → thu gọn lại
-                if (expanded) {
-                    resetReplies();
+                // Nếu không còn reply → xóa luôn nút
+                if (replies.length === 0) {
+                    if (showBtn) showBtn.remove();
                     return;
                 }
 
-                const remaining = total - shownCount;
-                const toShow = Math.min(batch, remaining);
+                if (!showBtn) return;
 
-                for (let i = shownCount; i < shownCount + toShow; i++) {
-                    replies[i].style.display = 'block';
-                }
+                const total = replies.length;
+                const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
 
-                shownCount += toShow;
+                let shownCount = 0;
+                let expanded = false;
 
-                const left = total - shownCount;
+                // reset display
+                replies.forEach(r => r.style.display = 'none');
+                showBtn.innerText = `${total} phản hồi`;
 
-                if (left > 0) {
-                    showBtn.innerText = `${left} phản hồi còn lại`;
-                } else {
-                    showBtn.innerText = 'Ẩn phản hồi';
-                    expanded = true;
-                }
+                // clone button để xóa event cũ
+                const newBtn = showBtn.cloneNode(true);
+                showBtn.parentNode.replaceChild(newBtn, showBtn);
+
+                newBtn.addEventListener('click', () => {
+
+                    const currentReplies = Array.from(container.querySelectorAll('.reply-item'));
+                    const currentTotal = currentReplies.length;
+
+                    // Nếu tất cả reply đã bị xóa
+                    if (currentTotal === 0) {
+                        newBtn.remove();
+                        return;
+                    }
+
+                    if (expanded) {
+                        currentReplies.forEach(r => r.style.display = 'none');
+                        shownCount = 0;
+                        expanded = false;
+                        newBtn.innerText = `${currentTotal} phản hồi`;
+                        // Đưa nút xuống cuối danh sách
+                        container.appendChild(newBtn);
+                        return;
+                    }
+
+                    const remaining = currentTotal - shownCount;
+                    const toShow = Math.min(batch, remaining);
+
+                    for (let i = shownCount; i < shownCount + toShow; i++) {
+                        if (currentReplies[i])
+                            currentReplies[i].style.display = 'block';
+                    }
+
+                    shownCount += toShow;
+
+                    const left = currentTotal - shownCount;
+
+                    if (left > 0) {
+                        newBtn.innerText = `${left} phản hồi còn lại`;
+                    } else {
+                        newBtn.innerText = 'Ẩn phản hồi';
+                        expanded = true;
+                    }
+                });
+
             });
-        });
     };
 
     const initReplyToReplyButtons = () => {
