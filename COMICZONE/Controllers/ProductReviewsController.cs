@@ -487,34 +487,58 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteReview(int reviewId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int id)
         {
             var review = await _context.ProductReviews
-                .Include(r => r.ProductReviewReplies)
-                .FirstOrDefaultAsync(r => r.Reviewid == reviewId);
+                .FirstOrDefaultAsync(r => r.Reviewid == id);
 
             if (review == null)
-                return Json(new { success = false, message = "Không tìm thấy đánh giá." });
+                return Json(new { success = false });
 
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            var userRole = HttpContext.Session.GetString("UserRole");
-
-            int userId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
-
-            if (review.Userid != userId && userRole != "Admin")
-                return Json(new { success = false, message = "Bạn không có quyền xóa." });
-
-            // XÓA REPLIES TRƯỚC
-            if (review.ProductReviewReplies.Any())
+            try
             {
-                _context.ProductReviewReplies.RemoveRange(review.ProductReviewReplies);
+                // Xóa report của reply
+                var replyReports = _context.ProductReviewReports
+                    .Where(r => r.Reply != null && r.Reply.Reviewid == id);
+
+                _context.ProductReviewReports.RemoveRange(replyReports);
+
+                // Xóa like của reply
+                var replyLikes = _context.ProductReviewReplyLikes
+                    .Where(l => l.Reply.Reviewid == id);
+
+                _context.ProductReviewReplyLikes.RemoveRange(replyLikes);
+
+                // Xóa reply
+                var replies = _context.ProductReviewReplies
+                    .Where(r => r.Reviewid == id);
+
+                _context.ProductReviewReplies.RemoveRange(replies);
+
+                // Xóa report của review
+                var reviewReports = _context.ProductReviewReports
+                    .Where(r => r.Reviewid == id);
+
+                _context.ProductReviewReports.RemoveRange(reviewReports);
+
+                // Xóa like của review
+                var reviewLikes = _context.ProductReviewLikes
+                    .Where(l => l.Reviewid == id);
+
+                _context.ProductReviewLikes.RemoveRange(reviewLikes);
+
+                // Xóa review
+                _context.ProductReviews.Remove(review);
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
             }
-
-            _context.ProductReviews.Remove(review);
-
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.InnerException?.Message ?? ex.Message });
+            }
         }
 
         [HttpPost]

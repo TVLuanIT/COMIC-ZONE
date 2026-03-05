@@ -105,7 +105,9 @@ const ProductReviews = (() => {
             const page = $(this).data('page');
             $('#review-list-container')
                 .load(`/ProductReviews/Reviews?productId=${productId}&page=${page}`, () => {
-                    initReactionButtons(); // gọi ở đây
+                    initReactionButtons();
+                    initDeleteReview();
+                    initDeleteReply();
 
                     ProductReplies.initReplyButtons();
                     ProductReplies.initReplyReactionButtons();
@@ -257,23 +259,21 @@ const ProductReviews = (() => {
 
     const initDeleteReview = () => {
 
+        // tránh bind trùng
         $(document).off('click', '.delete-review');
         $(document).on('click', '.delete-review', function (e) {
             e.preventDefault();
 
-            if (!checkLoginStatus()) {
-                showLoginRequired('Bạn cần đăng nhập nếu muốn xóa đánh giá.');
-                return;
-            }
-
             const reviewId = $(this).data('id');
-            const reviewCard = $(this).closest('.review-card');
+            if (!reviewId) return;
 
             Swal.fire({
-                title: 'Bạn có chắc?',
-                text: "Đánh giá này sẽ bị xóa vĩnh viễn!",
+                title: 'Xác nhận xóa',
+                text: "Bạn có chắc muốn xóa đánh giá này không?",
                 icon: 'warning',
                 showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Xóa',
                 cancelButtonText: 'Hủy',
                 reverseButtons: true
@@ -281,29 +281,39 @@ const ProductReviews = (() => {
 
                 if (!result.isConfirmed) return;
 
+                const token = $('input[name="__RequestVerificationToken"]').first().val();
+
                 $.ajax({
                     url: '/ProductReviews/DeleteReview',
                     type: 'POST',
-                    data: { reviewId: reviewId },
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: reviewId
+                    },
                     success: function (res) {
 
-                        if (!res.success) {
-                            Swal.fire('Lỗi', res.message, 'error');
-                            return;
+                        if (res.success) {
+
+                            // Xóa khỏi DOM
+                            const reviewCard = $('.review-card')
+                                .find(`.delete-review[data-id="${reviewId}"]`)
+                                .closest('.review-card');
+
+                            reviewCard.fadeOut(300, function () {
+                                $(this).remove();
+
+                                // nếu không còn review
+                                if ($('.review-card').length === 0) {
+                                    $('.review-list-section')
+                                        .append('<div class="no-review">Chưa có đánh giá nào cho sản phẩm này.</div>');
+                                }
+                            });
+
+                            Swal.fire('Đã xóa!', 'Đánh giá đã được xóa.', 'success');
+
+                        } else {
+                            Swal.fire('Lỗi', res.message || 'Xóa thất bại', 'error');
                         }
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Đã xóa!',
-                            timer: 1200,
-                            showConfirmButton: false
-                        });
-
-                        // Xóa khỏi UI bằng hiệu ứng
-                        reviewCard.fadeOut(300, function () {
-                            $(this).remove();
-                        });
-
                     },
                     error: function () {
                         Swal.fire('Lỗi', 'Có lỗi xảy ra.', 'error');
@@ -311,7 +321,6 @@ const ProductReviews = (() => {
                 });
 
             });
-
         });
     };
 
@@ -763,6 +772,13 @@ const ProductReport = (() => {
         $(document).on('click', '.report-review', function (e) {
             e.preventDefault();
 
+            // CHECK LOGIN TRƯỚC
+            const containerLogin = $(this).closest('[data-loggedin]');
+            if (!checkLoginStatus(containerLogin)) {
+                showLoginRequired('Bạn cần đăng nhập để báo cáo vi phạm.');
+                return;
+            }
+
             const reviewIdRaw = $(this).attr('data-review-id');
             const replyIdRaw = $(this).attr('data-reply-id');
 
@@ -773,11 +789,9 @@ const ProductReport = (() => {
 
             if (modalElement) {
 
-                // reset form trước khi mở
                 const form = modalElement.querySelector('#reportForm');
                 if (form) form.reset();
 
-                // set giá trị input
                 modalElement.querySelector('input[name="ReviewId"]').value = reviewId ?? '';
                 modalElement.querySelector('input[name="ReplyId"]').value = replyId ?? '';
 
@@ -807,21 +821,38 @@ const ProductReport = (() => {
                     submitBtn.prop('disabled', false).text(originalText);
 
                     if (res.success) {
+
+                        const reviewId = form.find('input[name="ReviewId"]').val();
+                        const replyId = form.find('input[name="ReplyId"]').val();
+
                         const modalElement = document.getElementById('reportModal');
                         const bsModal = bootstrap.Modal.getInstance(modalElement);
                         if (bsModal) {
                             bsModal.hide();
                         }
 
+                        // UPDATE UI NGAY LẬP TỨC
+                        const selector = replyId
+                            ? `.report-review[data-reply-id="${replyId}"]`
+                            : `.report-review[data-review-id="${reviewId}"]`;
+
+                        const reportItem = $(selector);
+
+                        if (reportItem.length) {
+                            reportItem.replaceWith(`
+                                <span class="dropdown-item text-muted small">
+                                    Bạn đã gửi báo cáo (đang chờ xử lý)
+                                </span>
+                            `);
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
                             text: 'Báo cáo đã được gửi.'
-                        }).then(() => {
-                            window.location.href = window.location.pathname + "#comment";
                         });
-                    } else {
-
+                    }
+                    else {
                         // Nếu chưa login → hiện popup login
                         if (res.message === "Bạn cần đăng nhập.") {
                             showLoginRequired(res.message);
