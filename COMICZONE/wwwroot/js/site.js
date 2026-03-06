@@ -1,5 +1,6 @@
 ﻿// wwwroot/js/site.js
 
+// HIỂN THỊ POPUP YÊU CẦU ĐĂNG NHẬP VỚI SWEETALERT2
 function showLoginRequired(message) {
     Swal.fire({
         icon: 'warning',
@@ -25,6 +26,7 @@ function showLoginRequired(message) {
 // * @param {string|jQuery} selector - selector CSS hoặc jQuery object
 // * @returns {boolean} true nếu đăng nhập, false nếu không
 // */
+// CÁI NÀY DÙNG CHUNG CHO TOÀN BỘ REVIEW/REPLY (BẤM NÚT → CHECK LOGIN TRƯỚC → MỞ FORM) NÊN ĐỂ RA NGOÀI CHO DỄ QUẢN LÝ
 function checkLoginStatus(selector) {
     let container = (selector instanceof jQuery ? selector : $(selector)).first();
     if (!container.length) return false;
@@ -33,6 +35,7 @@ function checkLoginStatus(selector) {
     return loggedInAttr === "true";
 }
 
+//TÓM TẮT SẢN PHẨM (XEM THÊM / ẨN BỚT)
 const ProductSummary = (() => {
     const maxLength = 250; // số ký tự hiển thị ban đầu
 
@@ -68,6 +71,7 @@ const ProductSummary = (() => {
     return { init, toggle };
 })();
 
+// QUẢN LÝ REVIEW SẢN PHẨM (LOAD, PAGINATION, LIKE/DISLIKE, EDIT, DELETE)
 const ProductReviews = (() => {
     let productId;
 
@@ -386,6 +390,7 @@ const ProductReviews = (() => {
     return { init };
 })();
 
+// XỬ LÝ PHẢN HỒI (REPLY) CHO REVIEW
 const ProductReplies = (() => {
 
     const batchSize = 5; // số reply hiển thị mỗi lần, có thể thay đổi
@@ -764,6 +769,7 @@ const ProductReplies = (() => {
 
 })();
 
+//BÁO CÁO REVIEW / REPLY (BẤM NÚT → HIỆN MODAL ĐIỀN LÝ DO → GỬI AJAX) - CÓ CHECK LOGIN TRƯỚC KHI MỞ MODAL
 const ProductReport = (() => {
     const init = () => {
 
@@ -883,9 +889,8 @@ const ProductReport = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    ProductSummary.init();
     ProductReport.init();
+    ProductSummary.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');

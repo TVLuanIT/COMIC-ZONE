@@ -9,6 +9,7 @@ using COMICZONE.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Controllers
@@ -227,6 +228,46 @@ namespace COMICZONE.Controllers
                 likeCount = likeCount,
                 isLiked = isLiked
             });
+        }
+
+        private async Task UpdateProductReviewSummary(int productId)
+        {
+            var reviewsQuery = _context.ProductReviews
+                .Where(r => r.Productid == productId);
+
+            var total = await reviewsQuery.CountAsync();
+
+            decimal average = 0;
+
+            if (total > 0)
+            {
+                average = await reviewsQuery
+                    .AverageAsync(r => (decimal)r.Rating);
+            }
+
+            var summary = await _context.ProductReviewSummaries
+                .FirstOrDefaultAsync(s => s.Productid == productId);
+
+            if (summary == null)
+            {
+                summary = new ProductReviewSummary
+                {
+                    Productid = productId,
+                    Totalreview = total,
+                    Averagerating = average,
+                    Lastupdated = DateTime.Now
+                };
+
+                _context.ProductReviewSummaries.Add(summary);
+            }
+            else
+            {
+                summary.Totalreview = total;
+                summary.Averagerating = average;
+                summary.Lastupdated = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         [HttpPost]
@@ -496,6 +537,9 @@ namespace COMICZONE.Controllers
             if (review == null)
                 return Json(new { success = false });
 
+            // Lưu lại productId trước khi xóa
+            int productId = review.Productid;
+
             try
             {
                 // Xóa report của reply
@@ -532,6 +576,9 @@ namespace COMICZONE.Controllers
                 _context.ProductReviews.Remove(review);
 
                 await _context.SaveChangesAsync();
+
+                // Cập nhật summary SAU khi xóa xong
+                await UpdateProductReviewSummary(productId);
 
                 return Json(new { success = true });
             }
@@ -655,6 +702,9 @@ namespace COMICZONE.Controllers
                 _context.ProductReviews.Add(review);
                 await _context.SaveChangesAsync();
             }
+
+            // UPDATE SUMMARY SAU KHI DB ĐÃ THAY ĐỔI
+            await UpdateProductReviewSummary(review.Productid);
 
             // Nếu AJAX request → trả JSON
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

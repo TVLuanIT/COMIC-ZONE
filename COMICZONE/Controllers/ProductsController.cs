@@ -27,6 +27,7 @@ namespace COMICZONE.Controllers
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
+                .Include(p => p.ProductReviewSummary)
                 .Include(p => p.ProductReviews)
                     .ThenInclude(pr => pr.User)
                 .FirstOrDefaultAsync(p => p.Id == id);

@@ -611,12 +611,13 @@ button[aria-expanded="true"] .transition-icon {
     justify-content: center;
     flex-direction: row-reverse;
     margin-bottom: 20px;
+    gap: 24px;
 }
 .star-rating input {
     display: none;
 }
 .star-rating label {
-    font-size: 32px;
+    font-size: 54px;
     color: #ddd;
     cursor: pointer;
     transition: 0.3s;
