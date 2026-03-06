@@ -13,54 +13,57 @@
                href="#"
                data-bs-toggle="dropdown">
 
-                <img src="@avatar"
-                     class="rounded-circle me-2"
-                     width="35"
-                     height="35"
-                     style="object-fit:cover;" />
-                @username
-            </a>
+            <div class="me-2">
+                @await Component.InvokeAsync("UserAvatar",
+                new { avatarUrl = avatar, size = 35 })
+            </div>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                    <a class="dropdown-item"
-                       asp-controller="Authentication"
-                       asp-action="Profile">
-                        Trang cá nhân
-                    </a>
-                </li>
+            @username
+        </a>
 
-                <li><hr class="dropdown-divider"></li>
+        <ul class="dropdown-menu dropdown-menu-end">
 
-                <li>
-                    <form asp-controller="Authentication"
-                          asp-action="Logout"
-                          method="post">
-                        <button type="submit" class="dropdown-item text-danger">
-                            Đăng xuất
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </li>
-    }
+            <li>
+                <a class="dropdown-item"
+                   asp-controller="UserProfiles"
+                   asp-action="MyProfile">
+                    Trang cá nhân
+                </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+                <form asp-controller="Authentication"
+                      asp-action="Logout"
+                      method="post">
+                    <button type="submit"
+                            class="dropdown-item text-danger">
+                        Đăng xuất
+                    </button>
+                </form>
+            </li>
+
+        </ul>
+    </li>
+        }
     else
     {
-        <li class="nav-item">
-            <a class="nav-link"
-               asp-controller="Authentication"
-               asp-action="Login"
-               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
-                Đăng nhập
-            </a>
-        </li>
-
         <li class="nav-item">
             <a class="nav-link"
                asp-controller="Authentication"
                asp-action="Register"
                asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
                 Đăng ký
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-controller="Authentication"
+               asp-action="Login"
+               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
+                Đăng nhập
             </a>
         </li>
     }

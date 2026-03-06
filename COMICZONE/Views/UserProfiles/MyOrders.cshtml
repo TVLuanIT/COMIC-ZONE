@@ -1,0 +1,26 @@
+﻿@model COMICZONE.Models.Customer
+
+<div class="profile-container">
+
+    <div class="profile-sidebar">
+
+        <div class="profile-user">
+            @if (!string.IsNullOrEmpty(Model.User?.Avatar))
+            {
+                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.User?.Avatar, size = 32 })
+            }
+            else
+            {
+                @(Model.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+            }
+
+            <div class="username">@Model.Fullname</div>
+        </div>
+
+        @await Html.PartialAsync("_MyProfileSidebar")
+
+    </div>
+
+    @await Html.PartialAsync("_MyOrders", Model)
+
+</div>

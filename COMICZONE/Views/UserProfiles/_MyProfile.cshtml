@@ -1,0 +1,43 @@
+﻿<!-- MAIN CONTENT -->
+<div class="profile-content">
+
+    <h3>Thông tin cá nhân</h3>
+
+    <div class="profile-card">
+
+        <div class="profile-row">
+            <label>Họ tên</label>
+            <span>@Model.Fullname</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Email</label>
+            <span>@Model.User?.Email</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Số điện thoại</label>
+            <span>@Model.Phone</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Địa chỉ</label>
+            <span>@Model.Address</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Ngày tạo</label>
+            <span>@Model.Createdat.ToString("dd/MM/yyyy")</span>
+        </div>
+
+        <div class="profile-actions">
+            <a asp-action="EditProfile"
+               asp-route-id="@Model.Customerid"
+               class="btn-edit">
+                Chỉnh sửa
+            </a>
+        </div>
+
+    </div>
+
+</div>

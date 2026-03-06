@@ -1031,3 +1031,96 @@ button[aria-expanded="true"] .transition-icon {
     background-color: #e2e6ea;
     opacity: 0.95;
 }
+
+/* ================================================================================= */
+/* ================= PROFILE E-COMMERCE ================= */
+/* ================================================================================= */
+.profile-container{
+    display:flex;
+    max-width:1100px;
+    margin:40px auto;
+    gap:25px;
+}
+
+/* SIDEBAR */
+
+.profile-sidebar{
+    width:250px;
+    background:#fff;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.profile-user{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.username{
+    margin-top:10px;
+    font-weight:600;
+}
+
+.profile-menu{
+    list-style:none;
+    padding:0;
+}
+
+.profile-menu li{
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+}
+
+.profile-menu li a{
+    text-decoration:none;
+    color:#333;
+}
+
+.profile-menu li.active a{
+    color:#ff6a00;
+    font-weight:600;
+}
+
+
+/* CONTENT */
+
+.profile-content{
+    flex:1;
+}
+
+.profile-card{
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.profile-row{
+    display:flex;
+    margin-bottom:15px;
+}
+
+.profile-row label{
+    width:150px;
+    font-weight:600;
+}
+
+.profile-actions{
+    margin-top:20px;
+}
+
+.btn-edit{
+    background:#ff6a00;
+    color:white;
+    padding:8px 18px;
+    border-radius:6px;
+    text-decoration:none;
+}
