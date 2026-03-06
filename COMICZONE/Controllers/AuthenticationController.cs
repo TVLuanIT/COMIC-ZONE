@@ -18,14 +18,16 @@ namespace COMICZONE.Controllers
         {
             _context = context;
         }
+        
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         [HttpPost]
-        public IActionResult Register(string username, string email, string password, string confirmPassword)
+        public IActionResult Register(string username, string email, string password, string confirmPassword, string? returnUrl = null)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) ||
                 string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
@@ -76,22 +78,28 @@ namespace COMICZONE.Controllers
             HttpContext.Session.SetString("UserRole", user.Role);
             HttpContext.Session.SetString("Avatar", user.Avatar); // 👈 thêm dòng này
 
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction("Index", "Home");
         }
+        
         [HttpPost]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+        
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         [HttpPost]
-        public IActionResult Login(string email, string password, bool rememberMe = false)
+        public IActionResult Login(string email, string password, bool rememberMe = false, string? returnUrl = null)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
@@ -133,6 +141,9 @@ namespace COMICZONE.Controllers
             {
                 // TODO: implement cookie login
             }
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
 
             return RedirectToAction("Index", "Home");
         }

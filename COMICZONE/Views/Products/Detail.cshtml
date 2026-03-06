@@ -41,6 +41,7 @@
                         Không có hình ảnh
                     </div>
                 }
+
             </div>
             <!-- CỘT PHẢI: THÔNG TIN -->
             <div class="col-md-7">
@@ -62,8 +63,10 @@
                         {
                             <span class="text-danger">Hết hàng</span>
                         }
+
                     </p>
                 }
+
                 <table class="table table-sm table-borderless">
                     <tbody>
                         @if (!string.IsNullOrWhiteSpace(Model.Author))
@@ -80,6 +83,7 @@
                                 </td>
                             </tr>
                         }
+
                         @if (Model.Artists != null && Model.Artists.Any())
                         {
                             <tr>
@@ -103,9 +107,11 @@
                                             <span>, </span>
                                         }
                                     }
+
                                 </td>
                             </tr>
                         }
+
                         @if (!string.IsNullOrWhiteSpace(Model.Translator))
                         {
                             <tr>
@@ -120,6 +126,7 @@
                                 </td>
                             </tr>
                         }
+
                         @if (!string.IsNullOrWhiteSpace(Model.Series))
                         {
                             <tr>
@@ -134,6 +141,7 @@
                                 </td>
                             </tr>
                         }
+
                     </tbody>
                 </table>
                 <!--DESCRIPTION-->
@@ -145,6 +153,7 @@
                         <button class="toggle-btn" onclick="ProductSummary.toggle(@Model.Id)">Xem thêm</button>
                     </div>
                 }
+
                 <!-- TAG -->
                 @if (Model.Tags != null && Model.Tags.Any())
                 {
@@ -160,6 +169,7 @@
                         }
                     </div>
                 }
+
             </div>
         </div>
         <ul class="nav nav-tabs justify-content-center mt-5" id="productTab" role="tablist">
@@ -242,6 +252,8 @@
             </div>
             <!-- TAB: BÌNH LUẬN -->
             <div class="tab-pane fade @(ViewBag.ActiveTab == "comment" ? "show active" : "")" id="comment" role="tabpanel">
+                <!-- Hidden input chứa ProductId để JS dùng -->
+                <input type="hidden" id="product-id" value="@Model.Id" />
                 <!-- Form đánh giá -->
                 <div class="review-block review-form-block">
                     @await Html.PartialAsync("~/Views/ProductReviewSummaries/_ProductReviewSummaries.cshtml", Model.ProductReviewSummary)
@@ -252,7 +264,7 @@
                 </div>
                 <!-- Danh sách review -->
                 <div class="review-block review-list-block">
-                    @await Html.PartialAsync("~/Views/ProductReviews/_ProductReviewList.cshtml", Model.ProductReviews)
+                    <div id="review-container"></div>
                 </div>
             </div>
         </div>
@@ -268,5 +280,6 @@
 
             @await Html.PartialAsync("~/Views/Home/_HomeProduct.cshtml", RelatedByAuthor)
         }
+
     </div>
 </section>

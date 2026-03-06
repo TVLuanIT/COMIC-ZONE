@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[PrimaryKey("Reviewid", "Userid")]
-[Table("PRODUCT_REVIEW_LIKE")]
-public partial class ProductReviewLike
+[PrimaryKey("Replyid", "Userid")]
+[Table("PRODUCT_REVIEW_REPLY_LIKE")]
+public partial class ProductReviewReplyLike
 {
     [Key]
-    [Column("REVIEWID")]
-    public int Reviewid { get; set; }
+    [Column("REPLYID")]
+    public int Replyid { get; set; }
 
     [Key]
     [Column("USERID")]
@@ -21,13 +21,14 @@ public partial class ProductReviewLike
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime? Createdat { get; set; }
 
-    public bool? IsLike { get; set; }
+    [Column("ISLIKE")]
+    public bool? Islike { get; set; }
 
-    [ForeignKey("Reviewid")]
-    [InverseProperty("ProductReviewLikes")]
-    public virtual ProductReview Review { get; set; } = null!;
+    [ForeignKey("Replyid")]
+    [InverseProperty("ProductReviewReplyLikes")]
+    public virtual ProductReviewReply Reply { get; set; } = null!;
 
     [ForeignKey("Userid")]
-    [InverseProperty("ProductReviewLikes")]
+    [InverseProperty("ProductReviewReplyLikes")]
     public virtual User User { get; set; } = null!;
 }

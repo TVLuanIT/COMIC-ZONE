@@ -2,10 +2,12 @@
 
 @{
     var rounded = Math.Round(Model.Averagerating);
+
+    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int>;
+    var total = Model.Totalreview == 0 ? 1 : Model.Totalreview;
 }
 
 <div class="review-summary-card">
-
     <div class="summary-main">
         <div class="rating-number">
             @Model.Averagerating.ToString("0.0")
@@ -38,5 +40,4 @@
             @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
         </div>
     }
-
 </div>

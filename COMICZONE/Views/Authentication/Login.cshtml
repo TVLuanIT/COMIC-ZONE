@@ -1,5 +1,8 @@
 ﻿@{
     ViewBag.Title = "Đăng nhập";
+    string returnUrl = ViewBag.ReturnUrl as string
+                       ?? Context.Request.Query["returnUrl"].FirstOrDefault()
+                       ?? "/";
 }
 
 <section class="py-5 bg-light min-vh-100 d-flex align-items-center">
@@ -18,6 +21,7 @@
                         }
 
                         <form asp-action="Login" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" name="email" id="email"
@@ -42,7 +46,11 @@
 
                         <p class="text-center mt-3 mb-0">
                             Chưa có tài khoản?
-                            <a asp-controller="Authentication" asp-action="Register">Đăng ký</a>
+                            <a asp-controller="Authentication"
+                               asp-action="Register"
+                               asp-route-returnUrl="@ViewBag.ReturnUrl">
+                                Đăng ký
+                            </a>
                         </p>
                     </div>
                 </div>

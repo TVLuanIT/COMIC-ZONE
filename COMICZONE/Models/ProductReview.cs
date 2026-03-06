@@ -25,7 +25,7 @@ public partial class ProductReview
 
     [Column("REVIEWCONTENT")]
     [StringLength(1000)]
-    public string? Reviewcontent { get; set; }
+    public string Reviewcontent { get; set; } = null!;
 
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime? Createdat { get; set; }
@@ -33,8 +33,19 @@ public partial class ProductReview
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
 
-    [Column("ISAPPROVED")]
-    public bool? Isapproved { get; set; }
+    [NotMapped]
+    public int LikeCount { get; set; }
+
+    [NotMapped]
+    public bool IsLikedByUser { get; set; }
+
+    [NotMapped]
+    public bool IsDislikedByUser { get; set; }
+    [NotMapped]
+    public bool IsReportedByUser { get; set; } = false;
+
+    [NotMapped]
+    public string? ReportStatus { get; set; }
 
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]
@@ -42,6 +53,9 @@ public partial class ProductReview
 
     [InverseProperty("Review")]
     public virtual ICollection<ProductReviewLike> ProductReviewLikes { get; set; } = new List<ProductReviewLike>();
+
+    [InverseProperty("Review")]
+    public virtual ICollection<ProductReviewReply> ProductReviewReplies { get; set; } = new List<ProductReviewReply>();
 
     [InverseProperty("Review")]
     public virtual ICollection<ProductReviewReport> ProductReviewReports { get; set; } = new List<ProductReviewReport>();

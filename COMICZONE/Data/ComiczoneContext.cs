@@ -34,6 +34,10 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<ProductReviewLike> ProductReviewLikes { get; set; }
 
+    public virtual DbSet<ProductReviewReply> ProductReviewReplies { get; set; }
+
+    public virtual DbSet<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; }
+
     public virtual DbSet<ProductReviewReport> ProductReviewReports { get; set; }
 
     public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
@@ -183,7 +187,6 @@ public partial class ComiczoneContext : DbContext
             entity.HasKey(e => e.Reviewid).HasName("PK__PRODUCT___DDDCEB4A41B2EC7A");
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Isapproved).HasDefaultValue(true);
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -207,13 +210,40 @@ public partial class ComiczoneContext : DbContext
                 .HasConstraintName("FK__PRODUCT_R__USERI__208CD6FA");
         });
 
+        modelBuilder.Entity<ProductReviewReply>(entity =>
+        {
+            entity.HasKey(e => e.Replyid).HasName("PK__PRODUCT___4B22DB5A37E61D2E");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Replytouser).WithMany(p => p.ProductReviewReplyReplytousers).HasConstraintName("FK_PRODUCT_REVIEW_REPLY_USER");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReplies).HasConstraintName("FK_REPLY_REVIEW");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReplyUsers).HasConstraintName("FK_REPLY_USER");
+        });
+
+        modelBuilder.Entity<ProductReviewReplyLike>(entity =>
+        {
+            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReplyLikes).HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_REPLY");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReplyLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_USER");
+        });
+
         modelBuilder.Entity<ProductReviewReport>(entity =>
         {
             entity.HasKey(e => e.Reportid).HasName("PK__PRODUCT___A85DEB2D0B3B8B15");
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("PENDING");
 
-            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports).HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
+            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReports).HasConstraintName("FK_REPORT_REPLY");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
 
             entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReports)
                 .OnDelete(DeleteBehavior.ClientSetNull)

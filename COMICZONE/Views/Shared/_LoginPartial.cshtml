@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http.Extensions;
+
+@{
     var username = Context.Session.GetString("Username");
     var avatar = Context.Session.GetString("Avatar");
 }
@@ -16,7 +18,6 @@
                      width="35"
                      height="35"
                      style="object-fit:cover;" />
-
                 @username
             </a>
 
@@ -48,16 +49,18 @@
         <li class="nav-item">
             <a class="nav-link"
                asp-controller="Authentication"
-               asp-action="Register">
-                Register
+               asp-action="Login"
+               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
+                Đăng nhập
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link"
                asp-controller="Authentication"
-               asp-action="Login">
-                Login
+               asp-action="Register"
+               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
+                Đăng ký
             </a>
         </li>
     }

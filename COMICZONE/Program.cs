@@ -1,4 +1,5 @@
 using COMICZONE.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,14 +22,22 @@ namespace COMICZONE
                 options.Cookie.IsEssential = true;
             });
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Authentication/Login";
+                    options.AccessDeniedPath = "/Authentication/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                });
+
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ComiczoneContext>(options =>
                 options.UseSqlServer(connectionString));
+            //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<ComiczoneContext>();
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ComiczoneContext>();
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
@@ -53,12 +62,13 @@ namespace COMICZONE
             // --- active session ---
             app.UseSession();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-            app.MapRazorPages();
+            //app.MapRazorPages();
 
             app.Run();
         }
