@@ -1,4 +1,4 @@
-﻿@model List<COMICZONE.Models.Order>
+﻿@model List<COMICZONE.Models.ProductReview>
 
 <div class="profile-container">
 
@@ -10,7 +10,7 @@
             {
                 @await Component.InvokeAsync("UserAvatar",
                 new { avatarUrl = Context.Session.GetString("Avatar"), size = 80 })
-            }
+                        }
             else
             {
                 @(Context.Session.GetString("Username")?.Substring(0, 1).ToUpper() ?? "U")
@@ -25,6 +25,6 @@
 
     </div>
 
-    @await Html.PartialAsync("_MyOrders.cshtml", Model)
+    @await Html.PartialAsync("_MyReviews.cshtml", Model)
 
 </div>

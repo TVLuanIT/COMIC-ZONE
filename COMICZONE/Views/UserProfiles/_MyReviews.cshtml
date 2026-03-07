@@ -1,0 +1,122 @@
+﻿@model List<COMICZONE.Models.ProductReview>
+
+<div class="profile-content">
+
+    @Html.AntiForgeryToken()
+
+    <h3 class="review-title">Đánh giá của tôi</h3>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-review">
+            Bạn chưa có đánh giá nào.
+        </div>
+    }
+    else
+    {
+
+        foreach (var review in Model)
+        {
+            <div class="review-card">
+
+                <div class="review-header">
+
+                    <div class="product-name">
+                        <a asp-controller="Products"
+                           asp-action="Detail"
+                           asp-route-id="@review.Productid">
+                            @review.Product?.Name
+                        </a>
+                    </div>
+
+                    <div class="review-actions">
+
+                        <div class="review-date">
+                            @review.Createdat?.ToString("dd/MM/yyyy")
+                        </div>
+
+                        <div class="menu-wrapper">
+
+                            <button class="menu-btn">⋯</button>
+
+                            <div class="menu-dropdown">
+                                <a href="#"
+                                   class="delete-review"
+                                   data-id="@review.Reviewid">
+                                    Xóa
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="review-rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= review.Rating)
+                        {
+                            <span class="star filled">★</span>
+                        }
+                        else
+                        {
+                            <span class="star">★</span>
+                        }
+                    }
+                </div>
+
+                <div class="review-comment">
+                    @review.Reviewcontent
+                </div>
+
+            </div>
+        }
+
+        <!-- Pagination -->
+        @await Html.PartialAsync("_Pagination", new PaginationModel
+        {
+            CurrentPage = ViewBag.CurrentPage,
+        TotalPages = ViewBag.TotalPages,
+        Action = "MyReviews",
+        Controller = "UserProfiles"
+        })
+    }
+
+</div>
+
+@* FORM XÁC NHẬN XÓA ĐÁNH GIÁ *@
+<div id="deleteConfirmModal" class="confirm-modal">
+
+    <div class="confirm-box">
+
+        <div class="confirm-icon">
+            🗑️
+        </div>
+
+        <div class="confirm-title">
+            Xóa đánh giá
+        </div>
+
+        <div class="confirm-text">
+            Hành động này không thể hoàn tác.
+            <br>
+            Bạn có chắc muốn xóa đánh giá này?
+        </div>
+
+        <div class="confirm-actions">
+
+            <button class="btn-cancel">
+                Hủy
+            </button>
+
+            <button class="btn-delete">
+                Xóa đánh giá
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

@@ -888,9 +888,90 @@ const ProductReport = (() => {
     return { init };
 })();
 
+// MENU BA CHẤM CHO REVIEW CARD - USER PROFILE
+const ReviewMenu_UserProfile = (() => {
+
+    const init = () => {
+
+        // MENU BA CHẤM
+        $(document).off('click', '.menu-btn');
+
+        $(document).on('click', '.menu-btn', function (e) {
+
+            e.stopPropagation();
+
+            const wrapper = $(this).closest('.menu-wrapper');
+
+            $('.menu-wrapper').not(wrapper).removeClass('active');
+
+            wrapper.toggleClass('active');
+        });
+
+        // click ngoài → đóng menu
+        $(document).on('click', function () {
+            $('.menu-wrapper').removeClass('active');
+        });
+
+        // DELETE REVIEW
+        let reviewIdToDelete = null;
+
+        // click nút xóa
+        $(document).on("click", ".delete-review", function (e) {
+
+            e.preventDefault();
+
+            reviewIdToDelete = $(this).data("id");
+
+            $("#deleteConfirmModal").addClass("active");
+
+        });
+
+        // hủy
+        $(document).on("click", ".btn-cancel", function () {
+
+            $("#deleteConfirmModal").removeClass("active");
+
+        });
+
+        // xác nhận xóa
+        $(document).on("click", ".btn-delete", function () {
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: "/ProductReviews/DeleteReview",
+                type: "POST",
+                data: {
+                    id: reviewIdToDelete,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        location.reload();
+
+                    } else {
+
+                        alert(res.message || "Không thể xóa đánh giá");
+
+                    }
+
+                }
+            });
+
+        });
+
+    };
+
+    return { init };
+
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
+    ReviewMenu_UserProfile.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');

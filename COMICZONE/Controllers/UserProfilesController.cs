@@ -19,6 +19,17 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        private List<ProductReview> GetReviews(int page, int pageSize, int userId)
+        {
+            return _context.ProductReviews
+                .Include(r => r.Product)
+                .Where(r => r.Userid == userId)
+                .OrderByDescending(r => r.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
         private List<Order> GetOrders()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -54,6 +65,28 @@ namespace COMICZONE.Controllers
                 .FirstOrDefault(c => c.Userid == userId);
 
             return customer;
+        }
+
+        public IActionResult MyReviews(int page = 1)
+        {
+            int pageSize = 5;
+
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+                return View(new List<ProductReview>());
+
+            int userId = int.Parse(userIdStr);
+
+            var query = _context.ProductReviews.Where(r => r.Userid == userId);
+            int totalReviews = query.Count();
+
+            var reviews = GetReviews(page, pageSize, userId);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalReviews / pageSize);
+
+            return View(reviews);
         }
 
         public IActionResult MyOrders()

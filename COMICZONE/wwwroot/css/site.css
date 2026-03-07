@@ -1080,6 +1080,9 @@ button[aria-expanded="true"] .transition-icon {
 }
 
 .profile-menu li a{
+    display:block;
+    text-align:center;
+    padding:10px 0;
     text-decoration:none;
     color:#333;
 }
@@ -1129,6 +1132,14 @@ button[aria-expanded="true"] .transition-icon {
     text-decoration:none;
 }
 
+.btn-change-password {
+    background: #ff6a00;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
 /* ORDER TABLE */
 
 .table{
@@ -1165,4 +1176,242 @@ button[aria-expanded="true"] .transition-icon {
 
 .btn-view:hover{
     opacity:0.9;
+}
+
+/* REVIEW TABLE */
+.review-title{
+    margin-bottom:20px;
+}
+
+.review-card{
+    border:1px solid #eee;
+    border-radius:8px;
+    padding:18px;
+    margin-bottom:16px;
+    background:white;
+    transition:0.2s;
+}
+
+.review-card:hover{
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.review-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.product-name a{
+    font-weight:600;
+    font-size:16px;
+    color:#333;
+    text-decoration:none;
+}
+
+.product-name a:hover{
+    color:#ff6a00;
+}
+
+.review-date{
+    font-size:13px;
+    color:#888;
+}
+
+.review-rating{
+    margin:6px 0;
+}
+
+.star{
+    font-size:18px;
+    color:#ddd;
+}
+
+.star.filled{
+    color:#f5a623;
+}
+
+.review-comment{
+    margin-top:8px;
+    padding:10px;
+    background:#fafafa;
+    border-radius:6px;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.empty-review{
+    padding:30px;
+    text-align:center;
+    color:#888;
+}
+.review-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.menu-wrapper{
+    position:relative;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    display: none;
+}
+
+
+.menu-dropdown a{
+    display:block;
+    padding:8px 12px;
+    text-decoration:none;
+    color:#333;
+}
+
+.menu-dropdown a:hover{
+    background:#f5f5f5;
+    color:red;
+}
+
+.menu-wrapper.active .menu-dropdown{
+    display:block;
+}
+
+/* FORM XÁC NHẬN XÓA REVIEW */
+/* ===== Modal nền ===== */
+
+.confirm-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    visibility:hidden;
+    transition:0.25s ease;
+    z-index:999;
+}
+
+.confirm-modal.active{
+    opacity:1;
+    visibility:visible;
+}
+
+/* ===== Box ===== */
+
+.confirm-box{
+    background:#fff;
+    padding:28px;
+    border-radius:14px;
+    width:360px;
+    text-align:center;
+    box-shadow:0 18px 40px rgba(0,0,0,0.25);
+    transform:scale(.9);
+    transition:0.25s ease;
+}
+
+.confirm-modal.active .confirm-box{
+    transform:scale(1);
+}
+
+/* ===== Icon ===== */
+
+.confirm-icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+/* ===== Title ===== */
+
+.confirm-title{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+/* ===== Text ===== */
+
+.confirm-text{
+    font-size:14px;
+    color:#666;
+    line-height:1.6;
+    margin-bottom:22px;
+}
+
+/* ===== Buttons ===== */
+
+.confirm-actions{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+}
+
+.btn-cancel{
+    background:#f1f1f1;
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.2s;
+}
+
+.btn-cancel:hover{
+    background:#e3e3e3;
+}
+
+.btn-delete{
+    background:#e53935;
+    color:white;
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.2s;
+}
+
+.btn-delete:hover{
+    background:#c62828;
+}
+
+/* ================================================================================= */
+/* ================= Pagination ================= */
+/* ================================================================================= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+    gap: 6px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination .active {
+    background: #ff4d4f;
+    color: white;
+    border-color: #ff4d4f;
 }
