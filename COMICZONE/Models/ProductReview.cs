@@ -33,20 +33,6 @@ public partial class ProductReview
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
 
-    [NotMapped]
-    public int LikeCount { get; set; }
-
-    [NotMapped]
-    public bool IsLikedByUser { get; set; }
-
-    [NotMapped]
-    public bool IsDislikedByUser { get; set; }
-    [NotMapped]
-    public bool IsReportedByUser { get; set; } = false;
-
-    [NotMapped]
-    public string? ReportStatus { get; set; }
-
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]
     public virtual Product Product { get; set; } = null!;

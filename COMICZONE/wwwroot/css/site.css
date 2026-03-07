@@ -1089,6 +1089,10 @@ button[aria-expanded="true"] .transition-icon {
     font-weight:600;
 }
 
+.profile-menu li:hover a{
+    color:#ff6a00;
+}
+
 
 /* CONTENT */
 
@@ -1123,4 +1127,42 @@ button[aria-expanded="true"] .transition-icon {
     padding:8px 18px;
     border-radius:6px;
     text-decoration:none;
+}
+
+/* ORDER TABLE */
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table thead{
+    background:#f7f7f7;
+}
+
+.table th,
+.table td{
+    padding:12px 10px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+.table th{
+    font-weight:600;
+}
+
+.table tr:hover{
+    background:#fafafa;
+}
+.btn-view{
+    background:#ff6a00;
+    color:#fff;
+    padding:6px 14px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+}
+
+.btn-view:hover{
+    opacity:0.9;
 }

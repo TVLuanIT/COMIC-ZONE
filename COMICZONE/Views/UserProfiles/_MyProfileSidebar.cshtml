@@ -1,18 +1,22 @@
-﻿<ul class="profile-menu">
+﻿@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+}
 
-    <li class="active">
+<ul class="profile-menu">
+
+    <li class="@(action == "MyProfile" ? "active" : "")">
         <a asp-action="MyProfile">Thông tin cá nhân</a>
     </li>
 
-    <li>
+    <li class="@(action == "MyOrders" ? "active" : "")">
         <a asp-action="MyOrders">Đơn hàng của tôi</a>
     </li>
 
-    <li>
+    <li class="@(action == "MyReviews" ? "active" : "")">
         <a asp-action="MyReviews">Đánh giá của tôi</a>
     </li>
 
-    <li>
+    <li class="@(action == "ChangePassword" ? "active" : "")">
         <a asp-action="ChangePassword">Đổi mật khẩu</a>
     </li>
 

@@ -19,6 +19,25 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        private List<Order> GetOrders()
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return new List<Order>();
+            }
+
+            int userId = int.Parse(userIdStr);
+
+            var orders = _context.Orders
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            return orders;
+        }
+
         private Customer? GetCustomer()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -37,26 +56,18 @@ namespace COMICZONE.Controllers
             return customer;
         }
 
+        public IActionResult MyOrders()
+        {
+            var orders = GetOrders();
+
+            return View(orders);
+        }
+
         public IActionResult MyProfile()
         {
             var customer = GetCustomer();
 
             return View(customer);
         }
-
-        public IActionResult MyOrders()
-        {
-            var customer = GetCustomer();
-
-            return View(customer);
-        }
-
-        public IActionResult MyReviews()
-        {
-            var customer = GetCustomer();
-
-            return View(customer);
-        }
-
     }
 }

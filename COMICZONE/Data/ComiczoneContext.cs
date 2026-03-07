@@ -26,6 +26,12 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+
+    public virtual DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+
     public virtual DbSet<Picture> Pictures { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
@@ -113,6 +119,44 @@ public partial class ComiczoneContext : DbContext
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.User).WithOne(p => p.Customer).HasConstraintName("FK_CUSTOMERS_USERS");
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__ORDER__460A9464EECAFB3A");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.OrderDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ORDER__USER_ID__5B78929E");
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId).HasName("PK__ORDER_IT__E15C431676182876");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ORDER_ITE__ORDER__6225902D");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ORDER_ITE__PRODU__6319B466");
+        });
+
+        modelBuilder.Entity<OrderStatusHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ORDER_ST__3214EC27ABCEA6E0");
+
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderStatusHistories)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ORDER_STA__ORDER__66EA454A");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrderStatusHistories).HasConstraintName("FK__ORDER_STA__UPDAT__67DE6983");
         });
 
         modelBuilder.Entity<Picture>(entity =>

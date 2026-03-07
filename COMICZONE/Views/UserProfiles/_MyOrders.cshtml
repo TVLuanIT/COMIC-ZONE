@@ -1,0 +1,62 @@
+﻿@model List<COMICZONE.Models.Order>
+
+<div class="profile-content">
+
+    <h3>Đơn hàng của tôi</h3>
+
+    <div class="profile-card">
+
+        @if (!Model.Any())
+        {
+            <p>Bạn chưa có đơn hàng nào.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>#@order.OrderId</td>
+
+                            <td>
+                                @order.OrderDate?.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td>
+                                @order.TotalAmount?.ToString("N0") đ
+                            </td>
+
+                            <td>
+                                @order.Status
+                            </td>
+
+                            <td>
+                                <a asp-action="OrderDetails"
+                                   asp-route-id="@order.OrderId"
+                                   class="btn-view">
+                                    Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+
+    </div>
+
+</div>
