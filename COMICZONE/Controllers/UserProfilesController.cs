@@ -19,6 +19,18 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        private List<ProductReviewReply> GetReplies(int page, int pageSize, int userId)
+        {
+            return _context.ProductReviewReplies
+                .Include(r => r.Review)
+                .ThenInclude(r => r.Product)
+                .Where(r => r.Userid == userId)
+                .OrderByDescending(r => r.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
         private List<ProductReview> GetReviews(int page, int pageSize, int userId)
         {
             return _context.ProductReviews
@@ -67,7 +79,7 @@ namespace COMICZONE.Controllers
             return customer;
         }
 
-        public IActionResult MyReviews(int page = 1)
+        public IActionResult MyReviews(int reviewPage = 1, int replyPage = 1)
         {
             int pageSize = 5;
 
@@ -78,13 +90,25 @@ namespace COMICZONE.Controllers
 
             int userId = int.Parse(userIdStr);
 
-            var query = _context.ProductReviews.Where(r => r.Userid == userId);
-            int totalReviews = query.Count();
+            // REVIEWS
+            var reviewQuery = _context.ProductReviews.Where(r => r.Userid == userId);
+            int totalReviews = reviewQuery.Count();
 
-            var reviews = GetReviews(page, pageSize, userId);
+            var reviews = GetReviews(reviewPage, pageSize, userId);
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalReviews / pageSize);
+            // REPLIES
+            var replyQuery = _context.ProductReviewReplies.Where(r => r.Userid == userId);
+            int totalReplies = replyQuery.Count();
+
+            var replies = GetReplies(replyPage, pageSize, userId);
+
+            ViewData["MyReplies"] = replies;
+
+            ViewBag.ReviewPage = reviewPage;
+            ViewBag.ReviewTotalPages = (int)Math.Ceiling((double)totalReviews / pageSize);
+
+            ViewBag.ReplyPage = replyPage;
+            ViewBag.ReplyTotalPages = (int)Math.Ceiling((double)totalReplies / pageSize);
 
             return View(reviews);
         }

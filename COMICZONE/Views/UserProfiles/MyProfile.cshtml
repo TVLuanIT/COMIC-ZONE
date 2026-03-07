@@ -1,5 +1,9 @@
 ﻿@model COMICZONE.Models.Customer
 
+@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
 <div class="profile-container">
 
     <!-- SIDEBAR -->
@@ -17,10 +21,10 @@
             <div class="username">@Model.Fullname</div>
         </div>
 
-        @await Html.PartialAsync("_MyProfileSidebar.cshtml");
+        @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
     </div>
 
-    @await Html.PartialAsync("_MyProfile.cshtml");
+    @await Html.PartialAsync("_MyProfile.cshtml")
 
 </div>

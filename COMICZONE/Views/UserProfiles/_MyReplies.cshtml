@@ -1,4 +1,4 @@
-﻿@model List<COMICZONE.Models.ProductReview>
+﻿@model List<COMICZONE.Models.ProductReviewReply>
 
 <div class="profile-content">
 
@@ -7,13 +7,13 @@
     @if (Model == null || !Model.Any())
     {
         <div class="empty-review">
-            Bạn chưa có đánh giá nào.
+            Bạn chưa có phản hồi nào.
         </div>
     }
     else
     {
 
-        foreach (var review in Model)
+        foreach (var reply in Model)
         {
             <div class="review-card">
 
@@ -22,15 +22,15 @@
                     <div class="product-name">
                         <a asp-controller="Products"
                            asp-action="Detail"
-                           asp-route-id="@review.Productid">
-                            @review.Product?.Name
+                           asp-route-id="@reply.Review.Productid">
+                            @reply.Review?.Product?.Name
                         </a>
                     </div>
 
                     <div class="review-actions">
 
                         <div class="review-date">
-                            @review.Createdat?.ToString("dd/MM/yyyy")
+                            @reply.Createdat?.ToString("dd/MM/yyyy")
                         </div>
 
                         <div class="menu-wrapper">
@@ -39,8 +39,8 @@
 
                             <div class="menu-dropdown">
                                 <a href="#"
-                                   class="delete-review"
-                                   data-id="@review.Reviewid">
+                                   class="delete-reply"
+                                   data-id="@reply.Replyid">
                                     Xóa
                                 </a>
                             </div>
@@ -51,22 +51,8 @@
 
                 </div>
 
-                <div class="review-rating">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        if (i <= review.Rating)
-                        {
-                            <span class="star filled">★</span>
-                        }
-                        else
-                        {
-                            <span class="star">★</span>
-                        }
-                    }
-                </div>
-
                 <div class="review-comment">
-                    @review.Reviewcontent
+                    @reply.Replycontent
                 </div>
 
             </div>
@@ -75,23 +61,24 @@
         <!-- Pagination -->
         @await Html.PartialAsync("_Pagination", new PaginationModel
         {
-            CurrentPage = ViewBag.ReviewPage,
-            TotalPages = ViewBag.ReviewTotalPages,
+            CurrentPage = ViewBag.ReplyPage,
+            TotalPages = ViewBag.ReplyTotalPages,
             Action = "MyReviews",
             Controller = "UserProfiles",
-            PageParam = "reviewPage",
+            PageParam = "replyPage",
             ExtraParams = new Dictionary<string, string>
             {
-                { "replyPage", Convert.ToString(ViewBag.ReplyPage ?? 1) },
-                { "tab", "reviews" }
+                { "reviewPage", Convert.ToString(ViewBag.ReviewPage ?? 1) },
+                { "tab", "replies" }
             }
         })
     }
 
 </div>
 
-@* FORM XÁC NHẬN XÓA ĐÁNH GIÁ *@
-<div id="deleteConfirmModal" class="confirm-modal">
+
+@* FORM XÁC NHẬN XÓA PHẢN HỒI *@
+<div id="deleteReplyConfirmModal" class="confirm-modal">
 
     <div class="confirm-box">
 
@@ -100,13 +87,13 @@
         </div>
 
         <div class="confirm-title">
-            Xóa đánh giá
+            Xóa phản hồi
         </div>
 
         <div class="confirm-text">
             Hành động này không thể hoàn tác.
             <br>
-            Bạn có chắc muốn xóa đánh giá này?
+            Bạn có chắc muốn xóa phản hồi này?
         </div>
 
         <div class="confirm-actions">
@@ -116,7 +103,7 @@
             </button>
 
             <button class="btn-delete">
-                Xóa đánh giá
+                Xóa phản hồi
             </button>
 
         </div>

@@ -968,10 +968,30 @@ const ReviewMenu_UserProfile = (() => {
 
 })();
 
+const UrlTabs = {
+
+    init() {
+
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get("tab");
+
+        if (!tab) return;
+
+        const trigger = document.querySelector(`[data-bs-target="#${tab}"]`);
+
+        if (trigger) {
+            new bootstrap.Tab(trigger).show();
+        }
+
+    }
+
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
     ReviewMenu_UserProfile.init();
+    UrlTabs.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
