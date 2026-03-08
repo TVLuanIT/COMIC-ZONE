@@ -1,6 +1,13 @@
 ﻿<!-- MAIN CONTENT -->
 <div class="profile-content">
 
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            window.successMessage = "@Html.Raw(TempData["Success"])";
+        </script>
+    }
+
     <h3>Thông tin cá nhân</h3>
 
     <div class="profile-card">
@@ -33,7 +40,7 @@
         <div class="profile-actions">
 
             <a asp-action="EditProfile"
-               asp-route-id="@Model.Customerid"
+               asp-controller="UserProfiles"
                class="btn-edit">
                 Chỉnh sửa
             </a>
@@ -41,7 +48,7 @@
             <a asp-action="#"
                asp-route-id="#"
                class="btn-change-password">
-				Thay đổi mật khẩu
+				Đổi mật khẩu
             </a>
 
         </div>

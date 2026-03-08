@@ -918,6 +918,7 @@ const ReviewMenu_UserProfile = (() => {
         // DELETE REVIEW
         let reviewIdToDelete = null;
 
+        $(document).off("click", ".delete-review");
         // click nút xóa
         $(document).on("click", ".delete-review", function (e) {
 
@@ -1055,12 +1056,40 @@ const UrlTabs = {
 
 };
 
+const AutoAlert = (() => {
+
+    const init = () => {
+
+        if (window.successMessage) {
+
+            const toast = document.createElement("div");
+            toast.className = "toast-notification";
+            toast.innerText = window.successMessage;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add("toast-show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+    };
+
+    return { init };
+
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
     ReviewMenu_UserProfile.init();
     ReplyMenu_UserProfile.init();
     UrlTabs.init();
+    AutoAlert.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
@@ -1068,12 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseInt(productIdElement.value);
         if (!isNaN(id)) {
             ProductReviews.init(id);
-
-            //// KHỞI TẠO HIỂN THỊ REPLY THEO BATCH
-            //// Ở đây gọi sau khi loadReviewFirstTime xong (HTML đã render)
-            //setTimeout(() => {
-            //    ProductReplies.initReplyList();
-            //}, 500); // delay 0.5s để DOM load xong
         }
     }
 });

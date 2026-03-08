@@ -25,6 +25,13 @@
 
     </div>
 
-    @await Html.PartialAsync("_MyProfile.cshtml")
+    @if (ViewBag.Page == "Edit")
+    {
+        @await Html.PartialAsync("_EditProfile.cshtml", Model)
+    }
+    else
+    {
+        @await Html.PartialAsync("_MyProfile.cshtml", Model)
+    }
 
 </div>

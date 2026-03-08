@@ -19,6 +19,62 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult EditProfile()
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            ViewBag.Page = "Edit";
+
+            return View("MyProfile", customer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProfile(Customer model)
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+                return RedirectToAction("Login", "Authentication");
+
+            bool isChanged = false;
+
+            if (customer.Fullname != model.Fullname)
+            {
+                customer.Fullname = model.Fullname;
+                isChanged = true;
+            }
+
+            if (customer.Phone != model.Phone)
+            {
+                customer.Phone = model.Phone;
+                isChanged = true;
+            }
+
+            if (customer.Address != model.Address)
+            {
+                customer.Address = model.Address;
+                isChanged = true;
+            }
+
+            if (isChanged)
+            {
+                _context.SaveChanges();
+                TempData["Success"] = "Cập nhật thông tin thành công";
+            }
+            else
+            {
+                TempData["Info"] = "Không có thay đổi nào";
+            }
+
+            return RedirectToAction("MyProfile");
+        }
+
         private List<ProductReviewReply> GetReplies(int page, int pageSize, int userId)
         {
             return _context.ProductReviewReplies
@@ -124,7 +180,15 @@ namespace COMICZONE.Controllers
         {
             var customer = GetCustomer();
 
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            ViewBag.Page = "Profile";
+
             return View(customer);
         }
+
     }
 }
