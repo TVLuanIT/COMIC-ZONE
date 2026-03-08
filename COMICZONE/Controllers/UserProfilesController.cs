@@ -19,6 +19,60 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult ChangePassword()
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            ViewBag.Page = "ChangePassword";
+
+            return View("MyProfile", customer);
+        }
+
+        [HttpPost]
+        public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == customer.Userid);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Passwordhash))
+            {
+                TempData["Error"] = "Mật khẩu hiện tại không đúng";
+                ViewBag.Page = "ChangePassword";
+                return View("MyProfile", customer);
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["Error"] = "Xác nhận mật khẩu không khớp";
+                ViewBag.Page = "ChangePassword";
+                return View("MyProfile", customer);
+            }
+
+            user.Passwordhash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            _context.SaveChanges();
+
+            TempData["Success"] = "Đổi mật khẩu thành công";
+
+            return RedirectToAction("MyProfile");
+        }
+
         public IActionResult EditProfile()
         {
             var customer = GetCustomer();
