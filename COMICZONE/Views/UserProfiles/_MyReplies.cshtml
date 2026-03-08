@@ -4,7 +4,7 @@
 
     @Html.AntiForgeryToken()
 
-    @if (Model == null || !Model.Any())
+    @if (!Model.Any())
     {
         <div class="empty-review">
             Bạn chưa có phản hồi nào.

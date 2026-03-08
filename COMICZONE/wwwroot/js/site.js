@@ -606,6 +606,9 @@ const ProductReplies = (() => {
                             currentReplies[i].style.display = 'block';
                     }
 
+                    // luôn đưa nút xuống cuối
+                    container.appendChild(newBtn);
+
                     shownCount += toShow;
 
                     const left = currentTotal - shownCount;
@@ -927,14 +930,14 @@ const ReviewMenu_UserProfile = (() => {
         });
 
         // hủy
-        $(document).on("click", ".btn-cancel", function () {
+        $(document).on("click", "#deleteConfirmModal .btn-cancel", function () {
 
             $("#deleteConfirmModal").removeClass("active");
 
         });
 
         // xác nhận xóa
-        $(document).on("click", ".btn-delete", function () {
+        $(document).on("click", "#deleteConfirmModal .btn-delete", function () {
 
             const token = $('input[name="__RequestVerificationToken"]').val();
 
@@ -956,6 +959,71 @@ const ReviewMenu_UserProfile = (() => {
                         alert(res.message || "Không thể xóa đánh giá");
 
                     }
+
+                }
+            });
+
+        });
+
+    };
+
+    return { init };
+
+})();
+
+const ReplyMenu_UserProfile = (() => {
+
+    let replyIdToDelete = null;
+
+    const init = () => {
+
+        // CLICK DELETE
+        $(document).on("click", ".delete-reply", function (e) {
+
+            e.preventDefault();
+
+            replyIdToDelete = $(this).data("id");
+
+            $("#deleteReplyConfirmModal").addClass("active");
+
+        });
+
+        // CANCEL
+        $(document).on("click", "#deleteReplyConfirmModal .btn-cancel", function () {
+
+            $("#deleteReplyConfirmModal").removeClass("active");
+            replyIdToDelete = null;
+
+        });
+
+        // CONFIRM DELETE
+        $(document).on("click", "#deleteReplyConfirmModal .btn-delete", function () {
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: "/ProductReviews/DeleteReply",
+                type: "POST",
+                data: {
+                    replyId: replyIdToDelete,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        location.href = window.location.pathname + "?tab=replies";
+
+                    } else {
+
+                        alert(res.message || "Không thể xóa phản hồi");
+
+                    }
+
+                },
+                error: function () {
+
+                    alert("Lỗi server");
 
                 }
             });
@@ -991,6 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
     ReviewMenu_UserProfile.init();
+    ReplyMenu_UserProfile.init();
     UrlTabs.init();
 
     // Truyền productId từ Razor view

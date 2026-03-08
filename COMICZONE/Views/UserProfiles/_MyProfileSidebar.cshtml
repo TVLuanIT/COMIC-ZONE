@@ -16,4 +16,8 @@
         <a asp-action="MyReviews">Đánh giá của tôi</a>
     </li>
 
+    <li class="@(action == "Notifications" ? "active" : "")">
+        <a asp-action="Notifications">Thông báo</a>
+    </li>
+
 </ul>
