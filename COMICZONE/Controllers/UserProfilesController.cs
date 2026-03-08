@@ -19,6 +19,31 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult Notifications()
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            var notifications = _context.Notifications
+                .Where(n => n.UserId == customer.Customerid)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+
+            // Đánh dấu đã đọc
+            foreach (var item in notifications)
+            {
+                item.IsRead = true;
+            }
+
+            _context.SaveChanges();
+
+            return View(notifications);
+        }
+
         public IActionResult ChangePassword()
         {
             var customer = GetCustomer();

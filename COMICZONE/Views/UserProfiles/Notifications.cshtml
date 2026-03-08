@@ -1,4 +1,4 @@
-﻿@model List<COMICZONE.Models.Order>
+﻿@model List<COMICZONE.Models.Notification>
 
 @{
     ViewData["Title"] = "Đơn hàng của tôi";
@@ -9,6 +9,6 @@
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    @await Html.PartialAsync("_MyOrders.cshtml", Model)
+    @await Html.PartialAsync("_Notifications.cshtml", Model)
 
 </div>

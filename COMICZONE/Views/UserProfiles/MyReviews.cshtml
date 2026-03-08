@@ -10,27 +10,7 @@
 <div class="profile-container">
 
     <!-- SIDEBAR -->
-    <div class="profile-sidebar">
-
-        <div class="profile-user">
-            @if (!string.IsNullOrEmpty(Context.Session.GetString("Avatar")))
-            {
-                @await Component.InvokeAsync("UserAvatar",
-                new { avatarUrl = Context.Session.GetString("Avatar"), size = 80 })
-            }
-            else
-            {
-                @(Context.Session.GetString("Username")?.Substring(0, 1).ToUpper() ?? "U")
-            }
-
-            <div class="username">
-                @Context.Session.GetString("Username")
-            </div>
-        </div>
-
-        @await Html.PartialAsync("_MyProfileSidebar.cshtml")
-
-    </div>
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
     <div class="profile-content">
 

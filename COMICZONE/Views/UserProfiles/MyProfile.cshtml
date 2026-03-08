@@ -7,23 +7,7 @@
 <div class="profile-container">
 
     <!-- SIDEBAR -->
-    <div class="profile-sidebar">
-
-        <div class="profile-user">
-            @if (!string.IsNullOrEmpty(Model.User?.Avatar))
-            {
-                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.User?.Avatar, size = 80 })
-            }
-            else
-            {
-                @(Model.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
-            }
-            <div class="username">@Model.Fullname</div>
-        </div>
-
-        @await Html.PartialAsync("_MyProfileSidebar.cshtml")
-
-    </div>
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
     @if (ViewBag.Page == "Edit")
     {

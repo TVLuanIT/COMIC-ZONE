@@ -2,22 +2,42 @@
     var action = ViewContext.RouteData.Values["action"]?.ToString();
 }
 
-<ul class="profile-menu">
+<div class="profile-sidebar">
 
-    <li class="@(action == "MyProfile" ? "active" : "")">
-        <a asp-action="MyProfile">Thông tin cá nhân</a>
-    </li>
+    <div class="profile-user">
+        @if (!string.IsNullOrEmpty(Context.Session.GetString("Avatar")))
+        {
+            @await Component.InvokeAsync("UserAvatar",
+            new { avatarUrl = Context.Session.GetString("Avatar"), size = 80 })
+                }
+        else
+        {
+            @(Context.Session.GetString("Username")?.Substring(0, 1).ToUpper() ?? "U")
+        }
 
-    <li class="@(action == "MyOrders" ? "active" : "")">
-        <a asp-action="MyOrders">Đơn hàng của tôi</a>
-    </li>
+        <div class="username">
+            @Context.Session.GetString("Username")
+        </div>
+    </div>
 
-    <li class="@(action == "MyReviews" ? "active" : "")">
-        <a asp-action="MyReviews">Đánh giá của tôi</a>
-    </li>
+    <ul class="profile-menu">
 
-    <li class="@(action == "Notifications" ? "active" : "")">
-        <a asp-action="Notifications">Thông báo</a>
-    </li>
+        <li class="@(action == "MyProfile" ? "active" : "")">
+            <a asp-action="MyProfile">Thông tin cá nhân</a>
+        </li>
 
-</ul>
+        <li class="@(action == "MyOrders" ? "active" : "")">
+            <a asp-action="MyOrders">Đơn hàng của tôi</a>
+        </li>
+
+        <li class="@(action == "MyReviews" ? "active" : "")">
+            <a asp-action="MyReviews">Đánh giá của tôi</a>
+        </li>
+
+        <li class="@(action == "Notifications" ? "active" : "")">
+            <a asp-action="Notifications">Thông báo</a>
+        </li>
+
+    </ul>
+
+</div>

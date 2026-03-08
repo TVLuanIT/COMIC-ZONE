@@ -26,6 +26,8 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
@@ -119,6 +121,20 @@ public partial class ComiczoneContext : DbContext
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.User).WithOne(p => p.Customer).HasConstraintName("FK_CUSTOMERS_USERS");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("PK__NOTIFICA__83A4A446073FCFEC");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.NotificationCreatedByNavigations).HasConstraintName("FK__NOTIFICAT__CREAT__02925FBF");
+
+            entity.HasOne(d => d.User).WithMany(p => p.NotificationUsers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__NOTIFICAT__USER___019E3B86");
         });
 
         modelBuilder.Entity<Order>(entity =>

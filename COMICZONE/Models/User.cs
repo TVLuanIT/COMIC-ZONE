@@ -49,6 +49,12 @@ public partial class User
     [InverseProperty("User")]
     public virtual Customer? Customer { get; set; }
 
+    [InverseProperty("CreatedByNavigation")]
+    public virtual ICollection<Notification> NotificationCreatedByNavigations { get; set; } = new List<Notification>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Notification> NotificationUsers { get; set; } = new List<Notification>();
+
     [InverseProperty("UpdatedByNavigation")]
     public virtual ICollection<OrderStatusHistory> OrderStatusHistories { get; set; } = new List<OrderStatusHistory>();
 
