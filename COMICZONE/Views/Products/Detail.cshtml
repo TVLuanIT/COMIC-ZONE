@@ -10,21 +10,43 @@
 	var RelatedByAuthor = ViewBag.RelatedByAuthor as IEnumerable<COMICZONE.Models.Product>;
 }
 
+@if (TempData["Success"] != null)
+{
+    <script>
+        window.successMessage = "@Html.Raw(TempData["Success"])";
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        window.errorMessage = "@Html.Raw(TempData["Error"])";
+    </script>
+}
+
 <section class="py-5">
+
     <div class="container">
+    
         <div class="row g-5">
+        
             <!-- CỘT TRÁI: HÌNH ẢNH -->
             <div class="col-md-5">
+            
                 @if (Model.Pictures != null && Model.Pictures.Any())
                 {
+                
                     <div class="border rounded p-3 bg-light">
                         <img class="img-fluid rounded"
                              src="@Model.GetImagePath()"
                              alt="@Model.Name" />
                     </div>
+
                     @if (Model.Pictures.Count > 1)
                     {
+
                         <div class="d-flex gap-2 mt-3 flex-wrap">
+                        
                             @foreach (var pic in Model.Pictures.Skip(1))
                             {
                                 <img src="@pic.FileName"
@@ -32,19 +54,26 @@
                                      style="width:80px;height:auto;"
                                      alt="@Model.Name" />
                             }
+
                         </div>
+
                     }
+
                 }
                 else
                 {
+
                     <div class="border rounded p-5 text-center text-muted">
                         Không có hình ảnh
                     </div>
+
                 }
 
             </div>
+
             <!-- CỘT PHẢI: THÔNG TIN -->
             <div class="col-md-7">
+            
                 <h1 class="fw-bold mb-3">@Model.Name</h1>
 
                 <div class="fs-3 text-danger fw-semibold mb-3">
@@ -154,6 +183,7 @@
                     </div>
                 }
 
+
                 <!-- TAG -->
                 @if (Model.Tags != null && Model.Tags.Any())
                 {
@@ -168,6 +198,32 @@
                             </a>
                         }
                     </div>
+                }
+
+                
+                <!-- SHOPPING CART -->
+                @if (Model.StockQuantity > 0)
+                {
+                    <form asp-controller="Carts"
+                          asp-action="AddToCart"
+                          method="post"
+                          class="mt-4">
+
+                        <input type="hidden" name="productId" value="@Model.Id" />
+
+                        <button type="submit" class="btn-add-cart">
+                            <i class="bi bi-cart-plus"></i>
+                            <span>Thêm vào giỏ hàng</span>
+                        </button>
+
+                    </form>
+                }
+                else
+                {
+                    <button class="btn-out-stock" disabled>
+                        <i class="bi bi-x-circle"></i>
+                        Hết hàng
+                    </button>
                 }
 
             </div>

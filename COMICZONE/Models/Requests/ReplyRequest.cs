@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace COMICZONE.Models
+namespace COMICZONE.Models.Requests
 {
     public class ReplyRequest
     {

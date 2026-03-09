@@ -24,6 +24,10 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Blogcomment> Blogcomments { get; set; }
 
+    public virtual DbSet<Cart> Carts { get; set; }
+
+    public virtual DbSet<CartItem> CartItems { get; set; }
+
     public virtual DbSet<Customer> Customers { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
@@ -112,6 +116,32 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Blogcomments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BLOGCOMMENT_USER");
+        });
+
+        modelBuilder.Entity<Cart>(entity =>
+        {
+            entity.HasKey(e => e.CartId).HasName("PK__CART__AB01BF6F058AAECE");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Carts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CART_USER");
+        });
+
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.HasKey(e => e.CartItemId).HasName("PK__CART_ITE__0A3C6BC4AE32D3FB");
+
+            entity.Property(e => e.Quantity).HasDefaultValue(1);
+
+            entity.HasOne(d => d.Cart).WithMany(p => p.CartItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CARTITEM_CART");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.CartItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CARTITEM_PRODUCT");
         });
 
         modelBuilder.Entity<Customer>(entity =>

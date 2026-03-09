@@ -1,0 +1,159 @@
+﻿@using COMICZONE.Extensions;
+
+@model COMICZONE.Models.Cart
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">
+        <i class="bi bi-cart"></i> Giỏ hàng của bạn
+    </h2>
+
+    @if (Model == null || Model.CartItems == null || !Model.CartItems.Any())
+    {
+        <div class="text-center p-5 border rounded bg-light">
+            <h4>🛒 Giỏ hàng của bạn đang trống</h4>
+            <p class="text-muted">Hãy thêm sản phẩm để tiếp tục mua sắm</p>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary mt-3">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row mt-4">
+
+            <!-- LEFT: CART TABLE -->
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <div style="max-height:400px; overflow-y:auto;">
+                            <table class="table align-middle">
+
+                                <thead class="table-light sticky-header">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th width="120">Price</th>
+                                        <th width="120">Quantity</th>
+                                        <th width="120">Total</th>
+                                        <th width="100"></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var item in Model.CartItems)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <div class="d-flex align-items-center">
+
+                                                    <img src="@item.Product?.GetImagePath()"
+                                                         width="60"
+                                                         height="60"
+                                                         class="rounded me-3"
+                                                         style="object-fit:cover;" />
+
+                                                    <strong>@item.Product?.Name</strong>
+
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                @((item.Product?.Price ?? 0).ToString("N0")) ₫
+                                            </td>
+
+                                            <td>
+                                                <input type="number"
+                                                       class="form-control text-center quantity-input"
+                                                       value="@item.Quantity"
+                                                       min="1"
+                                                       data-cartitem-id="@item.CartItemId"
+                                                       style="width:60px">
+                                            </td>
+
+                                            <td>
+                                                <strong class="text-danger item-total">
+                                                    @((item.Quantity * (item.Product?.Price ?? 0)).ToString("N0")) ₫
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                <a asp-action="Remove"
+                                                   asp-route-cartItemId="@item.CartItemId"
+                                                   class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: CHECKOUT CARD -->
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm sticky-top" style="top:100px">
+
+                    <div class="card-body">
+
+                        <h5 class="mb-3">Thông tin thanh toán</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" placeholder="Nguyễn Văn A">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" placeholder="09xxxxxxxx">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+
+                            <strong>Tổng tiền</strong>
+
+                            <strong id="cart-total" class="text-danger">
+                                @(Model.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0)).ToString("N0")) ₫
+                            </strong>
+
+                        </div>
+
+                        <button class="btn btn-success w-100 mt-3">
+                            Thanh toán
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>
