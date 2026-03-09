@@ -40,6 +40,13 @@ public partial class User
     [StringLength(500)]
     public string? Avatar { get; set; }
 
+    [Column("RESET_TOKEN")]
+    [StringLength(200)]
+    public string? ResetToken { get; set; }
+
+    [Column("RESET_TOKEN_EXPIRE", TypeName = "datetime")]
+    public DateTime? ResetTokenExpire { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
 

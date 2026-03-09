@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using System.Net;
+using System.Net.Mail;
 
 namespace COMICZONE.Controllers
 {
@@ -17,6 +19,129 @@ namespace COMICZONE.Controllers
         public UserProfilesController(ComiczoneContext context)
         {
             _context = context;
+        }
+
+        public IActionResult ResetPassword(string token)
+        {
+            var user = _context.Users
+                .FirstOrDefault(x => x.ResetToken == token);
+
+            if (user == null || user.ResetTokenExpire == null || user.ResetTokenExpire < DateTime.Now)
+            {
+                TempData["Error"] = "Link không hợp lệ hoặc đã hết hạn";
+                return RedirectToAction("MyProfile");
+            }
+
+            ViewBag.Token = token;
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                TempData["Error"] = "Mật khẩu không được để trống";
+                return RedirectToAction("ResetPassword", new { token });
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["Error"] = "Mật khẩu và xác nhận mật khẩu không khớp";
+                return RedirectToAction("ResetPassword", new { token });
+            }
+
+            var user = _context.Users
+                .FirstOrDefault(x => x.ResetToken == token && x.ResetTokenExpire > DateTime.Now);
+
+            if (user == null)
+            {
+                TempData["Error"] = "Token không hợp lệ hoặc đã hết hạn";
+                return RedirectToAction("MyProfile");
+            }
+
+            user.Passwordhash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.ResetToken = null;
+            user.ResetTokenExpire = null;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Login", "Authentication");
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            var customer = GetCustomer();
+
+            ViewBag.Page = "ForgotPassword";
+
+            return View("MyProfile", customer);
+        }
+
+        [HttpPost]
+        public IActionResult ForgotPassword(string email)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Email == email);
+            var customer = GetCustomer();
+
+            if (user == null)
+            {
+                TempData["Error"] = "Email không tồn tại!";
+                ViewBag.Page = "ForgotPassword";
+                return View("MyProfile", customer);
+            }
+
+            // tạo token reset
+            var token = Guid.NewGuid().ToString();
+
+            user.ResetToken = token;
+            user.ResetTokenExpire = DateTime.Now.AddMinutes(30);
+
+            _context.SaveChanges();
+
+            // tạo link reset password
+            var resetLink = Url.Action(
+                "ResetPassword",
+                "UserProfiles",
+                new { token = token },
+                Request.Scheme
+            );
+
+            try
+            {
+                using (var smtp = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtp.Credentials = new NetworkCredential(
+                        "luan31032004@gmail.com",
+                        "rufy atyg tjli tmhq"
+                    );
+
+                    smtp.EnableSsl = true;
+
+                    using (var mail = new MailMessage())
+                    {
+                        mail.From = new MailAddress("luan31032004@gmail.com");
+                        mail.To.Add(email);
+                        mail.Subject = "Đặt lại mật khẩu - ComicZone";
+
+                        mail.Body =
+                            $"Nhấn vào link sau để đặt lại mật khẩu:\n\n{resetLink}\n\nLink có hiệu lực trong 30 phút.";
+
+                        smtp.Send(mail);
+                    }
+                }
+
+                TempData["Success"] = "Link đặt lại mật khẩu đã được gửi tới email.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Không gửi được email: " + ex.Message;
+            }
+
+            ViewBag.Page = "ForgotPassword";
+
+            return View("MyProfile", customer);
         }
 
         [HttpPost]
