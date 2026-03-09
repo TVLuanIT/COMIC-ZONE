@@ -1,5 +1,112 @@
 ﻿// wwwroot/js/site.js
 
+function openAvatarUpload() {
+    document.getElementById("avatarUpload").click();
+}
+
+function uploadAvatar(input) {
+
+    if (input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'File không hợp lệ',
+            text: 'Chỉ cho phép JPG, PNG hoặc WEBP'
+        });
+
+        return;
+    }
+
+    if (file.size > maxSize) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ảnh quá lớn',
+            text: 'Avatar phải nhỏ hơn 2MB'
+        });
+
+        return;
+    }
+
+    // preview avatar
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+
+        let avatar = document.querySelector(".profile-avatar img");
+
+        if (!avatar) {
+
+            const defaultAvatar = document.querySelector(".default-avatar");
+
+            if (defaultAvatar) {
+
+                avatar = document.createElement("img");
+                avatar.className = "avatar-img";
+
+                defaultAvatar.replaceWith(avatar);
+            }
+        }
+
+        if (avatar) avatar.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+
+    let formData = new FormData();
+    formData.append("avatar", file);
+
+    fetch("/UserProfiles/UploadAvatar", {
+        method: "POST",
+        body: formData
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Server error");
+            return res.json();
+        })
+        .then(data => {
+
+            if (data.success) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Avatar đã được cập nhật',
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+
+            } else {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.message
+                });
+
+            }
+
+        })
+        .catch(err => {
+
+            console.error(err);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload thất bại',
+                text: 'Không thể tải avatar.'
+            });
+
+        });
+}
+
 // HIỂN THỊ POPUP YÊU CẦU ĐĂNG NHẬP VỚI SWEETALERT2
 function showLoginRequired(message) {
     Swal.fire({
@@ -606,6 +713,9 @@ const ProductReplies = (() => {
                             currentReplies[i].style.display = 'block';
                     }
 
+                    // luôn đưa nút xuống cuối
+                    container.appendChild(newBtn);
+
                     shownCount += toShow;
 
                     const left = currentTotal - shownCount;
@@ -888,9 +998,205 @@ const ProductReport = (() => {
     return { init };
 })();
 
+// MENU BA CHẤM CHO REVIEW CARD - USER PROFILE
+const ReviewMenu_UserProfile = (() => {
+
+    const init = () => {
+
+        // MENU BA CHẤM
+        $(document).off('click', '.menu-btn');
+
+        $(document).on('click', '.menu-btn', function (e) {
+
+            e.stopPropagation();
+
+            const wrapper = $(this).closest('.menu-wrapper');
+
+            $('.menu-wrapper').not(wrapper).removeClass('active');
+
+            wrapper.toggleClass('active');
+        });
+
+        // click ngoài → đóng menu
+        $(document).on('click', function () {
+            $('.menu-wrapper').removeClass('active');
+        });
+
+        // DELETE REVIEW
+        let reviewIdToDelete = null;
+
+        $(document).off("click", ".delete-review");
+        // click nút xóa
+        $(document).on("click", ".delete-review", function (e) {
+
+            e.preventDefault();
+
+            reviewIdToDelete = $(this).data("id");
+
+            $("#deleteConfirmModal").addClass("active");
+
+        });
+
+        // hủy
+        $(document).on("click", "#deleteConfirmModal .btn-cancel", function () {
+
+            $("#deleteConfirmModal").removeClass("active");
+
+        });
+
+        // xác nhận xóa
+        $(document).on("click", "#deleteConfirmModal .btn-delete", function () {
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: "/ProductReviews/DeleteReview",
+                type: "POST",
+                data: {
+                    id: reviewIdToDelete,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        location.reload();
+
+                    } else {
+
+                        alert(res.message || "Không thể xóa đánh giá");
+
+                    }
+
+                }
+            });
+
+        });
+
+    };
+
+    return { init };
+
+})();
+
+const ReplyMenu_UserProfile = (() => {
+
+    let replyIdToDelete = null;
+
+    const init = () => {
+
+        // CLICK DELETE
+        $(document).on("click", ".delete-reply", function (e) {
+
+            e.preventDefault();
+
+            replyIdToDelete = $(this).data("id");
+
+            $("#deleteReplyConfirmModal").addClass("active");
+
+        });
+
+        // CANCEL
+        $(document).on("click", "#deleteReplyConfirmModal .btn-cancel", function () {
+
+            $("#deleteReplyConfirmModal").removeClass("active");
+            replyIdToDelete = null;
+
+        });
+
+        // CONFIRM DELETE
+        $(document).on("click", "#deleteReplyConfirmModal .btn-delete", function () {
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: "/ProductReviews/DeleteReply",
+                type: "POST",
+                data: {
+                    replyId: replyIdToDelete,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        location.href = window.location.pathname + "?tab=replies";
+
+                    } else {
+
+                        alert(res.message || "Không thể xóa phản hồi");
+
+                    }
+
+                },
+                error: function () {
+
+                    alert("Lỗi server");
+
+                }
+            });
+
+        });
+
+    };
+
+    return { init };
+
+})();
+
+const UrlTabs = {
+
+    init() {
+
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get("tab");
+
+        if (!tab) return;
+
+        const trigger = document.querySelector(`[data-bs-target="#${tab}"]`);
+
+        if (trigger) {
+            new bootstrap.Tab(trigger).show();
+        }
+
+    }
+
+};
+
+const AutoAlert = (() => {
+
+    const init = () => {
+
+        if (window.successMessage) {
+
+            const toast = document.createElement("div");
+            toast.className = "toast-notification";
+            toast.innerText = window.successMessage;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add("toast-show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+    };
+
+    return { init };
+
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
+    ReviewMenu_UserProfile.init();
+    ReplyMenu_UserProfile.init();
+    UrlTabs.init();
+    AutoAlert.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
@@ -898,12 +1204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseInt(productIdElement.value);
         if (!isNaN(id)) {
             ProductReviews.init(id);
-
-            //// KHỞI TẠO HIỂN THỊ REPLY THEO BATCH
-            //// Ở đây gọi sau khi loadReviewFirstTime xong (HTML đã render)
-            //setTimeout(() => {
-            //    ProductReplies.initReplyList();
-            //}, 500); // delay 0.5s để DOM load xong
         }
     }
 });

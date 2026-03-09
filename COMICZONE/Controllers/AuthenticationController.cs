@@ -72,11 +72,21 @@ namespace COMICZONE.Controllers
             _context.Users.Add(user);
             _context.SaveChanges();
 
+            var customer = new Customer
+            {
+                Userid = user.Id,
+                Fullname = user.Username,
+                Createdat = DateTime.Now
+            };
+
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
             // Tạo session luôn
             HttpContext.Session.SetString("UserId", user.Id.ToString());
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("UserRole", user.Role);
-            HttpContext.Session.SetString("Avatar", user.Avatar); // 👈 thêm dòng này
+            HttpContext.Session.SetString("Avatar", user.Avatar);
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
@@ -136,6 +146,23 @@ namespace COMICZONE.Controllers
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("UserRole", user.Role);
             HttpContext.Session.SetString("Avatar", user.Avatar); // thêm dòng này
+
+            // Lấy CustomerId
+            var customer = _context.Customers
+                .FirstOrDefault(c => c.Userid == user.Id);
+
+            if (customer == null)
+            {
+                customer = new Customer
+                {
+                    Userid = user.Id,
+                    Fullname = user.Username,
+                    Createdat = DateTime.Now
+                };
+
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
+            }
 
             if (rememberMe)
             {

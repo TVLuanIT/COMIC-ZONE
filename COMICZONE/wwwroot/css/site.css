@@ -1031,3 +1031,824 @@ button[aria-expanded="true"] .transition-icon {
     background-color: #e2e6ea;
     opacity: 0.95;
 }
+
+/* ================================================================================= */
+/* ================= USER PROFILE - LEFT PROFILE ================= */
+/* ================================================================================= */
+.profile-container {
+    display: flex;
+    max-width: 1100px;
+    margin: 40px auto;
+    gap: 25px;
+}
+
+/* SIDEBAR */
+.profile-left {
+    width: 260px;
+}
+
+/* USER INFO */
+.profile-user {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* AVATAR WRAPPER */
+.profile-avatar{
+    position:relative;
+    width:80px;
+    height:80px;
+    margin:0 auto;
+    cursor:pointer;
+}
+
+/* AVATAR IMAGE */
+.profile-avatar img{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+/* DEFAULT AVATAR */
+.default-avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:#ff6a00;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:600;
+}
+
+/* CHANGE AVATAR TEXT */
+.change-avatar-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: 0.3s;
+    text-align: center;
+    padding: 8px;
+}
+
+/* HOVER EFFECT */
+.profile-avatar:hover .change-avatar-text{
+    opacity:1;
+}
+
+/* USERNAME */
+.username{
+    margin-top:10px;
+    font-weight:600;
+}
+
+/* SIDEBAR */
+.profile-sidebar {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+/* MENU */
+.profile-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.profile-menu li{
+    border-bottom:1px solid #eee;
+}
+.profile-menu li:last-child{
+    border-bottom:none;
+}
+.profile-menu li a{
+    display:block;
+    text-align:center;
+    padding:12px;
+    text-decoration:none;
+    color:#333;
+    transition:0.2s;
+}
+
+/* ACTIVE */
+.profile-menu li.active a{
+    color:#ff6a00;
+    font-weight:600;
+}
+
+/* HOVER */
+.profile-menu li:hover a{
+    color:#ff6a00;
+    background:#fff5ef;
+}
+
+.menu-link {
+    display: block;
+    padding: 14px 20px;
+    color: #444;
+    text-decoration: none;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.profile-menu li.active .menu-link {
+    background: #f0fdf4;
+    color: #16a34a;
+    font-weight: 600;
+    border-left: 4px solid #16a34a;
+    padding-left: 16px;
+}
+
+/* ================================================================================= */
+/* ================= _MyProfile.cshtml ================= */
+/* ================================================================================= */
+.profile-content{
+    flex:1;
+}
+
+.profile-content h3{
+    margin-bottom:25px;
+    font-size:20px;
+    font-weight:600;
+    color:#333;
+}
+
+/* CARD / FORM */
+.profile-card,
+.profile-content form{
+    background:#fff;
+    border-radius:10px;
+    padding:25px 30px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    max-width:600px;
+        margin-bottom:20px;
+
+}
+
+/* ROW */
+.profile-row{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.profile-row label{
+    font-weight:600;
+    color:#555;
+}
+
+/* INPUT */
+.form-control{
+    width:100%;
+    padding:8px 12px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    font-size:14px;
+    transition:0.2s;
+}
+
+.form-control:focus{
+    outline:none;
+    border-color:#28a745;
+    box-shadow:0 0 3px rgba(40,167,69,0.3);
+}
+
+/* VALIDATION */
+.text-danger{
+    grid-column:2;
+    font-size:13px;
+    margin-top:4px;
+}
+
+/* SAVE BUTTON */
+.btn-edit {
+    background: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-edit:hover{
+    background:#218838;
+}
+
+/* CANCEL BUTTON */
+.btn-change-password{
+    background:#6c757d;
+    color:#fff;
+    padding:10px 20px;
+    border-radius:6px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.btn-change-password:hover{
+    background:#5a6268;
+}
+
+.btn-forgot-password {
+    background: #f59e0b;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.security-card{
+    padding:0;
+}
+
+.security-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    text-decoration:none;
+    color:#333;
+    border-bottom:1px solid #eee;
+    transition:0.2s;
+}
+
+.security-item:last-child{
+    border-bottom:none;
+}
+
+.security-item:hover{
+    background:#f5f5f5;
+}
+
+.arrow{
+    color:#999;
+    font-size:18px;
+}
+
+/* CARD 2: Bảo mật */
+.security-card {
+    padding: 25px 30px;
+}
+
+.security-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    transition: 0.2s;
+}
+
+.security-item:last-child{
+    border-bottom:none;
+}
+
+.security-item:hover{
+    background:#f5f5f5;
+}
+
+.arrow{
+    color:#999;
+    font-size:18px;
+}
+
+/* ================================================================================= */
+/* ================= _ForgotPassword.cshtml ================= */
+/* ================================================================================= */
+/* Forgot Password */
+.profile-content .alert-info {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.profile-content input[type="email"] {
+    height: 42px;
+}
+
+.profile-content label i {
+    margin-right: 5px;
+    color: #ff6a00;
+}
+
+/* ================================================================================= */
+/* ================= ResetPassword.cshtml ================= */
+/* ================================================================================= */
+.reset-wrapper{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:70vh;
+    background:#f5f6fa;
+}
+
+.reset-card{
+    width:420px;
+    background:white;
+    padding:35px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+.reset-title{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.reset-desc{
+    text-align:center;
+    color:#777;
+    margin-bottom:25px;
+}
+
+.form-group{
+    margin-bottom:18px;
+}
+
+.form-group label{
+    display:block;
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.form-group input{
+    width:100%;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    font-size:14px;
+}
+
+.form-group input:focus{
+    border-color:#ff4d4f;
+    outline:none;
+}
+
+.btn-reset{
+    width:100%;
+    padding:12px;
+    background:#ff4d4f;
+    color:white;
+    border:none;
+    border-radius:6px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.btn-reset:hover{
+    background:#e63b3d;
+}
+.alert-error {
+    background: #ffe5e5;
+    color: #d93025;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #e6ffed;
+    color: #1e7e34;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+/* ================================================================================= */
+/* ================= _MyOrders.cshtml ================= */
+/* ================================================================================= */
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table thead{
+    background:#f7f7f7;
+}
+
+.table th,
+.table td{
+    padding:12px 10px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+.table th{
+    font-weight:600;
+}
+
+.table tr:hover{
+    background:#fafafa;
+}
+.btn-view{
+    background:#ff6a00;
+    color:#fff;
+    padding:6px 14px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+}
+
+.btn-view:hover{
+    opacity:0.9;
+}
+
+/* ================================================================================= */
+/* ================= MyReviews.cshtml ================= */
+/* ================================================================================= */
+.review-title{
+    margin-bottom:20px;
+}
+
+.review-card{
+    border:1px solid #eee;
+    border-radius:8px;
+    padding:18px;
+    margin-bottom:16px;
+    background:white;
+    transition:0.2s;
+}
+
+.review-card:hover{
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.review-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.product-name a{
+    font-weight:600;
+    font-size:16px;
+    color:#333;
+    text-decoration:none;
+}
+
+.product-name a:hover{
+    color:#ff6a00;
+}
+
+.review-date{
+    font-size:13px;
+    color:#888;
+}
+
+.review-rating{
+    margin:6px 0;
+}
+
+.star{
+    font-size:18px;
+    color:#ddd;
+}
+
+.star.filled{
+    color:#f5a623;
+}
+
+.review-comment{
+    margin-top:8px;
+    padding:10px;
+    background:#fafafa;
+    border-radius:6px;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.empty-review{
+    padding:30px;
+    text-align:center;
+    color:#888;
+}
+.review-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.menu-wrapper{
+    position:relative;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    display: none;
+}
+.menu-dropdown a{
+    display:block;
+    padding:8px 12px;
+    text-decoration:none;
+    color:#333;
+}
+
+.menu-dropdown a:hover{
+    background:#f5f5f5;
+    color:red;
+}
+
+.menu-wrapper.active .menu-dropdown{
+    display:block;
+}
+
+/* FORM XÁC NHẬN XÓA REVIEW */
+/* ===== Modal nền ===== */
+
+.confirm-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    visibility:hidden;
+    transition:0.25s ease;
+    z-index:999;
+}
+
+.confirm-modal.active{
+    opacity:1;
+    visibility:visible;
+}
+
+/* ===== Box ===== */
+
+.confirm-box{
+    background:#fff;
+    padding:28px;
+    border-radius:14px;
+    width:360px;
+    text-align:center;
+    box-shadow:0 18px 40px rgba(0,0,0,0.25);
+    transform:scale(.9);
+    transition:0.25s ease;
+}
+
+.confirm-modal.active .confirm-box{
+    transform:scale(1);
+}
+
+/* ===== Icon ===== */
+
+.confirm-icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+/* ===== Title ===== */
+
+.confirm-title{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+/* ===== Text ===== */
+
+.confirm-text{
+    font-size:14px;
+    color:#666;
+    line-height:1.6;
+    margin-bottom:22px;
+}
+
+/* ===== Buttons ===== */
+
+.confirm-actions{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+}
+
+.btn-cancel{
+    background:#f1f1f1;
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.2s;
+}
+
+.btn-cancel:hover{
+    background:#e3e3e3;
+}
+
+.btn-delete{
+    background:#e53935;
+    color:white;
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.2s;
+}
+
+.btn-delete:hover{
+    background:#c62828;
+}
+
+/* ================================================================================= */
+/* ================= Notifications.cshtml ================= */
+/* ================================================================================= */
+.notification-list {
+    list-style: none;
+    padding: 0;
+}
+
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-item.unread {
+    background: #f5f9ff;
+}
+
+.notification-item h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.notification-item .time {
+    font-size: 12px;
+    color: #888;
+}
+/* ================================================================================= */
+/* ================= _Settings.cshtml ================= */
+/* ================================================================================= */
+.settings-list{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.setting-item h4{
+    margin-bottom:5px;
+}
+
+.setting-item p{
+    color:#666;
+    margin-bottom:10px;
+}
+
+.setting-item.danger{
+    border-color:#ffb3b3;
+    background:#fff5f5;
+}
+
+/* BUTTON SLIDER */
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+/* Ẩn checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Thanh nền */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+/* Nút tròn */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+/* Khi bật */
+input:checked + .slider {
+    background-color: #007bff;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* ================================================================================= */
+/* ================= Pagination ================= */
+/* ================================================================================= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+    gap: 6px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination .active {
+    background: #ff4d4f;
+    color: white;
+    border-color: #ff4d4f;
+}
+
+/* ================================================================================= */
+/* ================= Tạo CSS cho toast ================= */
+/* ================================================================================= */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: #28a745;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 9999;
+}
+
+.toast-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}

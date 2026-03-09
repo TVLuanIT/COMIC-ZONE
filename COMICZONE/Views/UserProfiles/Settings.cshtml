@@ -1,0 +1,15 @@
+﻿@model COMICZONE.Models.Customer
+
+@{
+    ViewData["Title"] = "Cài đặt";
+}
+
+<div class="profile-container">
+
+    <!-- SIDEBAR -->
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
+
+    <!-- SETTINGS CONTENT -->
+    @await Html.PartialAsync("_Settings.cshtml", Model)
+
+</div>

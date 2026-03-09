@@ -1,0 +1,14 @@
+﻿@model List<COMICZONE.Models.Notification>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="profile-container">
+
+    <!-- SIDEBAR -->
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
+
+    @await Html.PartialAsync("_Notifications.cshtml", Model)
+
+</div>

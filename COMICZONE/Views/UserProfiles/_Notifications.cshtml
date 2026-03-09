@@ -1,0 +1,33 @@
+﻿@model List<COMICZONE.Models.Notification>
+
+<div class="profile-content">
+
+    <h3>Thông báo của tôi</h3>
+
+    @if (!Model.Any())
+    {
+        <p>Bạn chưa có thông báo nào.</p>
+    }
+    else
+    {
+        <ul class="notification-list">
+
+            @foreach (var item in Model)
+            {
+                <li class="notification-item @(item.IsRead == true ? "" : "unread")">
+
+                    <h5>@item.Title</h5>
+
+                    <p>@item.Message</p>
+
+                    <span class="time">
+                        @(item.CreatedAt.HasValue? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                    </span>
+
+                </li>
+            }
+
+        </ul>
+    }
+
+</div>

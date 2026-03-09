@@ -1,0 +1,29 @@
+﻿@model COMICZONE.Models.Customer
+
+@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
+<div class="profile-container">
+
+    <!-- SIDEBAR -->
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
+
+    @if (ViewBag.Page == "Edit")
+    {
+        @await Html.PartialAsync("_EditProfile.cshtml", Model)
+    }
+    else if (ViewBag.Page == "ChangePassword")
+    {
+        @await Html.PartialAsync("_ChangePassword.cshtml", Model)
+    }
+    else if (ViewBag.Page == "ForgotPassword")
+    {
+        @await Html.PartialAsync("_ForgotPassword.cshtml", Model)
+    }
+    else
+    {
+        @await Html.PartialAsync("_MyProfile.cshtml", Model)
+    }
+
+</div>

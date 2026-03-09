@@ -1,0 +1,55 @@
+﻿@model COMICZONE.Models.Customer
+
+<div class="profile-content">
+
+    <h3>Chỉnh sửa thông tin cá nhân</h3>
+
+    <form asp-action="EditProfile" asp-controller="UserProfiles" method="post">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Customerid" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="profile-row">
+            <label>Họ tên</label>
+            <input asp-for="Fullname" class="form-control" />
+            <span asp-validation-for="Fullname" class="text-danger"></span>
+        </div>
+
+        <div class="profile-row">
+            <label>Email</label>
+            <input value="@Model.User?.Email" class="form-control" readonly />
+        </div>
+
+        <div class="profile-row">
+            <label>Số điện thoại</label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        <div class="profile-row">
+            <label>Địa chỉ</label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <div class="profile-actions">
+
+            <button type="submit" class="btn-edit">
+                Lưu thay đổi
+            </button>
+
+            <a asp-action="MyProfile" class="btn-change-password">
+                Hủy
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

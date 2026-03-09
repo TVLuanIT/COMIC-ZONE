@@ -40,6 +40,13 @@ public partial class User
     [StringLength(500)]
     public string? Avatar { get; set; }
 
+    [Column("RESET_TOKEN")]
+    [StringLength(200)]
+    public string? ResetToken { get; set; }
+
+    [Column("RESET_TOKEN_EXPIRE", TypeName = "datetime")]
+    public DateTime? ResetTokenExpire { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
 
@@ -48,6 +55,18 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual Customer? Customer { get; set; }
+
+    [InverseProperty("CreatedByNavigation")]
+    public virtual ICollection<Notification> NotificationCreatedByNavigations { get; set; } = new List<Notification>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Notification> NotificationUsers { get; set; } = new List<Notification>();
+
+    [InverseProperty("UpdatedByNavigation")]
+    public virtual ICollection<OrderStatusHistory> OrderStatusHistories { get; set; } = new List<OrderStatusHistory>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     [InverseProperty("User")]
     public virtual ICollection<ProductReviewLike> ProductReviewLikes { get; set; } = new List<ProductReviewLike>();

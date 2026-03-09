@@ -1,0 +1,113 @@
+﻿@model List<COMICZONE.Models.ProductReviewReply>
+
+<div class="profile-content">
+
+    @Html.AntiForgeryToken()
+
+    @if (!Model.Any())
+    {
+        <div class="empty-review">
+            Bạn chưa có phản hồi nào.
+        </div>
+    }
+    else
+    {
+
+        foreach (var reply in Model)
+        {
+            <div class="review-card">
+
+                <div class="review-header">
+
+                    <div class="product-name">
+                        <a asp-controller="Products"
+                           asp-action="Detail"
+                           asp-route-id="@reply.Review.Productid">
+                            @reply.Review?.Product?.Name
+                        </a>
+                    </div>
+
+                    <div class="review-actions">
+
+                        <div class="review-date">
+                            @reply.Createdat?.ToString("dd/MM/yyyy")
+                        </div>
+
+                        <div class="menu-wrapper">
+
+                            <button class="menu-btn">⋯</button>
+
+                            <div class="menu-dropdown">
+                                <a href="#"
+                                   class="delete-reply"
+                                   data-id="@reply.Replyid">
+                                    Xóa
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="review-comment">
+                    @reply.Replycontent
+                </div>
+
+            </div>
+        }
+
+        <!-- Pagination -->
+        @await Html.PartialAsync("_Pagination", new PaginationModel
+        {
+            CurrentPage = ViewBag.ReplyPage,
+            TotalPages = ViewBag.ReplyTotalPages,
+            Action = "MyReviews",
+            Controller = "UserProfiles",
+            PageParam = "replyPage",
+            ExtraParams = new Dictionary<string, string>
+            {
+                { "reviewPage", Convert.ToString(ViewBag.ReviewPage ?? 1) },
+                { "tab", "replies" }
+            }
+        })
+    }
+
+</div>
+
+
+@* FORM XÁC NHẬN XÓA PHẢN HỒI *@
+<div id="deleteReplyConfirmModal" class="confirm-modal">
+
+    <div class="confirm-box">
+
+        <div class="confirm-icon">
+            🗑️
+        </div>
+
+        <div class="confirm-title">
+            Xóa phản hồi
+        </div>
+
+        <div class="confirm-text">
+            Hành động này không thể hoàn tác.
+            <br>
+            Bạn có chắc muốn xóa phản hồi này?
+        </div>
+
+        <div class="confirm-actions">
+
+            <button class="btn-cancel">
+                Hủy
+            </button>
+
+            <button class="btn-delete">
+                Xóa phản hồi
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

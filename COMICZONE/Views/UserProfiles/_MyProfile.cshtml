@@ -1,0 +1,70 @@
+﻿<!-- MAIN CONTENT -->
+<div class="profile-content">
+
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            window.successMessage = "@Html.Raw(TempData["Success"])";
+        </script>
+    }
+
+    <h3>Thông tin cá nhân</h3>
+
+    <div class="profile-card">
+
+        <div class="profile-row">
+            <label>Họ tên</label>
+            <span>@Model.Fullname</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Email</label>
+            <span>@Model.User?.Email</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Số điện thoại</label>
+            <span>@Model.Phone</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Địa chỉ</label>
+            <span>@Model.Address</span>
+        </div>
+
+        <div class="profile-row">
+            <label>Ngày tạo</label>
+            <span>@Model.Createdat.ToString("dd/MM/yyyy")</span>
+        </div>
+
+    </div>
+
+    <!-- CARD 2: Bảo mật -->
+    <h3 style="margin-top:30px;">Bảo mật tài khoản</h3>
+
+    <div class="profile-card security-card">
+
+        <a asp-action="EditProfile"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Chỉnh sửa thông tin</span>
+            <span class="arrow">›</span>
+        </a>
+
+        <a asp-action="ChangePassword"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Đổi mật khẩu</span>
+            <span class="arrow">›</span>
+        </a>
+
+        <a asp-action="ForgotPassword"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Quên mật khẩu</span>
+            <span class="arrow">›</span>
+        </a>
+
+    </div>
+
+</div>
