@@ -1033,71 +1033,153 @@ button[aria-expanded="true"] .transition-icon {
 }
 
 /* ================================================================================= */
-/* ================= USER PROFILE ================= */
+/* ================= USER PROFILE - LEFT PROFILE ================= */
 /* ================================================================================= */
-.profile-container{
-    display:flex;
-    max-width:1100px;
-    margin:40px auto;
-    gap:25px;
+.profile-container {
+    display: flex;
+    max-width: 1100px;
+    margin: 40px auto;
+    gap: 25px;
 }
 
 /* SIDEBAR */
-
-.profile-sidebar{
-    width:250px;
-    background:#fff;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+.profile-left {
+    width: 260px;
 }
 
-.profile-user{
-    text-align:center;
-    margin-bottom:20px;
+/* USER INFO */
+.profile-user {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
 }
 
-.avatar{
+/* AVATAR WRAPPER */
+.profile-avatar{
+    position:relative;
+    width:80px;
+    height:80px;
+    margin:0 auto;
+    cursor:pointer;
+}
+
+/* AVATAR IMAGE */
+.profile-avatar img{
     width:80px;
     height:80px;
     border-radius:50%;
     object-fit:cover;
 }
 
+/* DEFAULT AVATAR */
+.default-avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:#ff6a00;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:600;
+}
+
+/* CHANGE AVATAR TEXT */
+.change-avatar-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: 0.3s;
+    text-align: center;
+    padding: 8px;
+}
+
+/* HOVER EFFECT */
+.profile-avatar:hover .change-avatar-text{
+    opacity:1;
+}
+
+/* USERNAME */
 .username{
     margin-top:10px;
     font-weight:600;
 }
 
-.profile-menu{
-    list-style:none;
-    padding:0;
+/* SIDEBAR */
+.profile-sidebar {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
 }
 
+/* MENU */
+.profile-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 .profile-menu li{
-    padding:10px 0;
     border-bottom:1px solid #eee;
 }
-
+.profile-menu li:last-child{
+    border-bottom:none;
+}
 .profile-menu li a{
     display:block;
     text-align:center;
-    padding:10px 0;
+    padding:12px;
     text-decoration:none;
     color:#333;
+    transition:0.2s;
 }
 
+/* ACTIVE */
 .profile-menu li.active a{
     color:#ff6a00;
     font-weight:600;
 }
 
+/* HOVER */
 .profile-menu li:hover a{
     color:#ff6a00;
+    background:#fff5ef;
 }
 
-/* _MyProfile */
-/* CONTENT */
+.menu-link {
+    display: block;
+    padding: 14px 20px;
+    color: #444;
+    text-decoration: none;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.profile-menu li.active .menu-link {
+    background: #f0fdf4;
+    color: #16a34a;
+    font-weight: 600;
+    border-left: 4px solid #16a34a;
+    padding-left: 16px;
+}
+
+/* ================================================================================= */
+/* ================= _MyProfile.cshtml ================= */
+/* ================================================================================= */
 .profile-content{
     flex:1;
 }
@@ -1117,6 +1199,8 @@ button[aria-expanded="true"] .transition-icon {
     padding:25px 30px;
     box-shadow:0 2px 10px rgba(0,0,0,0.05);
     max-width:600px;
+        margin-bottom:20px;
+
 }
 
 /* ROW */
@@ -1155,14 +1239,6 @@ button[aria-expanded="true"] .transition-icon {
     margin-top:4px;
 }
 
-/* ACTION BUTTONS */
-.profile-actions {
-    margin-top: 25px;
-    display: flex;
-    justify-content: center; /* hoặc center nếu muốn */
-    gap: 12px;
-}
-
 /* SAVE BUTTON */
 .btn-edit {
     background: #28a745;
@@ -1198,7 +1274,75 @@ button[aria-expanded="true"] .transition-icon {
     background:#5a6268;
 }
 
-/* ORDER TABLE */
+.btn-forgot-password {
+    background: #f59e0b;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.security-card{
+    padding:0;
+}
+
+.security-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    text-decoration:none;
+    color:#333;
+    border-bottom:1px solid #eee;
+    transition:0.2s;
+}
+
+.security-item:last-child{
+    border-bottom:none;
+}
+
+.security-item:hover{
+    background:#f5f5f5;
+}
+
+.arrow{
+    color:#999;
+    font-size:18px;
+}
+
+/* CARD 2: Bảo mật */
+.security-card {
+    padding: 25px 30px;
+}
+
+.security-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    transition: 0.2s;
+}
+
+.security-item:last-child{
+    border-bottom:none;
+}
+
+.security-item:hover{
+    background:#f5f5f5;
+}
+
+.arrow{
+    color:#999;
+    font-size:18px;
+}
+
+/* ================================================================================= */
+/* ================= _MyOrders.cshtml ================= */
+/* ================================================================================= */
 
 .table{
     width:100%;
@@ -1236,7 +1380,9 @@ button[aria-expanded="true"] .transition-icon {
     opacity:0.9;
 }
 
-/* REVIEW TABLE */
+/* ================================================================================= */
+/* ================= MyReviews.cshtml ================= */
+/* ================================================================================= */
 .review-title{
     margin-bottom:20px;
 }

@@ -19,6 +19,66 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadAvatar(IFormFile avatar)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return Json(new { success = false, message = "Chưa đăng nhập" });
+            }
+
+            if (avatar == null || avatar.Length == 0)
+                return Json(new { success = false, message = "File không hợp lệ" });
+
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = Path.GetExtension(avatar.FileName).ToLower();
+
+            if (!allowed.Contains(ext))
+                return Json(new { success = false, message = "Chỉ cho phép JPG, PNG, WEBP" });
+
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/avatar");
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string fileName = Guid.NewGuid() + ext;
+            string filePath = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatar.CopyToAsync(stream);
+            }
+
+            string avatarUrl = "/uploads/avatar/" + fileName;
+
+            var user = _context.Users.Find(userId);
+
+            if (user != null)
+            {
+                // xóa avatar cũ
+                if (!string.IsNullOrEmpty(user.Avatar))
+                {
+                    var oldFile = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        user.Avatar.TrimStart('/')
+                    );
+
+                    if (System.IO.File.Exists(oldFile))
+                        System.IO.File.Delete(oldFile);
+                }
+
+                user.Avatar = avatarUrl;
+                await _context.SaveChangesAsync();
+            }
+
+            HttpContext.Session.SetString("Avatar", avatarUrl);
+
+            return Json(new { success = true });
+        }
+
         public IActionResult Notifications()
         {
             var customer = GetCustomer();

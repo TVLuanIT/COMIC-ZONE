@@ -1,5 +1,112 @@
 ﻿// wwwroot/js/site.js
 
+function openAvatarUpload() {
+    document.getElementById("avatarUpload").click();
+}
+
+function uploadAvatar(input) {
+
+    if (input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'File không hợp lệ',
+            text: 'Chỉ cho phép JPG, PNG hoặc WEBP'
+        });
+
+        return;
+    }
+
+    if (file.size > maxSize) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ảnh quá lớn',
+            text: 'Avatar phải nhỏ hơn 2MB'
+        });
+
+        return;
+    }
+
+    // preview avatar
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+
+        let avatar = document.querySelector(".profile-avatar img");
+
+        if (!avatar) {
+
+            const defaultAvatar = document.querySelector(".default-avatar");
+
+            if (defaultAvatar) {
+
+                avatar = document.createElement("img");
+                avatar.className = "avatar-img";
+
+                defaultAvatar.replaceWith(avatar);
+            }
+        }
+
+        if (avatar) avatar.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+
+    let formData = new FormData();
+    formData.append("avatar", file);
+
+    fetch("/UserProfiles/UploadAvatar", {
+        method: "POST",
+        body: formData
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Server error");
+            return res.json();
+        })
+        .then(data => {
+
+            if (data.success) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Avatar đã được cập nhật',
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+
+            } else {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.message
+                });
+
+            }
+
+        })
+        .catch(err => {
+
+            console.error(err);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload thất bại',
+                text: 'Không thể tải avatar.'
+            });
+
+        });
+}
+
 // HIỂN THỊ POPUP YÊU CẦU ĐĂNG NHẬP VỚI SWEETALERT2
 function showLoginRequired(message) {
     Swal.fire({

@@ -1,43 +1,76 @@
 ﻿@{
     var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var avatar = Context.Session.GetString("Avatar");
+    var username = Context.Session.GetString("Username");
+
+    var firstChar = !string.IsNullOrEmpty(username)
+        ? username.Substring(0, 1).ToUpper()
+        : "U";
 }
 
-<div class="profile-sidebar">
+<div class="profile-left">
 
     <div class="profile-user">
-        @if (!string.IsNullOrEmpty(Context.Session.GetString("Avatar")))
-        {
-            @await Component.InvokeAsync("UserAvatar",
-            new { avatarUrl = Context.Session.GetString("Avatar"), size = 80 })
-                }
-        else
-        {
-            @(Context.Session.GetString("Username")?.Substring(0, 1).ToUpper() ?? "U")
-        }
+
+        <div class="profile-avatar" onclick="openAvatarUpload()">
+
+            <input type="file"
+                   id="avatarUpload"
+                   accept="image/*"
+                   hidden
+                   onchange="uploadAvatar(this)" />
+
+            @if (!string.IsNullOrEmpty(avatar))
+            {
+                @await Component.InvokeAsync("UserAvatar",
+                new { avatarUrl = avatar, size = 80 })
+                        }
+            else
+            {
+                <div class="default-avatar">
+                    @firstChar
+                </div>
+            }
+
+            <div class="change-avatar-text">
+                Thay đổi avatar
+            </div>
+
+        </div>
 
         <div class="username">
-            @Context.Session.GetString("Username")
+            @username
         </div>
+
     </div>
 
-    <ul class="profile-menu">
+    <div class="profile-sidebar">
 
-        <li class="@(action == "MyProfile" ? "active" : "")">
-            <a asp-action="MyProfile">Thông tin cá nhân</a>
-        </li>
+        <ul class="profile-menu">
 
-        <li class="@(action == "MyOrders" ? "active" : "")">
-            <a asp-action="MyOrders">Đơn hàng của tôi</a>
-        </li>
+            <li class="@(action == "MyProfile" ? "active" : "")">
+                <a asp-action="MyProfile" class="menu-link">Thông tin cá nhân</a>
+            </li>
 
-        <li class="@(action == "MyReviews" ? "active" : "")">
-            <a asp-action="MyReviews">Đánh giá của tôi</a>
-        </li>
+            <li class="@(action == "MyOrders" ? "active" : "")">
+                <a asp-action="MyOrders" class="menu-link">Đơn hàng của tôi</a>
+            </li>
 
-        <li class="@(action == "Notifications" ? "active" : "")">
-            <a asp-action="Notifications">Thông báo</a>
-        </li>
+            <li class="@(action == "MyReviews" ? "active" : "")">
+                <a asp-action="MyReviews" class="menu-link">Đánh giá của tôi</a>
+            </li>
 
-    </ul>
+            <li class="@(action == "Notifications" ? "active" : "")">
+                <a asp-action="Notifications" class="menu-link">Thông báo</a>
+            </li>
+
+            <!-- Thêm phần cài đặt -->
+            <li class="@(action == "Settings" ? "active" : "")">
+                <a asp-action="Settings" class="menu-link">Cài đặt</a>
+            </li>
+
+        </ul>
+
+    </div>
 
 </div>

@@ -37,21 +37,33 @@
             <span>@Model.Createdat.ToString("dd/MM/yyyy")</span>
         </div>
 
-        <div class="profile-actions">
+    </div>
 
-            <a asp-action="EditProfile"
-               asp-controller="UserProfiles"
-               class="btn-edit">
-                Chỉnh sửa
-            </a>
+    <!-- CARD 2: Bảo mật -->
+    <h3 style="margin-top:30px;">Bảo mật tài khoản</h3>
 
-            <a asp-action="ChangePassword"
-               asp-controller="UserProfiles"
-               class="btn-change-password">
-                Đổi mật khẩu
-            </a>
+    <div class="profile-card security-card">
 
-        </div>
+        <a asp-action="EditProfile"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Chỉnh sửa thông tin</span>
+            <span class="arrow">›</span>
+        </a>
+
+        <a asp-action="ChangePassword"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Đổi mật khẩu</span>
+            <span class="arrow">›</span>
+        </a>
+
+        <a asp-action="ForgotPassword"
+           asp-controller="UserProfiles"
+           class="security-item">
+            <span>Quên mật khẩu</span>
+            <span class="arrow">›</span>
+        </a>
 
     </div>
 
