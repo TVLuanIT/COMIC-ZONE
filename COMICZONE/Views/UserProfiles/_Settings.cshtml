@@ -1,0 +1,61 @@
+﻿<div class="profile-content">
+
+    <h3>Cài đặt tài khoản</h3>
+
+    <div class="settings-list">
+
+        <div class="setting-item">
+            <div>
+                <h4>Ngôn ngữ</h4>
+                <p>Chọn ngôn ngữ hiển thị cho website.</p>
+            </div>
+
+            <select class="form-select" style="max-width:200px;">
+                <option>Tiếng Việt</option>
+                <option>English</option>
+            </select>
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <h4>Thông báo email</h4>
+                <p>Bật hoặc tắt email thông báo đơn hàng.</p>
+            </div>
+
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <h4>Chế độ tối</h4>
+                <p>Bật giao diện Dark Mode.</p>
+            </div>
+
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <h4>Xóa tài khoản</h4>
+                <p>Hành động này không thể hoàn tác.</p>
+            </div>
+
+            <form asp-action="DeleteAccount" method="post"
+                  onsubmit="return confirm('Bạn có chắc muốn xóa tài khoản?');">
+
+                <button type="submit" class="btn btn-danger">
+                    Xóa tài khoản
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>

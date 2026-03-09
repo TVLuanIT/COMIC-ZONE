@@ -21,6 +21,20 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult Settings()
+        {
+            var customer = GetCustomer();
+
+            if (customer == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            ViewBag.Page = "Settings";
+
+            return View(customer);
+        }
+
         public IActionResult ResetPassword(string token)
         {
             var user = _context.Users
