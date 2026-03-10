@@ -1,0 +1,44 @@
+﻿@model dynamic
+
+<div class="col-lg-6">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5>@Model.Title</h5>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead>
+                    <tr>
+                        @foreach (var header in Model.Headers)
+                        {
+                            <th>@header</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row)
+                            {
+                                <td>@Html.Raw(cell)</td>
+                            }
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

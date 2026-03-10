@@ -1,0 +1,59 @@
+﻿<div class="row g-3 mb-3">
+
+    <div class="col-lg-3">
+        <div class="card p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-2">
+            <div class="d-flex gap-3">
+                <div class="icon-shape icon-md bg-primary text-white rounded-2">
+                    <i class="ti ti-users"></i>
+                </div>
+                <div>
+                    <h2 class="mb-3 fs-6">Tổng người dùng</h2>
+                    <h3 class="fw-bold mb-0">@ViewBag.TotalUsers</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card p-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-2">
+            <div class="d-flex gap-3">
+                <div class="icon-shape icon-md bg-success text-white rounded-2">
+                    <i class="ti ti-box"></i>
+                </div>
+                <div>
+                    <h2 class="mb-3 fs-6">Sản phẩm</h2>
+                    <h3 class="fw-bold mb-0">@ViewBag.TotalProducts</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card p-4 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+            <div class="d-flex gap-3">
+                <div class="icon-shape icon-md bg-info text-white rounded-2">
+                    <i class="ti ti-shopping-cart"></i>
+                </div>
+                <div>
+                    <h2 class="mb-3 fs-6">Đơn hàng</h2>
+                    <h3 class="fw-bold mb-0">@ViewBag.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card p-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-2">
+            <div class="d-flex gap-3">
+                <div class="icon-shape icon-md bg-warning text-white rounded-2">
+                    <i class="ti ti-currency-dollar"></i>
+                </div>
+                <div>
+                    <h2 class="mb-3 fs-6">Doanh thu</h2>
+                    <h3 class="fw-bold mb-0">@String.Format("{0:N0}", ViewBag.TotalRevenue) ₫</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

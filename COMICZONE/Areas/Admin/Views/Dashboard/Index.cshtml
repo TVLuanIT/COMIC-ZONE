@@ -1,0 +1,49 @@
+﻿@using COMICZONE.Helpers;
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["Title"] = "Bảng điều khiển";
+
+    var products = ViewBag.TopSellingProducts as IEnumerable<dynamic>;
+    var orders = ViewBag.RecentOrders as IEnumerable<dynamic>;
+}
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-6">
+                <h1 class="fs-3 mb-1">Bảng điều khiển</h1>
+            </div>
+        </div>
+    </div>
+
+    <partial name="~/Areas/Admin/Views/Dashboard/_Stats.cshtml" />
+
+    <div class="row g-3">
+
+        <partial name="_DashboardTable"
+        model='new {
+            Title = "Sản phẩm bán chạy",
+            Headers = new [] { "Sản phẩm", "Giá", "Đã bán" },
+            Rows = products?.Select(p => new [] {
+                p.ProductName,
+                p.Price.ToString("N0") + " ₫",
+                p.TotalSold.ToString()
+            })
+        }' />
+
+        <partial name="_DashboardTable"
+        model='new {
+            Title = "Đơn hàng gần đây",
+            Headers = new [] { "Sản phẩm", "Trạng thái" },
+            Rows = orders?.Select(o => new [] {
+                o.ProductName,
+                OrderHelper.GetStatusBadge(o.Status)
+            })
+        }' />
+
+    </div>
+
+</div>
