@@ -14,10 +14,33 @@
 
         <div class="invoice-info">
 
-            <div><strong>Mã đơn:</strong> #@Model.OrderId</div>
-            <div><strong>Ngày đặt:</strong> @Model.OrderDate?.ToString("dd/MM/yyyy")</div>
-            <div><strong>SĐT:</strong> @Model.PhoneNumber</div>
-            <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
+            <div class="invoice-customer">
+
+                <h5>Thông tin đơn hàng</h5>
+
+                @if (!string.IsNullOrEmpty(Model.User?.Customer?.Fullname))
+                {
+                    <div><strong>Họ tên:</strong> @Model.User.Customer.Fullname</div>
+                }
+
+                <div><strong>Mã đơn:</strong> #@Model.OrderId</div>
+
+                @if (Model.OrderDate != null)
+                {
+                    <div><strong>Ngày đặt:</strong> @Model.OrderDate?.ToString("dd/MM/yyyy")</div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div><strong>SĐT:</strong> @Model.PhoneNumber</div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ShippingAddress))
+                {
+                    <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
+                }
+
+            </div>
 
         </div>
 

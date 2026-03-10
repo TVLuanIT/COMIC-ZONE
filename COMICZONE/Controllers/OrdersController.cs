@@ -25,6 +25,8 @@ namespace COMICZONE.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Pictures)
+                .Include(o => o.User)
+                    .ThenInclude(u => u.Customer)
                 .FirstOrDefault(o => o.OrderId == id);
 
             if (order == null)
@@ -98,6 +100,19 @@ namespace COMICZONE.Controllers
             }
 
             _context.CartItems.RemoveRange(cart.CartItems);
+
+            // THÊM NOTIFICATION
+            var notification = new Notification
+            {
+                UserId = userId,
+                Title = "Đặt hàng thành công",
+                Message = $"Bạn đã đặt đơn hàng #{order.OrderId} thành công.",
+                Link = $"/Orders/OrderDetails/{order.OrderId}",
+                IsRead = false,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Notifications.Add(notification);
 
             _context.SaveChanges();
 
