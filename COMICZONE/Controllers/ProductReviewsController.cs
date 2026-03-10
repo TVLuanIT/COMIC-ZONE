@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

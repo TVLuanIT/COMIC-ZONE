@@ -1,33 +1,50 @@
 ﻿@model List<COMICZONE.Models.Notification>
 
-<div class="profile-content">
+<div class="profile-content notification-page">
 
-    <h3>Thông báo của tôi</h3>
+    <h3 class="page-title">🔔 Thông báo của tôi</h3>
 
     @if (!Model.Any())
     {
-        <p>Bạn chưa có thông báo nào.</p>
+        <div class="empty-notification">
+            <p>Bạn chưa có thông báo nào.</p>
+        </div>
     }
     else
     {
-        <ul class="notification-list">
+        <div class="notification-wrapper">
 
             @foreach (var item in Model)
             {
-                <li class="notification-item @(item.IsRead == true ? "" : "unread")">
+                <a asp-action="ReadNotification"
+                   asp-controller="UserProfiles"
+                   asp-route-id="@item.NotificationId"
+                   class="notification-card @(item.IsRead == true ? "" : "unread")">
 
-                    <h5>@item.Title</h5>
+                    <div class="notification-icon">
+                        📦
+                    </div>
 
-                    <p>@item.Message</p>
+                    <div class="notification-body">
 
-                    <span class="time">
-                        @(item.CreatedAt.HasValue? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "")
-                    </span>
+                        <div class="notification-title">
+                            @item.Title
+                        </div>
 
-                </li>
+                        <div class="notification-message">
+                            @item.Message
+                        </div>
+
+                        <div class="notification-time">
+                            @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm"))
+                        </div>
+
+                    </div>
+
+                </a>
             }
 
-        </ul>
+        </div>
     }
 
 </div>

@@ -54,6 +54,9 @@ public partial class User
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 
     [InverseProperty("User")]
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    [InverseProperty("User")]
     public virtual Customer? Customer { get; set; }
 
     [InverseProperty("CreatedByNavigation")]

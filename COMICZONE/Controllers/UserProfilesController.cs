@@ -218,27 +218,39 @@ namespace COMICZONE.Controllers
             return Json(new { success = true });
         }
 
+        public IActionResult ReadNotification(int id)
+        {
+            var notification = _context.Notifications.FirstOrDefault(n => n.NotificationId == id);
+
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                _context.SaveChanges();
+
+                if (!string.IsNullOrEmpty(notification.Link))
+                {
+                    return Redirect(notification.Link);
+                }
+            }
+
+            return RedirectToAction("Notifications");
+        }
+
         public IActionResult Notifications()
         {
-            var customer = GetCustomer();
+            var userIdStr = HttpContext.Session.GetString("UserId");
 
-            if (customer == null)
+            if (string.IsNullOrEmpty(userIdStr))
             {
                 return RedirectToAction("Login", "Authentication");
             }
 
+            int userId = int.Parse(userIdStr);
+
             var notifications = _context.Notifications
-                .Where(n => n.UserId == customer.Customerid)
+                .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
-
-            // Đánh dấu đã đọc
-            foreach (var item in notifications)
-            {
-                item.IsRead = true;
-            }
-
-            _context.SaveChanges();
 
             return View(notifications);
         }

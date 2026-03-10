@@ -1190,6 +1190,70 @@ const AutoAlert = (() => {
 
 })();
 
+// =============================
+// CART QUANTITY UPDATE (AJAX)
+// =============================
+const CartQuantity = (() => {
+
+    const init = () => {
+
+        document.querySelectorAll(".quantity-input").forEach(input => {
+
+            input.addEventListener("change", function () {
+
+                const cartItemId = this.dataset.cartitemId;
+                const quantity = this.value;
+
+                fetch("/Carts/UpdateQuantity", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        cartItemId: parseInt(cartItemId),
+                        quantity: parseInt(quantity)
+                    })
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Server error");
+                        return res.json();
+                    })
+                    .then(data => {
+
+                        if (data.success) {
+
+                            // cập nhật tổng tiền item
+                            const row = input.closest("tr");
+                            const totalCell = row.querySelector(".item-total");
+
+                            if (totalCell) {
+                                totalCell.innerText = data.itemTotal + " ₫";
+                            }
+
+                            // cập nhật tổng tiền giỏ hàng
+                            const cartTotal = document.getElementById("cart-total");
+
+                            if (cartTotal) {
+                                cartTotal.innerText = data.cartTotal + " ₫";
+                            }
+
+                        }
+
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+
+            });
+
+        });
+
+    };
+
+    return { init };
+
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
@@ -1197,13 +1261,26 @@ document.addEventListener('DOMContentLoaded', () => {
     ReplyMenu_UserProfile.init();
     UrlTabs.init();
     AutoAlert.init();
+    CartQuantity.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
+
     if (productIdElement) {
+
         const id = parseInt(productIdElement.value);
+
         if (!isNaN(id)) {
+
             ProductReviews.init(id);
+
         }
+
     }
+
+    // ===== LOGIN REQUIRED POPUP =====
+    if (window.loginRequiredMessage) {
+        showLoginRequired(window.loginRequiredMessage);
+    }
+
 });

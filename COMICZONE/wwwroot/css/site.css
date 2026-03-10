@@ -540,7 +540,7 @@ button[aria-expanded="true"] .transition-icon {
 }
 
 /* ========================================================== */
-/* ===================== Scrollbar đẹp ====================== */
+/* ===================== Scrollbar ====================== */
 /* ========================================================== */
 .filter-list::-webkit-scrollbar {
     width: 6px;
@@ -666,7 +666,7 @@ button[aria-expanded="true"] .transition-icon {
 .review-list-title {
     font-weight: 600;
     margin-bottom: 20px;
-    text-align: center; /* 👈 Căn giữa chữ */
+    text-align: center; /* Căn giữa chữ */
 }
 .no-review {
     padding: 20px;
@@ -1447,41 +1447,205 @@ button[aria-expanded="true"] .transition-icon {
 /* ================================================================================= */
 /* ================= _MyOrders.cshtml ================= */
 /* ================================================================================= */
-
-.table{
-    width:100%;
-    border-collapse:collapse;
+.orders-page {
+    max-width: 750px;
 }
 
-.table thead{
-    background:#f7f7f7;
+.order-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 15px;
+    background: white;
+    transition: 0.2s;
 }
 
-.table th,
-.table td{
-    padding:12px 10px;
-    text-align:left;
-    border-bottom:1px solid #eee;
+.order-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
-.table th{
-    font-weight:600;
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
-.table tr:hover{
-    background:#fafafa;
+.order-id {
+    font-weight: 600;
 }
-.btn-view{
-    background:#ff6a00;
-    color:#fff;
-    padding:6px 14px;
+
+.order-date {
+    margin-left: 10px;
+    color: #888;
+    font-size: 14px;
+}
+
+.order-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-total span {
+    color: #e53935;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 13px;
+}
+
+.status-shipping {
+    background: #d1ecf1;
+    color: #0c5460;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 13px;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 13px;
+}
+
+/* ================================================================================= */
+/* ================= _OrderDetails.cshtml ================= */
+/* ================================================================================= */
+.invoice-box{
+    background:#fff;
+    padding:25px;
+    border:1px solid #eee;
     border-radius:6px;
-    text-decoration:none;
+    max-width:750px;
+}
+
+.invoice-header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.invoice-title{
+    font-size:14px;
+    letter-spacing:2px;
+    color:#666;
+}
+
+.invoice-info{
+    margin-bottom:20px;
     font-size:14px;
 }
 
-.btn-view:hover{
-    opacity:0.9;
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.invoice-table th{
+    border-bottom:2px solid #ddd;
+    padding:10px 5px;
+    text-align:left;
+}
+
+.invoice-table td{
+    padding:10px 5px;
+    border-bottom:1px solid #eee;
+}
+
+.product-cell{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.product-cell img{
+    width:40px;
+    height:40px;
+    object-fit:cover;
+}
+
+.invoice-total{
+    text-align:right;
+    margin-top:15px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.invoice-total span{
+    color:#e53935;
+}
+
+.invoice-note{
+    margin-top:15px;
+    font-size:14px;
+    color:#666;
+}
+
+.invoice-back{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    color:#555;
+}
+.invoice-products-scroll{
+    max-height:230px;
+    overflow-y:auto;
+}
+
+.invoice-products-scroll::-webkit-scrollbar{
+    width:6px;
+}
+
+.invoice-products-scroll::-webkit-scrollbar-track{
+    background:#f5f5f5;
+}
+
+.invoice-products-scroll::-webkit-scrollbar-thumb{
+    background:#ccc;
+    border-radius:4px;
+}
+
+.invoice-products-scroll::-webkit-scrollbar-thumb:hover{
+    background:#999;
+}
+
+.invoice-table th:nth-child(1),
+.invoice-table td:nth-child(1) {
+    width: 55%;
+}
+
+.invoice-table th:nth-child(2),
+.invoice-table td:nth-child(2) {
+    width: 10%;
+    text-align: center;
+}
+
+.invoice-table th:nth-child(3),
+.invoice-table td:nth-child(3) {
+    width: 17%;
+}
+
+.invoice-table th:nth-child(4),
+.invoice-table td:nth-child(4) {
+    width: 18%;
+}
+.invoice-table td:nth-child(3),
+.invoice-table td:nth-child(4) {
+    text-align: right;
+}
+.invoice-table th:nth-child(3),
+.invoice-table th:nth-child(4) {
+    text-align: right;
+}
+.invoice-table th {
+    background: #fafafa;
 }
 
 /* ================================================================================= */
@@ -1700,29 +1864,74 @@ button[aria-expanded="true"] .transition-icon {
 /* ================================================================================= */
 /* ================= Notifications.cshtml ================= */
 /* ================================================================================= */
-.notification-list {
-    list-style: none;
-    padding: 0;
+.notification-page{
+    padding:20px;
 }
 
-.notification-item {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
+.page-title{
+    margin-bottom:20px;
 }
 
-.notification-item.unread {
-    background: #f5f9ff;
+.notification-wrapper{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
 
-.notification-item h5 {
-    margin: 0;
-    font-weight: 600;
+.notification-card{
+    display:flex;
+    gap:15px;
+    padding:15px;
+    border-radius:10px;
+    text-decoration:none;
+    color:#333;
+    background:#fff;
+    border:1px solid #eee;
+    transition:all 0.2s ease;
 }
 
-.notification-item .time {
-    font-size: 12px;
-    color: #888;
+.notification-card:hover{
+    background:#f8f9fa;
+    transform:translateY(-2px);
 }
+
+.notification-card.unread{
+    background:#eef6ff;
+    border-left:4px solid #0d6efd;
+}
+
+.notification-icon{
+    font-size:26px;
+    display:flex;
+    align-items:center;
+}
+
+.notification-body{
+    flex:1;
+}
+
+.notification-title{
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.notification-message{
+    font-size:14px;
+    color:#555;
+}
+
+.notification-time{
+    font-size:12px;
+    color:#999;
+    margin-top:6px;
+}
+
+.empty-notification{
+    padding:30px;
+    text-align:center;
+    color:#777;
+}
+
 /* ================================================================================= */
 /* ================= _Settings.cshtml ================= */
 /* ================================================================================= */
@@ -1851,4 +2060,58 @@ input:checked + .slider:before {
 .toast-show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+}
+
+/* ================================================================================= */
+/* ================= SHOPPING CART ================= */
+/* ================================================================================= */
+/* ================================================================================= */
+/* ================= PRODUCTCONTROLLER - Detail.cshtml ================= */
+/* ================================================================================= */
+/* ADD TO CART */
+.btn-add-cart{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    background:#e53935;
+    color:white;
+
+    padding:12px 26px;
+    font-size:16px;
+    font-weight:600;
+
+    border:none;
+    border-radius:8px;
+
+    transition:all .25s ease;
+}
+
+.btn-add-cart:hover{
+    background:#c62828;
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* OUT OF STOCK */
+.btn-out-stock{
+    margin-top:20px;
+    padding:12px 26px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#ccc;
+    color:#555;
+    font-weight:600;
+}
+
+/* ================================================================================= */
+/* ================= CARTCONTROLLER - INDEX ================= */
+/* ================================================================================= */
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8f9fa; /* giống table-light */
 }
