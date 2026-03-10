@@ -96,6 +96,20 @@ namespace COMICZONE.Controllers
                 _context.SaveChanges();
             }
 
+            // lấy thông tin user
+            var user = _context.Users
+                .Include(u => u.Customer)
+                .FirstOrDefault(u => u.Id == userId);
+
+            if (user != null && user.Customer != null)
+            {
+                ViewBag.Customer = user.Customer;
+
+                //ViewBag.FullName = user.Customer.Fullname;
+                //ViewBag.Phone = user.Customer.Phone;
+                //ViewBag.Address = user.Customer.Address;
+            }
+
             return View(cart);
         }
 
