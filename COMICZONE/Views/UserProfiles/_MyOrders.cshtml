@@ -1,62 +1,74 @@
 ﻿@model List<COMICZONE.Models.Order>
 
-<div class="profile-content">
+<div class="profile-content orders-page">
 
-    <h3>Đơn hàng của tôi</h3>
+    <h3 class="mb-4">Đơn hàng của tôi</h3>
 
-    <div class="profile-card">
-
-        @if (!Model.Any())
-        {
+    @if (!Model.Any())
+    {
+        <div class="empty-orders">
             <p>Bạn chưa có đơn hàng nào.</p>
-        }
-        else
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
         {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                        <th></th>
-                    </tr>
-                </thead>
+            <div class="order-card">
 
-                <tbody>
+                <div class="order-header">
 
-                    @foreach (var order in Model)
-                    {
-                        <tr>
-                            <td>#@order.OrderId</td>
+                    <div>
+                        <span class="order-id">Đơn hàng #@order.OrderId</span>
+                        <span class="order-date">
+                            @order.OrderDate?.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
 
-                            <td>
-                                @order.OrderDate?.ToString("dd/MM/yyyy")
-                            </td>
+                    <div class="order-status">
 
-                            <td>
-                                @order.TotalAmount?.ToString("N0") đ
-                            </td>
+                        @{
+                            var statusText = "Chờ xử lý";
+                            var statusClass = "status-pending";
 
-                            <td>
-                                @order.Status
-                            </td>
+                            if (order.Status == "Shipping")
+                            {
+                                statusText = "Đang giao";
+                                statusClass = "status-shipping";
+                            }
+                            else if (order.Status == "Completed")
+                            {
+                                statusText = "Hoàn thành";
+                                statusClass = "status-completed";
+                            }
+                        }
 
-                            <td>
-                                <a asp-action="OrderDetails"
-                                   asp-route-id="@order.OrderId"
-                                   class="btn-view">
-                                    Xem
-                                </a>
-                            </td>
-                        </tr>
-                    }
+                        <span class="@statusClass">@statusText</span>
 
-                </tbody>
+                    </div>
 
-            </table>
+                </div>
+
+                <div class="order-body">
+
+                    <div class="order-total">
+                        Tổng tiền:
+                        <span>
+                            @order.TotalAmount?.ToString("N0") đ
+                        </span>
+                    </div>
+
+                    <a asp-controller="Orders"
+                       asp-action="OrderDetails"
+                       asp-route-id="@order.OrderId"
+                       class="btn btn-primary btn-sm">
+                        Xem chi tiết
+                    </a>
+
+                </div>
+
+            </div>
         }
-
-    </div>
+    }
 
 </div>

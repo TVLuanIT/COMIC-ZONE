@@ -9,6 +9,13 @@
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    @await Html.PartialAsync("_MyOrders.cshtml", Model)
+    @if (ViewBag.Page == "OrderDetails")
+    {
+        @await Html.PartialAsync("_OrderDetails.cshtml", (COMICZONE.Models.Order)ViewBag.Order)
+    }
+    else
+    {
+        @await Html.PartialAsync("_MyOrders.cshtml", Model)
+    }
 
 </div>

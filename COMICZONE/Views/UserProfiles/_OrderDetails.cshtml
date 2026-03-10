@@ -1,0 +1,93 @@
+﻿@using COMICZONE.Extensions;
+@model COMICZONE.Models.Order
+
+<div class="profile-content">
+
+    <div class="invoice-box">
+
+        <div class="invoice-header">
+
+            <h3>COMICZONE</h3>
+            <div class="invoice-title">HÓA ĐƠN ĐƠN HÀNG</div>
+
+        </div>
+
+        <div class="invoice-info">
+
+            <div><strong>Mã đơn:</strong> #@Model.OrderId</div>
+            <div><strong>Ngày đặt:</strong> @Model.OrderDate?.ToString("dd/MM/yyyy")</div>
+            <div><strong>SĐT:</strong> @Model.PhoneNumber</div>
+            <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
+
+        </div>
+
+        <div class="invoice-products">
+
+            <table class="invoice-table">
+
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>SL</th>
+                        <th>Giá</th>
+                        <th>Tổng</th>
+                    </tr>
+                </thead>
+
+            </table>
+
+            <div class="invoice-products-scroll">
+
+                <table class="invoice-table">
+
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td class="product-cell">
+                                    <img src="@item.Product?.GetImagePath()" />
+                                    <span>@item.Product?.Name</span>
+                                </td>
+
+                                <td>@item.Quantity</td>
+
+                                <td>@item.Price?.ToString("N0") đ</td>
+
+                                <td>
+                                    @((item.Price * item.Quantity)?.ToString("N0")) đ
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="invoice-total">
+
+            Tổng tiền:
+            <span>
+                @Model.TotalAmount?.ToString("N0") đ
+            </span>
+
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <div class="invoice-note">
+                Ghi chú: @Model.Note
+            </div>
+        }
+
+        <a asp-controller="UserProfiles"
+           asp-action="MyOrders"
+           class="invoice-back">
+            ← Quay lại đơn hàng
+        </a>
+
+    </div>
+
+</div>

@@ -19,6 +19,25 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
+        public IActionResult OrderDetails(int id)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Pictures)
+                .FirstOrDefault(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Page = "OrderDetails";
+            ViewBag.Order = order;
+
+            return View("~/Views/UserProfiles/MyOrders.cshtml");
+        }
+
         public IActionResult Success()
         {
             return View();
