@@ -28,10 +28,12 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             // _TopSellingProducts.cshtml
             var topProducts = _context.OrderItems
-                .GroupBy(oi => new { oi.Product.Name, oi.Product.Price })
-                .Select(g => new {
-                    ProductName = g.Key.Name,
-                    Price = g.Key.Price,
+                .Include(oi => oi.Product)
+                    .ThenInclude(p => p.Pictures)
+                .GroupBy(oi => oi.ProductId)
+                .Select(g => new
+                {
+                    Product = g.First().Product,
                     TotalSold = g.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.TotalSold)
@@ -40,10 +42,13 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             // _RecentOrders.cshtml
             var recentOrders = _context.OrderItems
+                .Include(o => o.Order)
+                .Include(o => o.Product)
+                    .ThenInclude(p => p.Pictures)
                 .OrderByDescending(o => o.OrderId)
                 .Take(5)
                 .Select(o => new {
-                    ProductName = o.Product.Name,
+                    Product = o.Product,
                     Status = o.Order.Status
                 })
                 .ToList();

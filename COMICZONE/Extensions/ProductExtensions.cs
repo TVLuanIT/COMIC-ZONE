@@ -26,5 +26,6 @@ namespace COMICZONE.Extensions
             // Nếu không tìm thấy, dùng ảnh mặc định
             return "/images/default.png";
         }
+
     }
 }

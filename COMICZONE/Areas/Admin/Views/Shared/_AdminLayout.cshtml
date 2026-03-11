@@ -1,86 +1,87 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
 
-<head>
-    <meta charset="UTF-8" />
-    <title>@ViewData["Title"] - Trang quản trị</title>
+    <head>
+        <meta charset="UTF-8" />
+        <title>@ViewData["Title"] - Trang quản trị</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="~/assets/css/main.css">
-    <script type="module" src="~/assets/js/main.js"></script>
-</head>
+        <link rel="stylesheet" href="~/assets/css/main.css">
+        <link rel="stylesheet" href="~/assets/css/admin.css">
+        <script type="module" src="~/assets/js/main.js"></script>
+    </head>
 
-<body>
+    <body>
 
-    <div id="overlay" class="overlay"></div>
+        <div id="overlay" class="overlay"></div>
 
-    <!-- THANH TRÊN -->
-    <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3">
-        <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm">
-            <i class="ti ti-layout-sidebar-left-expand"></i>
-        </button>
-    </nav>
+        <!-- THANH TRÊN -->
+        <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3">
+            <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm">
+                <i class="ti ti-layout-sidebar-left-expand"></i>
+            </button>
+        </nav>
 
-    <!-- THANH BÊN -->
-    <aside id="sidebar" class="sidebar">
+        <!-- THANH BÊN -->
+        <aside id="sidebar" class="sidebar">
 
-        <div class="logo-area">
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                <span class="logo-text ms-2">Quản trị</span>
-            </a>
-        </div>
-
-        <ul class="nav flex-column">
-
-            <li>
-                <a class="nav-link"
-                   asp-area="Admin"
-                   asp-controller="Dashboard"
-                   asp-action="Index">
-                    <i class="ti ti-home"></i>
-                    <span class="nav-text">Bảng điều khiển</span>
+            <div class="logo-area">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <span class="logo-text ms-2">Quản trị</span>
                 </a>
-            </li>
+            </div>
 
-            <li>
-                <a class="nav-link"
-                   asp-area="Admin"
-                   asp-controller="Products"
-                   asp-action="Index">
-                    <i class="ti ti-box-seam"></i>
-                    <span class="nav-text">Sản phẩm</span>
-                </a>
-            </li>
+            <ul class="nav flex-column">
 
-            <li>
-                <a class="nav-link"
-                   asp-area="Admin"
-                   asp-controller="Orders"
-                   asp-action="Index">
-                    <i class="ti ti-receipt"></i>
-                    <span class="nav-text">Đơn hàng</span>
-                </a>
-            </li>
+                <li>
+                    <a class="nav-link"
+                       asp-area="Admin"
+                       asp-controller="Dashboard"
+                       asp-action="Index">
+                        <i class="ti ti-home"></i>
+                        <span class="nav-text">Bảng điều khiển</span>
+                    </a>
+                </li>
 
-            <li>
-                <a class="nav-link"
-                   asp-area="Admin"
-                   asp-controller="Users"
-                   asp-action="Index">
-                    <i class="ti ti-users"></i>
-                    <span class="nav-text">Người dùng</span>
-                </a>
-            </li>
+                <li>
+                    <a class="nav-link"
+                       asp-area="Admin"
+                       asp-controller="Products"
+                       asp-action="Index">
+                        <i class="ti ti-box-seam"></i>
+                        <span class="nav-text">Quản lý sản phẩm</span>
+                    </a>
+                </li>
 
-        </ul>
+                <li>
+                    <a class="nav-link"
+                       asp-area="Admin"
+                       asp-controller="Orders"
+                       asp-action="Index">
+                        <i class="ti ti-receipt"></i>
+                        <span class="nav-text">Quản lý đơn hàng</span>
+                    </a>
+                </li>
 
-    </aside>
+                <li>
+                    <a class="nav-link"
+                       asp-area="Admin"
+                       asp-controller="Users"
+                       asp-action="Index">
+                        <i class="ti ti-users"></i>
+                        <span class="nav-text">Quản lý người dùng</span>
+                    </a>
+                </li>
 
-    <!-- NỘI DUNG CHÍNH -->
-    <main id="content" class="content py-10">
-        @RenderBody()
-    </main>
+            </ul>
 
-</body>
+        </aside>
+
+        <!-- NỘI DUNG CHÍNH -->
+        <main id="content" class="content py-10">
+            @RenderBody()
+        </main>
+
+    </body>
 </html>

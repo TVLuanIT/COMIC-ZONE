@@ -1,4 +1,5 @@
 ﻿@using COMICZONE.Helpers;
+@using COMICZONE.Models;
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -28,8 +29,8 @@
             Title = "Sản phẩm bán chạy",
             Headers = new [] { "Sản phẩm", "Giá", "Đã bán" },
             Rows = products?.Select(p => new [] {
-                p.ProductName,
-                p.Price.ToString("N0") + " ₫",
+                ((Product)p.Product).GetProductCell(),
+                p.Product.Price?.ToString("N0") + " ₫",
                 p.TotalSold.ToString()
             })
         }' />
@@ -39,7 +40,7 @@
             Title = "Đơn hàng gần đây",
             Headers = new [] { "Sản phẩm", "Trạng thái" },
             Rows = orders?.Select(o => new [] {
-                o.ProductName,
+                ((Product)o.Product).GetProductCell(),
                 OrderHelper.GetStatusBadge(o.Status)
             })
         }' />
