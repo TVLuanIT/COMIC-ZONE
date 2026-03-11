@@ -1,114 +1,210 @@
-﻿@model COMICZONE.Models.Product
+﻿@using COMICZONE.Extensions;
+
+@model COMICZONE.Models.Product
 
 @{
-    ViewData["Title"] = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết sản phẩm";
 }
 
-<h1>Details</h1>
+<div class="container-fluid">
 
-<div>
-    <h4>Product</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Distributor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Distributor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Translator)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Translator)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Series)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Series)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StockQuantity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StockQuantity)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Format)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Format)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Size)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Size)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Weight)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Weight)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Pages)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Pages)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IllustrationType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IllustrationType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReleaseDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReleaseDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Publisher)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Publisher)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AgeGroup)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AgeGroup)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fs-3">Chi tiết sản phẩm</h1>
+
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="ti ti-edit"></i>
+                Chỉnh sửa
+            </a>
+
+            <a asp-action="Index" class="btn btn-light">
+                <i class="ti ti-arrow-left"></i>
+                Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- Cột trái -->
+                <div class="col-md-4">
+
+                    <!-- Ảnh -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body text-center">
+
+                            <img src="@Model.GetImagePath()"
+                                 alt="@Model.Name"
+                                 class="img-fluid rounded"
+                                 style="max-height:350px; object-fit:contain;" />
+
+                        </div>
+                    </div>
+
+                    <!-- Thông tin bổ sung -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+
+                            <h5 class="mb-3">Thông tin bổ sung</h5>
+
+                            <p>
+                                <strong>Đánh giá:</strong>
+                                @if (Model.ProductReviewSummary != null)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        @Model.ProductReviewSummary.Averagerating ⭐
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Họa sĩ:</strong><br />
+
+                                @if (Model.Artists != null && Model.Artists.Any())
+                                {
+                                    @string.Join(", ", Model.Artists.Select(a => a.Name))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Thẻ:</strong><br />
+
+                                @if (Model.Tags != null && Model.Tags.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var tag in Model.Tags)
+                                        {
+                                            <span class="badge bg-secondary">@tag.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Thông tin sản phẩm -->
+                <!-- Cột phải -->
+                <div class="col-md-8">
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+
+                            <h2 class="mb-3">@Model.Name</h2>
+
+                            <table class="table table-bordered align-middle">
+
+                                <tr>
+                                    <th style="width:200px">Giá</th>
+                                    <td class="fw-semibold text-danger">
+                                        @Model.Price?.ToString("N0") ₫
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Nhà phát hành</th>
+                                    <td>@Model.Distributor</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tác giả</th>
+                                    <td>@Model.Author</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Dịch giả</th>
+                                    <td>@Model.Translator</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Series</th>
+                                    <td>@Model.Series</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Mô tả</th>
+                                    <td>@Model.Description</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tồn kho</th>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @Model.StockQuantity
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Định dạng</th>
+                                    <td>@Model.Format</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Kích thước</th>
+                                    <td>@Model.Size</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Trọng lượng</th>
+                                    <td>@Model.Weight</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Số trang</th>
+                                    <td>@Model.Pages</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Minh họa</th>
+                                    <td>@Model.IllustrationType</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Ngày phát hành</th>
+                                    <td>@Model.ReleaseDate</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Nhà xuất bản</th>
+                                    <td>@Model.Publisher</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Độ tuổi</th>
+                                    <td>@Model.AgeGroup</td>
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

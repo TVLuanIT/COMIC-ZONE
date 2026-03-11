@@ -42,6 +42,10 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var product = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .Include(p => p.ProductReviewSummary)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null)
             {

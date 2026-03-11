@@ -18,7 +18,32 @@ thead .table-actions {
     background: #f8f9fa;
 }
 
-.table td,
-.table th {
+/* chỉ áp dụng cho bảng index */
+.table-wrapper .table td,
+.table-wrapper .table th {
     white-space: nowrap;
+}
+
+/* ================================================================================= */
+/* ================= Admin/Products/Details.cshtml ================= */
+/* ================================================================================= */
+.table-bordered th {
+    width: 220px;
+    background: #f8f9fa;
+    font-weight: 600;
+}
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.d-flex .badge {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+.card-body {
+    overflow-wrap: break-word;
 }
