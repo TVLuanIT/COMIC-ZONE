@@ -75,7 +75,10 @@
                             <td>@item.Translator</td>
 
                             <td>
-                                @string.Join(", ", item.Artists.Select(a => a.Name))
+                                @foreach (var artist in item.Artists)
+                                {
+                                    <span class="badge bg-secondary">@artist.Name</span>
+                                }
                             </td>
 
                             <td>

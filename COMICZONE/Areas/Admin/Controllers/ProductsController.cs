@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using COMICZONE.Data;
+using COMICZONE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.Data;
-using COMICZONE.Models;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -81,51 +81,95 @@ namespace COMICZONE.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null)
-            {
                 return NotFound();
-            }
+
+            ViewBag.Artists = await _context.Artists.ToListAsync();
+            ViewBag.Tags = await _context.Tags.ToListAsync();
+
             return View(product);
         }
 
-        // POST: Admin/Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Distributor,Author,Translator,Series,Description,StockQuantity,Format,Size,Weight,Pages,IllustrationType,ReleaseDate,Publisher,AgeGroup")] Product product)
+        public async Task<IActionResult> Edit(int id, Product model, int[] SelectedArtists, int[] SelectedTags)
         {
-            if (id != product.Id)
-            {
+            if (id != model.Id)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Artists = await _context.Artists.ToListAsync();
+                ViewBag.Tags = await _context.Tags.ToListAsync();
+                return View(model);
             }
 
-            if (ModelState.IsValid)
+            var product = await _context.Products
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            // cập nhật field
+            product.Name = model.Name;
+            product.Price = model.Price;
+            product.Distributor = model.Distributor;
+            product.Author = model.Author;
+            product.Translator = model.Translator;
+            product.Series = model.Series;
+            product.Description = model.Description;
+            product.StockQuantity = model.StockQuantity;
+            product.Format = model.Format;
+            product.Size = model.Size;
+            product.Weight = model.Weight;
+            product.Pages = model.Pages;
+            product.IllustrationType = model.IllustrationType;
+            product.ReleaseDate = model.ReleaseDate;
+            product.Publisher = model.Publisher;
+            product.AgeGroup = model.AgeGroup;
+
+            // ===== Artists =====
+            product.Artists.Clear();
+
+            if (SelectedArtists != null)
             {
-                try
+                foreach (var artistId in SelectedArtists)
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
+                    var artist = await _context.Artists.FindAsync(artistId);
+                    if (artist != null)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        product.Artists.Add(artist);
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(product);
+
+            // ===== Tags =====
+            product.Tags.Clear();
+
+            if (SelectedTags != null)
+            {
+                foreach (var tagId in SelectedTags)
+                {
+                    var tag = await _context.Tags.FindAsync(tagId);
+                    if (tag != null)
+                    {
+                        product.Tags.Add(tag);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Admin/Products/Delete/5

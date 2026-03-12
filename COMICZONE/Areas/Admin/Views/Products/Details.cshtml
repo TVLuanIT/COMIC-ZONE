@@ -70,7 +70,12 @@
 
                                 @if (Model.Artists != null && Model.Artists.Any())
                                 {
-                                    @string.Join(", ", Model.Artists.Select(a => a.Name))
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var artist in Model.Artists)
+                                        {
+                                            <span class="badge bg-secondary">@artist.Name</span>
+                                        }
+                                    </div>
                                 }
                                 else
                                 {
