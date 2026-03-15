@@ -7,7 +7,6 @@
 }
 
 <div class="container-fluid">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fs-3">Thêm sản phẩm</h1>
 
@@ -19,24 +18,39 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
-
-            <form asp-action="Create" method="post">
-
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <div class="row">
+                <div class="mb-4">
+                    <label class="form-label">Hình ảnh sản phẩm</label>
+                    <div class="input-group mb-2">
+                        <button type="button" class="btn btn-outline-primary" id="btnUpload">
+                            <i class="ti ti-upload"></i> Chọn ảnh
+                        </button>
 
+                        <span class="form-control" id="fileName">
+                            Ảnh đầu sẽ là ảnh bìa
+                        </span>
+                    </div>
+
+                    <input type="file"
+                           name="Pictures"
+                           id="Pictures"
+                           multiple
+                           accept="image/*"
+                           style="display:none;">
+
+                    <div class="row g-2 mt-2" id="previewImages">
+                        <!-- preview ảnh mới -->
+                    </div>
+                </div>
+
+                <div class="row">
                     <!-- CỘT TRÁI -->
                     <div class="col-md-6">
-
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label">Tên sản phẩm</label>
                             <input asp-for="Name" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Distributor" class="form-label">Nhà phát hành</label>
-                            <input asp-for="Distributor" class="form-control" />
                         </div>
 
                         <div class="mb-3">
@@ -49,14 +63,11 @@
                             <input asp-for="Translator" class="form-control" />
                         </div>
 
-
                         <!-- ARTIST -->
                         <div class="mb-3">
-
                             <label class="form-label">Họa sĩ</label>
 
                             <select class="form-select selectedartist">
-
                                 <option value="">-- Chọn họa sĩ --</option>
 
                                 @foreach (var artist in (List<Artist>)ViewBag.Artists)
@@ -67,48 +78,36 @@
                             </select>
 
                             <div id="artistContainer" class="mt-2 d-flex flex-wrap gap-2"></div>
-
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="Distributor" class="form-label">Nhà phát hành</label>
+                            <input asp-for="Distributor" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Publisher" class="form-label">Nhà xuất bản</label>
+                            <input asp-for="Publisher" class="form-control" />
+                        </div>
 
                         <div class="mb-3">
                             <label asp-for="Series" class="form-label">Series</label>
                             <input asp-for="Series" class="form-control" />
                         </div>
 
-
-                        <!-- TAG -->
                         <div class="mb-3">
-
-                            <label class="form-label">Thẻ</label>
-
-                            <select class="form-select selectedtag">
-
-                                <option value="">-- Chọn thẻ --</option>
-
-                                @foreach (var tag in (List<Tag>)ViewBag.Tags)
-                                {
-                                    <option value="@tag.Id">@tag.Name</option>
-                                }
-
-                            </select>
-
-                            <div id="tagContainer" class="mt-2 d-flex flex-wrap gap-2"></div>
-
+                            <label asp-for="AgeGroup" class="form-label">Độ tuổi</label>
+                            <input asp-for="AgeGroup" class="form-control" />
                         </div>
 
-
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Mô tả</label>
-<textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <label asp-for="IllustrationType" class="form-label">Minh họa</label>
+                            <input asp-for="IllustrationType" class="form-control" />
                         </div>
-
                     </div>
-
 
                     <!-- CỘT PHẢI -->
                     <div class="col-md-6">
-
                         <div class="mb-3">
                             <label asp-for="Price" class="form-label">Giá</label>
                             <input asp-for="Price" class="form-control" />
@@ -122,6 +121,22 @@
                         <div class="mb-3">
                             <label asp-for="Format" class="form-label">Định dạng</label>
                             <input asp-for="Format" class="form-control" />
+                        </div>
+
+                        <!-- TAG -->
+                        <div class="mb-3">
+                            <label class="form-label">Thẻ</label>
+
+                            <select class="form-select selectedtag">
+                                <option value="">-- Chọn thẻ --</option>
+
+                                @foreach (var tag in (List<Tag>)ViewBag.Tags)
+                                {
+                                    <option value="@tag.Id">@tag.Name</option>
+                                }
+                            </select>
+
+                            <div id="tagContainer" class="mt-2 d-flex flex-wrap gap-2"></div>
                         </div>
 
                         <div class="mb-3">
@@ -140,27 +155,19 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="IllustrationType" class="form-label">Minh họa</label>
-                            <input asp-for="IllustrationType" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
                             <label asp-for="ReleaseDate" class="form-label">Ngày phát hành</label>
                             <input asp-for="ReleaseDate" type="date" class="form-control" />
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Publisher" class="form-label">Nhà xuất bản</label>
-                            <input asp-for="Publisher" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="AgeGroup" class="form-label">Độ tuổi</label>
-                            <input asp-for="AgeGroup" class="form-control" />
-                        </div>
-
                     </div>
+                </div>
 
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-4">
@@ -173,9 +180,7 @@
                         Hủy
                     </a>
                 </div>
-
             </form>
-
         </div>
     </div>
 </div>

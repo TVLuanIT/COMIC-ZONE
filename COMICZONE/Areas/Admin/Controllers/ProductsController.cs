@@ -64,12 +64,13 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product, int[] SelectedArtists, int[] SelectedTags)
+        public async Task<IActionResult> Create(
+            Product product,
+            int[] SelectedArtists,
+            int[] SelectedTags,
+            List<IFormFile> Pictures)
         {
             if (!ModelState.IsValid)
             {
@@ -78,6 +79,9 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return View(product);
             }
 
+            // ===============================
+            // Artists
+            // ===============================
             if (SelectedArtists != null)
             {
                 foreach (var artistId in SelectedArtists)
@@ -88,6 +92,9 @@ namespace COMICZONE.Areas.Admin.Controllers
                 }
             }
 
+            // ===============================
+            // Tags
+            // ===============================
             if (SelectedTags != null)
             {
                 foreach (var tagId in SelectedTags)
@@ -95,6 +102,36 @@ namespace COMICZONE.Areas.Admin.Controllers
                     var tag = await _context.Tags.FindAsync(tagId);
                     if (tag != null)
                         product.Tags.Add(tag);
+                }
+            }
+
+            // ===============================
+            // Upload pictures
+            // ===============================
+            if (Pictures != null && Pictures.Count > 0)
+            {
+                foreach (var file in Pictures)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+
+                        var path = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot/images/products",
+                            fileName
+                        );
+
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        product.Pictures.Add(new Picture
+                        {
+                            FileName = fileName
+                        });
+                    }
                 }
             }
 
@@ -266,7 +303,11 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var product = await _context.Products
+                .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (product == null)
             {
                 return NotFound();
@@ -275,24 +316,40 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(product);
         }
 
-        // POST: Admin/Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            var product = await _context.Products
+                .Include(p => p.Pictures)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            foreach (var pic in product.Pictures.ToList())
             {
-                _context.Products.Remove(product);
+                if (!string.IsNullOrEmpty(pic.FileName))
+                {
+                    var path = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot/images/products",
+                        pic.FileName);
+
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                }
+
+                _context.Pictures.Remove(pic);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            _context.Products.Remove(product);
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.Id == id);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -88,14 +88,14 @@ const BadgeSelect = () => {
     return { init };
 };
 
-const images_edit = () => {
+const ImagesUpload = () => {
     const init = () => {
         initRemovePicture();
         initCustomFileInput();
     };
 
     // ===============================
-    // Xóa ảnh cũ
+    // Xóa ảnh cũ (Edit page)
     // ===============================
     const initRemovePicture = () => {
         document.addEventListener("click", function (e) {
@@ -110,18 +110,23 @@ const images_edit = () => {
             const input = box.querySelector(".deleted-picture");
 
             if (input) {
-                input.disabled = false;   // bật để submit
+                input.disabled = false;
             }
 
-            box.style.display = "none";   // ẨN thay vì REMOVE
+            box.style.display = "none";
         });
     };
 
+
     // ===============================
-    // Upload + preview ảnh mới
+    // Upload + preview ảnh (Create + Edit)
     // ===============================
     const initCustomFileInput = () => {
-        const input = document.getElementById("NewPictures");
+        const inputNew = document.getElementById("NewPictures");
+        const inputCreate = document.getElementById("Pictures");
+
+        const input = inputNew ? inputNew : inputCreate;
+
         const button = document.getElementById("btnUpload");
         const fileName = document.getElementById("fileName");
         const preview = document.getElementById("previewImages");
@@ -173,6 +178,28 @@ const images_edit = () => {
 
             fileName.textContent = dataTransfer.files.length + " ảnh đã chọn";
         });
+
+
+        // ===============================
+        // Xóa ảnh mới
+        // ===============================
+        document.addEventListener("click", function (e) {
+            if (!e.target.classList.contains("remove-new-picture")) return;
+
+            const item = e.target.closest(".new-picture");
+
+            if (!item) return;
+
+            const index = [...preview.children].indexOf(item);
+
+            item.remove();
+
+            dataTransfer.items.remove(index);
+
+            input.files = dataTransfer.files;
+
+            fileName.textContent = dataTransfer.files.length + " ảnh đã chọn";
+        });
     };
 
     return { init };
@@ -186,5 +213,5 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("admin.js loaded");
 
     BadgeSelect().init();
-    images_edit().init();
+    ImagesUpload().init();
 });
