@@ -2,22 +2,20 @@
 
 namespace COMICZONE.Extensions
 {
-    public static class ProductExtensions
+    public static class PictureExtensions
     {
-        public static string GetImagePath(this Product product)
+        public static string GetImagePath(this Picture picture)
         {
-            var picture = product?.Pictures?.FirstOrDefault();
-
             if (picture == null || string.IsNullOrEmpty(picture.FileName))
                 return "/images/products/default.png";
 
-            // Nếu DB đã có extension
+            // Nếu FileName đã có extension
             if (Path.HasExtension(picture.FileName))
             {
                 return "/images/products/" + picture.FileName;
             }
 
-            // Nếu DB không có extension thì tìm file thật
+            // Nếu FileName không có extension thì tìm file
             string folder = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot/images/products"

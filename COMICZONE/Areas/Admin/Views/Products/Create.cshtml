@@ -1,108 +1,181 @@
-﻿@model COMICZONE.Models.Product
+﻿@using COMICZONE.Models
+@model COMICZONE.Models.Product
 
 @{
-    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm sản phẩm";
 }
 
-<h1>Create</h1>
+<div class="container-fluid">
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Distributor" class="control-label"></label>
-                <input asp-for="Distributor" class="form-control" />
-                <span asp-validation-for="Distributor" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Author" class="control-label"></label>
-                <input asp-for="Author" class="form-control" />
-                <span asp-validation-for="Author" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Translator" class="control-label"></label>
-                <input asp-for="Translator" class="form-control" />
-                <span asp-validation-for="Translator" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Series" class="control-label"></label>
-                <input asp-for="Series" class="form-control" />
-                <span asp-validation-for="Series" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StockQuantity" class="control-label"></label>
-                <input asp-for="StockQuantity" class="form-control" />
-                <span asp-validation-for="StockQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Format" class="control-label"></label>
-                <input asp-for="Format" class="form-control" />
-                <span asp-validation-for="Format" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Size" class="control-label"></label>
-                <input asp-for="Size" class="form-control" />
-                <span asp-validation-for="Size" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Weight" class="control-label"></label>
-                <input asp-for="Weight" class="form-control" />
-                <span asp-validation-for="Weight" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pages" class="control-label"></label>
-                <input asp-for="Pages" class="form-control" />
-                <span asp-validation-for="Pages" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IllustrationType" class="control-label"></label>
-                <input asp-for="IllustrationType" class="form-control" />
-                <span asp-validation-for="IllustrationType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReleaseDate" class="control-label"></label>
-                <input asp-for="ReleaseDate" class="form-control" />
-                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Publisher" class="control-label"></label>
-                <input asp-for="Publisher" class="form-control" />
-                <span asp-validation-for="Publisher" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AgeGroup" class="control-label"></label>
-                <input asp-for="AgeGroup" class="form-control" />
-                <span asp-validation-for="AgeGroup" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fs-3">Thêm sản phẩm</h1>
+
+        <a asp-action="Index" class="btn btn-light">
+            <i class="ti ti-arrow-left"></i>
+            Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+
+                    <!-- CỘT TRÁI -->
+                    <div class="col-md-6">
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên sản phẩm</label>
+                            <input asp-for="Name" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Distributor" class="form-label">Nhà phát hành</label>
+                            <input asp-for="Distributor" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Author" class="form-label">Tác giả</label>
+                            <input asp-for="Author" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Translator" class="form-label">Dịch giả</label>
+                            <input asp-for="Translator" class="form-control" />
+                        </div>
+
+
+                        <!-- ARTIST -->
+                        <div class="mb-3">
+
+                            <label class="form-label">Họa sĩ</label>
+
+                            <select class="form-select selectedartist">
+
+                                <option value="">-- Chọn họa sĩ --</option>
+
+                                @foreach (var artist in (List<Artist>)ViewBag.Artists)
+                                {
+                                    <option value="@artist.Id">@artist.Name</option>
+                                }
+
+                            </select>
+
+                            <div id="artistContainer" class="mt-2 d-flex flex-wrap gap-2"></div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label asp-for="Series" class="form-label">Series</label>
+                            <input asp-for="Series" class="form-control" />
+                        </div>
+
+
+                        <!-- TAG -->
+                        <div class="mb-3">
+
+                            <label class="form-label">Thẻ</label>
+
+                            <select class="form-select selectedtag">
+
+                                <option value="">-- Chọn thẻ --</option>
+
+                                @foreach (var tag in (List<Tag>)ViewBag.Tags)
+                                {
+                                    <option value="@tag.Id">@tag.Name</option>
+                                }
+
+                            </select>
+
+                            <div id="tagContainer" class="mt-2 d-flex flex-wrap gap-2"></div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+<textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        </div>
+
+                    </div>
+
+
+                    <!-- CỘT PHẢI -->
+                    <div class="col-md-6">
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label">Giá</label>
+                            <input asp-for="Price" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StockQuantity" class="form-label">Tồn kho</label>
+                            <input asp-for="StockQuantity" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Format" class="form-label">Định dạng</label>
+                            <input asp-for="Format" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Size" class="form-label">Kích thước</label>
+                            <input asp-for="Size" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Weight" class="form-label">Trọng lượng</label>
+                            <input asp-for="Weight" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Pages" class="form-label">Số trang</label>
+                            <input asp-for="Pages" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IllustrationType" class="form-label">Minh họa</label>
+                            <input asp-for="IllustrationType" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ReleaseDate" class="form-label">Ngày phát hành</label>
+                            <input asp-for="ReleaseDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Publisher" class="form-label">Nhà xuất bản</label>
+                            <input asp-for="Publisher" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AgeGroup" class="form-label">Độ tuổi</label>
+                            <input asp-for="AgeGroup" class="form-control" />
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy"></i>
+                        Tạo sản phẩm
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-light">
+                        Hủy
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

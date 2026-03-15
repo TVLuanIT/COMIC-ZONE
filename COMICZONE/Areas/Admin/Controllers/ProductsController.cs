@@ -56,8 +56,11 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Products/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.Artists = await _context.Artists.ToListAsync();
+            ViewBag.Tags = await _context.Tags.ToListAsync();
+
             return View();
         }
 
@@ -66,15 +69,39 @@ namespace COMICZONE.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Distributor,Author,Translator,Series,Description,StockQuantity,Format,Size,Weight,Pages,IllustrationType,ReleaseDate,Publisher,AgeGroup")] Product product)
+        public async Task<IActionResult> Create(Product product, int[] SelectedArtists, int[] SelectedTags)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewBag.Artists = await _context.Artists.ToListAsync();
+                ViewBag.Tags = await _context.Tags.ToListAsync();
+                return View(product);
             }
-            return View(product);
+
+            if (SelectedArtists != null)
+            {
+                foreach (var artistId in SelectedArtists)
+                {
+                    var artist = await _context.Artists.FindAsync(artistId);
+                    if (artist != null)
+                        product.Artists.Add(artist);
+                }
+            }
+
+            if (SelectedTags != null)
+            {
+                foreach (var tagId in SelectedTags)
+                {
+                    var tag = await _context.Tags.FindAsync(tagId);
+                    if (tag != null)
+                        product.Tags.Add(tag);
+                }
+            }
+
+            _context.Add(product);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Admin/Products/Edit/5
@@ -86,6 +113,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             var product = await _context.Products
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
+                .Include(p => p.Pictures)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -99,7 +127,12 @@ namespace COMICZONE.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product model, int[] SelectedArtists, int[] SelectedTags)
+        public async Task<IActionResult> Edit(int id,
+            Product model,
+            int[] SelectedArtists,
+            int[] SelectedTags,
+            int[] DeletedPictures,
+            List<IFormFile> NewPictures)
         {
             if (id != model.Id)
                 return NotFound();
@@ -114,6 +147,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             var product = await _context.Products
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
+                .Include(p => p.Pictures)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -164,6 +198,57 @@ namespace COMICZONE.Areas.Admin.Controllers
                     {
                         product.Tags.Add(tag);
                     }
+                }
+            }
+
+            // ===== Xóa ảnh =====
+            if (DeletedPictures != null)
+            {
+                var pics = product.Pictures
+                    .Where(p => DeletedPictures.Contains(p.Id))
+                    .ToList();
+
+                foreach (var pic in pics)
+                {
+                    product.Pictures.Remove(pic);   // remove relation
+                    _context.Pictures.Remove(pic);  // remove entity
+
+                    if (!string.IsNullOrEmpty(pic.FileName))
+                    {
+                        var path = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot/images/products",
+                            pic.FileName);
+
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                    }
+                }
+            }
+
+            // ===== Upload ảnh mới =====
+            if (NewPictures != null && NewPictures.Any())
+            {
+                foreach (var file in NewPictures)
+                {
+                    if (file.Length <= 0) continue;
+
+                    var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+
+                    var path = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot/images/products",
+                        fileName);
+
+                    using var stream = new FileStream(path, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    product.Pictures.Add(new Picture
+                    {
+                        FileName = fileName
+                    });
                 }
             }
 
