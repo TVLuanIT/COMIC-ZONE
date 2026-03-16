@@ -8,7 +8,6 @@
 }
 
 <div class="container-fluid">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fs-3">Chi tiết sản phẩm</h1>
 
@@ -27,16 +26,12 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
-
             <div class="row">
-
                 <!-- Cột trái -->
                 <div class="col-md-4">
-
                     <!-- Ảnh -->
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body text-center">
-
                             <img src="@Model.GetImagePath()"
                                  alt="@Model.Name"
                                  class="img-fluid rounded"
@@ -48,7 +43,6 @@
                     <!-- Thông tin bổ sung -->
                     <div class="card border-0 bg-light">
                         <div class="card-body">
-
                             <h5 class="mb-3">Thông tin bổ sung</h5>
 
                             <p>
@@ -61,7 +55,9 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted">Chưa có</span>
+                                    <span class="badge bg-warning text-dark">
+                                        0.00 ⭐
+                                    </span>
                                 }
                             </p>
 
@@ -100,23 +96,18 @@
                                     <span class="text-muted">Chưa có</span>
                                 }
                             </p>
-
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Thông tin sản phẩm -->
                 <!-- Cột phải -->
                 <div class="col-md-8">
-
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
-
                             <h2 class="mb-3">@Model.Name</h2>
 
                             <table class="table table-bordered align-middle">
-
                                 <tr>
                                     <th style="width:200px">Giá</th>
                                     <td class="fw-semibold text-danger">
@@ -197,19 +188,11 @@
                                     <th>Độ tuổi</th>
                                     <td>@Model.AgeGroup</td>
                                 </tr>
-
                             </table>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>

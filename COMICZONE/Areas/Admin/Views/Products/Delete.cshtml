@@ -1,4 +1,5 @@
-﻿@model COMICZONE.Models.Product
+﻿@using COMICZONE.Extensions;
+@model COMICZONE.Models.Product
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -6,7 +7,6 @@
 }
 
 <div class="container-fluid">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fs-3 text-danger">
             <i class="ti ti-trash"></i> Xóa sản phẩm
@@ -18,88 +18,217 @@
         </a>
     </div>
 
+    <!-- WARNING -->
+    <div class="alert alert-danger">
+        <strong>Cảnh báo!</strong> Bạn sắp xóa sản phẩm này. Hành động này không thể hoàn tác.
+    </div>
+
     <div class="card shadow-sm border-0">
         <div class="card-body">
-
-            <div class="alert alert-warning mb-4">
-                <i class="ti ti-alert-triangle"></i>
-                Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.
-            </div>
-
-            <!-- ẢNH -->
-            @if (Model.Pictures != null && Model.Pictures.Any())
-            {
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Hình ảnh</label>
-
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var pic in Model.Pictures)
-                        {
-                            <img src="~/images/products/@pic.FileName"
-                                 style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid #eee;" />
-                        }
-                    </div>
-                </div>
-            }
-
             <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Tên sản phẩm</label>
-                        <div>@Model.Name</div>
+                <!-- CỘT TRÁI -->
+                <div class="col-md-4">
+                    <!-- ẢNH -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body text-center">
+                            @if (Model.Pictures != null && Model.Pictures.Any())
+                            {
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                    @foreach (var pic in Model.Pictures)
+                                    {
+                                        <img src="/images/products/@pic.FileName"
+                                            alt="@Model.Name"
+                                            class="img-fluid rounded"
+                                            style="max-height:350px; object-fit:contain;" />
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <img src="@Model.GetImagePath()"
+                                     class="img-fluid rounded"
+                                     style="max-height:300px;object-fit:contain;" />
+                            }
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Tác giả</label>
-                        <div>@Model.Author</div>
-                    </div>
+                    <!-- THÔNG TIN BỔ SUNG -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="mb-3">Thông tin bổ sung</h5>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nhà phát hành</label>
-                        <div>@Model.Distributor</div>
-                    </div>
+                            <p>
+                                <strong>Đánh giá:</strong><br />
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nhà xuất bản</label>
-                        <div>@Model.Publisher</div>
+                                @{
+                                    var rating = Model.ProductReviewSummary?.Averagerating ?? 0;
+                                    var fullStars = (int)Math.Floor(rating);
+                                }
+
+                                <span class="text-warning">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= fullStars)
+                                        {
+                                            <i class="ti ti-star-filled"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="ti ti-star"></i>
+                                        }
+                                    }
+                                </span>
+
+                                <span class="ms-2 text-muted">
+                                    @rating.ToString("0.00")
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Họa sĩ:</strong><br />
+
+                                @if (Model.Artists != null && Model.Artists.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var artist in Model.Artists)
+                                        {
+                                            <span class="badge bg-secondary">@artist.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Tags:</strong><br />
+
+                                @if (Model.Tags != null && Model.Tags.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var tag in Model.Tags)
+                                        {
+                                            <span class="badge bg-info text-dark">@tag.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Giá</label>
-                        <div>@string.Format("{0:N0}", Model.Price) đ</div>
-                    </div>
+                <!-- CỘT PHẢI -->
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="mb-3">@Model.Name</h2>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Tồn kho</label>
-                        <div>@Model.StockQuantity</div>
-                    </div>
+                            <table class="table table-bordered align-middle">
+                                <tr>
+                                    <th style="width:200px">Giá</th>
+                                    <td class="fw-semibold text-danger">
+                                        @Model.Price?.ToString("N0") ₫
+                                    </td>
+                                </tr>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Định dạng</label>
-                        <div>@Model.Format</div>
-                    </div>
+                                <tr>
+                                    <th>Nhà phát hành</th>
+                                    <td>@Model.Distributor</td>
+                                </tr>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Ngày phát hành</label>
-                        <div>@Model.ReleaseDate?.ToString("dd/MM/yyyy")</div>
+                                <tr>
+                                    <th>Tác giả</th>
+                                    <td>@Model.Author</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Dịch giả</th>
+                                    <td>@Model.Translator</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Series</th>
+                                    <td>@Model.Series</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tồn kho</th>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @Model.StockQuantity
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Định dạng</th>
+                                    <td>@Model.Format</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Kích thước</th>
+                                    <td>@Model.Size</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Trọng lượng</th>
+                                    <td>@Model.Weight</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Số trang</th>
+                                    <td>@Model.Pages</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Minh họa</th>
+                                    <td>@Model.IllustrationType</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Ngày phát hành</th>
+                                    <td>@Model.ReleaseDate?.ToString("dd/MM/yyyy")</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Nhà xuất bản</th>
+                                    <td>@Model.Publisher</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Độ tuổi</th>
+                                    <td>@Model.AgeGroup</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Mô tả</th>
+                                    <td>@Model.Description</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <form asp-action="Delete">
+            <!-- ACTION -->
+            <div class="text-center mt-4">
+                <a asp-action="Index" class="btn btn-secondary me-2">
+                    Hủy
+                </a>
+
+                <form asp-action="Delete" class="d-inline">
                     <input type="hidden" asp-for="Id" />
 
                     <button type="submit" class="btn btn-danger">
                         <i class="ti ti-trash"></i>
                         Xóa sản phẩm
                     </button>
-
-                    <a asp-action="Index" class="btn btn-light">
-                        Hủy
-                    </a>
                 </form>
             </div>
         </div>

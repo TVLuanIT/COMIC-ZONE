@@ -322,11 +322,14 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             var product = await _context.Products
                 .Include(p => p.Pictures)
+                .Include(p => p.Artists)
+                .Include(p => p.Tags)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
                 return NotFound();
 
+            // XÓA FILE ẢNH
             foreach (var pic in product.Pictures.ToList())
             {
                 if (!string.IsNullOrEmpty(pic.FileName))
@@ -337,14 +340,20 @@ namespace COMICZONE.Areas.Admin.Controllers
                         pic.FileName);
 
                     if (System.IO.File.Exists(path))
-                    {
                         System.IO.File.Delete(path);
-                    }
                 }
 
+                product.Pictures.Remove(pic);
                 _context.Pictures.Remove(pic);
             }
 
+            // XÓA LIÊN KẾT ARTIST
+            product.Artists.Clear();
+
+            // XÓA LIÊN KẾT TAG
+            product.Tags.Clear();
+
+            // XÓA PRODUCT
             _context.Products.Remove(product);
 
             await _context.SaveChangesAsync();
