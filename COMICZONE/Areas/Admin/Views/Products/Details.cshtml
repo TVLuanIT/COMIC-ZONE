@@ -1,0 +1,198 @@
+﻿@using COMICZONE.Extensions;
+
+@model COMICZONE.Models.Product
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fs-3">Chi tiết sản phẩm</h1>
+
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="ti ti-edit"></i>
+                Chỉnh sửa
+            </a>
+
+            <a asp-action="Index" class="btn btn-light">
+                <i class="ti ti-arrow-left"></i>
+                Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="row">
+                <!-- Cột trái -->
+                <div class="col-md-4">
+                    <!-- Ảnh -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body text-center">
+                            <img src="@Model.GetImagePath()"
+                                 alt="@Model.Name"
+                                 class="img-fluid rounded"
+                                 style="max-height:350px; object-fit:contain;" />
+
+                        </div>
+                    </div>
+
+                    <!-- Thông tin bổ sung -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="mb-3">Thông tin bổ sung</h5>
+
+                            <p>
+                                <strong>Đánh giá:</strong>
+                                @if (Model.ProductReviewSummary != null)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        @Model.ProductReviewSummary.Averagerating ⭐
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        0.00 ⭐
+                                    </span>
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Họa sĩ:</strong><br />
+
+                                @if (Model.Artists != null && Model.Artists.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var artist in Model.Artists)
+                                        {
+                                            <span class="badge bg-secondary">@artist.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Thẻ:</strong><br />
+
+                                @if (Model.Tags != null && Model.Tags.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var tag in Model.Tags)
+                                        {
+                                            <span class="badge bg-secondary">@tag.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin sản phẩm -->
+                <!-- Cột phải -->
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="mb-3">@Model.Name</h2>
+
+                            <table class="table table-bordered align-middle">
+                                <tr>
+                                    <th style="width:200px">Giá</th>
+                                    <td class="fw-semibold text-danger">
+                                        @Model.Price?.ToString("N0") ₫
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Nhà phát hành</th>
+                                    <td>@Model.Distributor</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tác giả</th>
+                                    <td>@Model.Author</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Dịch giả</th>
+                                    <td>@Model.Translator</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Series</th>
+                                    <td>@Model.Series</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Mô tả</th>
+                                    <td>@Model.Description</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tồn kho</th>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @Model.StockQuantity
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Định dạng</th>
+                                    <td>@Model.Format</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Kích thước</th>
+                                    <td>@Model.Size</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Trọng lượng</th>
+                                    <td>@Model.Weight</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Số trang</th>
+                                    <td>@Model.Pages</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Minh họa</th>
+                                    <td>@Model.IllustrationType</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Ngày phát hành</th>
+                                    <td>@Model.ReleaseDate</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Nhà xuất bản</th>
+                                    <td>@Model.Publisher</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Độ tuổi</th>
+                                    <td>@Model.AgeGroup</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

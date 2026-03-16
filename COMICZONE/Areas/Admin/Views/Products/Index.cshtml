@@ -1,0 +1,167 @@
+﻿@using COMICZONE.Helpers;
+
+@model IEnumerable<COMICZONE.Models.Product>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fs-3">Quản lý sản phẩm</h1>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus"></i>
+            Thêm sản phẩm
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="table-wrapper">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-secondary">
+
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Nhà phát hành</th>
+                        <th>Tác giả</th>
+                        <th>Dịch giả</th>
+                        <th>Họa sĩ</th>
+                        <th>Thẻ</th>
+                        <th>Đánh giá</th>
+                        <th>Series</th>
+                        <th>Mô tả</th>
+                        <th>Tồn kho</th>
+                        <th>Định dạng</th>
+                        <th>Kích thước</th>
+                        <th>Trọng lượng</th>
+                        <th>Số trang</th>
+                        <th>Minh họa</th>
+                        <th>Ngày phát hành</th>
+                        <th>Nhà xuất bản</th>
+                        <th>Độ tuổi</th>
+
+                        <th class="text-end table-actions">
+                            Hành động
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @Html.Raw(@OrderHelper.GetProductCell(item))
+                            </td>
+
+                            <td class="fw-medium">
+                                @item.Price?.ToString("N0") ₫
+                            </td>
+
+                            <td>@item.Distributor</td>
+
+                            <td>@item.Author</td>
+
+                            <td>@item.Translator</td>
+
+                            <td>
+                                @foreach (var artist in item.Artists)
+                                {
+                                    <span class="badge bg-secondary">@artist.Name</span>
+                                }
+                            </td>
+
+                            <td>
+                                @foreach (var tag in item.Tags)
+                                {
+                                    <span class="badge bg-secondary">@tag.Name</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.ProductReviewSummary != null)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        @item.ProductReviewSummary.Averagerating ⭐
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Chưa có</span>
+                                }
+                            </td>
+
+                            <td>@item.Series</td>
+
+                            <td class="small">
+                                @{
+                                    var desc = item.Description ?? "";
+                                    var shortDesc = desc.Length > 60 ? desc.Substring(0, 60) + "..." : desc;
+                                }
+                                <span title="@desc">@shortDesc</span>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @item.StockQuantity
+                                </span>
+                            </td>
+
+                            <td>@item.Format</td>
+
+                            <td>@item.Size</td>
+
+                            <td>@item.Weight</td>
+
+                            <td>@item.Pages</td>
+
+                            <td>@item.IllustrationType</td>
+
+                            <td>@item.ReleaseDate</td>
+
+                            <td>@item.Publisher</td>
+
+                            <td>@item.AgeGroup</td>
+
+                            <td class="text-end table-actions">
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-light">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-light">
+                                    <i class="ti ti-eye"></i>
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-light text-danger">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>

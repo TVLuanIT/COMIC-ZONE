@@ -6,25 +6,36 @@ namespace COMICZONE.Extensions
     {
         public static string GetImagePath(this Product product)
         {
-            var picture = product.Pictures.FirstOrDefault();
-            Console.WriteLine($"Product ID: {product.Id}, Picture File: {picture?.FileName}");
+            var picture = product?.Pictures?.FirstOrDefault();
+
             if (picture == null || string.IsNullOrEmpty(picture.FileName))
-                return "/images/default.png";
+                return "/images/products/default.png";
 
-            string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-
-            // Tìm file thực tế có tên như trong DB, bất kể extension
-            var file = Directory.GetFiles(folder, picture.FileName + ".*")
-                                .FirstOrDefault();
-
-            if (!string.IsNullOrEmpty(file))
+            // Nếu DB đã có extension
+            if (Path.HasExtension(picture.FileName))
             {
-                // Lấy tên file có extension
-                return "/images/" + Path.GetFileName(file);
+                return "/images/products/" + picture.FileName;
             }
 
-            // Nếu không tìm thấy, dùng ảnh mặc định
-            return "/images/default.png";
+            // Nếu DB không có extension thì tìm file thật
+            string folder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/images/products"
+            );
+
+            string[] extensions = { ".jpg", ".jpeg", ".png", ".webp" };
+
+            foreach (var ext in extensions)
+            {
+                var path = Path.Combine(folder, picture.FileName + ext);
+
+                if (File.Exists(path))
+                {
+                    return "/images/products/" + picture.FileName + ext;
+                }
+            }
+
+            return "/images/products/default.png";
         }
     }
 }

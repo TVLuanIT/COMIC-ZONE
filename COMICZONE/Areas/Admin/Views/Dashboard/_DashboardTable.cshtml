@@ -1,0 +1,51 @@
+﻿@model dynamic
+
+@{
+    var rows = Model.Rows as IEnumerable<object>;
+    bool enableScroll = rows?.Count() > 5;
+}
+
+<div class="col-lg-6 mb-4">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white border-0 pb-0">
+            <h5 class="fw-semibold text-uppercase mb-3">
+                @Model.Title
+            </h5>
+        </div>
+
+        <div class="table-responsive @(enableScroll ? "scroll-table" : "")">
+
+            <table class="table align-middle table-hover mb-0">
+
+                <thead class="table-light sticky-top">
+                    <tr>
+                        @foreach (var header in Model.Headers)
+                        {
+                            <th class="fw-semibold text-uppercase small">@header</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row)
+                            {
+                                <td class="fw-medium">@Html.Raw(cell)</td>
+                            }
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
