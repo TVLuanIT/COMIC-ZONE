@@ -1,0 +1,122 @@
+﻿@model IEnumerable<COMICZONE.Models.Order>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fs-3">Quản lý đơn hàng</h1>
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="table-wrapper">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-secondary">
+
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>SĐT</th>
+                        <th>Địa chỉ giao</th>
+                        <th>Ghi chú</th>
+                        <th>Ngày tạo</th>
+
+                        <th class="text-end table-actions">
+                            Hành động
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <span class="fw-medium">#@item.OrderId</span>
+                            </td>
+
+                            <td>
+                                @item.User?.Username
+                            </td>
+
+                            <td>
+                                @item.OrderDate?.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td class="fw-medium">
+                                @item.TotalAmount?.ToString("N0") ₫
+                            </td>
+
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    @item.Status
+                                </span>
+                            </td>
+
+                            <td>
+                                @item.PhoneNumber
+                            </td>
+
+                            <td class="small">
+                                @{
+                                    var address = item.ShippingAddress ?? "";
+                                    var shortAddress = address.Length > 40 ? address.Substring(0, 40) + "..." : address;
+                                }
+                                <span title="@address">@shortAddress</span>
+                            </td>
+
+                            <td class="small">
+                                @{
+                                    var note = item.Note ?? "";
+                                    var shortNote = note.Length > 40 ? note.Substring(0, 40) + "..." : note;
+                                }
+                                <span title="@note">@shortNote</span>
+                            </td>
+
+                            <td>
+                                @item.CreatedAt?.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td class="text-end table-actions">
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.OrderId"
+                                   class="btn btn-sm btn-light">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.OrderId"
+                                   class="btn btn-sm btn-light">
+                                    <i class="ti ti-eye"></i>
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.OrderId"
+                                   class="btn btn-sm btn-light text-danger">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
