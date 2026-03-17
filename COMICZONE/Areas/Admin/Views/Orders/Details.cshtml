@@ -108,46 +108,7 @@
         <!-- RIGHT SIDE -->
         <div class="col-lg-4">
             <!-- CUSTOMER INFO -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="ti ti-user"></i>
-                        Khách hàng
-                    </h5>
-                </div>
-
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>Họ và tên</strong>
-                        <span>
-                            @(Model.User?.Username ?? "Không có")
-                        </span>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>Số điện thoại</strong>
-                        <span>
-                            @(Model.PhoneNumber ?? "Không có")
-                        </span>
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Địa chỉ</strong>
-                        <div class="mt-1">
-                            @(Model.ShippingAddress ?? "Không có")
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <div>
-                        <strong>Ghi chú</strong>
-                        <div class="mt-1">
-                            @(Model.Note ?? "Không có")
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <partial name="_CustomerInfo" model="Model" />
 
             <!-- ORDER SUMMARY -->
             <div class="card shadow-sm border-0">
