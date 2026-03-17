@@ -1,6 +1,5 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
-
     <head>
         <meta charset="UTF-8" />
         <title>@ViewData["Title"] - Trang quản trị</title>
@@ -15,7 +14,6 @@
     </head>
 
     <body>
-
         <div id="overlay" class="overlay"></div>
 
         <!-- THANH TRÊN -->
@@ -27,7 +25,6 @@
 
         <!-- THANH BÊN -->
         <aside id="sidebar" class="sidebar">
-
             <div class="logo-area">
                 <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                     <span class="logo-text ms-2">Quản trị</span>
@@ -35,7 +32,6 @@
             </div>
 
             <ul class="nav flex-column">
-
                 <li>
                     <a class="nav-link"
                        asp-area="Admin"
@@ -69,15 +65,23 @@
                 <li>
                     <a class="nav-link"
                        asp-area="Admin"
+                       asp-controller="Artists"
+                       asp-action="Index">
+                        <i class="ti ti-palette"></i>
+                        <span class="nav-text">Quản lý họa sĩ</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a class="nav-link"
+                       asp-area="Admin"
                        asp-controller="Users"
                        asp-action="Index">
                         <i class="ti ti-users"></i>
                         <span class="nav-text">Quản lý người dùng</span>
                     </a>
                 </li>
-
             </ul>
-
         </aside>
 
         <!-- NỘI DUNG CHÍNH -->
@@ -96,6 +100,5 @@
 
         <!-- script từ view -->
         @RenderSection("Scripts", required: false)
-
     </body>
 </html>

@@ -138,31 +138,5 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
-
-        // GET: Admin/Orders/Create
-        public IActionResult Create()
-        {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Admin/Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,OrderDate,TotalAmount,Status,ShippingAddress,PhoneNumber,Note,CreatedAt")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", order.UserId);
-            return View(order);
-        }
     }
 }
