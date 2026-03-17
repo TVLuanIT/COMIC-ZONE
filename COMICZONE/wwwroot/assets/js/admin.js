@@ -2,9 +2,7 @@
 // Areas/Admin/Views/Products/Edit.cshtml
 // ===============================
 
-// ===============================
 // Badge module (Artist + Tag)
-// ===============================
 const BadgeSelect = () => {
     const init = () => {
         initSelect2();
