@@ -1,0 +1,137 @@
+﻿@using COMICZONE.Extensions;
+
+@model COMICZONE.Models.Order
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết đơn hàng";
+
+    var statusText = new Dictionary<string, string>
+    {
+        { "Pending", "Chờ xử lý" },
+        { "Completed", "Hoàn thành" },
+        { "Cancelled", "Đã hủy" }
+    };
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">
+                Đơn hàng #@Model.OrderId
+            </h4>
+
+            <span class="badge
+                @(Model.Status == "Pending" ? "bg-warning text-dark" :
+                Model.Status == "Completed" ? "bg-success" :
+                Model.Status == "Cancelled" ? "bg-danger" :
+                "bg-secondary")">
+
+                @(statusText.ContainsKey(Model.Status ?? "")
+                    ? statusText[Model.Status ?? ""]
+                    : Model.Status)
+            </span>
+        </div>
+
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-primary">
+                <i class="ti ti-edit"></i> Chỉnh sửa
+            </a>
+
+            <a asp-action="Index" class="btn btn-light">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <!-- LEFT SIDE -->
+        <div class="col-lg-8">
+            <!-- ORDER PRODUCTS -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="ti ti-package"></i>
+                        Sản phẩm
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">Sản phẩm</th>
+                                <th class="text-center">Giá</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="@item.Product.GetImagePath()"
+                                                 width="50"
+                                                 class="rounded" />
+                                            <div>
+                                                <div>
+                                                    @item.Product.Name
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(item.Price.HasValue? item.Price.Value.ToString("N0") : "0") ₫
+                                    </td>
+
+                                    <td class="text-center">
+                                        @item.Quantity
+                                    </td>
+
+                                    <td class="text-end fw-semibold">
+                                        @(item.Price* item.Quantity) ₫
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-4">
+            <!-- CUSTOMER INFO -->
+            <partial name="_CustomerInfo" model="Model" />
+
+            <!-- ORDER SUMMARY -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Tổng đơn hàng</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tổng tiền</span>
+                        <span>@Model.TotalAmount?.ToString("N0") ₫</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Tổng thanh toán</span>
+                        <span class="text-danger">
+                            @Model.TotalAmount?.ToString("N0") ₫
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

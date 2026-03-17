@@ -1,0 +1,158 @@
+﻿@model COMICZONE.Models.Order
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa đơn hàng";
+
+    var statusText = new Dictionary<string, string>
+    {
+        { "Pending", "Chờ xử lý" },
+        { "Completed", "Hoàn thành" },
+        { "Cancelled", "Đã hủy" }
+    };
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">Đơn hàng #@Model.OrderId</h4>
+
+            <span class="badge
+                @(Model.Status == "Pending" ? "bg-warning text-dark" :
+                                  Model.Status == "Completed" ? "bg-success" :
+                                  Model.Status == "Cancelled" ? "bg-danger" :
+                                  "bg-secondary")">
+
+                @(statusText.ContainsKey(Model.Status ?? "")
+                                ? statusText[Model.Status ?? ""]
+                                : Model.Status)
+            </span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Details" asp-route-id="@Model.OrderId"
+               class="btn btn-light">
+                <i class="ti ti-eye"></i> Xem chi tiết
+            </a>
+
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="OrderId" />
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="OrderDate" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <input type="hidden" asp-for="TotalAmount" />
+
+        <div class="row g-4">
+            <!-- LEFT -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="ti ti-settings"></i>
+                            Cập nhật đơn hàng
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    Trạng thái
+                                </label>
+
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Pending">Chờ xử lý</option>
+
+                                    <option value="Completed">Hoàn thành</option>
+
+                                    <option value="Cancelled">Đã hủy</option>
+                                </select>
+
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Số điện thoại</label>
+
+                                <input asp-for="PhoneNumber" class="form-control" />
+
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-semibold">Địa chỉ giao hàng</label>
+
+                                <input asp-for="ShippingAddress" class="form-control" />
+
+                                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-semibold">Ghi chú</label>
+
+                                <textarea asp-for="Note" rows="3" class="form-control"></textarea>
+
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-lg-4">
+                <!-- CUSTOMER -->
+                <!-- ẩn Note -->
+                <partial name="_CustomerInfo"
+                    model="Model"
+                    view-data='new ViewDataDictionary(ViewData)
+                        {
+                            { "ShowNote", false }
+                        }' />
+
+                <!-- TOTAL -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            Tổng thanh toán
+                        </h6>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tổng tiền</span>
+                            <span class="fw-semibold">
+                                @Model.TotalAmount?.ToString("N0") ₫
+                            </span>
+                        </div>
+
+                        <hr />
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ti ti-device-floppy"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
