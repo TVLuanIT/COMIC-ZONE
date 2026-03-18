@@ -20,13 +20,15 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/Tags
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Tags.ToListAsync());
+            var tags = await _context.Tags
+                .Include(t => t.Products)
+                .ToListAsync();
+
+            return View(tags);
         }
 
-        // GET: Admin/Tags/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,7 +37,10 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var tag = await _context.Tags
+                .Include(t => t.Products)
+                    .ThenInclude(p => p.Pictures)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (tag == null)
             {
                 return NotFound();
@@ -135,19 +140,36 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(tag);
         }
 
-        // POST: Admin/Tags/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var tag = await _context.Tags.FindAsync(id);
-            if (tag != null)
+
+            if (tag == null)
             {
-                _context.Tags.Remove(tag);
+                return NotFound();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _context.Tags.Remove(tag);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Không thể xóa tag vì đang có sản phẩm sử dụng.");
+
+                return View(tag);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi khi xóa tag.");
+                
+                return View(tag);
+            }
         }
 
         private bool TagExists(int id)
