@@ -38,7 +38,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var artist = await _context.Artists
-                .Include(a => a.Products)
+                .Include(t => t.Products)
                     .ThenInclude(p => p.Pictures)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -162,10 +162,9 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
             catch (DbUpdateException)
             {
-                // Lỗi thường gặp: dính FK (artist đang có product)
                 ModelState.AddModelError("", "Không thể xóa họa sĩ vì đang có dữ liệu liên quan.");
 
-                return View(artist); // ⚠️ QUAN TRỌNG
+                return View(artist);
             }
             catch (Exception)
             {

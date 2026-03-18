@@ -1,24 +1,111 @@
-﻿@model COMICZONE.Models.Tag
+﻿@using COMICZONE.Helpers;
+
+@model COMICZONE.Models.Tag
 
 @{
-    ViewData["Title"] = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết thẻ";
 }
 
-<h1>Details</h1>
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="ti ti-tag"></i>
+                @Model.Name
+            </h4>
 
-<div>
-    <h4>Tag</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <span class="text-muted small">
+                ID: @Model.Id
+            </span>
+        </div>
+
+        <div>
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary">
+                <i class="ti ti-edit"></i>
+                Chỉnh sửa
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-light">
+                <i class="ti ti-arrow-left"></i>
+                Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- LEFT -->
+        <div class="col-lg-8">
+            <!-- INFO -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="ti ti-info-circle"></i>
+                        Thông tin
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 text-muted">
+                            Tên thẻ
+                        </div>
+                        <div class="col-md-9 fw-medium">
+                            @Model.Name
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="ti ti-book"></i>
+                        Sản phẩm
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var product in Model.Products)
+                            {
+                                <a asp-area="Admin"
+                                   asp-controller="Products"
+                                   asp-action="Details"
+                                   asp-route-id="@product.Id"
+                                   class="text-decoration-none">
+                                    @Html.Raw(OrderHelper.GetProductCell(product))
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Không có sản phẩm</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-lg-4">
+            <!-- SUMMARY -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Tổng sản phẩm</h6>
+
+                    <div class="fs-3 fw-bold">
+                        @(Model.Products?.Count() ?? 0)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
