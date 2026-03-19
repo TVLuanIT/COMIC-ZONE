@@ -531,7 +531,8 @@ const ProductReplies = (() => {
 
             container.find('form')
                 .attr('data-reply-to-user-id', replyToUserId || '')
-                .attr('data-reply-to-username', replyToUsername || '');
+                .attr('data-reply-to-username', replyToUsername || '')
+                .attr('data-parent-reply-id', '');
 
             // Đóng tất cả form khác trước
             //$('.reply-form-container').not(container).slideUp();
@@ -573,6 +574,7 @@ const ProductReplies = (() => {
             const form = $(this);
             const reviewId = form.data('review-id');
             const replyToUserId = form.data('reply-to-user-id');
+            const parentReplyId = form.data('parent-reply-id');
             const content = form.find('textarea').val().trim();
             if (!content) return;
 
@@ -583,7 +585,8 @@ const ProductReplies = (() => {
                 data: JSON.stringify({
                     ReviewId: reviewId,
                     Content: content,
-                    ReplyToUserId: replyToUserId ? parseInt(replyToUserId) : null
+                    ReplyToUserId: replyToUserId ? parseInt(replyToUserId) : null,
+                    ParentReplyId: parentReplyId ? parseInt(parentReplyId) : null
                 }),
                 success: function (res) {
                     if (res.success) {
@@ -773,7 +776,8 @@ const ProductReplies = (() => {
             // Set lại data
             clonedForm.find('form')
                 .attr('data-reply-to-user-id', replyToUserId || '')
-                .attr('data-parent-reply-id', replyId || '');
+                .attr('data-parent-reply-id', replyId || '')
+                .attr('data-reply-to-username', replyToUsername || '');
 
             // Thêm xuống reply
             currentReplyItem.append(clonedForm);

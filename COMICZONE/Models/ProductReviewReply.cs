@@ -31,6 +31,16 @@ public partial class ProductReviewReply
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
 
+    [Column("PARENTREPLYID")]
+    public int? Parentreplyid { get; set; }
+
+    [InverseProperty("Parentreply")]
+    public virtual ICollection<ProductReviewReply> InverseParentreply { get; set; } = new List<ProductReviewReply>();
+
+    [ForeignKey("Parentreplyid")]
+    [InverseProperty("InverseParentreply")]
+    public virtual ProductReviewReply? Parentreply { get; set; }
+
     [InverseProperty("Reply")]
     public virtual ICollection<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; } = new List<ProductReviewReplyLike>();
 

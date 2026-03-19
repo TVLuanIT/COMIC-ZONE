@@ -1,0 +1,111 @@
+﻿@using COMICZONE.Helpers;
+
+@model IEnumerable<COMICZONE.Models.ProductReview>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý đánh giá";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="ti ti-star"></i>
+                Đánh giá sản phẩm
+            </h4>
+            <span class="text-muted">
+                Quản lý đánh giá của khách hàng
+            </span>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus"></i>
+            Thêm đánh giá
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>⭐ Rating</th>
+                        <th>Nội dung</th>
+                        <th>Sản phẩm</th>
+                        <th>Người dùng</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- RATING -->
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    @item.Rating ★
+                                </span>
+                            </td>
+
+                            <!-- CONTENT -->
+                            <td style="max-width: 300px;">
+                                <span class="text-truncate d-inline-block" style="max-width: 280px;">
+                                    @item.Reviewcontent
+                                </span>
+                            </td>
+
+                            <!-- PRODUCT -->
+                            <td>
+                                @Html.Raw(item.Product != null
+                                    ? OrderHelper.GetProductCell(item.Product)
+                                    : "<span class='text-muted'>N/A</span>")
+                            </td>
+
+                            <!-- USER -->
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @item.User?.Username
+                                </span>
+                            </td>
+
+                            <!-- DATE -->
+                            <td>
+                                <small class="text-muted">
+                                    @item.Createdat?.ToString("dd/MM/yyyy")
+                                </small>
+                            </td>
+
+                            <!-- ACTION -->
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.Reviewid"
+                                       class="btn btn-sm btn-light">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.Reviewid"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="ti ti-edit"></i>
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.Reviewid"
+                                       class="btn btn-sm btn-danger">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+﻿@model COMICZONE.Models.ProductReview
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ProductReview</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Productid" class="control-label"></label>
+                <select asp-for="Productid" class ="form-control" asp-items="ViewBag.Productid"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Userid" class="control-label"></label>
+                <select asp-for="Userid" class ="form-control" asp-items="ViewBag.Userid"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rating" class="control-label"></label>
+                <input asp-for="Rating" class="form-control" />
+                <span asp-validation-for="Rating" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Reviewcontent" class="control-label"></label>
+                <input asp-for="Reviewcontent" class="form-control" />
+                <span asp-validation-for="Reviewcontent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Updatedat" class="control-label"></label>
+                <input asp-for="Updatedat" class="form-control" />
+                <span asp-validation-for="Updatedat" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

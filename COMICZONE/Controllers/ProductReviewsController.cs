@@ -608,7 +608,8 @@ namespace COMICZONE.Controllers
                 Userid = userId,
                 Replycontent = model.Content,
                 Createdat = DateTime.Now,
-                Replytouserid = model.ReplyToUserId  // gán ID người được reply
+                Replytouserid = model.ReplyToUserId,  // gán ID người được reply
+                Parentreplyid = model.ParentReplyId
             };
 
             _context.ProductReviewReplies.Add(reply);
