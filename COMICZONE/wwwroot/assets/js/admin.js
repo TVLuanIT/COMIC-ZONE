@@ -1,7 +1,6 @@
 ﻿// ===============================
 // Areas/Admin/Views/Products/Edit.cshtml
 // ===============================
-
 // Badge module (Artist + Tag)
 const BadgeSelect = () => {
     const init = () => {
@@ -204,12 +203,51 @@ const ImagesUpload = () => {
 };
 
 // ===============================
+// Areas/Admin/Views/ProductReviews/Edit.cshtml
+// ===============================
+const ProductReviews = () => {
+    const init = () => {
+        const range = document.getElementById("ratingRange");
+        if (!range) return;
+
+        let currentValue = parseInt(range.value) || 5;
+
+        renderStars(currentValue);
+        updateText(currentValue);
+
+        range.addEventListener("input", function () {
+            currentValue = parseInt(this.value);
+            renderStars(currentValue);
+            updateText(currentValue);
+        });
+    };
+
+    const renderStars = (val) => {
+        const container = document.getElementById("ratingStars");
+        if (!container) return;
+
+        let html = "";
+        for (let i = 1; i <= 5; i++) {
+            html += `<i class="ti ${i <= val ? "ti-star-filled" : "ti-star"}"></i>`;
+        }
+        container.innerHTML = html;
+    };
+
+    const updateText = (val) => {
+        const text = document.getElementById("ratingValue");
+        if (text) text.innerText = val;
+    };
+
+    return { init };
+};
+
+// ===============================
 // DOM READY
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-
     console.log("admin.js loaded");
 
     BadgeSelect().init();
     ImagesUpload().init();
+    ProductReviews().init();
 });

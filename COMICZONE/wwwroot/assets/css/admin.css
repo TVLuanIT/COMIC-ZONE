@@ -80,3 +80,13 @@ thead .table-actions {
 #previewImages label:hover {
     text-decoration: underline;
 }
+
+/* ================================================================================= */
+/* ================= Admin/ProductReviews/Edit.cshtml ================= */
+/* ================================================================================= */
+.avatar-img {
+    width: var(--avatar-size, 40px);
+    height: var(--avatar-size, 40px);
+    border-radius: 50%;
+    object-fit: cover;
+}
