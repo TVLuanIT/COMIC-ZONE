@@ -42,6 +42,51 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(productReviewReply);
         }
 
+        // GET: Admin/ProductReviewReplies/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var productReviewReply = await _context.ProductReviewReplies
+                .Include(x => x.Review)
+                    .ThenInclude(r => r.User)
+                .Include(x => x.Replytouser)
+                .Include(x => x.Parentreply)
+                    .ThenInclude(p => p!.User)
+                .FirstOrDefaultAsync(x => x.Replyid == id);
+
+            if (productReviewReply == null)
+            {
+                return NotFound();
+            }
+            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);
+            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
+            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
+            return View(productReviewReply);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ProductReviewReply productReviewReply)
+        {
+            var existing = await _context.ProductReviewReplies.FindAsync(id);
+
+            if (existing == null) return NotFound();
+
+            existing.Replycontent = productReviewReply.Replycontent;
+            existing.Updatedat = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "ProductReviews", new { id = existing.Reviewid });
+        }
+
+
+
+
         // GET: Admin/ProductReviewReplies/Create
         public IActionResult Create()
         {
@@ -62,63 +107,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 _context.Add(productReviewReply);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);
-            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
-            return View(productReviewReply);
-        }
-
-        // GET: Admin/ProductReviewReplies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productReviewReply = await _context.ProductReviewReplies.FindAsync(id);
-            if (productReviewReply == null)
-            {
-                return NotFound();
-            }
-            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);
-            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
-            return View(productReviewReply);
-        }
-
-        // POST: Admin/ProductReviewReplies/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Replyid,Reviewid,Userid,Replycontent,Createdat,Replytouserid,Updatedat")] ProductReviewReply productReviewReply)
-        {
-            if (id != productReviewReply.Replyid)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(productReviewReply);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductReviewReplyExists(productReviewReply.Replyid))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);

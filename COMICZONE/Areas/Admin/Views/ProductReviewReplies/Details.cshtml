@@ -52,10 +52,13 @@
                 <div>
                     @if (Model.Parentreply == null)
                     {
-                        <span>
-                            <strong>Review gốc:</strong>
+                        <div class="text-truncate">
+                            <strong>@((Model.Review?.Rating ?? 0))★</strong> -
+                            <span class="text-primary">
+                                @(Model.User?.Username ?? "Người dùng đã xóa")
+                            </span>:
                             @(Model.Review?.Reviewcontent ?? "Không có nội dung")
-                        </span>
+                        </div>
                     }
                     else
                     {

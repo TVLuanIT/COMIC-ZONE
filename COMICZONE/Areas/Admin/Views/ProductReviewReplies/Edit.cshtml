@@ -1,59 +1,125 @@
 ﻿@model COMICZONE.Models.ProductReviewReply
 
 @{
-    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa phản hồi";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid">
 
-<h4>ProductReviewReply</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Replyid" />
-            <div class="form-group">
-                <label asp-for="Reviewid" class="control-label"></label>
-                <select asp-for="Reviewid" class="form-control" asp-items="ViewBag.Reviewid"></select>
-                <span asp-validation-for="Reviewid" class="text-danger"></span>
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 fw-bold">
+            <i class="ti ti-message-circle text-primary me-2"></i>
+            Chỉnh sửa phản hồi
+        </h4>
+
+        <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review?.Reviewid"
+           class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-lg" style="border-radius:16px;">
+                <div class="card-body p-4">
+
+                    <!-- REVIEW GỐC -->
+                    <div class="mb-4">
+                        <div class="fw-semibold text-muted mb-2">
+                            Đánh giá gốc
+                        </div>
+
+                        <div class="p-3 rounded-3 bg-light border">
+                            <div class="fw-bold text-dark mb-1">
+                                @Model.Review?.User?.Username
+                            </div>
+                            <div class="text-muted">
+                                @Model.Review?.Reviewcontent
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THREAD -->
+                    <div class="mb-4">
+
+                        <div class="fw-semibold text-muted mb-2">
+                            Đang trả lời bình luận
+                        </div>
+
+                        <div class="d-flex gap-3">
+
+                            <!-- AVATAR -->
+                            <img src="@Model.Replytouser?.Avatar"
+                                 class="rounded-circle"
+                                 style="width:40px;height:40px;object-fit:cover;"
+                                 onerror="this.src='/images/default-avatar.png'" />
+
+                            <div class="flex-grow-1">
+
+                                <!-- USER -->
+                                <div class="fw-semibold">
+                                    @Model.Replytouser?.Username
+                                </div>
+
+                                <!-- COMMENT CHA -->
+                                <div class="bg-light border rounded-3 p-3 mt-1">
+                                    <span class="fw-semibold">
+                                        @Model.Parentreply?.User?.Username
+                                    </span>
+                                    <span class="text-muted">
+                                        @Model.Parentreply?.Replycontent
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FORM -->
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Replyid" />
+                        <input type="hidden" asp-for="Reviewid" />
+                        <input type="hidden" asp-for="Userid" />
+                        <input type="hidden" asp-for="Replytouserid" />
+
+                        <div class="mb-2 fw-semibold text-primary">
+                            ✏️ Nội dung phản hồi
+                        </div>
+
+                        <div class="mb-3">
+                            <textarea asp-for="Replycontent"
+                                      class="form-control border-0 shadow-sm"
+                                      rows="4"
+                                      style="border-radius:14px; background:#f8f9fa;"
+                                      placeholder="Nhập nội dung phản hồi..."></textarea>
+                        </div>
+
+                        <!-- ACTION -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+
+                            <div class="text-muted small">
+                                Cập nhật nội dung phản hồi
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a asp-action="Index" class="btn btn-light px-4">
+                                    Hủy
+                                </a>
+
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                    <i class="ti ti-device-floppy me-1"></i> Lưu
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Userid" class="control-label"></label>
-                <select asp-for="Userid" class="form-control" asp-items="ViewBag.Userid"></select>
-                <span asp-validation-for="Userid" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Replycontent" class="control-label"></label>
-                <input asp-for="Replycontent" class="form-control" />
-                <span asp-validation-for="Replycontent" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Createdat" class="control-label"></label>
-                <input asp-for="Createdat" class="form-control" />
-                <span asp-validation-for="Createdat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Replytouserid" class="control-label"></label>
-                <select asp-for="Replytouserid" class="form-control" asp-items="ViewBag.Replytouserid"></select>
-                <span asp-validation-for="Replytouserid" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Updatedat" class="control-label"></label>
-                <input asp-for="Updatedat" class="form-control" />
-                <span asp-validation-for="Updatedat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

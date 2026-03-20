@@ -451,6 +451,7 @@ namespace COMICZONE.Controllers
                     Reviewid = reply.Reviewid,
                     Replycontent = reply.Replycontent,
                     Createdat = reply.Createdat,
+                    Updatedat = reply.Updatedat,
                     Userid = reply.Userid,
                     User = reply.User,
                     Replytouserid = reply.Replytouserid,
@@ -476,10 +477,10 @@ namespace COMICZONE.Controllers
                 // trạng thái báo cáo cho review
                 IsReportedByUser = _context.ProductReviewReports.Any(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId && rp.Status == "Pending"),
                 ReportStatus = _context.ProductReviewReports
-        .Where(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId)
-        .Select(rp => rp.Status)
-        .FirstOrDefault()
-            }).ToList();
+                    .Where(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId)
+                    .Select(rp => rp.Status)
+                    .FirstOrDefault()
+                        }).ToList();
 
             ViewBag.ProductId = productId;
             ViewBag.CurrentPage = page;
