@@ -84,6 +84,53 @@ namespace COMICZONE.Areas.Admin.Controllers
             return RedirectToAction("Details", "ProductReviews", new { id = existing.Reviewid });
         }
 
+        // GET: Admin/ProductReviewReplies/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var productReviewReply = await _context.ProductReviewReplies
+                .Include(p => p.User)
+                .Include(p => p.Parentreply)
+                    .ThenInclude(pr => pr!.User)
+                .Include(p => p.Review)
+                .FirstOrDefaultAsync(m => m.Replyid == id);
+
+            if (productReviewReply == null)
+            {
+                return NotFound();
+            }
+
+            return View(productReviewReply);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var reply = await _context.ProductReviewReplies
+                .Where(r => r.Parentreplyid == id)
+                .ToListAsync();
+
+            // Gỡ liên kết con
+            foreach (var child in reply)
+            {
+                child.Parentreplyid = null;
+            }
+
+            var parent = await _context.ProductReviewReplies.FindAsync(id);
+            if (parent == null) return NotFound();
+
+            int reviewId = parent.Reviewid;
+
+            _context.ProductReviewReplies.Remove(parent);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "ProductReviews", new { id = reviewId });
+        }
 
 
 
@@ -113,50 +160,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
             ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
             return View(productReviewReply);
-        }
-
-        // GET: Admin/ProductReviewReplies/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productReviewReply = await _context.ProductReviewReplies
-            .Include(p => p.User)
-            .Include(p => p.Parentreply!)
-                .ThenInclude(pr => pr.User)
-            .Include(p => p.Review)
-
-            .FirstOrDefaultAsync(m => m.Replyid == id);
-
-            if (productReviewReply == null)
-            {
-                return NotFound();
-            }
-
-            return View(productReviewReply);
-        }
-
-        // POST: Admin/ProductReviewReplies/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var productReviewReply = await _context.ProductReviewReplies.FindAsync(id);
-            if (productReviewReply != null)
-            {
-                _context.ProductReviewReplies.Remove(productReviewReply);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductReviewReplyExists(int id)
-        {
-            return _context.ProductReviewReplies.Any(e => e.Replyid == id);
         }
     }
 }

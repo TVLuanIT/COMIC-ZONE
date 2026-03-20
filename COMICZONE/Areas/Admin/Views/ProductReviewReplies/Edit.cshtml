@@ -6,7 +6,6 @@
 }
 
 <div class="container-fluid">
-
     <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0 fw-bold">
@@ -22,10 +21,8 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-8">
-
             <div class="card border-0 shadow-lg" style="border-radius:16px;">
                 <div class="card-body p-4">
-
                     <!-- REVIEW GỐC -->
                     <div class="mb-4">
                         <div class="fw-semibold text-muted mb-2">
@@ -44,13 +41,11 @@
 
                     <!-- THREAD -->
                     <div class="mb-4">
-
                         <div class="fw-semibold text-muted mb-2">
                             Đang trả lời bình luận
                         </div>
 
                         <div class="d-flex gap-3">
-
                             <!-- AVATAR -->
                             <img src="@Model.Replytouser?.Avatar"
                                  class="rounded-circle"
@@ -58,7 +53,6 @@
                                  onerror="this.src='/images/default-avatar.png'" />
 
                             <div class="flex-grow-1">
-
                                 <!-- USER -->
                                 <div class="fw-semibold">
                                     @Model.Replytouser?.Username
@@ -73,7 +67,6 @@
                                         @Model.Parentreply?.Replycontent
                                     </span>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -99,7 +92,6 @@
 
                         <!-- ACTION -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
-
                             <div class="text-muted small">
                                 Cập nhật nội dung phản hồi
                             </div>
@@ -113,13 +105,10 @@
                                     <i class="ti ti-device-floppy me-1"></i> Lưu
                                 </button>
                             </div>
-
                         </div>
                     </form>
-
                 </div>
             </div>
-
         </div>
     </div>
 </div>

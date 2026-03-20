@@ -1,57 +1,78 @@
-﻿@* @model COMICZONE.Models.ProductReviewReply
+﻿@model COMICZONE.Models.ProductReviewReply
 
 @{
-    ViewData["Title"] = "Delete";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa phản hồi";
 }
 
-<h1>Delete</h1>
+<div class="container-fluid">
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>ProductReviewReply</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Replycontent)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Replycontent)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Createdat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Createdat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Updatedat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Updatedat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Replytouser)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Replytouser.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Review)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Review.Reviewid)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Replyid" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div> *@
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-danger mb-0">
+            <i class="ti ti-trash me-2"></i> Xóa phản hồi
+        </h4>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-lg" style="border-radius:16px;">
+                <div class="card-body p-4">
+
+                    <!-- WARNING -->
+                    <div class="alert alert-danger d-flex align-items-center">
+                        <i class="ti ti-alert-triangle me-2"></i>
+                        Bạn có chắc chắn muốn xóa phản hồi này không?
+                    </div>
+
+                    <!-- REVIEW INFO -->
+                    <div class="mb-3">
+                        <div class="fw-semibold text-muted mb-1">Người viết</div>
+                        <div class="fw-bold">
+                            @Model.User?.Username
+                        </div>
+                    </div>
+
+                    <!-- REPLY CONTENT -->
+                    <div class="mb-3">
+                        <div class="fw-semibold text-muted mb-1">Nội dung phản hồi</div>
+                        <div class="p-3 bg-light rounded-3 border">
+                            @Model.Replycontent
+                        </div>
+                    </div>
+
+                    <!-- TIME -->
+                    <div class="mb-4 text-muted small">
+                        Tạo lúc: @Model.Createdat?.ToString("dd/MM/yyyy HH:mm") <br />
+                        @if (Model.Updatedat != null)
+                        {
+                            <span>Đã chỉnh sửa: @Model.Updatedat?.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                    </div>
+
+                    <!-- ACTION -->
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Replyid" />
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review.Reviewid" class="btn btn-light px-4">
+                                Hủy
+                            </a>
+
+                            <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                                <i class="ti ti-trash me-1"></i> Xóa
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
