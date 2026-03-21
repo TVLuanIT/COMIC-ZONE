@@ -1,0 +1,137 @@
+﻿@using COMICZONE.Helpers;
+
+@model COMICZONE.Models.ProductReview
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa đánh giá";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+            <i class="ti ti-message-star"></i>
+            Chi tiết đánh giá
+        </h4>
+
+        <div>
+            <a asp-action="Details"
+               asp-route-id="@Model.Reviewid"
+               class="btn btn-light">
+                <i class="ti ti-eye"></i> Xem chi tiết
+            </a>
+
+            <a asp-action="Index"
+                class="btn btn-outline-secondary">
+                    <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- LEFT: REVIEW DISPLAY -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <!-- PRODUCT -->
+                    <div class="mb-3">
+                        @if (Model.Product != null)
+                        {
+                            <span class="badge bg-light text-dark border">
+                                @Html.Raw(Model.Product.GetProductCell())
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark border">Sản phẩm không tồn tại</span>
+                        }
+                    </div>
+
+                    <!-- USER -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-2">
+                            <img src="@Model.User?.Avatar"
+                                 alt="avatar"
+                                 class="avatar-img"
+                                 style="--avatar-size:40px;"
+                                 onerror="this.onerror=null;this.src='/images/default-avatar.png';">
+                        </div>
+
+                        <div>
+                            <div class="fw-semibold">@Model.User?.Username</div>
+                            <small class="text-muted">
+                                @Model.Createdat?.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- RATING -->
+                    <div class="text-warning fs-4">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Model.Rating)
+                            {
+                                <i class="ti ti-star-filled"></i>
+                            }
+                            else
+                            {
+                                <i class="ti ti-star"></i>
+                            }
+                        }
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div class="p-3 bg-light rounded">
+                        @Model.Reviewcontent
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: EDIT -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Reviewid" />
+
+                        <!-- EDIT RATING -->
+                        <div class="mb-3">
+                            <input type="range"
+                                   asp-for="Rating"
+                                   id="ratingRange"
+                                   min="1"
+                                   max="5"
+                                   class="form-range" />
+
+                            <div class="text-muted">
+                                Giá trị: <span id="ratingValue">@Model.Rating</span> ★
+                            </div>
+
+                            <div id="ratingStars" class="text-warning fs-4 mb-2"></div>
+                        </div>
+
+                        <!-- EDIT CONTENT -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Chỉnh sửa nội dung</label>
+                            <textarea asp-for="Reviewcontent" class="form-control" rows="5"></textarea>
+                        </div>
+
+                        <!-- ACTION -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-light">
+                                Hủy
+                            </a>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-device-floppy"></i>
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

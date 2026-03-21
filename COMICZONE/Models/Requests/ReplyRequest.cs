@@ -11,6 +11,7 @@ namespace COMICZONE.Models.Requests
         [StringLength(1000)]
         public string Content { get; set; } = string.Empty;
 
-        public int? ReplyToUserId { get; set; }
+        public int? ReplyToUserId { get; set; }   // người được tag
+        public int? ParentReplyId { get; set; }   // reply cha
     }
 }

@@ -1,0 +1,139 @@
+﻿@using COMICZONE.Extensions;
+
+@model COMICZONE.Models.ProductReview
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết đánh giá";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="ti ti-star"></i>
+                Chi tiết đánh giá #@Model.Reviewid
+            </h4>
+            <span class="text-muted">
+                Thông tin review của khách hàng
+            </span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Edit"
+               asp-route-id="@Model.Reviewid"
+               class="btn btn-primary">
+                <i class="ti ti-edit"></i> Chỉnh sửa
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-light">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="ti ti-message"></i>
+                        Nội dung đánh giá
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <!-- RATING -->
+                    <div class="mb-3">
+                        <label class="text-muted">Rating</label>
+                        <div class="fs-5 text-warning">
+                            @for (int i = 0; i < Model.Rating; i++)
+                            {
+                                <i class="ti ti-star-filled"></i>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div class="mb-3">
+                        <label class="text-muted">Nội dung</label>
+                        <div class="border rounded p-3 bg-light">
+                            @Model.Reviewcontent
+                        </div>
+                    </div>
+
+                    <!-- DATE -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-muted">Ngày tạo</label>
+                            <div>
+                                @Model.Createdat?.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-muted">Cập nhật</label>
+                            <div>
+                                @(Model.Updatedat.HasValue
+                                    ? Model.Updatedat.Value.ToString("dd/MM/yyyy HH:mm")
+                                    : "Chưa cập nhật")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-lg-4">
+            <!-- PRODUCT -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Sản phẩm</h6>
+                </div>
+
+                <div class="card-body text-center">
+                    @{
+                        var img = Model.Product.GetImagePath();
+                    }
+
+                    <img src="@(img ?? "/images/no-image.png")"
+                         class="img-fluid rounded mb-3"
+                         style="max-height: 150px;" />
+
+                    <div class="fw-semibold">
+                        @Model.Product?.Name
+                    </div>
+
+                    <div class="text-muted small">
+                        ID: @Model.Product?.Id
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Người dùng</h6>
+                </div>
+
+                <div class="card-body text-center">
+                    <div class="fw-semibold">
+                        @Model.User?.Username
+                    </div>
+
+                    <div class="text-muted small">
+                        ID: @Model.User?.Id
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @await Html.PartialAsync("_ListReplies", Model.ProductReviewReplies)
+    </div>
+</div>

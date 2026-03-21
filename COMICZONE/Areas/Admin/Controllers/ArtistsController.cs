@@ -38,7 +38,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var artist = await _context.Artists
-                .Include(t => t.Products)
+                .Include(a => a.Products)
                     .ThenInclude(p => p.Pictures)
                 .FirstOrDefaultAsync(m => m.Id == id);
 

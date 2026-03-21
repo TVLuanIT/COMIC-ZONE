@@ -1,0 +1,104 @@
+﻿@model COMICZONE.Models.ProductReviewReply
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết phản hồi";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="ti ti-message-circle"></i>
+            Chi tiết phản hồi
+        </h5>
+
+        <div>
+            <a asp-action="Edit"
+               asp-route-id="@Model.Replyid"
+               class="btn btn-primary">
+                <i class="ti ti-edit"></i> Chỉnh sửa
+            </a>
+
+            <a asp-controller="ProductReviews"
+               asp-action="Details"
+               asp-route-id="@Model.Review.Reviewid"
+               class="btn btn-light">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Nội dung phản hồi -->
+        <div class="mb-4">
+            <label class="form-label text-muted">Nội dung phản hồi</label>
+            <div class="p-3 bg-light rounded border">
+                @Model.Replycontent
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Người phản hồi -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Người phản hồi</label>
+                <div>
+                    @Model.User?.Username
+                </div>
+            </div>
+
+            <!-- Trả lời cho ai -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Trả lời cho</label>
+                <div>
+                    @if (Model.Parentreply == null)
+                    {
+                        <div class="text-truncate">
+                            <strong>@((Model.Review?.Rating ?? 0))★</strong> -
+                            <span class="text-primary">
+                                @(Model.User?.Username ?? "Người dùng đã xóa")
+                            </span>:
+                            @(Model.Review?.Reviewcontent ?? "Không có nội dung")
+                        </div>
+                    }
+                    else
+                    {
+                        <span>
+                            <strong>@(Model.Parentreply.User?.Username ?? "Người dùng đã xóa"):</strong>
+                            @(Model.Parentreply.Replycontent ?? "Không có nội dung")
+                        </span>
+                    }
+                </div>
+            </div>
+
+             <!-- Ngày tạo -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Ngày tạo</label>
+                <div>
+                    @Model.Createdat?.ToString("dd/MM/yyyy HH:mm")
+                </div>
+            </div>
+
+            <!-- Ngày cập nhật -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Cập nhật lần cuối</label>
+                <div>
+                    @(Model.Updatedat != null
+                        ? Model.Updatedat.Value.ToString("dd/MM/yyyy HH:mm")
+                        : "Chưa cập nhật")
+                </div>
+            </div>
+
+            <!-- Review -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Nội dung đánh giá</label>
+                <div class="text-truncate">
+                    <strong>@((Model.Review?.Rating ?? 0))★</strong> -
+                    <span class="text-primary">
+                        @(Model.User?.Username ?? "Người dùng đã xóa")
+                    </span>:
+                    @(Model.Review?.Reviewcontent ?? "Không có nội dung")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

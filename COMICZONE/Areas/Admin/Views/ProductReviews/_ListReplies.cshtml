@@ -1,0 +1,74 @@
+﻿@model IEnumerable<COMICZONE.Models.ProductReviewReply>
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="ti ti-message-circle"></i>
+            Danh sách phản hồi
+        </h5>
+    </div>
+
+    <div class="card-body">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-muted text-center py-3">
+                Chưa có phản hồi nào
+            </div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var reply in Model)
+                {
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-semibold">@reply.User?.Username</div>
+                                <small class="text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+
+                            <!-- ACTION -->
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-controller="ProductReviewReplies"
+                                   asp-action="Details"
+                                   asp-route-id="@reply.Replyid"
+								   title="Xem chi tiết phản hồi"
+                                   class="btn btn-sm btn-light">
+                                    <i class="ti ti-eye"></i>
+                                </a>
+
+                                <a asp-controller="ProductReviewReplies"
+                                   asp-action="Edit"
+                                   asp-route-id="@reply.Replyid"
+								   title="Chỉnh sửa phản hồi"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+
+                                <a asp-controller="ProductReviewReplies"
+                                   asp-action="Delete"
+                                   asp-route-id="@reply.Replyid"
+                                   title="Xóa phản hồi"
+                                   class="btn btn-sm btn-danger">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+
+                                <a asp-area="Admin"
+                                   asp-controller="ProductReviewReplies"
+                                   asp-action="Create"
+                                   asp-route-reviewId="@reply.Review.Reviewid"
+                                   asp-route-parentReplyId="@reply.Replyid"
+                                   title="Trả lời phản hồi này"
+                                   class="btn btn-sm btn-success">
+                                    <i class="ti ti-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mt-2">@reply.Replycontent</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

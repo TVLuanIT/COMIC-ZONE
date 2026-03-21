@@ -306,6 +306,8 @@ public partial class ComiczoneContext : DbContext
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
 
+            entity.HasOne(d => d.Parentreply).WithMany(p => p.InverseParentreply).HasConstraintName("FK_ProductReviewReply_Parent");
+
             entity.HasOne(d => d.Replytouser).WithMany(p => p.ProductReviewReplyReplytousers).HasConstraintName("FK_PRODUCT_REVIEW_REPLY_USER");
 
             entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReplies).HasConstraintName("FK_REPLY_REVIEW");
