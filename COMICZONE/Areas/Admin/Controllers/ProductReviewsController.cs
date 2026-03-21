@@ -147,34 +147,5 @@ namespace COMICZONE.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
-        // GET: Admin/ProductReviews/Create
-        public IActionResult Create()
-        {
-            ViewData["Productid"] = new SelectList(_context.Products, "Id", "Id");
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Admin/ProductReviews/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Reviewid,Productid,Userid,Rating,Reviewcontent,Createdat,Updatedat")] ProductReview productReview)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(productReview);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Productid"] = new SelectList(_context.Products, "Id", "Id", productReview.Productid);
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReview.Userid);
-            return View(productReview);
-        }
     }
 }

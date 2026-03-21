@@ -13,10 +13,17 @@
             Chỉnh sửa phản hồi
         </h4>
 
-        <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review?.Reviewid"
-           class="btn btn-outline-secondary">
-            <i class="ti ti-arrow-left"></i> Quay lại
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="ProductReviewReplies" asp-action="Details" asp-route-id="@Model.Replyid"
+               class="btn btn-light">
+                <i class="ti ti-eye"></i> Xem chi tiết
+            </a>
+
+            <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review?.Reviewid"
+               class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
     </div>
 
     <div class="row justify-content-center">
@@ -60,12 +67,24 @@
 
                                 <!-- COMMENT CHA -->
                                 <div class="bg-light border rounded-3 p-3 mt-1">
-                                    <span class="fw-semibold">
-                                        @Model.Parentreply?.User?.Username
-                                    </span>
-                                    <span class="text-muted">
-                                        @Model.Parentreply?.Replycontent
-                                    </span>
+                                    @if (Model.Parentreply != null)
+                                    {
+                                        <span class="fw-semibold">
+                                            @Model.Parentreply.User?.Username
+                                        </span>
+                                        <span class="text-muted">
+                                            @Model.Parentreply.Replycontent
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-semibold">
+                                            @Model.Review?.User?.Username
+                                        </span>
+                                        <span class="text-muted">
+                                            @Model.Review?.Reviewcontent
+                                        </span>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -84,10 +103,10 @@
 
                         <div class="mb-3">
                             <textarea asp-for="Replycontent"
-                                      class="form-control border-0 shadow-sm"
-                                      rows="4"
-                                      style="border-radius:14px; background:#f8f9fa;"
-                                      placeholder="Nhập nội dung phản hồi..."></textarea>
+                                class="form-control border-0 shadow-sm"
+                                rows="4"
+                                style="border-radius:14px; background:#f8f9fa;"
+                                placeholder="Nhập nội dung phản hồi..."></textarea>
                         </div>
 
                         <!-- ACTION -->
@@ -97,8 +116,11 @@
                             </div>
 
                             <div class="d-flex gap-2">
-                                <a asp-action="Index" class="btn btn-light px-4">
-                                    Hủy
+                                <a asp-controller="ProductReviews"
+                                    asp-action="Details"
+                                    asp-route-id="@Model.Review?.Reviewid"
+                                    class="btn btn-light px-4">
+                                        Hủy
                                 </a>
 
                                 <button type="submit" class="btn btn-primary px-4 shadow-sm">

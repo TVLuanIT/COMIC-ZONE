@@ -34,6 +34,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.Review)
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.Replyid == id);
+
             if (productReviewReply == null)
             {
                 return NotFound();
@@ -62,9 +63,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);
-            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
+
             return View(productReviewReply);
         }
 
@@ -132,34 +131,54 @@ namespace COMICZONE.Areas.Admin.Controllers
             return RedirectToAction("Details", "ProductReviews", new { id = reviewId });
         }
 
-
-
-        // GET: Admin/ProductReviewReplies/Create
-        public IActionResult Create()
+        public IActionResult Create(int reviewId, int? parentReplyId)
         {
-            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid");
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id");
+            if (reviewId <= 0)
+                return NotFound();
+
+            ViewBag.ReviewId = reviewId;
+
+            if (parentReplyId != null)
+            {
+                var parent = _context.ProductReviewReplies.Find(parentReplyId);
+                if (parent == null) return NotFound();
+
+                ViewBag.ParentReplyId = parentReplyId;
+                ViewBag.ParentReplyUserId = parent.Userid;
+            }
+
             return View();
         }
 
-        // POST: Admin/ProductReviewReplies/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Replyid,Reviewid,Userid,Replycontent,Createdat,Replytouserid,Updatedat")] ProductReviewReply productReviewReply)
+        public async Task<IActionResult> Create(
+            [Bind("Replycontent,Reviewid,Userid,Replytouserid,Parentreplyid")]
+            ProductReviewReply reply)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(productReviewReply);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"{state.Key}: {error.ErrorMessage}");
+                    }
+                }
+
+                ViewBag.ReviewId = reply.Reviewid;
+                ViewBag.ParentReplyId = reply.Parentreplyid;
+                ViewBag.ParentReplyUserId = reply.Replytouserid;
+
+                return View(reply);
             }
-            ViewData["Replytouserid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Replytouserid);
-            ViewData["Reviewid"] = new SelectList(_context.ProductReviews, "Reviewid", "Reviewid", productReviewReply.Reviewid);
-            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReviewReply.Userid);
-            return View(productReviewReply);
+
+            reply.Createdat = DateTime.Now;
+            _context.Add(reply);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "ProductReviews",
+                new { id = reply.Reviewid, area = "Admin" });
         }
     }
 }
