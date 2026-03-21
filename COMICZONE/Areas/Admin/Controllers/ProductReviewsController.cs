@@ -112,6 +112,41 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(reviewFull);
         }
 
+        // GET: Admin/ProductReviews/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var productReview = await _context.ProductReviews
+                .Include(p => p.Product)
+                    .ThenInclude(p => p.Pictures)
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(m => m.Reviewid == id);
+            if (productReview == null)
+            {
+                return NotFound();
+            }
+
+            return View(productReview);
+        }
+
+        // POST: Admin/ProductReviews/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var productReview = await _context.ProductReviews.FindAsync(id);
+            if (productReview != null)
+            {
+                _context.ProductReviews.Remove(productReview);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
 
 
@@ -140,46 +175,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             ViewData["Productid"] = new SelectList(_context.Products, "Id", "Id", productReview.Productid);
             ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", productReview.Userid);
             return View(productReview);
-        }
-
-        // GET: Admin/ProductReviews/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productReview = await _context.ProductReviews
-                .Include(p => p.Product)
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Reviewid == id);
-            if (productReview == null)
-            {
-                return NotFound();
-            }
-
-            return View(productReview);
-        }
-
-        // POST: Admin/ProductReviews/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var productReview = await _context.ProductReviews.FindAsync(id);
-            if (productReview != null)
-            {
-                _context.ProductReviews.Remove(productReview);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductReviewExists(int id)
-        {
-            return _context.ProductReviews.Any(e => e.Reviewid == id);
         }
     }
 }
