@@ -1,0 +1,145 @@
+﻿@model COMICZONE.Models.User
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm người dùng";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                <i class="ti ti-user-plus me-2"></i> Thêm người dùng
+            </h4>
+            <small class="text-muted">
+                Tạo tài khoản mới trong hệ thống
+            </small>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-light border shadow-sm">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+
+    <!-- CARD -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <form asp-area="Admin"
+                  asp-controller="Users"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="row g-4">
+                    <!-- USERNAME -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Username
+                        </label>
+
+                        <input asp-for="Username"
+                               class="form-control" />
+
+                        <span asp-validation-for="Username"
+                              class="text-danger"></span>
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Email
+                        </label>
+
+                        <input asp-for="Email"
+                               class="form-control" />
+
+                        <span asp-validation-for="Email"
+                              class="text-danger"></span>
+                    </div>
+
+
+                    <!-- PASSWORD -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Password
+                        </label>
+
+                        <input name="Password"
+                               type="password"
+                               class="form-control" />
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("Password")
+                        </span>
+                    </div>
+
+                    <!-- ROLE -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Vai trò
+                        </label>
+
+                        <select asp-for="Role" class="form-select">
+                            <option value="User">
+                                User
+                            </option>
+
+                            <option value="Admin">
+                                Admin
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- AVATAR -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Avatar URL
+                        </label>
+
+                        <input asp-for="Avatar" class="form-control" />
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold d-block">
+                            Trạng thái
+                        </label>
+
+                        <div class="form-check form-switch">
+                            <input asp-for="Isactive" class="form-check-input" />
+
+                            <label class="form-check-label">
+                                Kích hoạt tài khoản
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUTTON -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary shadow-sm me-2">
+                        <i class="ti ti-device-floppy"></i>
+                        Lưu người dùng
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-light border">
+                        Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

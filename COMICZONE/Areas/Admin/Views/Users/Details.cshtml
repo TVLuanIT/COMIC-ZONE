@@ -1,0 +1,144 @@
+﻿@model COMICZONE.Models.User
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết người dùng";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                <i class="ti ti-user me-2"></i> Hồ sơ người dùng
+            </h4>
+            <small class="text-muted">
+                Xem thông tin chi tiết tài khoản
+            </small>
+        </div>
+
+        <div>
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-warning me-2 shadow-sm">
+                <i class="ti ti-edit"></i> Chỉnh sửa
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-light border shadow-sm">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <div class="row">
+                <!-- LEFT PROFILE -->
+                <div class="col-lg-4 border-end text-center">
+                    <img src="@Model.Avatar.AvatarOrDefault()"
+                         class="rounded-circle shadow"
+                         width="140"
+                         height="140"
+                         style="object-fit:cover;" />
+
+                    <h5 class="fw-bold mt-3 mb-1">
+                        @Model.Username
+                    </h5>
+
+                    <div class="mb-3">
+                        @if (Model.Isactive)
+                        {
+                            <span class="badge bg-success-subtle text-success px-3 py-2">
+                                <i class="ti ti-check me-1"></i> Đang hoạt động
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                                <i class="ti ti-lock me-1"></i> Tài khoản bị khóa
+                            </span>
+                        }
+
+                    </div>
+
+                    <div>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                            <i class="ti ti-shield me-1"></i> @Model.Role
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT INFO -->
+                <div class="col-lg-8">
+                    <div class="row g-4">
+                        <!-- EMAIL -->
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <small class="text-muted d-block mb-1">Email</small>
+                                <span class="fw-semibold">@Model.Email</span>
+                            </div>
+                        </div>
+
+                        <!-- CREATED DATE -->
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <small class="text-muted d-block mb-1">Ngày tạo tài khoản</small>
+                                <span class="fw-semibold">
+                                    @Model.Createdat.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.Customer != null)
+                    {
+                        <hr class="my-4" />
+
+                        <h6 class="fw-bold text-dark mb-3">
+                            <i class="ti ti-user-heart me-1"></i>
+                            Thông tin khách hàng
+                        </h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <small class="text-muted d-block mb-1">Họ tên</small>
+                                    <span class="fw-semibold">
+                                        @Model.Customer.Fullname
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <small class="text-muted d-block mb-1">Số điện thoại</small>
+                                    
+                                    <span>
+                                        @(string.IsNullOrEmpty(Model.Customer.Phone)
+                                            ? "Chưa cập nhật"
+                                            : Model.Customer.Phone)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <small class="text-muted d-block mb-1">Địa chỉ</small>
+                                    
+                                    <span>
+                                        @(string.IsNullOrEmpty(Model.Customer.Address)
+                                            ? "Chưa cập nhật"
+                                            : Model.Customer.Address)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
