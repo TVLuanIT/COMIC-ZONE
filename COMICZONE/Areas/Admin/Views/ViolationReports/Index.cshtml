@@ -1,0 +1,84 @@
+﻿@model IEnumerable<COMICZONE.Models.ViolationReport>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.User)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReportType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReviewId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReplyId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BlogCommentId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reason)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsResolved)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReportType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReviewId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReplyId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BlogCommentId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reason)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsResolved)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -372,4 +372,6 @@ public partial class ComiczoneContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+public DbSet<COMICZONE.Models.ViolationReport> ViolationReport { get; set; } = default!;
 }

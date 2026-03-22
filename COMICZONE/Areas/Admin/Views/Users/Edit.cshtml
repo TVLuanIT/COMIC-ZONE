@@ -37,7 +37,10 @@
     <!-- CARD -->
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
-            <form asp-action="Edit">
+            <form asp-action="Edit" method="post">
+
+                @Html.AntiForgeryToken()
+
                 <input type="hidden" asp-for="Id" />
 
                 <div class="row">
@@ -63,31 +66,25 @@
                         <div class="row g-4">
                             <!-- USERNAME -->
                             <div class="col-md-6">
-                                @* <label asp-for="Username"
-                                       class="form-label"></label> *@
+                                @* <label asp-for="Username" class="form-label"></label> *@
 
                                 <label class="form-label">
                                     Tên người dùng
                                 </label>
 
-                                <input asp-for="Username"
-                                       class="form-control" />
+                                <input asp-for="Username" class="form-control" />
 
-                                <span asp-validation-for="Username"
-                                      class="text-danger"></span>
+                                <span asp-validation-for="Username" class="text-danger"></span>
                             </div>
 
 
                             <!-- EMAIL -->
                             <div class="col-md-6">
-                                <label asp-for="Email"
-                                       class="form-label"></label>
+                                <label asp-for="Email" class="form-label"></label>
 
-                                <input asp-for="Email"
-                                       class="form-control" />
+                                <input asp-for="Email" class="form-control" />
 
-                                <span asp-validation-for="Email"
-                                      class="text-danger"></span>
+                                <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
 
                             <!-- ROLE -->

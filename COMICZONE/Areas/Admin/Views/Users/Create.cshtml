@@ -6,7 +6,6 @@
 }
 
 <div class="container-fluid">
-
     <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -28,7 +27,6 @@
     <!-- CARD -->
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
-
             <form asp-area="Admin"
                   asp-controller="Users"
                   asp-action="Create"
@@ -39,9 +37,7 @@
                 <div asp-validation-summary="ModelOnly"
                      class="alert alert-danger"></div>
 
-
                 <div class="row g-4">
-
                     <!-- USERNAME -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">
@@ -54,7 +50,6 @@
                         <span asp-validation-for="Username"
                               class="text-danger"></span>
                     </div>
-
 
                     <!-- EMAIL -->
                     <div class="col-md-6">
@@ -85,16 +80,13 @@
                         </span>
                     </div>
 
-
                     <!-- ROLE -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">
                             Vai trò
                         </label>
 
-                        <select asp-for="Role"
-                                class="form-select">
-
+                        <select asp-for="Role" class="form-select">
                             <option value="User">
                                 User
                             </option>
@@ -102,10 +94,8 @@
                             <option value="Admin">
                                 Admin
                             </option>
-
                         </select>
                     </div>
-
 
                     <!-- AVATAR -->
                     <div class="col-md-6">
@@ -113,62 +103,40 @@
                             Avatar URL
                         </label>
 
-                        <input asp-for="Avatar"
-                               class="form-control" />
+                        <input asp-for="Avatar" class="form-control" />
                     </div>
-
 
                     <!-- STATUS -->
                     <div class="col-md-6">
-
                         <label class="form-label fw-semibold d-block">
                             Trạng thái
                         </label>
 
                         <div class="form-check form-switch">
-
                             <input asp-for="Isactive" class="form-check-input" />
 
                             <label class="form-check-label">
                                 Kích hoạt tài khoản
                             </label>
-
                         </div>
-
                     </div>
-
-
                 </div>
-
 
                 <!-- BUTTON -->
                 <div class="mt-4">
-
-                    <button type="submit"
-                            class="btn btn-primary shadow-sm me-2">
-
+                    <button type="submit" class="btn btn-primary shadow-sm me-2">
                         <i class="ti ti-device-floppy"></i>
                         Lưu người dùng
-
                     </button>
 
-                    <a asp-action="Index"
-                       class="btn btn-light border">
-
+                    <a asp-action="Index" class="btn btn-light border">
                         Hủy
-
                     </a>
-
                 </div>
-
-
             </form>
-
         </div>
     </div>
-
 </div>
-
 
 @section Scripts {
     @{
