@@ -1,40 +1,41 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace COMICZONE.Models
+namespace COMICZONE.Models;
+
+[Table("VIOLATION_REPORT")]
+public partial class ViolationReport
 {
-    public enum ReportType
-    {
-        Review,
-        Reply
-    }
+    [Key]
+    [Column("ID")]
+    public int Id { get; set; }
 
-    public partial class ViolationReport
-    {
-        [Key]
-        public int Id { get; set; }
+    [Column("USERID")]
+    public int Userid { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+    [Column("REPORTTYPE")]
+    public int Reporttype { get; set; }
 
-        public virtual User User { get; set; } = null!;
+    [Column("TARGETID")]
+    public int Targetid { get; set; }
 
-        [Required]
-        public ReportType ReportType { get; set; }  // Loại đối tượng bị báo cáo
+    [Column("REASON")]
+    [StringLength(500)]
+    public string Reason { get; set; } = null!;
 
-        public int? ReviewId { get; set; }
+    [Column("STATUS")]
+    public int Status { get; set; }
 
-        public int? ReplyId { get; set; }
-        
-        public int? BlogCommentId { get; set; }
-        
-        public int? ProductId { get; set; }
+    [Column("CREATEDAT")]
+    public DateTime Createdat { get; set; }
 
-        [Required]
-        [StringLength(500)]
-        public string Reason { get; set; } = null!;
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
 
-        public bool IsResolved { get; set; } = false;
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+    [ForeignKey("Userid")]
+    [InverseProperty("ViolationReports")]
+    public virtual User User { get; set; } = null!;
 }

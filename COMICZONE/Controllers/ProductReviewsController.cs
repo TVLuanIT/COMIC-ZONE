@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using COMICZONE.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -290,28 +291,48 @@ namespace COMICZONE.Controllers
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
             }
 
-            bool alreadyReported = _context.ProductReviewReports.Any(r =>
+            // Xác định loại report
+            int reportType;
+            int targetId;
+
+            if (request.ReviewId.HasValue)
+            {
+                reportType = (int)ReportType.Review;
+                targetId = request.ReviewId.Value;
+            }
+            else if (request.ReplyId.HasValue)
+            {
+                reportType = (int)ReportType.Reply;
+                targetId = request.ReplyId.Value;
+            }
+            else
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            // Check đã report chưa
+            bool alreadyReported = _context.ViolationReports.Any(r =>
                 r.Userid == userId &&
-                (
-                    (request.ReviewId != null && r.Reviewid == request.ReviewId) ||
-                    (request.ReplyId != null && r.Replyid == request.ReplyId)
-                )
+                r.Reporttype == reportType &&
+                r.Targetid == targetId
             );
 
             if (alreadyReported)
                 return Json(new { success = false, message = "Bạn đã báo cáo nội dung này rồi." });
 
-            var report = new ProductReviewReport
+            // Lưu vào bảng chuẩn
+            var report = new ViolationReport
             {
                 Userid = userId,
-                Reviewid = request.ReviewId,
-                Replyid = request.ReplyId,
+                Reporttype = reportType,
+                Targetid = targetId,
                 Reason = request.Reason,
                 Createdat = DateTime.Now,
-                Status = "Pending"
+                Status = (int)ReportStatus.Pending,
+                Isdeleted = false
             };
 
-            _context.ProductReviewReports.Add(report);
+            _context.ViolationReports.Add(report);
             _context.SaveChanges();
 
             return Json(new { success = true });

@@ -88,4 +88,7 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<ViolationReport> ViolationReports { get; set; } = new List<ViolationReport>();
 }

@@ -23,7 +23,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         // GET: Admin/ViolationReports
         public async Task<IActionResult> Index()
         {
-            var comiczoneContext = _context.ViolationReport.Include(v => v.User);
+            var comiczoneContext = _context.ViolationReports.Include(v => v.User);
             return View(await comiczoneContext.ToListAsync());
         }
 
@@ -35,7 +35,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var violationReport = await _context.ViolationReport
+            var violationReport = await _context.ViolationReports
                 .Include(v => v.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (violationReport == null)
@@ -43,30 +43,6 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(violationReport);
-        }
-
-        // GET: Admin/ViolationReports/Create
-        public IActionResult Create()
-        {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Admin/ViolationReports/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,ReportType,ReviewId,ReplyId,BlogCommentId,ProductId,Reason,IsResolved,CreatedAt")] ViolationReport violationReport)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(violationReport);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", violationReport.UserId);
             return View(violationReport);
         }
 
@@ -78,12 +54,12 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var violationReport = await _context.ViolationReport.FindAsync(id);
+            var violationReport = await _context.ViolationReports.FindAsync(id);
             if (violationReport == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", violationReport.UserId);
+            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Username", violationReport.Userid);
             return View(violationReport);
         }
 
@@ -92,7 +68,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,ReportType,ReviewId,ReplyId,BlogCommentId,ProductId,Reason,IsResolved,CreatedAt")] ViolationReport violationReport)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Userid,Reporttype,Targetid,Reason,Status,Createdat,Isdeleted")] ViolationReport violationReport)
         {
             if (id != violationReport.Id)
             {
@@ -119,7 +95,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", violationReport.UserId);
+            ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", violationReport.Userid);
             return View(violationReport);
         }
 
@@ -131,7 +107,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var violationReport = await _context.ViolationReport
+            var violationReport = await _context.ViolationReports
                 .Include(v => v.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (violationReport == null)
@@ -147,10 +123,10 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var violationReport = await _context.ViolationReport.FindAsync(id);
+            var violationReport = await _context.ViolationReports.FindAsync(id);
             if (violationReport != null)
             {
-                _context.ViolationReport.Remove(violationReport);
+                _context.ViolationReports.Remove(violationReport);
             }
 
             await _context.SaveChangesAsync();
@@ -159,7 +135,7 @@ namespace COMICZONE.Areas.Admin.Controllers
 
         private bool ViolationReportExists(int id)
         {
-            return _context.ViolationReport.Any(e => e.Id == id);
+            return _context.ViolationReports.Any(e => e.Id == id);
         }
     }
 }

@@ -1,74 +1,93 @@
 ﻿@model COMICZONE.Models.ViolationReport
+@using COMICZONE.Models.Enums
 
 @{
-    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa báo cáo";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
 
-<h4>ViolationReport</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReportType" class="control-label"></label>
-                <select asp-for="ReportType" class="form-control"></select>
-                <span asp-validation-for="ReportType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReviewId" class="control-label"></label>
-                <input asp-for="ReviewId" class="form-control" />
-                <span asp-validation-for="ReviewId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReplyId" class="control-label"></label>
-                <input asp-for="ReplyId" class="form-control" />
-                <span asp-validation-for="ReplyId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BlogCommentId" class="control-label"></label>
-                <input asp-for="BlogCommentId" class="form-control" />
-                <span asp-validation-for="BlogCommentId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <input asp-for="ProductId" class="form-control" />
-                <span asp-validation-for="ProductId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Reason" class="control-label"></label>
-                <input asp-for="Reason" class="form-control" />
-                <span asp-validation-for="Reason" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsResolved" /> @Html.DisplayNameFor(model => model.IsResolved)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <!-- Header -->
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">✏️ Chỉnh sửa báo cáo #@Model.Id</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm">⬅ Quay lại</a>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-4">
+
+                    <!-- Người gửi -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Người gửi</label>
+                        <select asp-for="Userid" class="form-select" asp-items="ViewBag.Userid"></select>
+                    </div>
+
+                    <!-- Loại -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Loại báo cáo</label>
+                        <select asp-for="Reporttype" class="form-select">
+                            <option value="1">Review</option>
+                            <option value="2">Reply</option>
+                        </select>
+                    </div>
+
+                    <!-- Đối tượng -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">ID đối tượng</label>
+                        <input asp-for="Targetid" class="form-control" />
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Trạng thái</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="1">Pending</option>
+                            <option value="2">Approved</option>
+                            <option value="3">Rejected</option>
+                        </select>
+                    </div>
+
+                    <!-- Ngày -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ngày tạo</label>
+                        <input asp-for="Createdat" class="form-control" type="datetime-local" />
+                    </div>
+
+                    <!-- Đã xóa -->
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" asp-for="Isdeleted" />
+                            <label class="form-check-label">Đã xóa</label>
+                        </div>
+                    </div>
+
+                    <!-- Lý do -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Lý do</label>
+                        <textarea asp-for="Reason" class="form-control" rows="4"></textarea>
+                    </div>
+
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4 text-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-warning">💾 Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

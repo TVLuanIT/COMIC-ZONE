@@ -58,6 +58,8 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<ViolationReport> ViolationReports { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
@@ -368,10 +370,20 @@ public partial class ComiczoneContext : DbContext
             entity.Property(e => e.Role).HasDefaultValue("USER");
         });
 
+        modelBuilder.Entity<ViolationReport>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__VIOLATIO__3214EC275B182AA6");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Status).HasDefaultValue(1);
+
+            entity.HasOne(d => d.User).WithMany(p => p.ViolationReports)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_VIOLATIONREPORT_USER");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-public DbSet<COMICZONE.Models.ViolationReport> ViolationReport { get; set; } = default!;
 }
