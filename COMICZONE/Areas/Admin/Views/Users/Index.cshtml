@@ -26,25 +26,34 @@
                 <th>Hành động</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach (var user in Model)
             {
                 <tr>
                     <td>
-                        <img src="@user.Avatar?.AvatarOrDefault()"
+                        <img src="@user.Avatar.AvatarOrDefault()"
                              alt="@user.Username" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
                     </td>
+
                     <td>@user.Username</td>
+                    
                     <td>@user.Email</td>
+                    
                     <td>
-                        <span class="badge bg-@(user.Role == "Admin" ? "danger" : "secondary")">@user.Role</span>
-                    </td>
-                    <td>
-                        <span class="badge bg-@(user.Isactive ? "success" : "warning")">
-                            @(user.Isactive ? "Active" : "Inactive")
+                        <span class="badge bg-@(user.Role == "Admin" ? "danger" : "secondary")">
+                            @(user.Role == "Admin" ? "Quản trị viên" : "Người dùng")
                         </span>
                     </td>
+
+                    <td>
+                        <span class="badge bg-@(user.Isactive ? "success" : "warning")">
+                            @(user.Isactive ? "Đang hoạt động" : "Ngưng hoạt động")
+                        </span>
+                    </td>
+                    
                     <td>@user.Createdat.ToString("dd/MM/yyyy")</td>
+                    
                     <td>
                         <a class="btn btn-sm btn-info me-1" asp-action="Details" asp-route-id="@user.Id"><i class="ti ti-eye"></i></a>
                         <a class="btn btn-sm btn-warning me-1" asp-action="Edit" asp-route-id="@user.Id"><i class="ti ti-edit"></i></a>

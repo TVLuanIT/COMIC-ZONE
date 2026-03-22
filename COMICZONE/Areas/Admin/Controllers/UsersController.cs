@@ -53,26 +53,43 @@ namespace COMICZONE.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(User user, string Password)
+        public async Task<IActionResult> Create(
+            [Bind("Username,Email,Role,Isactive,Avatar")]
+            User user,
+            string Password)
         {
             if (string.IsNullOrWhiteSpace(Password))
             {
-                ModelState.AddModelError("", "Password không được để trống");
+                ModelState.AddModelError("Password", "Password không được để trống");
             }
+            else if (Password.Length < 6)
+            {
+                ModelState.AddModelError("Password", "Password tối thiểu 6 ký tự");
+            }
+
+            if (_context.Users.Any(u => u.Username == user.Username))
+            {
+                ModelState.AddModelError("Username", "Username đã tồn tại");
+            }
+
+            if (_context.Users.Any(u => u.Email == user.Email))
+            {
+                ModelState.AddModelError("Email", "Email đã tồn tại");
+            }
+
+            ModelState.Remove(nameof(Models.User.Passwordhash));
 
             if (ModelState.IsValid)
             {
-                // hash password
                 user.Passwordhash = BCrypt.Net.BCrypt.HashPassword(Password);
 
-                // set ngày tạo
-                user.Createdat = DateTime.Now;
+                user.Createdat = DateTime.UtcNow;
 
-                // reset token mặc định null
                 user.ResetToken = null;
                 user.ResetTokenExpire = null;
 
-                _context.Add(user);
+                _context.Users.Add(user);
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));

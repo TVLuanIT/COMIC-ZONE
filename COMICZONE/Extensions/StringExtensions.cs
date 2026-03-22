@@ -2,7 +2,7 @@
 {
     public static class StringExtensions
     {
-        public static string AvatarOrDefault(this string? path, string defaultPath = "/images/no-image.png")
+        public static string AvatarOrDefault(this string? path, string defaultPath = "/uploads/avatar/default-avatar.png")
         {
             return string.IsNullOrEmpty(path)
                 ? defaultPath

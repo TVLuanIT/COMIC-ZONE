@@ -58,7 +58,5 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             return View();
         }
-
     }
-
 }

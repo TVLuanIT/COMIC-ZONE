@@ -29,7 +29,12 @@
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
 
-            <form asp-action="Create">
+            <form asp-area="Admin"
+                  asp-controller="Users"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
 
                 <div asp-validation-summary="ModelOnly"
                      class="alert alert-danger"></div>
@@ -74,6 +79,10 @@
                         <input name="Password"
                                type="password"
                                class="form-control" />
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("Password")
+                        </span>
                     </div>
 
 
@@ -118,9 +127,7 @@
 
                         <div class="form-check form-switch">
 
-                            <input asp-for="Isactive"
-                                   class="form-check-input"
-                                   checked />
+                            <input asp-for="Isactive" class="form-check-input" />
 
                             <label class="form-check-label">
                                 Kích hoạt tài khoản
