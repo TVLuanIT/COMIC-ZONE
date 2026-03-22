@@ -31,7 +31,7 @@
             {
                 <tr>
                     <td>
-                        <img src="@(!string.IsNullOrEmpty(user.Avatar) ? user.Avatar : "/assets/images/default-avatar.png")"
+                        <img src="@user.Avatar?.AvatarOrDefault()"
                              alt="@user.Username" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
                     </td>
                     <td>@user.Username</td>

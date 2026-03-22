@@ -35,6 +35,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var user = await _context.Users
+                .Include(u => u.Customer)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
@@ -50,19 +51,33 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Passwordhash,Email,Role,Isactive,Createdat,Avatar,ResetToken,ResetTokenExpire")] User user)
+        public async Task<IActionResult> Create(User user, string Password)
         {
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                ModelState.AddModelError("", "Password không được để trống");
+            }
+
             if (ModelState.IsValid)
             {
+                // hash password
+                user.Passwordhash = BCrypt.Net.BCrypt.HashPassword(Password);
+
+                // set ngày tạo
+                user.Createdat = DateTime.Now;
+
+                // reset token mặc định null
+                user.ResetToken = null;
+                user.ResetTokenExpire = null;
+
                 _context.Add(user);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(user);
         }
 

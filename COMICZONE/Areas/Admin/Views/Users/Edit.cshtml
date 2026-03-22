@@ -1,74 +1,159 @@
 ﻿@model COMICZONE.Models.User
 
 @{
-    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa người dùng";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                <i class="ti ti-user-edit me-2"></i>
+                Chỉnh sửa người dùng
+            </h4>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Passwordhash" class="control-label"></label>
-                <input asp-for="Passwordhash" class="form-control" />
-                <span asp-validation-for="Passwordhash" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Role" class="control-label"></label>
-                <input asp-for="Role" class="form-control" />
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Isactive" /> @Html.DisplayNameFor(model => model.Isactive)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="Createdat" class="control-label"></label>
-                <input asp-for="Createdat" class="form-control" />
-                <span asp-validation-for="Createdat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Avatar" class="control-label"></label>
-                <input asp-for="Avatar" class="form-control" />
-                <span asp-validation-for="Avatar" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResetToken" class="control-label"></label>
-                <input asp-for="ResetToken" class="form-control" />
-                <span asp-validation-for="ResetToken" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResetTokenExpire" class="control-label"></label>
-                <input asp-for="ResetTokenExpire" class="form-control" />
-                <span asp-validation-for="ResetTokenExpire" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+            <small class="text-muted">
+                Cập nhật thông tin tài khoản
+            </small>
+        </div>
+
+        <div>
+            <a asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-light me-2 shadow-sm">
+                <i class="ti ti-edit"></i> Xem chi tiết
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left"></i>
+                Quay lại
+            </a>
+        </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row">
+                    <!-- LEFT AVATAR -->
+                    <div class="col-lg-4 border-end text-center">
+                        <img src="@Model.Avatar.AvatarOrDefault()"
+                             class="rounded-circle shadow mb-3"
+                             width="140"
+                             height="140"
+                             style="object-fit:cover;" />
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Ảnh đại diện
+                            </label>
+
+                            <input asp-for="Avatar" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- RIGHT FORM -->
+                    <div class="col-lg-8">
+                        <div class="row g-4">
+                            <!-- USERNAME -->
+                            <div class="col-md-6">
+                                @* <label asp-for="Username"
+                                       class="form-label"></label> *@
+
+                                <label class="form-label">
+                                    Tên người dùng
+                                </label>
+
+                                <input asp-for="Username"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Username"
+                                      class="text-danger"></span>
+                            </div>
+
+
+                            <!-- EMAIL -->
+                            <div class="col-md-6">
+                                <label asp-for="Email"
+                                       class="form-label"></label>
+
+                                <input asp-for="Email"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Email"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <!-- ROLE -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Vai trò
+                                </label>
+
+                                <select asp-for="Role" class="form-select">
+                                    <option value="Admin">Admin</option>
+                                    <option value="User">User</option>
+                                </select>
+                            </div>
+
+
+                            <!-- ACTIVE -->
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" asp-for="Isactive" />
+
+                                    <label class="form-check-label">
+                                        Hoạt động
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- PASSWORD -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Mật khẩu mới
+                                </label>
+
+                                <input type="password"
+                                       name="NewPassword"
+                                       class="form-control"
+                                       placeholder="Để trống nếu không đổi" />
+                            </div>
+
+                            <!-- CREATED DATE -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Ngày tạo
+                                </label>
+
+                                <input value="@Model.Createdat.ToString("dd/MM/yyyy HH:mm")"
+                                       class="form-control"
+                                       disabled />
+                            </div>
+                        </div>
+
+                        <!-- BUTTON -->
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="ti ti-device-floppy"></i>
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
