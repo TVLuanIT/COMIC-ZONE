@@ -482,26 +482,13 @@ namespace COMICZONE.Controllers
                     IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == true),
                     IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == false),
 
-                    // trạng thái báo cáo
-                    IsReportedByUser = _context.ProductReviewReports
-                        .Any(rp => rp.Replyid == reply.Replyid && rp.Userid == userId && rp.Status == "Pending"),
-                    ReportStatus = _context.ProductReviewReports
-                        .Where(rp => rp.Replyid == reply.Replyid && rp.Userid == userId)
-                        .Select(rp => rp.Status)
-                        .FirstOrDefault()
                 }).ToList(),
 
                 LikeCount = _context.ProductReviewLikes.Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
                 IsLikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
                 IsDislikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value)),
 
-                // trạng thái báo cáo cho review
-                IsReportedByUser = _context.ProductReviewReports.Any(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId && rp.Status == "Pending"),
-                ReportStatus = _context.ProductReviewReports
-                    .Where(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId)
-                    .Select(rp => rp.Status)
-                    .FirstOrDefault()
-                        }).ToList();
+            }).ToList();
 
             ViewBag.ProductId = productId;
             ViewBag.CurrentPage = page;
@@ -535,8 +522,14 @@ namespace COMICZONE.Controllers
                 _context.ProductReviewReplyLikes.RemoveRange(likes);
 
                 // Xóa báo cáo liên quan
-                var reports = _context.ProductReviewReports.Where(rp => rp.Replyid == replyId);
-                _context.ProductReviewReports.RemoveRange(reports);
+                // Xóa report liên quan đến reply
+                var reports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Reply &&
+                        r.Targetid == replyId
+                    );
+
+                _context.ViolationReports.RemoveRange(reports);
 
                 // Cuối cùng xóa reply
                 _context.ProductReviewReplies.Remove(reply);
@@ -546,7 +539,11 @@ namespace COMICZONE.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Xóa thất bại: " + ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
             }
         }
 
@@ -566,10 +563,16 @@ namespace COMICZONE.Controllers
             try
             {
                 // Xóa report của reply
-                var replyReports = _context.ProductReviewReports
-                    .Where(r => r.Reply != null && r.Reply.Reviewid == id);
+                var replyReports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Reply &&
+                        _context.ProductReviewReplies
+                            .Where(rep => rep.Reviewid == id)
+                            .Select(rep => rep.Replyid)
+                            .Contains(r.Targetid)
+                    );
 
-                _context.ProductReviewReports.RemoveRange(replyReports);
+                _context.ViolationReports.RemoveRange(replyReports);
 
                 // Xóa like của reply
                 var replyLikes = _context.ProductReviewReplyLikes
@@ -584,10 +587,13 @@ namespace COMICZONE.Controllers
                 _context.ProductReviewReplies.RemoveRange(replies);
 
                 // Xóa report của review
-                var reviewReports = _context.ProductReviewReports
-                    .Where(r => r.Reviewid == id);
+                var reviewReports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Review &&
+                        r.Targetid == id
+                    );
 
-                _context.ProductReviewReports.RemoveRange(reviewReports);
+                _context.ViolationReports.RemoveRange(reviewReports);
 
                 // Xóa like của review
                 var reviewLikes = _context.ProductReviewLikes

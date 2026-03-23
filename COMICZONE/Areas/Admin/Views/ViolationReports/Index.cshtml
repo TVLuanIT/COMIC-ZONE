@@ -1,9 +1,15 @@
-﻿@model IEnumerable<COMICZONE.Models.ViolationReport>
-@using COMICZONE.Models.Enums
+﻿@using COMICZONE.Models.Enums
+@model IEnumerable<COMICZONE.Models.ViolationReport>
+
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Báo cáo vi phạm";
+
+    string? content = null;
+
+    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
+    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
 }
 
 <div class="container-fluid">
@@ -18,7 +24,7 @@
                     <thead>
                         <tr>
                             <th class="fw-bold text-center">Loại</th>
-                            <th class="fw-bold">Đối tượng</th>
+                            <th class="fw-bold">Nội dung bị báo cáo</th>
                             <th class="fw-bold">Lý do</th>
                             <th class="fw-bold text-center">Trạng thái</th>
                             <th class="fw-bold">Ngày gửi</th>
@@ -37,17 +43,30 @@
                                     <!-- Loại -->
                                     <td class="text-center">
                                         <span class="badge rounded-pill px-3 py-2 fw-semibold
-                                                        @(item.ReportTypeEnum == ReportType.Review ? "bg-primary-subtle text-primary" : "bg-success-subtle text-success")">
-                                            @(item.ReportTypeEnum == ReportType.Review ? "Review" : "Reply")
+                                            @(item.ReportTypeEnum == ReportType.Review
+                                                ? "bg-primary-subtle text-primary"
+                                                : "bg-success-subtle text-success")">
+
+                                            @item.ReportTypeEnum.GetDisplayName()
                                         </span>
                                     </td>
 
-                                    <!-- Đối tượng -->
+                                    <!-- Nội dung bị báo cáo -->
                                     <td>
-                                        @(item.ReportTypeEnum == ReportType.Review
-                                                                        ? $"Review #{item.Targetid}"
-                                                                        : $"Reply #{item.Targetid}")
-                                                                                                </td>
+                                        @if (item.ReportTypeEnum == ReportType.Review)
+                                        {
+                                            content = reviewDict != null && reviewDict.ContainsKey(item.Targetid)
+                                            ? reviewDict[item.Targetid]
+                                            : "[Review đã bị xóa]";
+                                        }
+                                        else
+                                        {
+                                            content = replyDict != null && replyDict.ContainsKey(item.Targetid)
+                                            ? replyDict[item.Targetid]
+                                            : "[Reply đã bị xóa]";
+                                        }
+                                        @content
+                                    </td>
 
                                     <!-- Lý do -->
                                     <td class="text-muted">@item.Reason</td>
@@ -55,12 +74,12 @@
                                     <!-- Trạng thái -->
                                     <td class="text-center">
                                         <span class="badge rounded-pill px-3 py-2 fw-semibold
-                                                        @(item.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
-                                                                                                                                        item.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
-                                                                                                                                        "bg-danger-subtle text-danger")">
-                                    @item.StatusEnum
-                                </span>
-                            </td>
+                                            @(item.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
+                                                item.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
+                                                "bg-danger-subtle text-danger")">
+									        @item.StatusEnum.GetDisplayName()
+                                        </span>
+                                    </td>
 
                                     <!-- Ngày -->
                                     <td class="text-nowrap">
@@ -69,7 +88,7 @@
 
                                     <!-- Đã xóa -->
                                     <td class="text-center">
-                                @if (item.Isdeleted)
+                                        @if (item.Isdeleted)
                                         {
                                             <span class="badge bg-danger-subtle text-danger">Đã xóa</span>
                                         }
@@ -77,10 +96,13 @@
                                         {
                                             <span class="badge bg-success-subtle text-success">Còn</span>
                                         }
+
                                     </td>
 
                                     <!-- Người gửi -->
-                                    <td>@item.User.Username</td>
+                                    <td>
+                                        @(item.User != null ? item.User.Username : "[User đã bị xóa]")
+                                    </td>
 
                                     <!-- Hành động -->
                                     <td class="text-center">
@@ -102,7 +124,6 @@
                             </td>
                         </tr>
                     }
-
                 </table>
             </div>
         </div>

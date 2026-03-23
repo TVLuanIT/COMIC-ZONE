@@ -4,11 +4,15 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Chi tiết báo cáo";
+
+    string? content = null;
+
+    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
+    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
 }
 
 <div class="container mt-4">
     <div class="card shadow-lg border-0 rounded-4">
-
         <!-- Header -->
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">📋 Chi tiết báo cáo #@Model.Id</h5>
@@ -17,36 +21,30 @@
 
         <!-- Body -->
         <div class="card-body">
-
             <div class="row g-4">
-
                 <!-- Loại -->
                 <div class="col-md-6">
-                    <label class="text-muted small">Loại</label><br />
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold
-                        @(Model.Reporttype == (int)ReportType.Review ? "bg-primary-subtle text-primary" : "bg-success-subtle text-success")">
-                        @(Model.Reporttype == (int)ReportType.Review ? "Review" : "Reply")
-                    </span>
-                </div>
+                    <label class="text-muted small">Loại báo cáo</label><br />
 
-                <!-- Đối tượng -->
-                <div class="col-md-6">
-                    <label class="text-muted small">Đối tượng</label><br />
-                    <strong>
-                        @(Model.Reporttype == (int)ReportType.Review
-                                                ? $"Review #{Model.Targetid}"
-                                                : $"Reply #{Model.Targetid}")
-                    </strong>
+                    <span class="badge rounded-pill px-3 py-2 fw-semibold
+                        @(Model.ReportTypeEnum == ReportType.Review
+                            ? "bg-primary-subtle text-primary"
+                            : "bg-success-subtle text-success")">
+
+                        @Model.ReportTypeEnum.GetDisplayName()
+                    </span>
                 </div>
 
                 <!-- Trạng thái -->
                 <div class="col-md-6">
                     <label class="text-muted small">Trạng thái</label><br />
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold
-                        @(Model.Status == (int)ReportStatus.Pending ? "bg-warning-subtle text-warning" :
-                                                    Model.Status == (int)ReportStatus.Approved ? "bg-success-subtle text-success" :
-                                                    "bg-danger-subtle text-danger")">
-                        @((ReportStatus)Model.Status)
+
+                    <span class="badge rounded-pill px-3 py-2 fw-semibold
+                        @(Model.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
+                            Model.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
+                            "bg-danger-subtle text-danger")">
+
+                        @Model.StatusEnum.GetDisplayName()
                     </span>
                 </div>
 
@@ -65,6 +63,7 @@
                 <!-- Đã xóa -->
                 <div class="col-md-6">
                     <label class="text-muted small">Trạng thái dữ liệu</label><br />
+
                     @if (Model.Isdeleted)
                     {
                         <span class="badge bg-danger-subtle text-danger px-3 py-2">Đã xóa</span>
@@ -75,6 +74,25 @@
                     }
                 </div>
 
+                <div class="col-md-6">
+                    <label class="text-muted small">Nội dung bị báo cáo</label><br />
+                        @{
+                            if (Model.ReportTypeEnum == ReportType.Review)
+                            {
+                                content = reviewDict != null && reviewDict.ContainsKey(Model.Targetid)
+                                ? reviewDict[Model.Targetid]
+                                : "[Review đã bị xóa]";
+                            }
+                            else
+                            {
+                                content = replyDict != null && replyDict.ContainsKey(Model.Targetid)
+                                ? replyDict[Model.Targetid]
+                                : "[Reply đã bị xóa]";
+                            }
+                        }
+                        @content
+                </div>
+
                 <!-- Lý do -->
                 <div class="col-12">
                     <label class="text-muted small">Lý do</label>
@@ -82,9 +100,7 @@
                         @Model.Reason
                     </div>
                 </div>
-
             </div>
-
         </div>
 
         <!-- Footer -->
@@ -93,6 +109,5 @@
                 ✏️ Chỉnh sửa
             </a>
         </div>
-
     </div>
 </div>

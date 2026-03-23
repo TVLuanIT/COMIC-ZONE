@@ -50,8 +50,6 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; }
 
-    public virtual DbSet<ProductReviewReport> ProductReviewReports { get; set; }
-
     public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
@@ -324,24 +322,6 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReplyLikes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_USER");
-        });
-
-        modelBuilder.Entity<ProductReviewReport>(entity =>
-        {
-            entity.HasKey(e => e.Reportid).HasName("PK__PRODUCT___A85DEB2D0B3B8B15");
-
-            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status).HasDefaultValue("PENDING");
-
-            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReports).HasConstraintName("FK_REPORT_REPLY");
-
-            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
-
-            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReports)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PRODUCT_R__USERI__25518C17");
         });
 
         modelBuilder.Entity<ProductReviewSummary>(entity =>

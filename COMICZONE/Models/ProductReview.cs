@@ -43,9 +43,6 @@ public partial class ProductReview
     [InverseProperty("Review")]
     public virtual ICollection<ProductReviewReply> ProductReviewReplies { get; set; } = new List<ProductReviewReply>();
 
-    [InverseProperty("Review")]
-    public virtual ICollection<ProductReviewReport> ProductReviewReports { get; set; } = new List<ProductReviewReport>();
-
     [ForeignKey("Userid")]
     [InverseProperty("ProductReviews")]
     public virtual User User { get; set; } = null!;

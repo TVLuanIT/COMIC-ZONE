@@ -4,11 +4,15 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Chỉnh sửa báo cáo";
+
+    string? content = null;
+
+    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
+    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
 }
 
 <div class="container mt-4">
     <div class="card shadow-lg border-0 rounded-4">
-
         <!-- Header -->
         <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
             <h5 class="mb-0">✏️ Chỉnh sửa báo cáo #@Model.Id</h5>
@@ -17,11 +21,11 @@
 
         <!-- Body -->
         <div class="card-body">
-            <form asp-action="Edit">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
 
                 <div class="row g-4">
-
                     <!-- Người gửi -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Người gửi</label>
@@ -32,31 +36,50 @@
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Loại báo cáo</label>
                         <select asp-for="Reporttype" class="form-select">
-                            <option value="1">Review</option>
-                            <option value="2">Reply</option>
+                            <option value="1">Đánh giá</option>
+                            <option value="2">Phản hồi</option>
                         </select>
                     </div>
 
-                    <!-- Đối tượng -->
+                    <!-- Nội dung bị báo cáo -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">ID đối tượng</label>
-                        <input asp-for="Targetid" class="form-control" />
+                        <label class="form-label fw-semibold">Nội dung bị báo cáo</label>
+
+                        @if (Model.ReportTypeEnum == ReportType.Review)
+                        {
+                            content = reviewDict != null && reviewDict.ContainsKey(Model.Targetid)
+                            ? reviewDict[Model.Targetid]
+                            : "[Review đã bị xóa]";
+                        }
+                        else
+                        {
+                            content = replyDict != null && replyDict.ContainsKey(Model.Targetid)
+                            ? replyDict[Model.Targetid]
+                            : "[Reply đã bị xóa]";
+                        }
+
+                        <input type="hidden" asp-for="Targetid" />
+                        <input class="form-control" value="@content" readonly />
                     </div>
 
                     <!-- Trạng thái -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Trạng thái</label>
                         <select asp-for="Status" class="form-select">
-                            <option value="1">Pending</option>
-                            <option value="2">Approved</option>
-                            <option value="3">Rejected</option>
+                            <option value="1">Đang xử lý</option>
+                            <option value="2">Đã duyệt</option>
+                            <option value="3">Từ chối</option>
                         </select>
                     </div>
 
                     <!-- Ngày -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Ngày tạo</label>
-                        <input asp-for="Createdat" class="form-control" type="datetime-local" />
+
+                        <input asp-for="Createdat"
+                               class="form-control"
+                               type="datetime-local"
+                               value="@Model.Createdat.ToString("yyyy-MM-ddTHH:mm")" />
                     </div>
 
                     <!-- Đã xóa -->
@@ -72,7 +95,6 @@
                         <label class="form-label fw-semibold">Lý do</label>
                         <textarea asp-for="Reason" class="form-control" rows="4"></textarea>
                     </div>
-
                 </div>
 
                 <!-- Actions -->
@@ -82,7 +104,6 @@
                 </div>
             </form>
         </div>
-
     </div>
 </div>
 
