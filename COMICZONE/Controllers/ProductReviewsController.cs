@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using COMICZONE.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -290,28 +291,48 @@ namespace COMICZONE.Controllers
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
             }
 
-            bool alreadyReported = _context.ProductReviewReports.Any(r =>
+            // Xác định loại report
+            int reportType;
+            int targetId;
+
+            if (request.ReviewId.HasValue)
+            {
+                reportType = (int)ReportType.Review;
+                targetId = request.ReviewId.Value;
+            }
+            else if (request.ReplyId.HasValue)
+            {
+                reportType = (int)ReportType.Reply;
+                targetId = request.ReplyId.Value;
+            }
+            else
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            // Check đã report chưa
+            bool alreadyReported = _context.ViolationReports.Any(r =>
                 r.Userid == userId &&
-                (
-                    (request.ReviewId != null && r.Reviewid == request.ReviewId) ||
-                    (request.ReplyId != null && r.Replyid == request.ReplyId)
-                )
+                r.Reporttype == reportType &&
+                r.Targetid == targetId
             );
 
             if (alreadyReported)
                 return Json(new { success = false, message = "Bạn đã báo cáo nội dung này rồi." });
 
-            var report = new ProductReviewReport
+            // Lưu vào bảng chuẩn
+            var report = new ViolationReport
             {
                 Userid = userId,
-                Reviewid = request.ReviewId,
-                Replyid = request.ReplyId,
+                Reporttype = reportType,
+                Targetid = targetId,
                 Reason = request.Reason,
                 Createdat = DateTime.Now,
-                Status = "Pending"
+                Status = (int)ReportStatus.Pending,
+                Isdeleted = false
             };
 
-            _context.ProductReviewReports.Add(report);
+            _context.ViolationReports.Add(report);
             _context.SaveChanges();
 
             return Json(new { success = true });
@@ -461,26 +482,13 @@ namespace COMICZONE.Controllers
                     IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == true),
                     IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == false),
 
-                    // trạng thái báo cáo
-                    IsReportedByUser = _context.ProductReviewReports
-                        .Any(rp => rp.Replyid == reply.Replyid && rp.Userid == userId && rp.Status == "Pending"),
-                    ReportStatus = _context.ProductReviewReports
-                        .Where(rp => rp.Replyid == reply.Replyid && rp.Userid == userId)
-                        .Select(rp => rp.Status)
-                        .FirstOrDefault()
                 }).ToList(),
 
                 LikeCount = _context.ProductReviewLikes.Count(l => l.Reviewid == r.Reviewid && (l.IsLike ?? false)),
                 IsLikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike ?? false)),
                 IsDislikedByUser = _context.ProductReviewLikes.Any(l => l.Reviewid == r.Reviewid && l.Userid == userId && (l.IsLike.HasValue && !l.IsLike.Value)),
 
-                // trạng thái báo cáo cho review
-                IsReportedByUser = _context.ProductReviewReports.Any(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId && rp.Status == "Pending"),
-                ReportStatus = _context.ProductReviewReports
-                    .Where(rp => rp.Reviewid == r.Reviewid && rp.Userid == userId)
-                    .Select(rp => rp.Status)
-                    .FirstOrDefault()
-                        }).ToList();
+            }).ToList();
 
             ViewBag.ProductId = productId;
             ViewBag.CurrentPage = page;
@@ -514,8 +522,14 @@ namespace COMICZONE.Controllers
                 _context.ProductReviewReplyLikes.RemoveRange(likes);
 
                 // Xóa báo cáo liên quan
-                var reports = _context.ProductReviewReports.Where(rp => rp.Replyid == replyId);
-                _context.ProductReviewReports.RemoveRange(reports);
+                // Xóa report liên quan đến reply
+                var reports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Reply &&
+                        r.Targetid == replyId
+                    );
+
+                _context.ViolationReports.RemoveRange(reports);
 
                 // Cuối cùng xóa reply
                 _context.ProductReviewReplies.Remove(reply);
@@ -525,7 +539,11 @@ namespace COMICZONE.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Xóa thất bại: " + ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
             }
         }
 
@@ -545,10 +563,16 @@ namespace COMICZONE.Controllers
             try
             {
                 // Xóa report của reply
-                var replyReports = _context.ProductReviewReports
-                    .Where(r => r.Reply != null && r.Reply.Reviewid == id);
+                var replyReports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Reply &&
+                        _context.ProductReviewReplies
+                            .Where(rep => rep.Reviewid == id)
+                            .Select(rep => rep.Replyid)
+                            .Contains(r.Targetid)
+                    );
 
-                _context.ProductReviewReports.RemoveRange(replyReports);
+                _context.ViolationReports.RemoveRange(replyReports);
 
                 // Xóa like của reply
                 var replyLikes = _context.ProductReviewReplyLikes
@@ -563,10 +587,13 @@ namespace COMICZONE.Controllers
                 _context.ProductReviewReplies.RemoveRange(replies);
 
                 // Xóa report của review
-                var reviewReports = _context.ProductReviewReports
-                    .Where(r => r.Reviewid == id);
+                var reviewReports = _context.ViolationReports
+                    .Where(r =>
+                        r.Reporttype == (int)ReportType.Review &&
+                        r.Targetid == id
+                    );
 
-                _context.ProductReviewReports.RemoveRange(reviewReports);
+                _context.ViolationReports.RemoveRange(reviewReports);
 
                 // Xóa like của review
                 var reviewLikes = _context.ProductReviewLikes

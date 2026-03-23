@@ -1,84 +1,131 @@
-﻿@model IEnumerable<COMICZONE.Models.ViolationReport>
+﻿@using COMICZONE.Models.Enums
+@model IEnumerable<COMICZONE.Models.ViolationReport>
+
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Báo cáo vi phạm";
+
+    string? content = null;
+
+    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
+    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
 }
 
-<h1>Index</h1>
+<div class="container-fluid">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-gradient bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📋 Báo cáo vi phạm</h4>
+        </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReportType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReviewId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReplyId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BlogCommentId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Reason)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsResolved)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReportType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReviewId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReplyId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BlogCommentId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Reason)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsResolved)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table align-middle table-hover custom-table">
+                    <thead>
+                        <tr>
+                            <th class="fw-bold text-center">Loại</th>
+                            <th class="fw-bold">Nội dung bị báo cáo</th>
+                            <th class="fw-bold">Lý do</th>
+                            <th class="fw-bold text-center">Trạng thái</th>
+                            <th class="fw-bold">Ngày gửi</th>
+                            <th class="fw-bold text-center">Đã xóa</th>
+                            <th class="fw-bold">Người gửi</th>
+                            <th class="fw-bold text-center">Hành động</th>
+                        </tr>
+                    </thead>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <!-- Loại -->
+                                    <td class="text-center">
+                                        <span class="badge rounded-pill px-3 py-2 fw-semibold
+                                            @(item.ReportTypeEnum == ReportType.Review
+                                                ? "bg-primary-subtle text-primary"
+                                                : "bg-success-subtle text-success")">
+
+                                            @item.ReportTypeEnum.GetDisplayName()
+                                        </span>
+                                    </td>
+
+                                    <!-- Nội dung bị báo cáo -->
+                                    <td>
+                                        @if (item.ReportTypeEnum == ReportType.Review)
+                                        {
+                                            content = reviewDict != null && reviewDict.ContainsKey(item.Targetid)
+                                            ? reviewDict[item.Targetid]
+                                            : "[Review đã bị xóa]";
+                                        }
+                                        else
+                                        {
+                                            content = replyDict != null && replyDict.ContainsKey(item.Targetid)
+                                            ? replyDict[item.Targetid]
+                                            : "[Reply đã bị xóa]";
+                                        }
+                                        @content
+                                    </td>
+
+                                    <!-- Lý do -->
+                                    <td class="text-muted">@item.Reason</td>
+
+                                    <!-- Trạng thái -->
+                                    <td class="text-center">
+                                        <span class="badge rounded-pill px-3 py-2 fw-semibold
+                                            @(item.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
+                                                item.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
+                                                "bg-danger-subtle text-danger")">
+									        @item.StatusEnum.GetDisplayName()
+                                        </span>
+                                    </td>
+
+                                    <!-- Ngày -->
+                                    <td class="text-nowrap">
+                                        @item.Createdat.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+
+                                    <!-- Đã xóa -->
+                                    <td class="text-center">
+                                        @if (item.Isdeleted)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger">Đã xóa</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success-subtle text-success">Còn</span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Người gửi -->
+                                    <td>
+                                        @(item.User != null ? item.User.Username : "[User đã bị xóa]")
+                                    </td>
+
+                                    <!-- Hành động -->
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">✏️</a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">🔍</a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">🗑</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                📭 Không có báo cáo nào
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

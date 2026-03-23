@@ -50,13 +50,13 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; }
 
-    public virtual DbSet<ProductReviewReport> ProductReviewReports { get; set; }
-
     public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<ViolationReport> ViolationReports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -324,24 +324,6 @@ public partial class ComiczoneContext : DbContext
                 .HasConstraintName("FK_PRODUCT_REVIEW_REPLY_LIKE_USER");
         });
 
-        modelBuilder.Entity<ProductReviewReport>(entity =>
-        {
-            entity.HasKey(e => e.Reportid).HasName("PK__PRODUCT___A85DEB2D0B3B8B15");
-
-            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status).HasDefaultValue("PENDING");
-
-            entity.HasOne(d => d.Reply).WithMany(p => p.ProductReviewReports).HasConstraintName("FK_REPORT_REPLY");
-
-            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReports)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__PRODUCT_R__REVIE__245D67DE");
-
-            entity.HasOne(d => d.User).WithMany(p => p.ProductReviewReports)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PRODUCT_R__USERI__25518C17");
-        });
-
         modelBuilder.Entity<ProductReviewSummary>(entity =>
         {
             entity.HasKey(e => e.Productid).HasName("PK__PRODUCT___34980AA2424C1B98");
@@ -368,10 +350,20 @@ public partial class ComiczoneContext : DbContext
             entity.Property(e => e.Role).HasDefaultValue("USER");
         });
 
+        modelBuilder.Entity<ViolationReport>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__VIOLATIO__3214EC275B182AA6");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Status).HasDefaultValue(1);
+
+            entity.HasOne(d => d.User).WithMany(p => p.ViolationReports)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_VIOLATIONREPORT_USER");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-public DbSet<COMICZONE.Models.ViolationReport> ViolationReport { get; set; } = default!;
 }

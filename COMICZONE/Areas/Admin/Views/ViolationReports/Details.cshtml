@@ -1,72 +1,113 @@
 ﻿@model COMICZONE.Models.ViolationReport
+@using COMICZONE.Models.Enums
 
 @{
-    ViewData["Title"] = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết báo cáo";
+
+    string? content = null;
+
+    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
+    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
 }
 
-<h1>Details</h1>
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 Chi tiết báo cáo #@Model.Id</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm">⬅ Quay lại</a>
+        </div>
 
-<div>
-    <h4>ViolationReport</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReportType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReportType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReviewId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReviewId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReplyId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReplyId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BlogCommentId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BlogCommentId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Reason)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Reason)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsResolved)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsResolved)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <!-- Body -->
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Loại -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Loại báo cáo</label><br />
+
+                    <span class="badge rounded-pill px-3 py-2 fw-semibold
+                        @(Model.ReportTypeEnum == ReportType.Review
+                            ? "bg-primary-subtle text-primary"
+                            : "bg-success-subtle text-success")">
+
+                        @Model.ReportTypeEnum.GetDisplayName()
+                    </span>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Trạng thái</label><br />
+
+                    <span class="badge rounded-pill px-3 py-2 fw-semibold
+                        @(Model.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
+                            Model.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
+                            "bg-danger-subtle text-danger")">
+
+                        @Model.StatusEnum.GetDisplayName()
+                    </span>
+                </div>
+
+                <!-- Ngày -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Ngày gửi</label><br />
+                    <span>@Model.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+
+                <!-- Người gửi -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Người gửi</label><br />
+                    <strong>@Model.User?.Username</strong>
+                </div>
+
+                <!-- Đã xóa -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Trạng thái dữ liệu</label><br />
+
+                    @if (Model.Isdeleted)
+                    {
+                        <span class="badge bg-danger-subtle text-danger px-3 py-2">Đã xóa</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success-subtle text-success px-3 py-2">Còn</span>
+                    }
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Nội dung bị báo cáo</label><br />
+                        @{
+                            if (Model.ReportTypeEnum == ReportType.Review)
+                            {
+                                content = reviewDict != null && reviewDict.ContainsKey(Model.Targetid)
+                                ? reviewDict[Model.Targetid]
+                                : "[Review đã bị xóa]";
+                            }
+                            else
+                            {
+                                content = replyDict != null && replyDict.ContainsKey(Model.Targetid)
+                                ? replyDict[Model.Targetid]
+                                : "[Reply đã bị xóa]";
+                            }
+                        }
+                        @content
+                </div>
+
+                <!-- Lý do -->
+                <div class="col-12">
+                    <label class="text-muted small">Lý do</label>
+                    <div class="p-3 border rounded-3 bg-light mt-1">
+                        @Model.Reason
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-end bg-white">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                ✏️ Chỉnh sửa
+            </a>
+        </div>
+    </div>
 </div>
