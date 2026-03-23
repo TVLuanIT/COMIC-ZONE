@@ -6,7 +6,7 @@ using System.Linq;
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class DashboardController : Controller
+    public class DashboardController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 

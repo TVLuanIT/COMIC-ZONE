@@ -11,7 +11,7 @@ using COMICZONE.Models;
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class TagsController : Controller
+    public class TagsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ViolationReportsController : Controller
+    public class ViolationReportsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 
