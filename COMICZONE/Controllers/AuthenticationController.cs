@@ -169,6 +169,11 @@ namespace COMICZONE.Controllers
                 // TODO: implement cookie login
             }
 
+            if (user.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
