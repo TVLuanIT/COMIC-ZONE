@@ -153,9 +153,21 @@ namespace COMICZONE.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Replycontent,Reviewid,Userid,Replytouserid,Parentreplyid")]
+            [Bind("Replycontent,Reviewid,Replytouserid,Parentreplyid")]
             ProductReviewReply reply)
         {
+            ModelState.Remove("User");
+            ModelState.Remove("Review");
+
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Authentication", new { area = "" });
+            }
+
+            reply.Userid = int.Parse(userId);
+
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -174,6 +186,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             reply.Createdat = DateTime.Now;
+
             _context.Add(reply);
             await _context.SaveChangesAsync();
 
