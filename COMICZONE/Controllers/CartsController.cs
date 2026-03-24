@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
 using COMICZONE.Models.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace COMICZONE.Controllers
 {
@@ -188,6 +189,5 @@ namespace COMICZONE.Controllers
 
             return Redirect(referer);
         }
-
     }
 }
