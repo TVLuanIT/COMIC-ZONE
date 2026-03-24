@@ -44,6 +44,8 @@ namespace COMICZONE
 
             builder.Services.AddSingleton<IVnPayService, VnPayService>();
 
+            builder.Services.AddHttpClient<GeminiChatService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
