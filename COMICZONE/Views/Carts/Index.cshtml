@@ -7,7 +7,6 @@
 }
 
 <div class="container mt-4">
-
     <h2 class="mb-4">
         <i class="bi bi-cart"></i> Giỏ hàng của bạn
     </h2>
@@ -28,16 +27,12 @@
     else
     {
         <div class="row mt-4">
-
             <!-- LEFT: CART TABLE -->
             <div class="col-lg-8">
-
                 <div class="card shadow-sm">
                     <div class="card-body">
-
                         <div style="max-height:400px; overflow-y:auto;">
                             <table class="table align-middle">
-
                                 <thead class="table-light sticky-header">
                                     <tr>
                                         <th>Product</th>
@@ -52,10 +47,8 @@
                                     @foreach (var item in Model.CartItems)
                                     {
                                         <tr>
-
                                             <td>
                                                 <div class="d-flex align-items-center">
-
                                                     <img src="@item.Product?.GetImagePath()"
                                                          width="60"
                                                          height="60"
@@ -63,7 +56,6 @@
                                                          style="object-fit:cover;" />
 
                                                     <strong>@item.Product?.Name</strong>
-
                                                 </div>
                                             </td>
 
@@ -93,24 +85,17 @@
                                                     <i class="bi bi-trash"></i>
                                                 </a>
                                             </td>
-
                                         </tr>
                                     }
-
                                 </tbody>
-
                             </table>
                         </div>
-
                     </div>
                 </div>
-
             </div>
 
             <!-- RIGHT: CHECKOUT CARD -->
             <partial name="_Payment" model="Model" />
-
         </div>
     }
-
 </div>

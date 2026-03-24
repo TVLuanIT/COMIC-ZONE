@@ -1,17 +1,24 @@
 ﻿@model COMICZONE.Models.Cart
 
 @{
-    var customer = ViewBag.Customer as COMICZONE.Models.Customer;
+    // Lấy dữ liệu từ TempData nếu có (sau khi submit lỗi)
+    var customer = TempData["CustomerFullname"] != null
+        ? new COMICZONE.Models.Customer
+        {
+            Fullname = (TempData["CustomerFullname"] as string) ?? "",
+            Phone = (TempData["CustomerPhone"] as string) ?? "",
+            Address = (TempData["CustomerAddress"] as string) ?? ""
+        }
+        // Nếu TempData null, lấy từ ViewBag.Customer (đã load từ database)
+        : (ViewBag.Customer as COMICZONE.Models.Customer ?? new COMICZONE.Models.Customer());
+
+    var errors = TempData["CheckoutErrors"] as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
 <div class="col-lg-4">
-
     <div class="card shadow-sm sticky-top" style="top:100px">
-
         <div class="card-body">
-
             <form asp-controller="Orders" asp-action="Checkout" method="post">
-
                 <h5 class="mb-3">Thông tin thanh toán</h5>
 
                 <div class="mb-3">
@@ -21,6 +28,11 @@
                            class="form-control"
                            placeholder="Nguyễn Văn A"
                            value="@customer?.Fullname">
+
+                    @if (errors != null && errors.ContainsKey("fullname"))
+                    {
+                        <span class="text-danger">@errors["fullname"]</span>
+                    }
                 </div>
 
                 <div class="mb-3">
@@ -30,6 +42,11 @@
                            class="form-control"
                            placeholder="09xxxxxxxx"
                            value="@customer?.Phone">
+
+                    @if (errors != null && errors.ContainsKey("phone"))
+                    {
+                        <span class="text-danger">@errors["phone"]</span>
+                    }
                 </div>
 
                 <div class="mb-3">
@@ -37,6 +54,11 @@
                     <textarea name="address"
                               class="form-control"
                               rows="2">@customer?.Address</textarea>
+
+                    @if (errors != null && errors.ContainsKey("address"))
+                    {
+                        <span class="text-danger">@errors["address"]</span>
+                    }
                 </div>
 
                 <div class="mb-3">
@@ -52,30 +74,30 @@
 
                     <select name="paymentMethod" class="form-select">
                         <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                        <option value="VNPay">VNPay</option>
-                        <option value="Momo">Momo</option>
+                        <option value="VnPay">VnPay</option>
+                        <option value="MoMo">Momo</option>
                     </select>
+
+                    @if (errors != null && errors.ContainsKey("paymentMethod"))
+                    {
+                        <span class="text-danger">@errors["paymentMethod"]</span>
+                    }
                 </div>
 
                 <hr />
 
                 <div class="d-flex justify-content-between">
-
                     <strong>Tổng tiền</strong>
 
                     <strong id="cart-total" class="text-danger">
                         @(Model.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0)).ToString("N0")) ₫
                     </strong>
-
                 </div>
 
                 <button class="btn btn-success w-100 mt-3">
                     Thanh toán
                 </button>
             </form>
-
         </div>
-
     </div>
-
 </div>

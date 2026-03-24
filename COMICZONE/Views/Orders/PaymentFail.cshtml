@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thất bại";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="card shadow-lg border-0 text-center" style="max-width:500px; width:100%;">
+        <div class="card-body p-5">
+            <div style="font-size:70px;">❌</div>
+
+            <h3 class="text-danger mb-3">Thanh toán thất bại</h3>
+
+            @if (TempData["Message"] != null)
+            {
+                <p class="text-muted">@TempData["Message"]</p>
+            }
+
+            <hr class="my-4" />
+
+            <div class="d-grid gap-2">
+                <a asp-controller="Carts"
+                   asp-action="Index"
+                   class="btn btn-outline-primary">
+                    Quay lại giỏ hàng
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Về trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

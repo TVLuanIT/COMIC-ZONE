@@ -1,4 +1,5 @@
 using COMICZONE.Data;
+using COMICZONE.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,8 @@ namespace COMICZONE
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddSingleton<IVnPayService, VnPayService>();
 
             var app = builder.Build();
 
