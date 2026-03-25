@@ -5,7 +5,6 @@ function openAvatarUpload() {
 }
 
 function uploadAvatar(input) {
-
     if (input.files.length === 0) return;
 
     const file = input.files[0];
@@ -14,7 +13,6 @@ function uploadAvatar(input) {
     const maxSize = 2 * 1024 * 1024;
 
     if (!allowedTypes.includes(file.type)) {
-
         Swal.fire({
             icon: 'warning',
             title: 'File không hợp lệ',
@@ -25,7 +23,6 @@ function uploadAvatar(input) {
     }
 
     if (file.size > maxSize) {
-
         Swal.fire({
             icon: 'warning',
             title: 'Ảnh quá lớn',
@@ -39,15 +36,12 @@ function uploadAvatar(input) {
     const reader = new FileReader();
 
     reader.onload = function (e) {
-
         let avatar = document.querySelector(".profile-avatar img");
 
         if (!avatar) {
-
             const defaultAvatar = document.querySelector(".default-avatar");
 
             if (defaultAvatar) {
-
                 avatar = document.createElement("img");
                 avatar.className = "avatar-img";
 
@@ -74,7 +68,6 @@ function uploadAvatar(input) {
         .then(data => {
 
             if (data.success) {
-
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
@@ -84,18 +77,14 @@ function uploadAvatar(input) {
                 }).then(() => location.reload());
 
             } else {
-
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
                     text: data.message
                 });
-
             }
-
         })
         .catch(err => {
-
             console.error(err);
 
             Swal.fire({
@@ -103,7 +92,6 @@ function uploadAvatar(input) {
                 title: 'Upload thất bại',
                 text: 'Không thể tải avatar.'
             });
-
         });
 }
 
@@ -336,9 +324,7 @@ const ProductReviews = (() => {
                 type: 'POST',
                 data: formData,
                 success: function (res) {
-
                     if (res.success) {
-
                         $('#review-text-' + reviewId)
                             .text(content)
                             .show();
@@ -369,7 +355,6 @@ const ProductReviews = (() => {
     };
 
     const initDeleteReview = () => {
-
         // tránh bind trùng
         $(document).off('click', '.delete-review');
         $(document).on('click', '.delete-review', function (e) {
@@ -389,7 +374,6 @@ const ProductReviews = (() => {
                 cancelButtonText: 'Hủy',
                 reverseButtons: true
             }).then((result) => {
-
                 if (!result.isConfirmed) return;
 
                 const token = $('input[name="__RequestVerificationToken"]').first().val();
@@ -402,9 +386,7 @@ const ProductReviews = (() => {
                         id: reviewId
                     },
                     success: function (res) {
-
                         if (res.success) {
-
                             // Xóa khỏi DOM
                             const reviewCard = $('.review-card')
                                 .find(`.delete-review[data-id="${reviewId}"]`)
@@ -430,14 +412,12 @@ const ProductReviews = (() => {
                         Swal.fire('Lỗi', 'Có lỗi xảy ra.', 'error');
                     }
                 });
-
             });
         });
     };
 
     // XÓA REPLY
     const initDeleteReply = () => {
-
         // Xóa các sự kiện cũ để tránh bind trùng
         $(document).off('click', '.delete-reply');
 
@@ -499,7 +479,6 @@ const ProductReviews = (() => {
 
 // XỬ LÝ PHẢN HỒI (REPLY) CHO REVIEW
 const ProductReplies = (() => {
-
     const batchSize = 5; // số reply hiển thị mỗi lần, có thể thay đổi
 
     const initReplyButtons = () => {
@@ -658,10 +637,8 @@ const ProductReplies = (() => {
     };
 
     const initReplyList = () => {
-
         document.querySelectorAll('.reply-list-container')
             .forEach(container => {
-
                 const replies = Array.from(container.querySelectorAll('.reply-item'));
                 const showBtn = container.querySelector('.show-replies-btn');
 
@@ -688,7 +665,6 @@ const ProductReplies = (() => {
                 showBtn.parentNode.replaceChild(newBtn, showBtn);
 
                 newBtn.addEventListener('click', () => {
-
                     const currentReplies = Array.from(container.querySelectorAll('.reply-item'));
                     const currentTotal = currentReplies.length;
 
@@ -730,12 +706,10 @@ const ProductReplies = (() => {
                         expanded = true;
                     }
                 });
-
             });
     };
 
     const initReplyToReplyButtons = () => {
-
         $(document).off('click', '.reply-to-reply');
 
         $(document).on('click', '.reply-to-reply', function (e) {
@@ -821,7 +795,6 @@ const ProductReplies = (() => {
 
         //Nút LƯU (AJAX)
         $(document).on("click", ".save-edit", function () {
-
             const replyItem = $(this).closest(".reply-item");
             const replyId = replyItem.data("reply-id");
             const newContent = replyItem.find(".edit-reply-text").val();
@@ -837,9 +810,7 @@ const ProductReplies = (() => {
                     content: newContent
                 },
                 success: function (res) {
-
                     if (res.success) {
-
                         // cập nhật nội dung
                         replyItem.find(".reply-content")
                             .text(newContent)
@@ -855,9 +826,7 @@ const ProductReplies = (() => {
 
                         // cập nhật thời gian
                         replyItem.find(".reply-date").text(res.updatedAt);
-
                     } else {
-
                         if (res.message === "Bạn cần đăng nhập.") {
                             showLoginRequired(res.message);
                             return;
@@ -880,13 +849,11 @@ const ProductReplies = (() => {
         initReplyToReplyButtons,
         initEditReply
     };
-
 })();
 
 //BÁO CÁO REVIEW / REPLY (BẤM NÚT → HIỆN MODAL ĐIỀN LÝ DO → GỬI AJAX) - CÓ CHECK LOGIN TRƯỚC KHI MỞ MODAL
 const ProductReport = (() => {
     const init = () => {
-
         // ================= CLICK REPORT =================
         $(document).off('click', '.report-review');
         $(document).on('click', '.report-review', function (e) {
@@ -908,7 +875,6 @@ const ProductReport = (() => {
             const modalElement = document.getElementById('reportModal');
 
             if (modalElement) {
-
                 const form = modalElement.querySelector('#reportForm');
                 if (form) form.reset();
 
@@ -941,7 +907,6 @@ const ProductReport = (() => {
                     submitBtn.prop('disabled', false).text(originalText);
 
                     if (res.success) {
-
                         const reviewId = form.find('input[name="ReviewId"]').val();
                         const replyId = form.find('input[name="ReplyId"]').val();
 
@@ -1004,9 +969,7 @@ const ProductReport = (() => {
 
 // MENU BA CHẤM CHO REVIEW CARD - USER PROFILE
 const ReviewMenu_UserProfile = (() => {
-
     const init = () => {
-
         // MENU BA CHẤM
         $(document).off('click', '.menu-btn');
 
@@ -1032,7 +995,6 @@ const ReviewMenu_UserProfile = (() => {
         $(document).off("click", ".delete-review");
         // click nút xóa
         $(document).on("click", ".delete-review", function (e) {
-
             e.preventDefault();
 
             reviewIdToDelete = $(this).data("id");
@@ -1043,14 +1005,11 @@ const ReviewMenu_UserProfile = (() => {
 
         // hủy
         $(document).on("click", "#deleteConfirmModal .btn-cancel", function () {
-
             $("#deleteConfirmModal").removeClass("active");
-
         });
 
         // xác nhận xóa
         $(document).on("click", "#deleteConfirmModal .btn-delete", function () {
-
             const token = $('input[name="__RequestVerificationToken"]').val();
 
             $.ajax({
@@ -1061,37 +1020,25 @@ const ReviewMenu_UserProfile = (() => {
                     __RequestVerificationToken: token
                 },
                 success: function (res) {
-
                     if (res.success) {
-
                         location.reload();
-
                     } else {
-
                         alert(res.message || "Không thể xóa đánh giá");
-
                     }
-
                 }
             });
-
         });
-
     };
 
     return { init };
-
 })();
 
 const ReplyMenu_UserProfile = (() => {
-
     let replyIdToDelete = null;
 
     const init = () => {
-
         // CLICK DELETE
         $(document).on("click", ".delete-reply", function (e) {
-
             e.preventDefault();
 
             replyIdToDelete = $(this).data("id");
@@ -1102,15 +1049,12 @@ const ReplyMenu_UserProfile = (() => {
 
         // CANCEL
         $(document).on("click", "#deleteReplyConfirmModal .btn-cancel", function () {
-
             $("#deleteReplyConfirmModal").removeClass("active");
             replyIdToDelete = null;
-
         });
 
         // CONFIRM DELETE
         $(document).on("click", "#deleteReplyConfirmModal .btn-delete", function () {
-
             const token = $('input[name="__RequestVerificationToken"]').val();
 
             $.ajax({
@@ -1121,37 +1065,24 @@ const ReplyMenu_UserProfile = (() => {
                     __RequestVerificationToken: token
                 },
                 success: function (res) {
-
                     if (res.success) {
-
                         location.href = window.location.pathname + "?tab=replies";
-
                     } else {
-
                         alert(res.message || "Không thể xóa phản hồi");
-
                     }
-
                 },
                 error: function () {
-
                     alert("Lỗi server");
-
                 }
             });
-
         });
-
     };
 
     return { init };
-
 })();
 
 const UrlTabs = {
-
     init() {
-
         const params = new URLSearchParams(window.location.search);
         const tab = params.get("tab");
 
@@ -1162,17 +1093,12 @@ const UrlTabs = {
         if (trigger) {
             new bootstrap.Tab(trigger).show();
         }
-
     }
-
 };
 
 const AutoAlert = (() => {
-
     const init = () => {
-
         if (window.successMessage) {
-
             const toast = document.createElement("div");
             toast.className = "toast-notification";
             toast.innerText = window.successMessage;
@@ -1191,20 +1117,15 @@ const AutoAlert = (() => {
     };
 
     return { init };
-
 })();
 
 // =============================
 // CART QUANTITY UPDATE (AJAX)
 // =============================
 const CartQuantity = (() => {
-
     const init = () => {
-
         document.querySelectorAll(".quantity-input").forEach(input => {
-
             input.addEventListener("change", function () {
-
                 const cartItemId = this.dataset.cartitemId;
                 const quantity = this.value;
 
@@ -1223,9 +1144,7 @@ const CartQuantity = (() => {
                         return res.json();
                     })
                     .then(data => {
-
                         if (data.success) {
-
                             // cập nhật tổng tiền item
                             const row = input.closest("tr");
                             const totalCell = row.querySelector(".item-total");
@@ -1240,22 +1159,132 @@ const CartQuantity = (() => {
                             if (cartTotal) {
                                 cartTotal.innerText = data.cartTotal + " ₫";
                             }
-
                         }
-
                     })
                     .catch(err => {
                         console.error(err);
                     });
-
             });
-
         });
-
     };
 
     return { init };
+})();
 
+// =============================
+// _Layout.cshtml(chatbot ai)
+// =============================
+const ChatbotAI = (() => {
+
+    const init = () => {
+        chatbot();
+        restoreHistory();
+    };
+
+    const restoreHistory = () => {
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        const messagesContainer = document.getElementById('chatbot-messages');
+        history.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
+            div.innerHTML = msg.text;
+            messagesContainer.appendChild(div);
+        });
+    };
+
+    const chatbot = () => {
+        const icon = document.getElementById("chatbot-icon");
+        const windowChat = document.getElementById("chatbot-window");
+        const closeBtn = document.getElementById("close-chat");
+        const input = document.getElementById("chatbot-input");
+        const sendBtn = document.getElementById("chatbot-send");
+        const messages = document.getElementById("chatbot-messages");
+
+        if (!icon || !windowChat || !input || !messages) return;
+
+        /* open chat */
+        icon.onclick = () => {
+            const isHidden = windowChat.style.display !== "flex";
+            windowChat.style.display = isHidden ? "flex" : "none";
+            input.focus();
+
+            // welcome message chỉ xuất hiện nếu chưa từng mở
+            if (isHidden && !localStorage.getItem('chatOpened')) {
+                const welcome = { sender: 'bot', text: `Xin chào 👋<br>Mình là trợ lý COMICZONE.<br>Bạn đang tìm truyện tranh hay manga nào?` };
+                appendMessage(welcome);
+                saveMessage(welcome);
+                localStorage.setItem('chatOpened', 'true');
+            }
+        };
+
+        /* close chat */
+        if (closeBtn) closeBtn.onclick = () => windowChat.style.display = "none";
+
+        /* send message handler */
+        const sendMessage = async () => {
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const userMsg = { sender: 'user', text: messageText };
+            appendMessage(userMsg);
+            saveMessage(userMsg);
+
+            input.value = '';
+
+            // typing indicator
+            const typing = document.createElement("div");
+            typing.className = "bot-msg typing";
+            typing.innerText = "Đang trả lời...";
+            messages.appendChild(typing);
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const response = await fetch("/Chatbot/SendMessage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: messageText })  // gửi object
+                });
+                const data = await response.json();
+
+                typing.remove();
+                const botMsg = { sender: 'bot', text: data.reply };
+                appendMessage(botMsg);
+                saveMessage(botMsg);
+            }
+            catch {
+                typing.remove();
+                const errorMsg = { sender: 'bot', text: 'Chatbot đang bận, thử lại sau.' };
+                appendMessage(errorMsg);
+                saveMessage(errorMsg);
+            }
+
+            messages.scrollTop = messages.scrollHeight;
+        };
+
+        /* enter key send */
+        input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
+
+        /* button send */
+        if (sendBtn) sendBtn.onclick = sendMessage;
+
+        /* helper: append to DOM */
+        function appendMessage(msg) {
+            const div = document.createElement('div');
+            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
+            div.innerHTML = msg.text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        /* helper: save to localStorage */
+        function saveMessage(msg) {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            history.push(msg);
+            localStorage.setItem('chatHistory', JSON.stringify(history));
+        }
+    };
+
+    return { init };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1266,25 +1295,21 @@ document.addEventListener('DOMContentLoaded', () => {
     UrlTabs.init();
     AutoAlert.init();
     CartQuantity.init();
+    ChatbotAI.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
 
     if (productIdElement) {
-
         const id = parseInt(productIdElement.value);
 
         if (!isNaN(id)) {
-
             ProductReviews.init(id);
-
         }
-
     }
 
     // ===== LOGIN REQUIRED POPUP =====
     if (window.loginRequiredMessage) {
         showLoginRequired(window.loginRequiredMessage);
     }
-
 });

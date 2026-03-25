@@ -44,6 +44,10 @@ namespace COMICZONE
 
             builder.Services.AddSingleton<IVnPayService, VnPayService>();
 
+            builder.Services.AddScoped<IProductSearchService, ProductSearchService>();
+            builder.Services.AddScoped<IChatbotService, ChatbotService>();
+            builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
