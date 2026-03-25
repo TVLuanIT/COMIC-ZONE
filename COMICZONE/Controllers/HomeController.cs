@@ -2,21 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using COMICZONE.Data;
+using COMICZONE.Models;
+using COMICZONE.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.Data;
-using COMICZONE.Models;
 
 namespace COMICZONE.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ComiczoneContext _context;
 
-        public HomeController(ComiczoneContext context)
+        private readonly IRecommendationService _recommendService;
+
+        public HomeController(ComiczoneContext context, IRecommendationService recommendService)
         {
             _context = context;
+
+            _recommendService = recommendService;
         }
 
         public IActionResult About()
@@ -27,6 +33,22 @@ namespace COMICZONE.Controllers
         // GET: Home
         public async Task<IActionResult> Index(string? keyword)
         {
+            var userId = CurrentUserId();
+
+            if (IsLoggedIn() && userId != null)
+            {
+                ViewBag.ModelRecommended = await _recommendService.GetRecommendedProductsAsync(userId);
+            }
+            else
+            {
+                ViewBag.ModelRecommended = await _context.Products
+                    .Include(p => p.Pictures)
+                    .OrderByDescending(p => p.ReleaseDate)
+                    .ThenByDescending(p => p.OrderItems.Count)
+                    .Take(8)
+                    .ToListAsync();
+            }
+
             // Nổi bật trong tuần (Featured) → ví dụ dựa vào view count hoặc tiêu chí khác
             var ModelFeatured = await _context.Products
                 .Include(p => p.Pictures)

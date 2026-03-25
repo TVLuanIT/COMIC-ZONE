@@ -4,6 +4,7 @@
     // Lấy dữ liệu sản phẩm từ ViewBag
     var ModelFeatured = ViewBag.ModelFeatured as IEnumerable<COMICZONE.Models.Product>;
     var ModelLatest = ViewBag.ModelLatest as IEnumerable<COMICZONE.Models.Product>;
+	var ModelRecommended = ViewBag.ModelRecommended as IEnumerable<COMICZONE.Models.Product>;
 }
 
 <!-- BANNER -->
@@ -37,6 +38,19 @@
         <span class="carousel-control-next-icon"></span>
     </button>
 </div>
+
+<!-- GỢI Ý CHO BẠN -->
+@if (ViewBag.ModelRecommended != null)
+{
+    ViewBag.SectionTitle = "Gợi Ý Cho Bạn";
+    ViewBag.SectionIcon = "bi-heart text-primary";
+    ViewBag.CarouselId = "recommendCarousel";
+    ViewBag.ViewMoreLink = Url.Action("Index", "Products");
+    ViewBag.SectionDescription = "Những tựa truyện phù hợp với sở thích của bạn.";
+    ViewBag.BackgroundClass = "bg-light";
+
+    @await Html.PartialAsync("_HomeProduct.cshtml", ModelRecommended)
+}
 
 <!-- NỔI BẬT TRONG TUẦN -->
 @{

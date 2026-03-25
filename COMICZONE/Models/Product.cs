@@ -84,6 +84,9 @@ public partial class Product
     [InverseProperty("Product")]
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 
+    [InverseProperty("Product")]
+    public virtual ICollection<UserProductView> UserProductViews { get; set; } = new List<UserProductView>();
+
     [ForeignKey("ProductId")]
     [InverseProperty("Products")]
     public virtual ICollection<Artist> Artists { get; set; } = new List<Artist>();
