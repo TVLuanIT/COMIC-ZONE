@@ -48,6 +48,8 @@ namespace COMICZONE
             builder.Services.AddScoped<IChatbotService, ChatbotService>();
             builder.Services.AddHttpClient<IGeminiService, GeminiService>();
 
+            builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

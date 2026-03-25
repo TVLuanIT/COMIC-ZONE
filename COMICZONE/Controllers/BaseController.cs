@@ -8,5 +8,10 @@ namespace COMICZONE.Controllers
         {
             return HttpContext.Session.GetString("UserId") != null;
         }
+
+        protected string? CurrentUserId()
+        {
+            return HttpContext.Session.GetString("UserId");
+        }
     }
 }
