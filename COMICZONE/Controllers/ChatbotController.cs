@@ -28,7 +28,7 @@ public class ChatbotController : Controller
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Json(new { reply = "The chatbot is currently busy, please try again later." });
+            return Json(new { reply = "LỖI HỆ THỐNG C#: " + ex.Message + "\n" + ex.StackTrace });
         }
     }
 }

@@ -1,3 +1,5 @@
+using COMICZONE.Helpers;
+
 namespace COMICZONE.Services
 {
     public class ChatbotService : IChatbotService
@@ -15,21 +17,21 @@ namespace COMICZONE.Services
         {
             if (string.IsNullOrWhiteSpace(message))
                 return "Bạn cần hỗ trợ gì ạ?";
-                
-            var contextData = await _searchService.GetStoreContextAsync(message);
+
+            var intent = await _geminiService.AnalyzeIntentAsync(message);
+
+            if (intent.Intent == "get_shipping_info")
+                return FormatProductHelper.GetShippingInfo();
+
+            var dbData = await _searchService.ExecuteDatabaseQueryAsync(intent);
 
             var prompt = $@"
-                Bạn là trợ lý ảo thân thiện của nhà sách COMICZONE.
-                
-                DỮ LIỆU HỆ THỐNG CUNG CẤP CHO BẠN:
-                {contextData}
-                
-                NGUYÊN TẮC: 
-                - Hãy dùng [THỐNG KÊ CỬA HÀNG] để trả lời nếu khách hỏi thông tin quy mô, số lượng.
-                - Hãy dùng [DỮ LIỆU TÌM KIẾM RIÊNG] để trả lời các tên truyện/giá truyện khách hỏi.
-                - Không bịa thông tin không có trong dữ liệu.
-
-                Câu hỏi khách hàng: {message}
+                Bạn là nhân viên COMICZONE.
+                Dữ liệu hệ thống:
+                {dbData}
+                Câu hỏi khách:
+                {message}
+                Hãy trả lời thân thiện, chính xác.
                 ";
 
             return await _geminiService.SendAsync(prompt);

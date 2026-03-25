@@ -1,6 +1,8 @@
 using COMICZONE.Data;
+using COMICZONE.Models;
 using COMICZONE.Services;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Helpers;
 
 public class ProductSearchService : IProductSearchService
 {
@@ -46,11 +48,77 @@ public class ProductSearchService : IProductSearchService
         }
 
         return $@"
-[THỐNG KÊ CỬA HÀNG]
-- Tổng số lượng bộ truyện trên website COMICZONE là: {totalComics} bộ.
+            [THỐNG KÊ CỬA HÀNG]
+            - Tổng số lượng bộ truyện trên website COMICZONE là: {totalComics} bộ.
 
-[DỮ LIỆU TÌM KIẾM RIÊNG CHO CÂU HỎI LẦN NÀY]
-{searchData}
-";
+            [DỮ LIỆU TÌM KIẾM RIÊNG CHO CÂU HỎI LẦN NÀY]
+            {searchData}
+            ";
+    }
+
+    public async Task<string> ExecuteDatabaseQueryAsync(ChatbotIntent intent)
+    {
+        if (intent == null || string.IsNullOrEmpty(intent.Intent))
+        {
+            return "Xin lỗi, tôi chưa hiểu rõ câu hỏi. Bạn có thể hỏi lại giúp tôi không?";
+        }
+
+        switch (intent.Intent)
+        {
+            case "count_products":
+
+                var total = await _context.Products.CountAsync();
+
+                return $"Tổng số truyện hiện có: {total}";
+
+
+            case "search_products":
+
+                if (string.IsNullOrEmpty(intent.Keyword))
+                    return "Bạn muốn tìm truyện gì ạ?";
+
+                var products = await _context.Products
+                    .Where(p => p.Name.Contains(intent.Keyword))
+                    .Take(5)
+                    .ToListAsync();
+
+                return FormatProductHelper.FormatProducts(products);
+
+
+            case "filter_products":
+
+                if (intent.MaxPrice == null)
+                    return "Bạn muốn lọc theo mức giá bao nhiêu ạ?";
+
+                var filtered = await _context.Products
+                    .Where(p => p.Price <= intent.MaxPrice)
+                    .Take(5)
+                    .ToListAsync();
+
+                return FormatProductHelper.FormatProducts(filtered);
+
+
+            case "get_new_products":
+
+                var newest = await _context.Products
+                    .Where(p => p.ReleaseDate != null)
+                    .OrderByDescending(p => p.ReleaseDate)
+                    .Take(5)
+                    .ToListAsync();
+
+                return FormatProductHelper.FormatProducts(newest);
+
+
+            case "get_shipping_info":
+
+                return FormatProductHelper.GetShippingInfo();
+
+
+            case "general_chat":
+                return "Bạn là nhân viên thân thiện, hãy chào hỏi và sẵn sàng giúp khách tìm truyện, kiểm tra tồn kho, hoặc báo giá.";
+
+            default:
+                return "Dữ liệu trống, hãy tự trả lời khéo léo.";
+        }
     }
 }
