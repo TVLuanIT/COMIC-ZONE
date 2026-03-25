@@ -1,4 +1,4 @@
-﻿using COMICZONE.Data;
+using COMICZONE.Data;
 using COMICZONE.Models;
 using COMICZONE.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,72 +14,74 @@ public class RecommendationService : IRecommendationService
 
     public async Task<List<Product>> GetRecommendedProductsAsync(string userId)
     {
-        var userIdInt = int.Parse(userId);
+        if (!int.TryParse(userId, out int userIdInt))
+            return await GetFallbackProducts();
 
-        // Lấy sản phẩm user đã mua
-        var purchasedProducts = await _context.OrderItems
-            .Where(o => o.Order.UserId == userIdInt)
-            .Select(o => o.Product)
+        // lịch sử xem
+        var viewedProductIds = await _context.UserProductViews
+            .Where(v => v.UserId == userIdInt)
+            .Select(v => v.ProductId)
             .ToListAsync();
 
-        if (!purchasedProducts.Any())
-        {
-            return await GetFallbackProducts();
-        }
-
-        var authors = purchasedProducts
-            .Where(p => p.Author != null)
-            .Select(p => p.Author)
-            .Distinct()
-            .ToList();
-
-        var series = purchasedProducts
-            .Where(p => p.Series != null)
-            .Select(p => p.Series)
-            .Distinct()
-            .ToList();
-
-        var publishers = purchasedProducts
-            .Where(p => p.Publisher != null)
-            .Select(p => p.Publisher)
-            .Distinct()
-            .ToList();
-
-        var ageGroups = purchasedProducts
-            .Where(p => p.AgeGroup != null)
-            .Select(p => p.AgeGroup)
-            .Distinct()
-            .ToList();
-
-        var tagIds = await _context.OrderItems
+        // lịch sử mua
+        var purchasedProductIds = await _context.OrderItems
             .Where(o => o.Order.UserId == userIdInt)
-            .SelectMany(o => o.Product.Tags)
+            .Select(o => o.ProductId)
+            .ToListAsync();
+
+        var interactedProductIds = viewedProductIds
+            .Union(purchasedProductIds)
+            .Distinct()
+            .ToList();
+
+        if (!interactedProductIds.Any())
+            return await GetFallbackProducts();
+
+
+        // AUTHOR
+        var authors = await _context.Products
+            .Where(p => interactedProductIds.Contains(p.Id))
+            .Select(p => p.Author)
+            .Where(a => a != null)
+            .Distinct()
+            .ToListAsync();
+
+
+        // SERIES
+        var series = await _context.Products
+            .Where(p => interactedProductIds.Any(id => id == p.Id))
+            .Select(p => p.Series)
+            .Where(s => s != null)
+            .Distinct()
+            .ToListAsync();
+
+
+        // TAG (dùng navigation property Tags trực tiếp)
+        var tagIds = await _context.Products
+            .Where(p => interactedProductIds.Any(id => id == p.Id))
+            .SelectMany(p => p.Tags)
             .Select(t => t.Id)
             .Distinct()
             .ToListAsync();
 
-        var purchasedIds = purchasedProducts.Select(p => p.Id).ToList();
-
         var recommended = await _context.Products
             .Where(p =>
-                !purchasedIds.Contains(p.Id) &&
+                !interactedProductIds.Contains(p.Id)
+                &&
                 (
-                    authors.Contains(p.Author) ||
-                    series.Contains(p.Series) ||
-                    publishers.Contains(p.Publisher) ||
-                    ageGroups.Contains(p.AgeGroup) ||
-                    p.Tags.Any(t => tagIds.Contains(t.Id))
+                    authors.Contains(p.Author)
+                    || series.Contains(p.Series)
+                    || p.Tags.Any(t => tagIds.Contains(t.Id))
                 )
             )
-            .OrderByDescending(p => p.ReleaseDate)
             .Include(p => p.Pictures)
+            .Include(p => p.Tags)
+            .OrderByDescending(p => p.ReleaseDate)
             .Take(8)
             .ToListAsync();
 
         if (!recommended.Any())
-        {
             return await GetFallbackProducts();
-        }
 
         return recommended;
     }
@@ -87,10 +89,11 @@ public class RecommendationService : IRecommendationService
     private async Task<List<Product>> GetFallbackProducts()
     {
         return await _context.Products
+            .Include(p => p.Pictures)
+            .Include(p => p.Tags)
             .OrderByDescending(p => p.OrderItems.Count)
             .ThenByDescending(p => p.ReleaseDate)
             .Take(8)
-            .Include(p => p.Pictures)
             .ToListAsync();
     }
 }

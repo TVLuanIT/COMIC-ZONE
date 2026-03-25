@@ -34,7 +34,7 @@ namespace COMICZONE
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ComiczoneContext>(options =>
-                options.UseSqlServer(connectionString)
+                options.UseSqlServer(connectionString, o => o.UseCompatibilityLevel(120))
                        .LogTo(Console.WriteLine));
             //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //    .AddEntityFrameworkStores<ComiczoneContext>();

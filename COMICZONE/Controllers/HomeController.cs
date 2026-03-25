@@ -42,12 +42,9 @@ namespace COMICZONE.Controllers
             else
             {
                 ViewBag.ModelRecommended = await _context.Products
-                    .OrderByDescending(p => p.OrderItems.Count)
-                    .ThenByDescending(p => p.ProductReviewSummary != null
-                        ? p.ProductReviewSummary.Averagerating
-                        : 0)
-                    .ThenByDescending(p => p.ReleaseDate)
                     .Include(p => p.Pictures)
+                    .OrderByDescending(p => p.ReleaseDate)
+                    .ThenByDescending(p => p.OrderItems.Count)
                     .Take(8)
                     .ToListAsync();
             }
@@ -79,11 +76,6 @@ namespace COMICZONE.Controllers
             // Gửi dữ liệu vào ViewBag để Index.cshtml sử dụng
             ViewBag.ModelFeatured = ModelFeatured;
             ViewBag.ModelLatest = ModelLatest;
-
-            Console.WriteLine(
-    "Recommended count: " +
-    ((List<Product>)ViewBag.ModelRecommended)?.Count
-);
 
             return View();
         }

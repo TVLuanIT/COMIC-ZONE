@@ -56,6 +56,8 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserProductView> UserProductViews { get; set; }
+
     public virtual DbSet<ViolationReport> ViolationReports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -348,6 +350,21 @@ public partial class ComiczoneContext : DbContext
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Isactive).HasDefaultValue(true);
             entity.Property(e => e.Role).HasDefaultValue("USER");
+        });
+
+        modelBuilder.Entity<UserProductView>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__USER_PRO__3214EC27F3A9CF02");
+
+            entity.Property(e => e.ViewedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.UserProductViews)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_USER_PRODUCT_VIEW_PRODUCT");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserProductViews)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_USER_PRODUCT_VIEW_USER");
         });
 
         modelBuilder.Entity<ViolationReport>(entity =>

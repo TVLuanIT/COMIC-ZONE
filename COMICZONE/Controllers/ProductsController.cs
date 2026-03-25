@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController : BaseController
     {
         private readonly ComiczoneContext _context;
 
@@ -35,6 +35,31 @@ namespace COMICZONE.Controllers
             if (product == null)
             {
                 return NotFound();
+            }
+
+            // Lưu lịch sử xem sản phẩm (recommendation tracking)
+            if (IsLoggedIn())
+            {
+                if(int.TryParse(CurrentUserId(), out int userId))
+                {
+                    var exists = await _context.UserProductViews.AnyAsync(x =>
+                        x.UserId == userId &&
+                        x.ProductId == id &&
+                        x.ViewedAt > DateTime.Now.AddMinutes(-30)
+                    );
+
+                    if (!exists)
+                    {
+                        _context.UserProductViews.Add(new UserProductView
+                        {
+                            UserId = userId,
+                            ProductId = id,
+                            ViewedAt = DateTime.Now
+                        });
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
             }
 
             ViewBag.ActiveTab = tab; // Tab active
