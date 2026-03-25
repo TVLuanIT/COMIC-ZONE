@@ -1242,7 +1242,7 @@ const ChatbotAI = (() => {
                 const response = await fetch("/Chatbot/SendMessage", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(messageText)
+                    body: JSON.stringify({ message: messageText })  // gửi object
                 });
                 const data = await response.json();
 

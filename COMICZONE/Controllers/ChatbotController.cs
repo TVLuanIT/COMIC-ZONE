@@ -1,21 +1,34 @@
+using COMICZONE.Services;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("Chatbot")]
 public class ChatbotController : Controller
 {
-    private readonly GeminiChatService _chatService;
+    private readonly IChatbotService _chatService;
 
-    public ChatbotController(GeminiChatService chatService)
+    public ChatbotController(IChatbotService chatService)
     {
         _chatService = chatService;
     }
 
-    [HttpPost("SendMessage")]
-    public async Task<IActionResult> SendMessage([FromBody] string message)
+    public class ChatMessageDto
     {
-        var response = await _chatService.SendMessageAsync(message);
+        public string Message { get; set; }
+    }
 
-        return Json(new { reply = response });
+    [HttpPost("SendMessage")]
+    public async Task<IActionResult> SendMessage([FromBody] ChatMessageDto dto)
+    {
+        try
+        {
+            var reply = await _chatService.GetReplyAsync(dto.Message);
+            return Json(new { reply });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Json(new { reply = "The chatbot is currently busy, please try again later." });
+        }
     }
 }
