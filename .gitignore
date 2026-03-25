@@ -416,3 +416,5 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/COMICZONE/appsettings.json
+/COMICZONE/appsettings.json
