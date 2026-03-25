@@ -1176,11 +1176,21 @@ const CartQuantity = (() => {
 // =============================
 const ChatbotAI = (() => {
 
-    let firstOpen = true;
-
     const init = () => {
         chatbot();
-    }
+        restoreHistory();
+    };
+
+    const restoreHistory = () => {
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        const messagesContainer = document.getElementById('chatbot-messages');
+        history.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
+            div.innerHTML = msg.text;
+            messagesContainer.appendChild(div);
+        });
+    };
 
     const chatbot = () => {
         const icon = document.getElementById("chatbot-icon");
@@ -1195,94 +1205,82 @@ const ChatbotAI = (() => {
         /* open chat */
         icon.onclick = () => {
             const isHidden = windowChat.style.display !== "flex";
-
             windowChat.style.display = isHidden ? "flex" : "none";
-
             input.focus();
 
-            /* welcome message */
-            if (isHidden && firstOpen) {
-                messages.innerHTML += `
-                    <div class="bot-msg">
-                        Xin chào 👋<br>
-                        Mình là trợ lý COMICZONE.<br>
-                        Bạn đang tìm truyện tranh hay manga nào?
-                    </div>
-                `;
-                firstOpen = false;
-
-                messages.scrollTop = messages.scrollHeight;
+            // welcome message chỉ xuất hiện nếu chưa từng mở
+            if (isHidden && !localStorage.getItem('chatOpened')) {
+                const welcome = { sender: 'bot', text: `Xin chào 👋<br>Mình là trợ lý COMICZONE.<br>Bạn đang tìm truyện tranh hay manga nào?` };
+                appendMessage(welcome);
+                saveMessage(welcome);
+                localStorage.setItem('chatOpened', 'true');
             }
         };
 
         /* close chat */
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                windowChat.style.display = "none";
-            };
-        }
+        if (closeBtn) closeBtn.onclick = () => windowChat.style.display = "none";
 
         /* send message handler */
         const sendMessage = async () => {
-            let message = input.value.trim();
+            const messageText = input.value.trim();
+            if (!messageText) return;
 
-            if (!message) return;
+            const userMsg = { sender: 'user', text: messageText };
+            appendMessage(userMsg);
+            saveMessage(userMsg);
 
-            /* render user message */
-            messages.innerHTML += `<div class="user-msg">${message}</div>`;
+            input.value = '';
 
-            input.value = "";
-
-            /* typing indicator */
+            // typing indicator
             const typing = document.createElement("div");
-
             typing.className = "bot-msg typing";
-
             typing.innerText = "Đang trả lời...";
-
             messages.appendChild(typing);
-
             messages.scrollTop = messages.scrollHeight;
 
             try {
-                const response = await fetch(
-                    "/Chatbot/SendMessage",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(message)
-                    }
-                );
-
+                const response = await fetch("/Chatbot/SendMessage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(messageText)
+                });
                 const data = await response.json();
 
                 typing.remove();
-
-                messages.innerHTML += `<div class="bot-msg">${data.reply}</div>`;
+                const botMsg = { sender: 'bot', text: data.reply };
+                appendMessage(botMsg);
+                saveMessage(botMsg);
             }
             catch {
                 typing.remove();
-
-                messages.innerHTML +=
-                    `<div class="bot-msg error">
-                        Chatbot đang bận, thử lại sau.
-                    </div>`;
+                const errorMsg = { sender: 'bot', text: 'Chatbot đang bận, thử lại sau.' };
+                appendMessage(errorMsg);
+                saveMessage(errorMsg);
             }
 
             messages.scrollTop = messages.scrollHeight;
         };
 
         /* enter key send */
-        input.addEventListener("keypress", e => {
-            if (e.key === "Enter")
-                sendMessage();
-        });
+        input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
         /* button send */
-        if (sendBtn) {
-            sendBtn.onclick = sendMessage;
+        if (sendBtn) sendBtn.onclick = sendMessage;
+
+        /* helper: append to DOM */
+        function appendMessage(msg) {
+            const div = document.createElement('div');
+            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
+            div.innerHTML = msg.text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        /* helper: save to localStorage */
+        function saveMessage(msg) {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            history.push(msg);
+            localStorage.setItem('chatHistory', JSON.stringify(history));
         }
     };
 
