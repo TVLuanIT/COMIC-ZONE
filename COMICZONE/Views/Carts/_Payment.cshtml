@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.Cart
+@model COMICZONE.Models.Cart
 
 @{
     // Lấy dữ liệu từ TempData nếu có (sau khi submit lỗi)
@@ -29,9 +29,9 @@
                            placeholder="Nguyễn Văn A"
                            value="@customer?.Fullname">
 
-                    @if (errors != null && errors.ContainsKey("fullname"))
+                    @if (errors != null && errors.ContainsKey("Fullname"))
                     {
-                        <span class="text-danger">@errors["fullname"]</span>
+                        <span class="text-danger">@errors["Fullname"]</span>
                     }
                 </div>
 
@@ -43,9 +43,9 @@
                            placeholder="09xxxxxxxx"
                            value="@customer?.Phone">
 
-                    @if (errors != null && errors.ContainsKey("phone"))
+                    @if (errors != null && errors.ContainsKey("Phone"))
                     {
-                        <span class="text-danger">@errors["phone"]</span>
+                        <span class="text-danger">@errors["Phone"]</span>
                     }
                 </div>
 
@@ -55,9 +55,9 @@
                               class="form-control"
                               rows="2">@customer?.Address</textarea>
 
-                    @if (errors != null && errors.ContainsKey("address"))
+                    @if (errors != null && errors.ContainsKey("Address"))
                     {
-                        <span class="text-danger">@errors["address"]</span>
+                        <span class="text-danger">@errors["Address"]</span>
                     }
                 </div>
 
@@ -78,9 +78,9 @@
                         <option value="MoMo">Momo</option>
                     </select>
 
-                    @if (errors != null && errors.ContainsKey("paymentMethod"))
+                    @if (errors != null && errors.ContainsKey("PaymentMethod"))
                     {
-                        <span class="text-danger">@errors["paymentMethod"]</span>
+                        <span class="text-danger">@errors["PaymentMethod"]</span>
                     }
                 </div>
 

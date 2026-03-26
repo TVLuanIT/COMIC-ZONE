@@ -43,10 +43,16 @@ public partial class Order
     public DateTime? CreatedAt { get; set; }
 
     [InverseProperty("Order")]
+    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+
+    [InverseProperty("Order")]
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     [InverseProperty("Order")]
     public virtual ICollection<OrderStatusHistory> OrderStatusHistories { get; set; } = new List<OrderStatusHistory>();
+
+    [InverseProperty("Order")]
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     [ForeignKey("UserId")]
     [InverseProperty("Orders")]

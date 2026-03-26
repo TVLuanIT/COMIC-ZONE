@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,16 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Requests;
 using COMICZONE.Services;
+using COMICZONE.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.ViewModels;
 
 namespace COMICZONE.Controllers
 {
-    public class OrdersController : Controller
+    public class OrdersController : BaseController
     {
         private readonly ComiczoneContext _context;
         private readonly IVnPayService _vnPayservice;
@@ -53,14 +54,31 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout(string fullname, string phone, string address, string note, string paymentMethod)
+        public IActionResult Checkout(CheckoutViewModel model)
         {
-            var userIdStr = HttpContext.Session.GetString("UserId");
+            var userIdStr = CurrentUserId();
 
-            if (string.IsNullOrEmpty(userIdStr))
+            if (!IsLoggedIn())
                 return RedirectToAction("Login", "Authentication");
 
-            int userId = int.Parse(userIdStr);
+            if (!int.TryParse(userIdStr, out int userId))
+                return RedirectToAction("Login", "Authentication");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["CheckoutErrors"] = ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .ToDictionary(
+                        k => k.Key,
+                        v => v.Value?.Errors.First().ErrorMessage
+                    );
+
+                TempData["CustomerFullname"] = model.Fullname;
+                TempData["CustomerPhone"] = model.Phone;
+                TempData["CustomerAddress"] = model.Address;
+
+                return RedirectToAction("Index", "Carts");
+            }
 
             var cart = _context.Carts
                 .Include(c => c.CartItems)
@@ -73,114 +91,177 @@ namespace COMICZONE.Controllers
                 return RedirectToAction("Index", "Carts");
             }
 
-            // Validate input
-            var errors = new Dictionary<string, string>();
-            if (string.IsNullOrWhiteSpace(fullname))
-                errors["fullname"] = "Họ và tên không được để trống";
-            if (string.IsNullOrWhiteSpace(phone))
-                errors["phone"] = "Số điện thoại không được để trống";
-            if (string.IsNullOrWhiteSpace(address))
-                errors["address"] = "Địa chỉ không được để trống";
-            if (string.IsNullOrWhiteSpace(paymentMethod))
-                errors["paymentMethod"] = "Chọn phương thức thanh toán";
-
-            if (errors.Any())
-            {
-                // Không return View("Index", cart") nữa
-                TempData["CheckoutErrors"] = errors;
-                TempData["CustomerFullname"] = fullname;
-                TempData["CustomerPhone"] = phone;
-                TempData["CustomerAddress"] = address;
-
-                return RedirectToAction("Index", "Carts");
-            }
-
             decimal totalAmount = cart.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0));
 
-            // COD → xử lý luôn
-            if (paymentMethod == "COD")
+            // ================= COD =================
+            if (model.PaymentMethod == "COD")
             {
-                CreateOrder(userId, address, phone, note, "COD", true, null);
+                CreateOrder(new CreateOrderRequest
+                {
+                    UserId = userId,
+                    Address = model.Address,
+                    Phone = model.Phone,
+                    Note = model.Note,
+                    PaymentMethod = "COD",
+                    IsPaid = false,
+                    TransactionId = null
+                });
+
                 return RedirectToAction("Success");
             }
 
-            // VNPay → chuyển sang cổng thanh toán
-            if (paymentMethod == "VnPay")
+            if (model.PaymentMethod == "VnPay")
             {
+                HttpContext.Session.SetString("Checkout_Address", model.Address);
+                HttpContext.Session.SetString("Checkout_Phone", model.Phone);
+                HttpContext.Session.SetString("Checkout_Note", model.Note ?? "");
+                
                 var vnPayModel = new VnPaymentRequestModel
                 {
                     Amount = (double)(totalAmount * 100),
                     CreatedDate = DateTime.Now,
-                    Description = $"Thanh toán đơn hàng của {fullname}",
-                    FullName = fullname,
-                    OrderId = new Random().Next(1000, 10000) // Tạo mã đơn hàng ngẫu nhiên
+                    Description = $"Thanh toán đơn hàng của {model.Fullname}",
+                    FullName = model.Fullname,
+                    OrderId = new Random().Next(1000, 10000)
                 };
 
                 return Redirect(_vnPayservice.CreatePaymentUrl(HttpContext, vnPayModel));
             }
 
-            // Nếu phương thức khác không hợp lệ
             TempData["Error"] = "Phương thức thanh toán không hợp lệ.";
             return RedirectToAction("Index", "Carts");
         }
 
-        private void CreateOrder(int userId, string address, string phone, string note, string paymentMethod, bool isPaid, string? transactionId)
+        private void CreateOrder(CreateOrderRequest request)
         {
-            var cartItems = _context.CartItems
-                .Include(x => x.Product)
-                .Include(x => x.Cart)
-                .Where(x => x.Cart.UserId == userId)
-                .ToList();
+            using var transaction = _context.Database.BeginTransaction();
 
-            if (!cartItems.Any())
-                throw new Exception("Cart is empty");
-
-            var order = new Order
+            try
             {
-                UserId = userId,
-                ShippingAddress = address,
-                PhoneNumber = phone,
-                Note = note,
-                CreatedAt = DateTime.Now,
-                OrderDate = DateTime.Now,
-                Status = "Pending",
-                TotalAmount = cartItems.Sum(x => x.Product.Price * x.Quantity)
-            };
+                var cartItems = _context.CartItems
+                    .Include(x => x.Product)
+                    .Include(x => x.Cart)
+                    .Where(x => x.Cart.UserId == request.UserId)
+                    .ToList();
 
-            _context.Orders.Add(order);
-            _context.SaveChanges();
+                if (!cartItems.Any())
+                    throw new Exception("Cart is empty");
 
-            foreach (var item in cartItems)
-            {
-                var orderDetail = new OrderItem
+                decimal totalAmount = cartItems.Sum(x => (x.Product.Price ?? 0) * x.Quantity);
+
+                var order = new Order
                 {
-                    OrderId = order.OrderId,
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    Price = item.Product.Price
+                    UserId = request.UserId,
+                    ShippingAddress = request.Address,
+                    PhoneNumber = request.Phone,
+                    Note = request.Note,
+                    CreatedAt = DateTime.Now,
+                    OrderDate = DateTime.Now,
+                    Status = request.IsPaid ? "Paid" : "Pending",
+                    TotalAmount = totalAmount
                 };
 
-                _context.OrderItems.Add(orderDetail);
+                _context.Orders.Add(order);
+                _context.SaveChanges();
+
+
+                var paymentMethodEntity = _context.PaymentMethods
+                    .FirstOrDefault(p => p.Name == request.PaymentMethod);
+
+                if (paymentMethodEntity == null)
+                    throw new Exception("Payment method not found");
+
+
+                var payment = new Payment
+                {
+                    OrderId = order.OrderId,
+                    Amount = totalAmount,
+                    PaymentMethodId = paymentMethodEntity.Id,
+                    PaymentStatus = request.IsPaid ? "SUCCESS" : "PENDING",
+                    TransactionId = request.TransactionId,
+                    CreatedAt = DateTime.Now,
+                    PaidAt = request.IsPaid ? DateTime.Now : null
+                };
+
+                _context.Payments.Add(payment);
+
+                foreach (var item in cartItems)
+                {
+                    _context.OrderItems.Add(new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        Price = item.Product.Price
+                    });
+                }
+
+                _context.CartItems.RemoveRange(cartItems);
+
+                _context.SaveChanges();
+
+                transaction.Commit();
             }
-
-            _context.SaveChanges();
-
-            _context.CartItems.RemoveRange(cartItems);
-            _context.SaveChanges();
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
         public IActionResult PaymentCallBack()
         {
-            var reponse = _vnPayservice.PaymentExecute(Request.Query);
-            if(reponse == null || reponse.VnPayResponseCode != "00")
+            var response = _vnPayservice.PaymentExecute(Request.Query);
+
+            if (response == null || response.VnPayResponseCode != "00")
             {
-                TempData["Message"] = $"Lỗi thanh toán VN Pay: {reponse.VnPayResponseCode}";
+                TempData["Message"] = $"Lỗi thanh toán VN Pay: {response?.VnPayResponseCode}";
+
                 return RedirectToAction("PaymentFail");
             }
 
-            // Tạo đơn hàng sau khi thanh toán thành công
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication");
+
+            if (!int.TryParse(CurrentUserId(), out int userId))
+                return RedirectToAction("Login", "Authentication");
+
+            // tránh duplicate order nếu callback chạy lại
+            var existedPayment = _context.Payments.FirstOrDefault(p => p.TransactionId == response.TransactionId);
+
+            if (existedPayment != null)
+                return RedirectToAction("Success");
+
+            var address = HttpContext.Session.GetString("Checkout_Address");
+
+            var phone = HttpContext.Session.GetString("Checkout_Phone");
+
+            var note = HttpContext.Session.GetString("Checkout_Note");
+
+            if (address == null || phone == null)
+            {
+                TempData["Message"] = "Phiên thanh toán đã hết hạn.";
+
+                return RedirectToAction("Index", "Carts");
+            }
+
+            CreateOrder(new CreateOrderRequest
+            {
+                UserId = userId,
+                Address = address,
+                Phone = phone,
+                Note = note,
+                PaymentMethod = "VnPay",
+                IsPaid = true,
+                TransactionId = response.TransactionId ?? "UNKNOWN"
+            });
 
             TempData["Message"] = "Thanh toán VN Pay thành công!";
+
+            HttpContext.Session.Remove("Checkout_Address");
+            HttpContext.Session.Remove("Checkout_Phone");
+            HttpContext.Session.Remove("Checkout_Note");
+
             return RedirectToAction("Success");
         }
 
