@@ -10,39 +10,37 @@ namespace COMICZONE.Models;
 public partial class Payment
 {
     [Key]
-    [Column("PAYMENT_ID")]
-    public int PaymentId { get; set; }
+    [Column("PAYMENTID")]
+    public int Paymentid { get; set; }
 
-    [Column("ORDER_ID")]
-    public int OrderId { get; set; }
+    [Column("ORDERID")]
+    public int Orderid { get; set; }
 
     [Column("AMOUNT", TypeName = "decimal(12, 2)")]
     public decimal Amount { get; set; }
 
-    [Column("PAYMENT_METHOD_ID")]
-    public int PaymentMethodId { get; set; }
-
-    [Column("PAYMENT_STATUS")]
+    [Column("PAYMENTSTATUS")]
     [StringLength(20)]
-    public string? PaymentStatus { get; set; }
+    public string? Paymentstatus { get; set; }
 
-    [Column("TRANSACTION_ID")]
+    [Column("TRANSACTIONID")]
     [StringLength(255)]
-    public string? TransactionId { get; set; }
+    public string? Transactionid { get; set; }
 
-    [Column("CREATED_AT", TypeName = "datetime")]
-    public DateTime? CreatedAt { get; set; }
+    [Column("CREATEDAT", TypeName = "datetime")]
+    public DateTime? Createdat { get; set; }
 
-    [Column("PAID_AT", TypeName = "datetime")]
-    public DateTime? PaidAt { get; set; }
+    [Column("PAIDAT", TypeName = "datetime")]
+    public DateTime? Paidat { get; set; }
 
-    [ForeignKey("OrderId")]
+    [Column("PAYMENTMETHOD")]
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? Paymentmethod { get; set; }
+
+    [ForeignKey("Orderid")]
     [InverseProperty("Payments")]
     public virtual Order Order { get; set; } = null!;
-
-    [ForeignKey("PaymentMethodId")]
-    [InverseProperty("Payments")]
-    public virtual PaymentMethod PaymentMethod { get; set; } = null!;
 
     [InverseProperty("Payment")]
     public virtual ICollection<PaymentTransaction> PaymentTransactions { get; set; } = new List<PaymentTransaction>();

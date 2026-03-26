@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using COMICZONE.Models.Requests;
 using COMICZONE.Services;
 using COMICZONE.ViewModels;
@@ -94,7 +95,7 @@ namespace COMICZONE.Controllers
             decimal totalAmount = cart.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0));
 
             // ================= COD =================
-            if (model.PaymentMethod == "COD")
+            if (model.PaymentMethod == PaymentMethod.COD)
             {
                 CreateOrder(new CreateOrderRequest
                 {
@@ -110,7 +111,7 @@ namespace COMICZONE.Controllers
                 return RedirectToAction("Success");
             }
 
-            if (model.PaymentMethod == "VnPay")
+            if (model.PaymentMethod == PaymentMethod.VNPAY)
             {
                 HttpContext.Session.SetString("Checkout_Address", model.Address);
                 HttpContext.Session.SetString("Checkout_Phone", model.Phone);
@@ -157,30 +158,24 @@ namespace COMICZONE.Controllers
                     Note = request.Note,
                     CreatedAt = DateTime.Now,
                     OrderDate = DateTime.Now,
-                    Status = request.IsPaid ? "Paid" : "Pending",
+                    Status = request.IsPaid ? "COMPLETED" : "PENDING",
                     TotalAmount = totalAmount
                 };
 
                 _context.Orders.Add(order);
                 _context.SaveChanges();
 
-
-                var paymentMethodEntity = _context.PaymentMethods
-                    .FirstOrDefault(p => p.Name == request.PaymentMethod);
-
-                if (paymentMethodEntity == null)
-                    throw new Exception("Payment method not found");
-
-
                 var payment = new Payment
                 {
-                    OrderId = order.OrderId,
+                    Orderid = order.OrderId,
                     Amount = totalAmount,
-                    PaymentMethodId = paymentMethodEntity.Id,
-                    PaymentStatus = request.IsPaid ? "SUCCESS" : "PENDING",
-                    TransactionId = request.TransactionId,
-                    CreatedAt = DateTime.Now,
-                    PaidAt = request.IsPaid ? DateTime.Now : null
+                    Paymentmethod = request.PaymentMethod,
+                    Paymentstatus = request.IsPaid
+                        ? PaymentStatus.SUCCESS.ToString()
+                        : PaymentStatus.PENDING.ToString(),
+                    Transactionid = request.TransactionId,
+                    Createdat = DateTime.Now,
+                    Paidat = request.IsPaid ? DateTime.Now : null
                 };
 
                 _context.Payments.Add(payment);
@@ -227,7 +222,7 @@ namespace COMICZONE.Controllers
                 return RedirectToAction("Login", "Authentication");
 
             // tránh duplicate order nếu callback chạy lại
-            var existedPayment = _context.Payments.FirstOrDefault(p => p.TransactionId == response.TransactionId);
+            var existedPayment = _context.Payments.FirstOrDefault(p => p.Transactionid == response.TransactionId);
 
             if (existedPayment != null)
                 return RedirectToAction("Success");
@@ -251,7 +246,7 @@ namespace COMICZONE.Controllers
                 Address = address,
                 Phone = phone,
                 Note = note,
-                PaymentMethod = "VnPay",
+                PaymentMethod = PaymentMethod.VNPAY.ToString(),
                 IsPaid = true,
                 TransactionId = response.TransactionId ?? "UNKNOWN"
             });

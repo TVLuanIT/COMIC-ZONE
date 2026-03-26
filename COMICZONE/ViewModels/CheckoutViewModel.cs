@@ -1,7 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+using COMICZONE.Models.Enums;
+
 namespace COMICZONE.ViewModels
 {
-    using System.ComponentModel.DataAnnotations;
-
     public class CheckoutViewModel
     {
         [Required(ErrorMessage = "Họ và tên không được để trống")]
@@ -16,6 +17,6 @@ namespace COMICZONE.ViewModels
         public string? Note { get; set; }
 
         [Required(ErrorMessage = "Chọn phương thức thanh toán")]
-        public string PaymentMethod { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
     }
 }

@@ -44,8 +44,6 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
-
     public virtual DbSet<PaymentTransaction> PaymentTransactions { get; set; }
 
     public virtual DbSet<Picture> Pictures { get; set; }
@@ -243,25 +241,14 @@ public partial class ComiczoneContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__PAYMENT__D2C4FF4636EF55F3");
+            entity.HasKey(e => e.Paymentid).HasName("PK__PAYMENT__D2C4FF4636EF55F3");
 
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.PaymentStatus).HasDefaultValue("PENDING");
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Paymentstatus).HasDefaultValue("PENDING");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PAYMENT_ORDER");
-
-            entity.HasOne(d => d.PaymentMethod).WithMany(p => p.Payments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PAYMENT_METHOD");
-        });
-
-        modelBuilder.Entity<PaymentMethod>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__PAYMENT___3214EC2781C205E7");
-
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<PaymentTransaction>(entity =>
