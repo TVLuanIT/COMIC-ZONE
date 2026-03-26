@@ -72,6 +72,14 @@
                 </a>
             </li>
 
+            <li class="@(action == "MyHistory" ? "active" : "")">
+                <a asp-controller="Products"
+                   asp-action="ViewedHistory"
+                   class="menu-link">
+					Lịch sử xem truyện
+                </a>
+            </li>
+
             <li class="@(action == "Notifications" ? "active" : "")">
                 <a asp-controller="UserProfiles"
                    asp-action="Notifications"

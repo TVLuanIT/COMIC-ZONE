@@ -1,9 +1,8 @@
 ﻿@model PaginationModel
 
-@if (Model.TotalPages > 1)
+@if (Model.TotalPages > 1 && Model != null)
 {
     <div class="pagination">
-
         @{
             var routeValues = new Dictionary<string, string>();
 
@@ -53,6 +52,5 @@
                 »
             </a>
         }
-
     </div>
 }
