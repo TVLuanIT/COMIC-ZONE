@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -293,6 +293,64 @@ namespace COMICZONE.Controllers
                 keyword = keyword,
                 page = 1
             });
+        }
+
+        public async Task<IActionResult> ViewedHistory(int page = 1)
+        {
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication");
+
+            if (!int.TryParse(CurrentUserId(), out int userId))
+                return RedirectToAction("Login", "Authentication");
+
+            int pageSize = 6;
+
+            // 1. Lấy ID + thời gian xem gần nhất
+            var productIds = await _context.UserProductViews
+                .Where(v => v.UserId == userId)
+                .GroupBy(v => v.ProductId)
+                .Select(g => new
+                {
+                    ProductId = g.Key,
+                    LastViewed = g.Max(x => x.ViewedAt)
+                })
+                .OrderByDescending(x => x.LastViewed)
+                .Select(x => x.ProductId)
+                .ToListAsync();
+
+            // 2. Pagination
+            var pagedIds = productIds
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // 3. Lấy product
+            var products = await _context.Products
+                .Include(p => p.Pictures)
+                .Where(p => pagedIds.Contains(p.Id))
+                .ToListAsync();
+
+            // 4. Giữ thứ tự
+            var orderedProducts = pagedIds
+                .Select(id => products.FirstOrDefault(p => p.Id == id))
+                .Where(p => p != null)
+                .ToList();
+
+            // 5. Pagination model
+            int totalItems = productIds.Count;
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = totalPages,
+                Action = "ViewedHistory",
+                Controller = "Products",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
+
+            return View("~/Views/UserProfiles/MyHistory.cshtml", orderedProducts);
         }
     }
 }

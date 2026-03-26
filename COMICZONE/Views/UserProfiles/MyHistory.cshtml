@@ -1,0 +1,14 @@
+﻿@model List<COMICZONE.Models.Product>
+
+@{
+    ViewData["Title"] = "Sản phẩm đã xem";
+}
+
+<div class="profile-container">
+
+    <!-- SIDEBAR -->
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
+
+    @await Html.PartialAsync("_MyHistory.cshtml", Model)
+
+</div>
