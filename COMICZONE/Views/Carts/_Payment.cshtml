@@ -24,6 +24,7 @@
                 <div class="mb-3">
                     <label class="form-label">Họ và tên</label>
                     <input type="text"
+                           id="FullName"
                            name="fullname"
                            class="form-control"
                            placeholder="Nguyễn Văn A"
@@ -38,6 +39,7 @@
                 <div class="mb-3">
                     <label class="form-label">Số điện thoại</label>
                     <input type="text"
+                           id="Phone"
                            name="phone"
                            class="form-control"
                            placeholder="09xxxxxxxx"
@@ -52,6 +54,7 @@
                 <div class="mb-3">
                     <label class="form-label">Địa chỉ</label>
                     <textarea name="address"
+                              id="Address"
                               class="form-control"
                               rows="2">@customer?.Address</textarea>
 
@@ -72,10 +75,10 @@
                 <div class="mb-3">
                     <label class="form-label">Phương thức thanh toán</label>
 
-                    <select name="paymentMethod" class="form-select">
+                    <select name="paymentMethod" class="form-select" id="payment-method">
                         <option value="COD">Thanh toán khi nhận hàng (COD)</option>
                         <option value="VnPay">VnPay</option>
-                        <option value="MoMo">Momo</option>
+                        <option value="Paypal">Paypal</option>
                     </select>
 
                     @if (errors != null && errors.ContainsKey("PaymentMethod"))
@@ -94,9 +97,16 @@
                     </strong>
                 </div>
 
-                <button class="btn btn-success w-100 mt-3">
+                <!-- Nút PayPal -->
+                <div id="paypal-button-container" style="display:none;"></div>
+
+                <!-- Nút thanh toán mặc định -->
+                <button id="default-submit-button" class="btn btn-success w-100 mt-3">
                     Thanh toán
                 </button>
+
+                <!-- Input ẩn để lưu Transaction ID -->
+                <input type="hidden" id="paypalTransactionId" name="PaypalTransactionId" />
             </form>
         </div>
     </div>

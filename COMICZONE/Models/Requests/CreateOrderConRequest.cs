@@ -1,6 +1,6 @@
 ﻿namespace COMICZONE.Models.Requests
 {
-    public class CreateOrderRequest
+    public class CreateOrderConRequest
     {
         public int UserId { get; set; }
 

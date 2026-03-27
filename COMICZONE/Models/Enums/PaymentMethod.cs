@@ -10,7 +10,7 @@ namespace COMICZONE.Models.Enums
         [Display(Name = "VNPay")]
         VNPAY = 2,
 
-        [Display(Name = "MoMo")]
-        MOMO = 3,
+        [Display(Name = "Paypal")]
+        PAYPAL = 3,
     }
 }

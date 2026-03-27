@@ -99,3 +99,10 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <!-- Load SDK trước -->
+    <script src="https://www.paypal.com/sdk/js?client-id=@ViewBag.PaypalClientId"></script>
+    <!-- Sau đó mới tới JS của bạn -->
+    <script src="~/js/paypal.js" asp-append-version="true"></script>
+}

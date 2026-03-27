@@ -18,5 +18,8 @@ namespace COMICZONE.ViewModels
 
         [Required(ErrorMessage = "Chọn phương thức thanh toán")]
         public PaymentMethod PaymentMethod { get; set; }
+
+        // Transaction ID do PayPal trả về (nếu phương thức là PayPal)
+        public string? PaypalTransactionId { get; set; }
     }
 }

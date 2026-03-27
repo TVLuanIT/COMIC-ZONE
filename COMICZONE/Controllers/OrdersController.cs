@@ -21,11 +21,13 @@ namespace COMICZONE.Controllers
     {
         private readonly ComiczoneContext _context;
         private readonly IVnPayService _vnPayservice;
+        private readonly PaypalClient _paypalClient;
 
-        public OrdersController(ComiczoneContext context, IVnPayService vnPayservice)
+        public OrdersController(ComiczoneContext context, IVnPayService vnPayservice, PaypalClient paypalClient)
         {
             _context = context;
             _vnPayservice = vnPayservice;
+            _paypalClient = paypalClient;
         }
 
         public IActionResult OrderDetails(int id)
@@ -97,7 +99,7 @@ namespace COMICZONE.Controllers
             // ================= COD =================
             if (model.PaymentMethod == PaymentMethod.COD)
             {
-                CreateOrder(new CreateOrderRequest
+                CreateOrder(new CreateOrderConRequest
                 {
                     UserId = userId,
                     Address = model.Address,
@@ -116,7 +118,7 @@ namespace COMICZONE.Controllers
                 HttpContext.Session.SetString("Checkout_Address", model.Address);
                 HttpContext.Session.SetString("Checkout_Phone", model.Phone);
                 HttpContext.Session.SetString("Checkout_Note", model.Note ?? "");
-                
+
                 var vnPayModel = new VnPaymentRequestModel
                 {
                     Amount = (double)(totalAmount * 100),
@@ -129,11 +131,21 @@ namespace COMICZONE.Controllers
                 return Redirect(_vnPayservice.CreatePaymentUrl(HttpContext, vnPayModel));
             }
 
+            if (model.PaymentMethod == PaymentMethod.PAYPAL)
+            {
+                HttpContext.Session.SetString("Checkout_Address", model.Address);
+                HttpContext.Session.SetString("Checkout_Phone", model.Phone);
+                HttpContext.Session.SetString("Checkout_Note", model.Note ?? "");
+
+                return RedirectToAction("Success");
+            }
+
             TempData["Error"] = "Phương thức thanh toán không hợp lệ.";
+
             return RedirectToAction("Index", "Carts");
         }
 
-        private void CreateOrder(CreateOrderRequest request)
+        private void CreateOrder(CreateOrderConRequest request)
         {
             using var transaction = _context.Database.BeginTransaction();
 
@@ -240,7 +252,7 @@ namespace COMICZONE.Controllers
                 return RedirectToAction("Index", "Carts");
             }
 
-            CreateOrder(new CreateOrderRequest
+            CreateOrder(new CreateOrderConRequest
             {
                 UserId = userId,
                 Address = address,
@@ -264,5 +276,97 @@ namespace COMICZONE.Controllers
         {
             return View();
         }
+
+        #region Paypal payment
+        [HttpPost("/Orders/create-paypal-order")]
+        public async Task<IActionResult> CreatePaypalOrder(CancellationToken cancellationToken)
+        {
+            if (!IsLoggedIn())
+                return BadRequest("Bạn cần đăng nhập trước khi thanh toán.");
+
+            if (!int.TryParse(CurrentUserId(), out int userId))
+                return BadRequest("Không xác định được danh tính người dùng.");
+
+            var cart = _context.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null || !cart.CartItems.Any())
+                return BadRequest("Giỏ hàng của bạn đang trống.");
+
+            var tongTienVND = cart.CartItems.Sum(p =>
+                p.Quantity * (p.Product?.Price ?? 0));
+
+            decimal usdRate = 25400;
+            var tongTienUSD = Math.Round(tongTienVND / usdRate, 2);
+
+            var stringUSD = tongTienUSD.ToString(
+                "0.00",
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+
+            try
+            {
+                var response = await _paypalClient.CreateOrder(
+                    stringUSD,
+                    "USD",
+                    "DH" + DateTime.Now.Ticks.ToString()
+                );
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+
+        [HttpPost("/Orders/capture-paypal-order")]
+        public async Task<IActionResult> CapturePaypalOrder(string orderID, CancellationToken cancellationToken)
+        {
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication");
+
+            if (!int.TryParse(CurrentUserId(), out int userId))
+                return RedirectToAction("Login", "Authentication");
+
+            try
+            {
+                var response = await _paypalClient.CaptureOrder(orderID);
+
+                //lưu đơn hàng vào database
+                if (response.status != "COMPLETED")
+                    return BadRequest("Thanh toán chưa hoàn tất");
+
+                var address = HttpContext.Session.GetString("Checkout_Address");
+                var phone = HttpContext.Session.GetString("Checkout_Phone");
+                var note = HttpContext.Session.GetString("Checkout_Note");
+
+                CreateOrder(new CreateOrderConRequest
+                {
+                    UserId = userId,
+                    Address = address,
+                    Phone = phone,
+                    Note = note,
+                    PaymentMethod = PaymentMethod.PAYPAL.ToString(),
+                    IsPaid = true,
+                    TransactionId = orderID
+                });
+
+                HttpContext.Session.Remove("Checkout_Address");
+                HttpContext.Session.Remove("Checkout_Phone");
+                HttpContext.Session.Remove("Checkout_Note");
+
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+        #endregion
     }
 }
