@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -102,17 +102,23 @@ namespace COMICZONE.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var order = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(i => i.Product)
+                        .ThenInclude(p => p.Pictures)
+                .Include(o => o.Payments)
+                    .ThenInclude(p => p.PaymentTransactions)
+                .Include(o => o.Payments)
+                    .ThenInclude(p => p.Refunds)
+                .Include(o => o.Invoices)
+                .Include(o => o.OrderStatusHistories)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
+
             if (order == null)
-            {
                 return NotFound();
-            }
 
             return View(order);
         }
@@ -123,14 +129,43 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
+                .Include(o => o.OrderStatusHistories)
+                .Include(o => o.Invoices)
+                .Include(o => o.Payments)
+                    .ThenInclude(p => p.PaymentTransactions)
+                .Include(o => o.Payments)
+                    .ThenInclude(p => p.Refunds)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order != null)
             {
-                // XÓA order items trước
-                _context.OrderItems.RemoveRange(order.OrderItems);
+                // 1. Delete associated Payments and their transactions/refunds
+                if (order.Payments != null && order.Payments.Any())
+                {
+                    foreach (var payment in order.Payments)
+                    {
+                        if (payment.PaymentTransactions != null && payment.PaymentTransactions.Any())
+                            _context.PaymentTransactions.RemoveRange(payment.PaymentTransactions);
 
-                // Sau đó xóa order
+                        if (payment.Refunds != null && payment.Refunds.Any())
+                            _context.Refunds.RemoveRange(payment.Refunds);
+                    }
+                    _context.Payments.RemoveRange(order.Payments);
+                }
+
+                // 2. Delete OrderStatusHistories
+                if (order.OrderStatusHistories != null && order.OrderStatusHistories.Any())
+                    _context.OrderStatusHistories.RemoveRange(order.OrderStatusHistories);
+
+                // 3. Delete Invoices
+                if (order.Invoices != null && order.Invoices.Any())
+                    _context.Invoices.RemoveRange(order.Invoices);
+
+                // 4. Delete OrderItems
+                if (order.OrderItems != null && order.OrderItems.Any())
+                    _context.OrderItems.RemoveRange(order.OrderItems);
+
+                // 5. Delete Order
                 _context.Orders.Remove(order);
 
                 await _context.SaveChangesAsync();

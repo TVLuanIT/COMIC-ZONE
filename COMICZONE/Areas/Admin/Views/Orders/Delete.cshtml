@@ -1,16 +1,8 @@
-﻿@using COMICZONE.Extensions;
-@model COMICZONE.Models.Order
+﻿@model COMICZONE.Models.Order
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Xóa đơn hàng";
-
-    var statusText = new Dictionary<string, string>
-    {
-        { "Pending", "Chờ xử lý" },
-        { "Completed", "Hoàn thành" },
-        { "Cancelled", "Đã hủy" }
-    };
 }
 
 <div class="container-fluid">
@@ -22,15 +14,15 @@
                 Xóa đơn hàng #@Model.OrderId
             </h4>
 
-            <span class="badge
-                @(Model.Status == "Pending" ? "bg-warning text-dark" :
-                    Model.Status == "Completed" ? "bg-success" :
-                    Model.Status == "Cancelled" ? "bg-danger" :
-                    "bg-secondary")">
+            <span class="badge @(Model.OrderStatusEnum switch
+                  {
+                      OrderStatus.Pending => "bg-warning text-dark",
+                      OrderStatus.Completed => "bg-success",
+                      OrderStatus.Cancelled => "bg-danger",
+                      _ => "bg-secondary"
+                  })">
 
-                @(statusText.ContainsKey(Model.Status ?? "")
-                    ? statusText[Model.Status ?? ""]
-                    : Model.Status)
+                @Model.OrderStatusEnum.GetDisplayName()
             </span>
         </div>
 
@@ -90,6 +82,117 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Sản phẩm trong đơn hàng
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Giá</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>@Html.Raw(item.Product?.GetProductCell())</td>
+                                    
+                                    <td class="text-center align-middle">
+                                        @item.Quantity
+                                    </td>
+
+                                    <td class="text-end align-middle">
+                                        @((item.Price ?? 0).ToVnd())
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if (Model.Payments?.Any() == true)
+            {
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            Thanh toán liên quan
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <div class="border rounded p-2 mb-2">
+                                <div>
+                                    Phương thức thanh toán:
+
+                                    <strong>
+                                        @payment.PaymentMethodEnum.GetDisplayName()
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    Trạng thái:
+
+                                    <strong>
+                                        @payment.PaymentStatusEnum.GetDisplayName()
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    Giao dịch:
+                                    
+                                    <strong>
+                                        @(payment.PaymentTransactions?.Count ?? 0)
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    Hoàn trả:
+
+                                    <strong>
+                                        @(payment.Refunds?.Count ?? 0)
+                                    </strong>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+
+            @if (Model.OrderStatusHistories?.Any() == true)
+            {
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            Lịch sử trạng thái
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        @foreach (var history in Model.OrderStatusHistories)
+                        {
+                            <div>
+                                @history.OrderStatusEnum.GetDisplayName() - @history.UpdatedAt
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            }
+
         </div>
 
         <!-- RIGHT -->

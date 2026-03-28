@@ -16,8 +16,11 @@ namespace COMICZONE.Helpers
             return "<span class='badge bg-primary'>Đang xử lý</span>";
         }
 
-        public static string GetProductCell(this Product product)
+        public static string GetProductCell(this Product? product)
         {
+            if (product == null)
+                return "<span class='text-muted'>Sản phẩm đã bị xóa</span>";
+
             return $"""
                 <div class='d-flex align-items-center gap-2'>
                     <img src='{product.GetImagePath()}'

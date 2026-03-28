@@ -1,19 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace COMICZONE.Extensions
 {
     public static class EnumExtensions
     {
-        public static string GetDisplayName(this Enum enumValue)
+        public static string GetDisplayName(this Enum? enumValue)
         {
+            if (enumValue == null)
+                return "Không xác định";
+
             var member = enumValue.GetType()
                 .GetMember(enumValue.ToString())
                 .First();
 
             var attribute = member
-                .GetCustomAttributes(typeof(DisplayAttribute), false)
-                .Cast<DisplayAttribute>()
-                .FirstOrDefault();
+                .GetCustomAttribute<DisplayAttribute>();
 
             return attribute?.Name ?? enumValue.ToString();
         }
