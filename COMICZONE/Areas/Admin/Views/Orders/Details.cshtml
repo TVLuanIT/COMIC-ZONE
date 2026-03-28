@@ -6,13 +6,6 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Chi tiết đơn hàng";
-
-    var statusText = new Dictionary<string, string>
-    {
-        { "Pending", "Chờ xử lý" },
-        { "Completed", "Hoàn thành" },
-        { "Cancelled", "Đã hủy" }
-    };
 }
 
 <div class="container-fluid">
@@ -23,15 +16,15 @@
                 Đơn hàng #@Model.OrderId
             </h4>
 
-            <span class="badge
-                @(Model.Status == "Pending" ? "bg-warning text-dark" :
-                Model.Status == "Completed" ? "bg-success" :
-                Model.Status == "Cancelled" ? "bg-danger" :
-                "bg-secondary")">
+            <span class="badge @(Model.OrderStatusEnum switch
+                  {
+                      OrderStatus.Pending => "bg-warning text-dark",
+                      OrderStatus.Completed => "bg-success",
+                      OrderStatus.Cancelled => "bg-danger",
+                      _ => "bg-secondary"
+                  })">
 
-                @(statusText.ContainsKey(Model.Status ?? "")
-                    ? statusText[Model.Status ?? ""]
-                    : Model.Status)
+                @Model.OrderStatusEnum.GetDisplayName()
             </span>
         </div>
 

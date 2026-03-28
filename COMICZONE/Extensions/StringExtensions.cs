@@ -8,5 +8,10 @@
                 ? defaultPath
                 : path;
         }
+
+        public static string ToVnd(this decimal value)
+        {
+            return string.Format("{0:N0} ₫", value);
+        }
     }
 }

@@ -369,13 +369,18 @@ namespace COMICZONE.Controllers
 
         #region Paypal payment
         [HttpPost("/Orders/create-paypal-order")]
-        public async Task<IActionResult> CreatePaypalOrder(CancellationToken cancellationToken)
+        public async Task<IActionResult> CreatePaypalOrder([FromBody] CheckoutViewModel model, CancellationToken cancellationToken)
         {
             if (!IsLoggedIn())
                 return BadRequest("Bạn cần đăng nhập trước khi thanh toán.");
 
             if (!int.TryParse(CurrentUserId(), out int userId))
                 return BadRequest("Không xác định được danh tính người dùng.");
+
+            // Lưu thông tin khách nhập vào Session
+            HttpContext.Session.SetString("Checkout_Address", model.Address ?? "");
+            HttpContext.Session.SetString("Checkout_Phone", model.Phone ?? "");
+            HttpContext.Session.SetString("Checkout_Note", model.Note ?? "");
 
             var cart = _context.Carts
                 .Include(c => c.CartItems)

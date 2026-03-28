@@ -52,8 +52,15 @@
                             </td>
 
                             <td>
-                                <span class="badge bg-info text-dark">
-                                    @item.Status
+                                <span class="badge @(item.OrderStatusEnum switch
+                                    {
+                                        OrderStatus.Pending => "bg-warning text-dark",
+                                        OrderStatus.Completed => "bg-success",
+                                        OrderStatus.Cancelled => "bg-danger",
+                                        _ => "bg-secondary"
+                                    })">
+
+                                    @item.OrderStatusEnum.GetDisplayName()
                                 </span>
                             </td>
 
