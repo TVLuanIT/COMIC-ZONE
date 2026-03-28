@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
@@ -110,7 +111,7 @@ namespace COMICZONE.Controllers
                     PaymentMethod = "COD",
                     IsPaid = false,
                     TransactionId = null
-                }, out errorMessage);
+                }, false, out errorMessage);
 
                 if (!result)
                 {
@@ -153,7 +154,7 @@ namespace COMICZONE.Controllers
             return RedirectToAction("Index", "Carts");
         }
 
-        private bool CreateOrder(CreateOrderConRequest request, out string? errorMessage)
+        private bool CreateOrder(CreateOrderConRequest request, bool allowOutOfStockOrder, out string? errorMessage)
         {
             errorMessage = null;
 
@@ -173,17 +174,28 @@ namespace COMICZONE.Controllers
                     return false;
                 }
 
+                bool hasOutOfStockItem = false;
+
                 // CHECK tồn kho trước khi tạo Order
                 foreach (var item in cartItems)
                 {
-                    if (item.Product.StockQuantity < item.Quantity)
+                    var product = item.Product;
+
+                    if (product.StockQuantity < item.Quantity)
                     {
-                        errorMessage = $"Sản phẩm '{item.Product.Name}' không đủ số lượng trong kho.";
-                        return false;
+                        if (!allowOutOfStockOrder)
+                        {
+                            errorMessage =
+                                $"Sản phẩm '{product.Name}' không đủ số lượng trong kho.";
+                            return false;
+                        }
+                        hasOutOfStockItem = true;
                     }
                 }
 
                 decimal totalAmount = cartItems.Sum(x => (x.Product.Price ?? 0) * x.Quantity);
+
+                var orderStatus = hasOutOfStockItem ? "OUT_OF_STOCK" : (request.IsPaid ? "COMPLETED" : "PENDING");
 
                 var order = new Order
                 {
@@ -193,7 +205,7 @@ namespace COMICZONE.Controllers
                     Note = request.Note,
                     CreatedAt = DateTime.Now,
                     OrderDate = DateTime.Now,
-                    Status = request.IsPaid ? "COMPLETED" : "PENDING",
+                    Status = orderStatus,
                     TotalAmount = totalAmount
                 };
 
@@ -228,8 +240,11 @@ namespace COMICZONE.Controllers
                 {
                     var product = item.Product;
 
-                    // Trừ tồn kho
-                    product.StockQuantity -= item.Quantity;
+                    // chỉ trừ tồn kho nếu đủ hàng
+                    if (product.StockQuantity >= item.Quantity)
+                    {
+                        product.StockQuantity -= item.Quantity;
+                    }
 
                     // Tính subtotal
                     decimal price = product.Price ?? 0;
@@ -330,7 +345,7 @@ namespace COMICZONE.Controllers
                 PaymentMethod = PaymentMethod.VNPAY.ToString(),
                 IsPaid = true,
                 TransactionId = response.TransactionId ?? "UNKNOWN"
-            }, out errorMessage);
+            }, true, out errorMessage);
 
             if (!result)
             {
@@ -430,7 +445,7 @@ namespace COMICZONE.Controllers
                     PaymentMethod = PaymentMethod.PAYPAL.ToString(),
                     IsPaid = true,
                     TransactionId = orderID
-                }, out errorMessage);
+                }, true, out errorMessage);
 
                 if (!result)
                 {
