@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using COMICZONE.Data;
+using COMICZONE.Extensions;
+using COMICZONE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.Data;
-using COMICZONE.Models;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -85,10 +86,38 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                existingOrder.Status = order.Status;
+                bool isStatusChanged = existingOrder.OrderStatusEnum != order.OrderStatusEnum;
+                var oldStatus = existingOrder.OrderStatusEnum;
+
+                existingOrder.OrderStatusEnum = order.OrderStatusEnum;
                 existingOrder.PhoneNumber = order.PhoneNumber;
                 existingOrder.ShippingAddress = order.ShippingAddress;
                 existingOrder.Note = order.Note;
+
+                // Thêm thông báo
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = null;
+                if (int.TryParse(adminIdStr, out int parsedId))
+                {
+                    adminId = parsedId;
+                }
+
+                string notifMsg = $"Đơn hàng #{existingOrder.OrderId} của bạn đã được Admin cập nhật.";
+                if (isStatusChanged)
+                {
+                    notifMsg = $"Trạng thái đơn hàng #{existingOrder.OrderId} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {order.OrderStatusEnum.GetDisplayName()}.";
+                }
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = existingOrder.UserId,
+                    Title = "Cập nhật đơn hàng",
+                    Message = notifMsg,
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/UserProfiles/MyOrders"
+                });
 
                 await _context.SaveChangesAsync();
 
@@ -139,6 +168,25 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (order != null)
             {
+                // Thêm thông báo
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = null;
+                if (int.TryParse(adminIdStr, out int parsedId))
+                {
+                    adminId = parsedId;
+                }
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = order.UserId,
+                    Title = "Đơn hàng bị hủy",
+                    Message = $"Đơn hàng #{order.OrderId} của bạn đã bị hủy/xóa bởi hệ thống.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/UserProfiles/MyOrders"
+                });
+
                 // 1. Delete associated Payments and their transactions/refunds
                 if (order.Payments != null && order.Payments.Any())
                 {
