@@ -1,24 +1,27 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
 using COMICZONE.Models.Requests;
+using COMICZONE.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Controllers
 {
     public class CartsController : Controller
     {
         private readonly ComiczoneContext _context;
+        private readonly PaypalClient _paypalClient;
 
-        public CartsController(ComiczoneContext context)
+        public CartsController(ComiczoneContext context, PaypalClient paypalClient)
         {
             _context = context;
+            _paypalClient = paypalClient;
         }
 
         [HttpPost]
@@ -105,11 +108,9 @@ namespace COMICZONE.Controllers
             if (user != null && user.Customer != null)
             {
                 ViewBag.Customer = user.Customer;
-
-                //ViewBag.FullName = user.Customer.Fullname;
-                //ViewBag.Phone = user.Customer.Phone;
-                //ViewBag.Address = user.Customer.Address;
             }
+
+            ViewBag.PaypalClientId = _paypalClient.ClientId;
 
             return View(cart);
         }

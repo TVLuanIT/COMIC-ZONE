@@ -50,6 +50,13 @@ namespace COMICZONE
 
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
+            builder.Services.AddSingleton(x => new PaypalClient
+            (
+                builder.Configuration["Paypal:AppId"],
+                builder.Configuration["Paypal:AppSecret"],
+                builder.Configuration["Paypal:Mode"]
+            ));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

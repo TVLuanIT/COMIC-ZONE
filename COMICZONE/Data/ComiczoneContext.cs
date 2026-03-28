@@ -30,6 +30,10 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<InventoryLog> InventoryLogs { get; set; }
+
+    public virtual DbSet<Invoice> Invoices { get; set; }
+
     public virtual DbSet<Notification> Notifications { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
@@ -37,6 +41,10 @@ public partial class ComiczoneContext : DbContext
     public virtual DbSet<OrderItem> OrderItems { get; set; }
 
     public virtual DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+
+    public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<PaymentTransaction> PaymentTransactions { get; set; }
 
     public virtual DbSet<Picture> Pictures { get; set; }
 
@@ -51,6 +59,8 @@ public partial class ComiczoneContext : DbContext
     public virtual DbSet<ProductReviewReplyLike> ProductReviewReplyLikes { get; set; }
 
     public virtual DbSet<ProductReviewSummary> ProductReviewSummaries { get; set; }
+
+    public virtual DbSet<Refund> Refunds { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
 
@@ -155,6 +165,28 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.User).WithOne(p => p.Customer).HasConstraintName("FK_CUSTOMERS_USERS");
         });
 
+        modelBuilder.Entity<InventoryLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__INVENTOR__3214EC27281A5665");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.InventoryLogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_INVENTORY_PRODUCT");
+        });
+
+        modelBuilder.Entity<Invoice>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__INVOICE__3214EC272A7D76C4");
+
+            entity.Property(e => e.IssueDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Invoices)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_INVOICE_ORDER");
+        });
+
         modelBuilder.Entity<Notification>(entity =>
         {
             entity.HasKey(e => e.NotificationId).HasName("PK__NOTIFICA__83A4A446073FCFEC");
@@ -205,6 +237,29 @@ public partial class ComiczoneContext : DbContext
                 .HasConstraintName("FK__ORDER_STA__ORDER__66EA454A");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrderStatusHistories).HasConstraintName("FK__ORDER_STA__UPDAT__67DE6983");
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.Paymentid).HasName("PK__PAYMENT__D2C4FF4636EF55F3");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Paymentstatus).HasDefaultValue("PENDING");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PAYMENT_ORDER");
+        });
+
+        modelBuilder.Entity<PaymentTransaction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PAYMENT___3214EC271B14E5B9");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Payment).WithMany(p => p.PaymentTransactions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PAYMENT_TRANSACTION_PAYMENT");
         });
 
         modelBuilder.Entity<Picture>(entity =>
@@ -336,6 +391,18 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.Product).WithOne(p => p.ProductReviewSummary)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__PRODUCT_R__PRODU__2B0A656D");
+        });
+
+        modelBuilder.Entity<Refund>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__REFUND__3214EC27FF609E12");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("PENDING");
+
+            entity.HasOne(d => d.Payment).WithMany(p => p.Refunds)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_REFUND_PAYMENT");
         });
 
         modelBuilder.Entity<Tag>(entity =>

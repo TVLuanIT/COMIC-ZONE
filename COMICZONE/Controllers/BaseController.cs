@@ -6,12 +6,17 @@ namespace COMICZONE.Controllers
     {
         protected bool IsLoggedIn()
         {
-            return HttpContext.Session.GetString("UserId") != null;
+            return !string.IsNullOrWhiteSpace(CurrentUserId());
         }
 
         protected string? CurrentUserId()
         {
-            return HttpContext.Session.GetString("UserId");
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return null;
+
+            return userIdStr;
         }
     }
 }
