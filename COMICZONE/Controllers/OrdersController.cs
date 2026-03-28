@@ -96,10 +96,12 @@ namespace COMICZONE.Controllers
 
             decimal totalAmount = cart.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0));
 
+            string? errorMessage;
+
             // ================= COD =================
             if (model.PaymentMethod == PaymentMethod.COD)
             {
-                CreateOrder(new CreateOrderConRequest
+                var result = CreateOrder(new CreateOrderConRequest
                 {
                     UserId = userId,
                     Address = model.Address,
@@ -108,7 +110,13 @@ namespace COMICZONE.Controllers
                     PaymentMethod = "COD",
                     IsPaid = false,
                     TransactionId = null
-                });
+                }, out errorMessage);
+
+                if (!result)
+                {
+                    TempData["Error"] = errorMessage;
+                    return RedirectToAction("Index", "Carts");
+                }
 
                 return RedirectToAction("Success");
             }
@@ -145,8 +153,10 @@ namespace COMICZONE.Controllers
             return RedirectToAction("Index", "Carts");
         }
 
-        private void CreateOrder(CreateOrderConRequest request)
+        private bool CreateOrder(CreateOrderConRequest request, out string? errorMessage)
         {
+            errorMessage = null;
+
             using var transaction = _context.Database.BeginTransaction();
 
             try
@@ -158,7 +168,20 @@ namespace COMICZONE.Controllers
                     .ToList();
 
                 if (!cartItems.Any())
-                    throw new Exception("Cart is empty");
+                {
+                    errorMessage = "Giỏ hàng đang trống.";
+                    return false;
+                }
+
+                // CHECK tồn kho trước khi tạo Order
+                foreach (var item in cartItems)
+                {
+                    if (item.Product.StockQuantity < item.Quantity)
+                    {
+                        errorMessage = $"Sản phẩm '{item.Product.Name}' không đủ số lượng trong kho.";
+                        return false;
+                    }
+                }
 
                 decimal totalAmount = cartItems.Sum(x => (x.Product.Price ?? 0) * x.Quantity);
 
@@ -177,6 +200,15 @@ namespace COMICZONE.Controllers
                 _context.Orders.Add(order);
                 _context.SaveChanges();
 
+                // ORDER STATUS HISTORY
+                _context.OrderStatusHistories.Add(new OrderStatusHistory
+                {
+                    OrderId = order.OrderId,
+                    Status = order.Status,
+                    UpdatedAt = DateTime.Now,
+                    UpdatedBy = request.UserId
+                });
+
                 var payment = new Payment
                 {
                     Orderid = order.OrderId,
@@ -194,20 +226,55 @@ namespace COMICZONE.Controllers
 
                 foreach (var item in cartItems)
                 {
+                    var product = item.Product;
+
+                    // Trừ tồn kho
+                    product.StockQuantity -= item.Quantity;
+
+                    // Tính subtotal
+                    decimal price = product.Price ?? 0;
+                    decimal subtotal = price * item.Quantity;
+
+                    // Log inventory change
+                    _context.InventoryLogs.Add(new InventoryLog
+                    {
+                        ProductId = product.Id,
+                        ChangeAmount = -item.Quantity,
+                        Type = "ORDER_CREATED",
+                        CreatedAt = DateTime.Now
+                    });
+
                     _context.OrderItems.Add(new OrderItem
                     {
                         OrderId = order.OrderId,
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,
-                        Price = item.Product.Price
+                        Price = item.Product.Price,
+                        Subtotal = subtotal
+                    });
+                }
+
+                // CREATE INVOICE (nếu đã thanh toán)
+                if (request.IsPaid)
+                {
+                    var customer = _context.Customers
+                        .FirstOrDefault(x => x.Userid == request.UserId);
+
+                    _context.Invoices.Add(new Invoice
+                    {
+                        OrderId = order.OrderId,
+                        TotalAmount = totalAmount,
+                        IssueDate = DateTime.Now,
+                        CustomerName = customer?.Fullname ?? "Guest"
                     });
                 }
 
                 _context.CartItems.RemoveRange(cartItems);
-
                 _context.SaveChanges();
 
                 transaction.Commit();
+
+                return true;
             }
             catch
             {
@@ -252,7 +319,9 @@ namespace COMICZONE.Controllers
                 return RedirectToAction("Index", "Carts");
             }
 
-            CreateOrder(new CreateOrderConRequest
+            string? errorMessage;
+
+            var result = CreateOrder(new CreateOrderConRequest
             {
                 UserId = userId,
                 Address = address,
@@ -261,7 +330,13 @@ namespace COMICZONE.Controllers
                 PaymentMethod = PaymentMethod.VNPAY.ToString(),
                 IsPaid = true,
                 TransactionId = response.TransactionId ?? "UNKNOWN"
-            });
+            }, out errorMessage);
+
+            if (!result)
+            {
+                TempData["Error"] = errorMessage;
+                return RedirectToAction("Index", "Carts");
+            }
 
             TempData["Message"] = "Thanh toán VN Pay thành công!";
 
@@ -344,7 +419,9 @@ namespace COMICZONE.Controllers
                 var phone = HttpContext.Session.GetString("Checkout_Phone");
                 var note = HttpContext.Session.GetString("Checkout_Note");
 
-                CreateOrder(new CreateOrderConRequest
+                string? errorMessage;
+
+                var result = CreateOrder(new CreateOrderConRequest
                 {
                     UserId = userId,
                     Address = address,
@@ -353,7 +430,13 @@ namespace COMICZONE.Controllers
                     PaymentMethod = PaymentMethod.PAYPAL.ToString(),
                     IsPaid = true,
                     TransactionId = orderID
-                });
+                }, out errorMessage);
+
+                if (!result)
+                {
+                    TempData["Error"] = errorMessage;
+                    return RedirectToAction("Index", "Carts");
+                }
 
                 HttpContext.Session.Remove("Checkout_Address");
                 HttpContext.Session.Remove("Checkout_Phone");

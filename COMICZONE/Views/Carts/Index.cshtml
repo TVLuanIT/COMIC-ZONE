@@ -26,6 +26,13 @@
     }
     else
     {
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
         <div class="row mt-4">
             <!-- LEFT: CART TABLE -->
             <div class="col-lg-8">
@@ -35,10 +42,10 @@
                             <table class="table align-middle">
                                 <thead class="table-light sticky-header">
                                     <tr>
-                                        <th>Product</th>
-                                        <th width="120">Price</th>
-                                        <th width="120">Quantity</th>
-                                        <th width="120">Total</th>
+                                        <th>Sản phẩm</th>
+                                        <th width="120">Giá</th>
+                                        <th width="120">Số lượng</th>
+                                        <th width="120">Thành tiền</th>
                                         <th width="100"></th>
                                     </tr>
                                 </thead>
