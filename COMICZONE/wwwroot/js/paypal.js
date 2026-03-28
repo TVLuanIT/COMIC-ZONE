@@ -48,11 +48,23 @@ const paypalButtons = () => {
             },
 
             createOrder: (data, actions) => {
+                let name = document.querySelector('input[name="fullname"]')?.value.trim();
+                let phone = document.querySelector('input[name="phone"]')?.value.trim();
+                let address = document.querySelector('textarea[name="address"]')?.value.trim();
+                let note = document.querySelector('textarea[name="note"]')?.value.trim();
+
                 return fetch("/Orders/create-paypal-order", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
-                    }
+                    },
+                    body: JSON.stringify({
+                        Fullname: name,
+                        Phone: phone,
+                        Address: address,
+                        Note: note,
+                        PaymentMethod: 3
+                    })
                 })
                     .then((response) => {
                         if (!response.ok) {
