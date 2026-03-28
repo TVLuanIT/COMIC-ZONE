@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -71,6 +71,9 @@ public partial class Product
     [Column("AGE_GROUP")]
     [StringLength(20)]
     public string? AgeGroup { get; set; }
+
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
 
     [InverseProperty("Product")]
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,6 +43,7 @@ namespace COMICZONE.Controllers
             {
                 ViewBag.ModelRecommended = await _context.Products
                     .Include(p => p.Pictures)
+                    .Where(p => !p.Isdeleted)
                     .OrderByDescending(p => p.ReleaseDate)
                     .ThenByDescending(p => p.OrderItems.Count)
                     .Take(8)
@@ -54,6 +55,7 @@ namespace COMICZONE.Controllers
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
+                .Where(p => !p.Isdeleted)
                 .OrderByDescending(p => p.Id) // giả sử ID càng cao → sản phẩm mới/được quan tâm
                 .Take(8)
                 .ToListAsync();
@@ -63,6 +65,7 @@ namespace COMICZONE.Controllers
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
+                .Where(p => !p.Isdeleted)
                 .OrderByDescending(p => p.ReleaseDate) // mới nhất
                 .Take(8)
                 .ToListAsync();

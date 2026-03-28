@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -260,9 +260,9 @@ namespace COMICZONE.Areas.Admin.Controllers
                         if (System.IO.File.Exists(path))
                         {
                             System.IO.File.Delete(path);
-                        }
                     }
                 }
+            }
             }
 
             // ===== Upload ảnh mới =====
@@ -313,7 +313,28 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            ViewBag.CartItemsCount = await _context.CartItems.CountAsync(c => c.ProductId == id);
+            ViewBag.InventoryLogsCount = await _context.InventoryLogs.CountAsync(i => i.ProductId == id);
+            ViewBag.OrderItemsCount = await _context.OrderItems.CountAsync(o => o.ProductId == id);
+            ViewBag.ReviewsCount = await _context.ProductReviews.CountAsync(r => r.Productid == id);
+            ViewBag.ViewsCount = await _context.UserProductViews.CountAsync(v => v.ProductId == id);
+
             return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Isdeleted = !product.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = product.Isdeleted });
         }
 
         [HttpPost, ActionName("Delete")]
@@ -329,36 +350,81 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (product == null)
                 return NotFound();
 
-            // XÓA FILE ẢNH
-            foreach (var pic in product.Pictures.ToList())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                if (!string.IsNullOrEmpty(pic.FileName))
-                {
-                    var path = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot/images/products",
-                        pic.FileName);
+                // 1. UserProductViews
+                var userProductViews = await _context.UserProductViews.Where(v => v.ProductId == id).ToListAsync();
+                if (userProductViews.Any()) _context.UserProductViews.RemoveRange(userProductViews);
 
-                    if (System.IO.File.Exists(path))
-                        System.IO.File.Delete(path);
+                // 2. InventoryLogs
+                var inventoryLogs = await _context.InventoryLogs.Where(l => l.ProductId == id).ToListAsync();
+                if (inventoryLogs.Any()) _context.InventoryLogs.RemoveRange(inventoryLogs);
+
+                // 3. CartItems
+                var cartItems = await _context.CartItems.Where(c => c.ProductId == id).ToListAsync();
+                if (cartItems.Any()) _context.CartItems.RemoveRange(cartItems);
+
+                // 4. OrderItems
+                var orderItems = await _context.OrderItems.Where(o => o.ProductId == id).ToListAsync();
+                if (orderItems.Any()) _context.OrderItems.RemoveRange(orderItems);
+
+                // 5. ProductReviewSummaries
+                var reviewSummary = await _context.ProductReviewSummaries.FirstOrDefaultAsync(s => s.Productid == id);
+                if (reviewSummary != null) _context.ProductReviewSummaries.Remove(reviewSummary);
+
+                // 6. ProductReviews (kèm Likes và Replies)
+                var reviewIds = await _context.ProductReviews.Where(r => r.Productid == id).Select(r => r.Reviewid).ToListAsync();
+                if (reviewIds.Any())
+                {
+                    var replies = await _context.ProductReviewReplies.Where(r => reviewIds.Contains(r.Reviewid)).ToListAsync();
+                    if (replies.Any())
+                    {
+                        var replyIds = replies.Select(r => r.Replyid).ToList();
+                        var replyLikes = await _context.ProductReviewReplyLikes.Where(rl => replyIds.Contains(rl.Replyid)).ToListAsync();
+                        if (replyLikes.Any()) _context.ProductReviewReplyLikes.RemoveRange(replyLikes);
+
+                        foreach(var rep in replies) rep.Parentreplyid = null; // Gỡ tự tham chiếu trước
+                        await _context.SaveChangesAsync(); 
+                        _context.ProductReviewReplies.RemoveRange(replies);
+                    }
+
+                    var reviewLikes = await _context.ProductReviewLikes.Where(rl => reviewIds.Contains(rl.Reviewid)).ToListAsync();
+                    if (reviewLikes.Any()) _context.ProductReviewLikes.RemoveRange(reviewLikes);
+
+                    var reviews = await _context.ProductReviews.Where(r => r.Productid == id).ToListAsync();
+                    _context.ProductReviews.RemoveRange(reviews);
                 }
 
-                product.Pictures.Remove(pic);
-                _context.Pictures.Remove(pic);
+                // 7. Xóa ảnh cứng và dữ liệu
+                foreach (var pic in product.Pictures.ToList())
+                {
+                    if (!string.IsNullOrEmpty(pic.FileName))
+                    {
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products", pic.FileName);
+                        if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                    }
+                    product.Pictures.Remove(pic);
+                    _context.Pictures.Remove(pic);
+                }
+
+                // 8. Xóa Artists và Tags
+                product.Artists.Clear();
+                product.Tags.Clear();
+
+                // 9. Xóa Product
+                _context.Products.Remove(product);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return RedirectToAction(nameof(Index));
             }
-
-            // XÓA LIÊN KẾT ARTIST
-            product.Artists.Clear();
-
-            // XÓA LIÊN KẾT TAG
-            product.Tags.Clear();
-
-            // XÓA PRODUCT
-            _context.Products.Remove(product);
-
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

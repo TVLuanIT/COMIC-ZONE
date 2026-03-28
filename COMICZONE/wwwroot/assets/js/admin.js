@@ -1,4 +1,48 @@
-﻿// ===============================
+// ===============================
+// helper
+// ===============================
+const AlertHelper = (() => {
+    const confirm = (title, text) => {
+        return Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Huỷ',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        });
+    };
+
+    const success = (message) => {
+        return Swal.fire({
+            title: 'Thành công',
+            text: message,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    };
+
+    const error = (message = 'Đã xảy ra lỗi') => {
+        return Swal.fire({
+            title: 'Lỗi',
+            text: message,
+            icon: 'error'
+        });
+    };
+
+    return {
+        confirm,
+        success,
+        error
+    };
+
+})();
+
+
+// ===============================
 // Areas/Admin/Views/Products/Edit.cshtml
 // ===============================
 // Badge module (Artist + Tag)
@@ -242,12 +286,96 @@ const ProductReviews = () => {
 };
 
 // ===============================
+// Areas/Admin/Views/Products/Index.cshtml
+// ===============================
+const ProductIndex = () => {
+
+    const init = () => {
+        isDeleteButton();
+    };
+
+    const isDeleteButton = () => {
+
+        jQuery(document).on('click', '.ajax-toggle-status', function () {
+
+            const btn = jQuery(this);
+            const id = btn.data('id');
+            const url = btn.data('url');
+
+            AlertHelper.confirm(
+                'Xác nhận thay đổi trạng thái?',
+                'Bạn có chắc chắn muốn thay đổi trạng thái kinh doanh của sản phẩm này?'
+            ).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                jQuery.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { id: id },
+
+                    success: function (response) {
+                        if (!response.success) return;
+
+                        const isDeleted = response.isDeleted;
+                        const row = jQuery('#product-row-' + id);
+                        const statusCell = jQuery('#status-cell-' + id);
+
+                        if (isDeleted) {
+                            row.addClass('bg-light text-muted');
+                            statusCell.html(
+                                '<span class="badge bg-danger">Ngừng kinh doanh</span>'
+                            );
+                            btn.removeClass('btn-light text-danger').addClass('btn-outline-success');
+                            btn.html('<i class="ti ti-refresh"></i>');
+                        } else {
+                            row.removeClass('bg-light text-muted');
+                            statusCell.html(
+                                '<span class="badge bg-success">Đang bán</span>'
+                            );
+                            btn.removeClass('btn-outline-success').addClass('btn-light text-danger');
+                            btn.html('<i class="ti ti-ban"></i>');
+                        }
+
+                        AlertHelper.success("Thay đổi thành công")
+                    },
+
+                    error: function () {
+                        AlertHelper.error('Không thể kết nối server');
+                    }
+                });
+            });
+        });
+    };
+
+    return { init };
+
+};
+
+// ===============================
 // DOM READY
 // ===============================
-document.addEventListener("DOMContentLoaded", () => {
+const safeInit = (module) => {
+    if (typeof module === "function") {
+        module().init();
+    }
+};
+
+const initAdmin = () => {
+
+    if (typeof window.jQuery === "undefined") {
+        console.error("jQuery chưa load");
+        return;
+    }
+
     console.log("admin.js loaded");
 
-    BadgeSelect().init();
-    ImagesUpload().init();
-    ProductReviews().init();
-});
+    safeInit(ProductIndex);
+    safeInit(BadgeSelect);
+    safeInit(ImagesUpload);
+    safeInit(ProductReviews);
+};
+
+document.readyState !== "loading"
+    ? initAdmin()
+    : document.addEventListener("DOMContentLoaded", initAdmin);
