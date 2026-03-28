@@ -30,6 +30,7 @@ namespace COMICZONE.Controllers
                 .Include(p => p.ProductReviewSummary)
                 .Include(p => p.ProductReviews)
                     .ThenInclude(pr => pr.User)
+                .Where(p => !p.Isdeleted)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -121,6 +122,7 @@ namespace COMICZONE.Controllers
                                     .Include(p=>p.Artists)
                                     .Include(p=>p.Tags)
                                     .Include(p=>p.Pictures)
+                                    .Where(p => !p.Isdeleted)
                                     .AsQueryable();
             // FILTER THEO (từ Detail page)
             // AUTHOR
@@ -242,35 +244,37 @@ namespace COMICZONE.Controllers
             ViewBag.SidebarFilters = new Dictionary<string, List<string>>()
             {
                 { "Tác giả", (await _context.Products
-                            .Where(p => !string.IsNullOrEmpty(p.Author))
+                            .Where(p => !p.Isdeleted && !string.IsNullOrEmpty(p.Author))
                             .Select(p => p.Author!)
                             .Distinct()
                             .ToListAsync()) },
                 { "Họa sĩ", await _context.Artists
+                            .Where(a => a.Products.Any(p => !p.Isdeleted))
                             .Select(a => a.Name!)
                             .Distinct()
                             .ToListAsync() },
                 { "Dịch giả", (await _context.Products
-                            .Where(p => !string.IsNullOrEmpty(p.Translator))
+                            .Where(p => !p.Isdeleted && !string.IsNullOrEmpty(p.Translator))
                             .Select(p => p.Translator!)
                             .Distinct()
                             .ToListAsync()) },
                 { "Series", (await _context.Products
-                            .Where(p => !string.IsNullOrEmpty(p.Series))
+                            .Where(p => !p.Isdeleted && !string.IsNullOrEmpty(p.Series))
                             .Select(p => p.Series!)
                             .Distinct()
                             .ToListAsync()) },
                 { "Tag", await _context.Tags
+                            .Where(t => t.Products.Any(p => !p.Isdeleted))
                             .Select(a => a.Name!)
                             .Distinct()
                             .ToListAsync() },
                 { "Nhà phát hành", (await _context.Products
-                            .Where(p => !string.IsNullOrEmpty(p.Distributor))
+                            .Where(p => !p.Isdeleted && !string.IsNullOrEmpty(p.Distributor))
                             .Select(p => p.Distributor!)
                             .Distinct()
                             .ToListAsync()) },
                 { "NXB", (await _context.Products
-                            .Where(p => !string.IsNullOrEmpty(p.Publisher))
+                            .Where(p => !p.Isdeleted && !string.IsNullOrEmpty(p.Publisher))
                             .Select(p => p.Publisher!)
                             .Distinct()
                             .ToListAsync()) },

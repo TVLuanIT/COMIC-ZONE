@@ -1,4 +1,4 @@
-﻿@using COMICZONE.Helpers;
+@using COMICZONE.Helpers;
 
 @model IEnumerable<COMICZONE.Models.Product>
 
@@ -24,6 +24,7 @@
                 <thead class="table-light">
                     <tr class="text-uppercase small text-secondary">
                         <th>Sản phẩm</th>
+                        <th>Trạng thái</th>
                         <th>Giá</th>
                         <th>Nhà phát hành</th>
                         <th>Tác giả</th>
@@ -52,9 +53,26 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr id="product-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
                             <td>
                                 @Html.Raw(@OrderHelper.GetProductCell(item))
+                            </td>
+
+                            <td class="text-center">
+                                <span id="status-cell-@item.Id">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                                            Ngừng kinh doanh
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success px-3 py-2">
+                                            Đang bán
+                                        </span>
+                                    }
+                                </span>
                             </td>
 
                             <td class="fw-medium">
@@ -127,23 +145,43 @@
                             <td>@item.AgeGroup</td>
 
                             <td class="text-end table-actions">
+                                <!-- Edit -->
                                 <a asp-action="Edit"
                                    asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-light">
+                                   title="Chỉnh sửa sản phẩm"
+                                   class="btn btn-sm btn-icon btn-outline-primary">
+
                                     <i class="ti ti-edit"></i>
                                 </a>
 
+                                <!-- Details -->
                                 <a asp-action="Details"
                                    asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-light">
+                                   title="Chi tiết sản phẩm"
+                                   class="btn btn-sm btn-icon btn-outline-secondary">
+
                                     <i class="ti ti-eye"></i>
                                 </a>
 
+                                <!-- Delete -->
                                 <a asp-action="Delete"
                                    asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-light text-danger">
+                                   title="Xóa sản phẩm"
+                                   class="btn btn-sm btn-icon btn-outline-danger">
+
                                     <i class="ti ti-trash"></i>
                                 </a>
+
+                                <!-- Toggle trạng thái -->
+                                <button type="button"
+                                        title="Xóa mềm"
+                                        data-id="@item.Id"
+                                        data-url="@Url.Action("ToggleDelete", "Products", new { area = "Admin" })"
+                                        class="btn btn-sm btn-icon ajax-toggle-status
+                                            @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
+
+                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                </button>
                             </td>
                         </tr>
                     }

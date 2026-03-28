@@ -1,4 +1,4 @@
-﻿@using COMICZONE.Extensions;
+@using COMICZONE.Extensions;
 @model COMICZONE.Models.Product
 
 @{
@@ -116,11 +116,47 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted">Chưa có</span>
                                 }
                             </p>
                         </div>
                     </div>
+                    
+                    <!-- DỮ LIỆU LIÊN QUAN -->
+                    <div class="card border-0 bg-light mt-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="mb-3 text-danger"><i class="ti ti-link"></i> Dữ liệu liên quan</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                                    <span>Lượt xem trang:</span> 
+                                    <span class="badge bg-secondary">@ViewBag.ViewsCount</span>
+                                </li>
+                                <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                                    <span>Lượt đánh giá:</span> 
+                                    <span class="badge bg-secondary">@ViewBag.ReviewsCount</span>
+                                </li>
+                                <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                                    <span>Bản ghi nhập/xuất kho:</span> 
+                                    <span class="badge bg-secondary">@ViewBag.InventoryLogsCount</span>
+                                </li>
+                                <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                                    <span>Nằm trong giỏ hàng:</span> 
+                                    <span class="badge @(ViewBag.CartItemsCount > 0 ? "bg-warning text-dark" : "bg-success")">@ViewBag.CartItemsCount</span>
+                                </li>
+                                <li class="mb-2 d-flex justify-content-between">
+                                    <span>Nằm trong đơn hàng:</span> 
+                                    <span class="badge @(ViewBag.OrderItemsCount > 0 ? "bg-danger" : "bg-success")">@ViewBag.OrderItemsCount</span>
+                                </li>
+                            </ul>
+                            
+                            @if(ViewBag.CartItemsCount > 0 || ViewBag.OrderItemsCount > 0)
+                            {
+                                <div class="alert alert-warning mt-3 mb-0 py-2" style="font-size: 0.85rem">
+                                    <i class="ti ti-alert-triangle"></i> Sản phẩm này đang nằm trong <strong>Đơn hàng</strong> hoặc <strong>Giỏ hàng</strong>. Việc cố tình xóa có thể làm mất dữ liệu gián tiếp hoặc gây lỗi hệ thống!
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
                 </div>
 
                 <!-- CỘT PHẢI -->
@@ -222,7 +258,7 @@
                     Hủy
                 </a>
 
-                <form asp-action="Delete" class="d-inline">
+                <form asp-action="Delete" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Xin lưu ý: Hành động này là vĩnh viễn và không thể hoàn tác.');">
                     <input type="hidden" asp-for="Id" />
 
                     <button type="submit" class="btn btn-danger">
