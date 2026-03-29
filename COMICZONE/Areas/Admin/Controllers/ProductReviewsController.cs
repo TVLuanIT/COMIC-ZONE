@@ -90,6 +90,7 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             review.Rating = model.Rating;
             review.Reviewcontent = model.Reviewcontent;
+            review.Isdeleted = model.Isdeleted;
             review.Updatedat = DateTime.Now;
 
             string errorMessage = "";
@@ -97,13 +98,19 @@ namespace COMICZONE.Areas.Admin.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                await UpdateProductReviewSummary(review.Productid);
             }
             catch (DbUpdateException ex)
             {
                 errorMessage = ex.Message;
             }
 
-            // Load lại đầy đủ Product + User
+            if (errorMessage == "")
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Load lại đầy đủ Product + User nếu có lỗi
             var reviewFull = await _context.ProductReviews
                 .Include(x => x.Product)
                     .ThenInclude(p => p.Pictures)
@@ -135,6 +142,22 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             return View(productReview);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var review = await _context.ProductReviews.FindAsync(id);
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            review.Isdeleted = !review.Isdeleted;
+            await _context.SaveChangesAsync();
+            await UpdateProductReviewSummary(review.Productid);
+
+            return Json(new { success = true, isDeleted = review.Isdeleted });
         }
 
         // POST: Admin/ProductReviews/Delete/5
@@ -199,6 +222,43 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task UpdateProductReviewSummary(int productId)
+        {
+            var reviewsQuery = _context.ProductReviews
+                .Where(r => r.Productid == productId && !r.Isdeleted);
+
+            var total = await reviewsQuery.CountAsync();
+            decimal average = 0;
+
+            if (total > 0)
+            {
+                average = await reviewsQuery.AverageAsync(r => (decimal)r.Rating);
+            }
+
+            var summary = await _context.ProductReviewSummaries
+                .FirstOrDefaultAsync(s => s.Productid == productId);
+
+            if (summary == null)
+            {
+                summary = new ProductReviewSummary
+                {
+                    Productid = productId,
+                    Totalreview = total,
+                    Averagerating = average,
+                    Lastupdated = DateTime.Now
+                };
+                _context.ProductReviewSummaries.Add(summary);
+            }
+            else
+            {
+                summary.Totalreview = total;
+                summary.Averagerating = average;
+                summary.Lastupdated = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

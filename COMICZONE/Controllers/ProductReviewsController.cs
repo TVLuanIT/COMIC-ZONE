@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -235,7 +235,7 @@ namespace COMICZONE.Controllers
         private async Task UpdateProductReviewSummary(int productId)
         {
             var reviewsQuery = _context.ProductReviews
-                .Where(r => r.Productid == productId);
+                .Where(r => r.Productid == productId && !r.Isdeleted);
 
             var total = await reviewsQuery.CountAsync();
 
@@ -428,6 +428,7 @@ namespace COMICZONE.Controllers
                 User = r.User,
                 Replytouserid = r.Replytouserid,
                 Replytouser = r.Replytouser,
+                Isdeleted = r.Isdeleted,
                 LikeCount = _context.ProductReviewReplyLikes.Count(l => l.Replyid == r.Replyid && l.Islike == true),
                 IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == r.Replyid && l.Userid == currentUserId && l.Islike == true),
                 IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == r.Replyid && l.Userid == currentUserId && l.Islike == false)
@@ -464,6 +465,7 @@ namespace COMICZONE.Controllers
                 Rating = r.Rating,
                 Createdat = r.Createdat,
                 Updatedat = r.Updatedat,
+                Isdeleted = r.Isdeleted,
                 Userid = r.Userid,
                 User = r.User,
                 ProductReviewReplies = r.ProductReviewReplies.Select(reply => new ProductReviewReply
@@ -477,7 +479,7 @@ namespace COMICZONE.Controllers
                     User = reply.User,
                     Replytouserid = reply.Replytouserid,
                     Replytouser = reply.Replytouser,
-
+                    Isdeleted = reply.Isdeleted,
                     LikeCount = _context.ProductReviewReplyLikes.Count(l => l.Replyid == reply.Replyid && l.Islike == true),
                     IsLikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == true),
                     IsDislikedByUser = _context.ProductReviewReplyLikes.Any(l => l.Replyid == reply.Replyid && l.Userid == userId && l.Islike == false),
