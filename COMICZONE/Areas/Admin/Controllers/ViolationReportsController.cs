@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,20 +64,25 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (report == null)
                 return NotFound();
 
-            // Load review & reply giống Index
-            var reviewList = await _context.ProductReviews
-                .AsNoTracking()
-                .ToListAsync();
-
-            var replyList = await _context.ProductReviewReplies
-                .AsNoTracking()
-                .ToListAsync();
-
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
+            // Lấy nội dung báo cáo cụ thể (Review hoặc Reply)
+            if (report.ReportTypeEnum == ReportType.Review)
+            {
+                var review = await _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.Reviewid == report.Targetid);
+                ViewBag.ReportedItem = review;
+            }
+            else if (report.ReportTypeEnum == ReportType.Reply)
+            {
+                var reply = await _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .FirstOrDefaultAsync(r => r.Replyid == report.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
 
             return View(report);
         }
@@ -166,42 +171,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(model);
         }
 
-        //// POST: Admin/ViolationReports/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Userid,Reporttype,Targetid,Reason,Status,Createdat,Isdeleted")] ViolationReport violationReport)
-        //{
-        //    if (id != violationReport.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(violationReport);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!ViolationReportExists(violationReport.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", violationReport.Userid);
-        //    return View(violationReport);
-        //}
-
         // GET: Admin/ViolationReports/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -219,14 +188,25 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var reviewList = await _context.ProductReviews.ToListAsync();
-            var replyList = await _context.ProductReviewReplies.ToListAsync();
-
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
+            // Lấy nội dung báo cáo cụ thể (Review hoặc Reply)
+            if (violationReport.ReportTypeEnum == ReportType.Review)
+            {
+                var review = await _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.Reviewid == violationReport.Targetid);
+                ViewBag.ReportedItem = review;
+            }
+            else if (violationReport.ReportTypeEnum == ReportType.Reply)
+            {
+                var reply = await _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .FirstOrDefaultAsync(r => r.Replyid == violationReport.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
 
             return View(violationReport);
         }

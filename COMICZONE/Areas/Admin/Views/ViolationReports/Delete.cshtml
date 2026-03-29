@@ -1,14 +1,12 @@
-﻿@model COMICZONE.Models.ViolationReport
+@model COMICZONE.Models.ViolationReport
 @using COMICZONE.Models.Enums
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Xóa báo cáo";
 
-    string? content = null;
-
-    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
-    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
+    var review = ViewBag.ReportedItem as COMICZONE.Models.ProductReview;
+    var reply = ViewBag.ReportedItem as COMICZONE.Models.ProductReviewReply;
 }
 
 <div class="container mt-4">
@@ -40,28 +38,6 @@
                     </span>
                 </div>
 
-                <!-- Nội dung bị báo cáo -->
-                <div class="col-md-6">
-                    <label class="text-muted small d-block mb-1">
-                        Nội dung bị báo cáo
-                    </label>
-
-                    @if (Model.ReportTypeEnum == ReportType.Review)
-                    {
-                        content = reviewDict != null && reviewDict.ContainsKey(Model.Targetid)
-                        ? reviewDict[Model.Targetid]
-                        : "[Đánh giá đã bị xóa]";
-                    }
-                    else
-                    {
-                        content = replyDict != null && replyDict.ContainsKey(Model.Targetid)
-                        ? replyDict[Model.Targetid]
-                        : "[Phản hồi đã bị xóa]";
-                    }
-
-                    @content
-                </div>
-
                 <!-- Trạng thái -->
                 <div class="col-md-6">
                     <label class="text-muted small">Trạng thái</label><br />
@@ -73,18 +49,6 @@
 
                         @Model.StatusEnum.GetDisplayName()
                     </span>
-                </div>
-
-                <!-- Người gửi -->
-                <div class="col-md-6">
-                    <label class="text-muted small">Người gửi</label><br />
-                    <strong>@Model.User?.Username</strong>
-                </div>
-
-                <!-- Ngày -->
-                <div class="col-md-6">
-                    <label class="text-muted small">Ngày gửi</label><br />
-                    <span>@Model.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
                 </div>
 
                 <!-- Đã xóa -->
@@ -99,6 +63,94 @@
                     {
                         <span class="badge bg-success-subtle text-success px-3 py-2">Còn</span>
                     }
+                </div>
+
+                <!-- Ngày -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Ngày gửi</label><br />
+                    <span>@Model.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+
+                <!-- Nội dung bị báo cáo -->
+                <div class="col-12">
+                    <div class="p-4 border rounded-4 bg-light shadow-sm">
+                        <label class="text-muted small d-block mb-3 fw-bold text-uppercase">
+                            📦 Thông tin chi tiết nội dung bị báo cáo
+                        </label>
+
+                        @if (Model.ReportTypeEnum == ReportType.Review)
+                        {
+                            if (review != null)
+                            {
+                                <div class="row">
+                                    <div class="col-md-4 border-end">
+                                        <p class="mb-1 text-muted small">Sản phẩm:</p>
+                                        
+                                        <h6 class="fw-bold">
+                                            @Html.Raw(review.Product?.GetProductCell())
+                                        </h6>
+                                        
+                                        <p class="mb-1 text-muted small mt-3">Tác giả đánh giá:</p>
+                                        <h6 class="fw-bold">@review.User?.Username</h6>
+                                        
+                                        <p class="mb-1 text-muted small mt-3">Đánh giá:</p>
+                                        <div>
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="ti ti-star@(i <= review.Rating ? "-filled text-warning" : " text-muted")"></i>
+                                            }
+                                            <span class="ms-1 fw-bold">(@review.Rating/5)</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 ps-md-4">
+                                        <p class="mb-1 text-muted small">Nội dung đánh giá:</p>
+                                        <div class="fst-italic text-dark bg-white p-3 rounded-3 border">
+                                            "@review.Reviewcontent"
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mb-0">
+                                    <i class="ti ti-alert-triangle"></i> Nội dung đánh giá này đã bị xóa khỏi hệ thống.
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            if (reply != null)
+                            {
+                                <div class="row">
+                                    <div class="col-md-4 border-end">
+                                        <p class="mb-1 text-muted small">Sản phẩm:</p>
+
+                                        <h6 class="fw-bold">
+                                            @Html.Raw(reply.Review?.Product?.GetProductCell())
+                                        </h6>
+
+                                        <p class="mb-1 text-muted small mt-3">Tác giả phản hồi:</p>
+                                        <h6 class="fw-bold">@reply.User?.Username</h6>
+
+                                        <p class="mb-1 text-muted small mt-3">Phản hồi cho:</p>
+                                        <h6 class="text-primary">@reply.Review?.User?.Username</h6>
+                                    </div>
+                                    <div class="col-md-8 ps-md-4">
+                                        <p class="mb-1 text-muted small">Nội dung phản hồi:</p>
+                                        <div class="fst-italic text-dark bg-white p-3 rounded-3 border">
+                                            "@reply.Replycontent"
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mb-0">
+                                    <i class="ti ti-alert-triangle"></i> Nội dung phản hồi này đã bị xóa khỏi hệ thống.
+                                </div>
+                            }
+                        }
+                    </div>
                 </div>
 
                 <!-- Lý do -->
