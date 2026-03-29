@@ -1,4 +1,4 @@
-﻿@model IEnumerable<COMICZONE.Models.Order>
+@model IEnumerable<COMICZONE.Models.Order>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -16,6 +16,7 @@
                 <thead class="table-light">
                     <tr class="text-uppercase small text-secondary">
                         <th>Mã đơn</th>
+                        <th class="text-center">Hiển thị</th>
                         <th>Khách hàng</th>
                         <th>Ngày đặt</th>
                         <th>Tổng tiền</th>
@@ -24,7 +25,7 @@
                         <th>Địa chỉ giao</th>
                         <th>Ghi chú</th>
                         <th>Ngày tạo</th>
-
+ 
                         <th class="text-end table-actions">
                             Hành động
                         </th>
@@ -34,9 +35,20 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr id="order-row-@item.OrderId" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
                             <td>
                                 <span class="fw-medium">#@item.OrderId</span>
+                            </td>
+
+                            <td class="text-center" id="soft-delete-status-cell-@item.OrderId">
+                                @if (item.Isdeleted)
+                                {
+                                    <span class="badge bg-danger">Đã ẩn</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Hiện</span>
+                                }
                             </td>
 
                             <td>
@@ -106,6 +118,15 @@
                                    class="btn btn-sm btn-light text-danger">
                                     <i class="ti ti-trash"></i>
                                 </a>
+ 
+                                <button type="button"
+                                        title="Xóa mềm / Hiện lại"
+                                        data-id="@item.OrderId"
+                                        data-url="@Url.Action("ToggleDelete", "Orders", new { area = "Admin" })"
+                                        class="btn btn-sm ajax-toggle-order-status
+                                            @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
+                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                </button>
                             </td>
                         </tr>
                     }

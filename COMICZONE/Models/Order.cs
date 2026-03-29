@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -41,6 +41,9 @@ public partial class Order
 
     [Column("CREATED_AT", TypeName = "datetime")]
     public DateTime? CreatedAt { get; set; }
+
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
 
     [InverseProperty("Order")]
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
