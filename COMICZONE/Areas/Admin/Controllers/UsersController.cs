@@ -129,6 +129,19 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (existingUser == null)
                 return NotFound();
 
+            // Lưu lại giá trị cũ để kiểm tra thay đổi
+            var oldUsername = existingUser.Username;
+            var oldEmail = existingUser.Email;
+            var oldRole = existingUser.Role;
+            var oldIsactive = existingUser.Isactive;
+
+            var changes = new List<string>();
+            if (oldUsername != Username) changes.Add($"Tên người dùng: {oldUsername} ➔ {Username}");
+            if (oldEmail != Email) changes.Add($"Email: {oldEmail} ➔ {Email}");
+            if (oldRole != Role) changes.Add($"Vai trò: {oldRole} ➔ {Role}");
+            if (oldIsactive != Isactive) changes.Add($"Trạng thái: {(oldIsactive ? "Hoạt động" : "Ngưng hoạt động")} ➔ {(Isactive ? "Hoạt động" : "Ngưng hoạt động")}");
+            if (!string.IsNullOrEmpty(NewPassword)) changes.Add("Mật khẩu đã được cập nhật bởi Admin.");
+
             existingUser.Username = Username;
             existingUser.Email = Email;
             existingUser.Role = Role;
@@ -138,6 +151,24 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(NewPassword))
             {
                 existingUser.Passwordhash = BCrypt.Net.BCrypt.HashPassword(NewPassword);
+            }
+
+            // Gửi thông báo nếu có thay đổi
+            if (changes.Any())
+            {
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = existingUser.Id,
+                    Title = "Cập nhật tài khoản",
+                    Message = "Thông tin tài khoản của bạn đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = "/UserProfiles/Notifications"
+                });
             }
 
             await _context.SaveChangesAsync();
@@ -276,6 +307,23 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 user.Isactive = true; // Auto-activate on restore
             }
+
+            // Thêm thông báo
+            var adminIdStr = HttpContext.Session.GetString("UserId");
+            int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = user.Id,
+                Title = user.Isdeleted ? "Tài khoản bị vô hiệu hóa" : "Tài khoản đã được khôi phục",
+                Message = user.Isdeleted 
+                    ? "Tài khoản của bạn đã bị vô hiệu hóa (Xóa mềm) bởi Quản trị viên." 
+                    : "Tài khoản của bạn đã được Quản trị viên khôi phục thành công.",
+                CreatedBy = adminId,
+                CreatedAt = DateTime.Now,
+                IsRead = false,
+                Link = "/UserProfiles/Notifications"
+            });
 
             await _context.SaveChangesAsync();
 
