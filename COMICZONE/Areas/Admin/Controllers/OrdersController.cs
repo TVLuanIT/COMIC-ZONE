@@ -230,10 +230,27 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 return NotFound();
             }
- 
+
             order.Isdeleted = !order.Isdeleted;
+
+            // Thêm thông báo
+            var adminIdStr = HttpContext.Session.GetString("UserId");
+            int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = order.UserId,
+                Title = order.Isdeleted ? "Đơn hàng bị ẩn" : "Đơn hàng được hiển thị",
+                Message = $"Đơn hàng #{order.OrderId} của bạn đã bị " +
+                          (order.Isdeleted ? "Admin ẩn tạm thời khỏi lịch sử." : "Admin cho phép hiển thị lại thành công."),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.Now,
+                IsRead = false,
+                Link = "/UserProfiles/MyOrders"
+            });
+
             await _context.SaveChangesAsync();
- 
+
             return Json(new { success = true, isDeleted = order.Isdeleted });
         }
     }

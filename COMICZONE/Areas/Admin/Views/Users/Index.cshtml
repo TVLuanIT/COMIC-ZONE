@@ -87,20 +87,22 @@
                            <i class="ti ti-edit"></i>
                         </a>
 
-                        <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm" 
-                           asp-action="Delete" asp-route-id="@user.Id" 
-                           title="Trang xóa & Quản lý phụ thuộc">
-                           <i class="ti ti-trash"></i>
-                        </a>
+                        @if (user.Id.ToString() != (ViewBag.CurrentUserId as string))
+                        {
+                            <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm me-1"
+                               asp-action="Delete" asp-route-id="@user.Id"
+                               title="Trang xóa & Quản lý phụ thuộc">
+                                <i class="ti ti-trash"></i>
+                            </a>
 
-                        <button type="button"
-                                class="btn btn-sm btn-icon ajax-toggle-user-status me-1 @(user.Isdeleted ? "btn-success" : "btn-outline-danger")"
-                                data-id="@user.Id"
-                                data-url="@Url.Action("ToggleDelete", "Users", new { area = "Admin" })"
-                                title="@(user.Isdeleted ? "Khôi phục tài khoản" : "Xóa mềm (Vô hiệu hóa)")">
-                            
-                            <i class="ti @(user.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
-                        </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-icon ajax-toggle-user-status me-1 @(user.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                    data-id="@user.Id"
+                                    data-url="@Url.Action("ToggleDelete", "Users", new { area = "Admin" })"
+                                    title="@(user.Isdeleted ? "Khôi phục tài khoản" : "Xóa mềm (Vô hiệu hóa)")">
+                                <i class="ti @(user.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                            </button>
+                        }
                     </td>
                 </tr>
             }

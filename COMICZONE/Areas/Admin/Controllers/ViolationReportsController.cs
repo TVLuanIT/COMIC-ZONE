@@ -297,6 +297,23 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             report.Isdeleted = !report.Isdeleted;
+
+            // Thêm thông báo
+            var adminIdStr = HttpContext.Session.GetString("UserId");
+            int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = report.Userid,
+                Title = report.Isdeleted ? "Báo cáo bị gỡ bỏ" : "Báo cáo được khôi phục",
+                Message = $"Báo cáo vi phạm #{report.Id} của bạn đã bị " +
+                          (report.Isdeleted ? "Admin gỡ bỏ tạm thời khỏi hệ thống." : "Admin khôi phục thành công."),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.Now,
+                IsRead = false,
+                Link = "/UserProfiles/Notifications"
+            });
+
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, isDeleted = report.Isdeleted });

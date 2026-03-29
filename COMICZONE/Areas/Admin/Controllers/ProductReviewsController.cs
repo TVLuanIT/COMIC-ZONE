@@ -85,13 +85,44 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             if (id != model.Reviewid) return NotFound();
 
-            var review = await _context.ProductReviews.FindAsync(id);
+            var review = await _context.ProductReviews
+                .Include(r => r.Product)
+                .FirstOrDefaultAsync(r => r.Reviewid == id);
+
             if (review == null) return NotFound();
+
+            // Lưu lại giá trị cũ để kiểm tra thay đổi
+            var oldRating = review.Rating;
+            var oldContent = review.Reviewcontent;
+            var oldIsDeleted = review.Isdeleted;
+
+            var changes = new List<string>();
+            if (oldRating != model.Rating) changes.Add($"Số sao: {oldRating} ➔ {model.Rating}");
+            if (oldContent != model.Reviewcontent) changes.Add($"Nội dung: \"{oldContent}\" ➔ \"{model.Reviewcontent}\"");
+            if (oldIsDeleted != model.Isdeleted) changes.Add($"Trạng thái hiển thị: {(oldIsDeleted ? "Đã ẩn" : "Đang hiển thị")} ➔ {(model.Isdeleted ? "Đã ẩn" : "Đang hiển thị")}");
 
             review.Rating = model.Rating;
             review.Reviewcontent = model.Reviewcontent;
             review.Isdeleted = model.Isdeleted;
             review.Updatedat = DateTime.Now;
+
+            // Gửi thông báo nếu có thay đổi
+            if (changes.Any())
+            {
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = review.Userid,
+                    Title = "Cập nhật đánh giá sản phẩm",
+                    Message = $"Đánh giá của bạn cho sản phẩm \"{review.Product.Name}\" đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/Products/Detail/{review.Productid}"
+                });
+            }
 
             string errorMessage = "";
 
@@ -147,13 +178,33 @@ namespace COMICZONE.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleDelete(int id)
         {
-            var review = await _context.ProductReviews.FindAsync(id);
+            var review = await _context.ProductReviews
+                .Include(r => r.Product)
+                .FirstOrDefaultAsync(r => r.Reviewid == id);
+
             if (review == null)
             {
                 return NotFound();
             }
 
             review.Isdeleted = !review.Isdeleted;
+
+            // Thêm thông báo
+            var adminIdStr = HttpContext.Session.GetString("UserId");
+            int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = review.Userid,
+                Title = review.Isdeleted ? "Đánh giá bị ẩn" : "Đánh giá đã được khôi phục",
+                Message = $"Đánh giá của bạn cho sản phẩm \"{review.Product.Name}\" đã bị " +
+                          (review.Isdeleted ? "ẩn bởi Admin do vi phạm chính sách hoặc nội dung không phù hợp." : "Admin khôi phục thành công."),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.Now,
+                IsRead = false,
+                Link = $"/Products/Detail/{review.Productid}"
+            });
+
             await _context.SaveChangesAsync();
             await UpdateProductReviewSummary(review.Productid);
 
@@ -166,12 +217,27 @@ namespace COMICZONE.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var productReview = await _context.ProductReviews
+                .Include(r => r.Product)
                 .Include(r => r.ProductReviewLikes)
                 .Include(r => r.ProductReviewReplies)
                 .FirstOrDefaultAsync(m => m.Reviewid == id);
 
             if (productReview != null)
             {
+                // Thêm thông báo trước khi xóa vĩnh viễn
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = productReview.Userid,
+                    Title = "Xóa đánh giá sản phẩm vĩnh viễn",
+                    Message = $"Đánh giá của bạn cho sản phẩm \"{productReview.Product.Name}\" đã bị Admin xóa vĩnh viễn khỏi hệ thống.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                });
+
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {

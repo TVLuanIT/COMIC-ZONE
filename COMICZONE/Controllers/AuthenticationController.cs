@@ -117,10 +117,22 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Isactive && !u.Isdeleted);
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
                 ViewBag.Error = "Email hoặc mật khẩu không đúng";
+                return View();
+            }
+
+            if (user.Isdeleted)
+            {
+                ViewBag.Error = "Tài khoản của bạn tạm thời đã bị khóa. Vui lòng liên hệ Quản trị viên.";
+                return View();
+            }
+
+            if (!user.Isactive)
+            {
+                ViewBag.Error = "Tài khoản của bạn hiện đang ngưng hoạt động.";
                 return View();
             }
 

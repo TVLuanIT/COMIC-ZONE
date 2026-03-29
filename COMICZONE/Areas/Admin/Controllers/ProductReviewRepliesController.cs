@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,12 +71,40 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductReviewReply productReviewReply)
         {
-            var existing = await _context.ProductReviewReplies.FindAsync(id);
+            var existing = await _context.ProductReviewReplies
+                .Include(r => r.Review)
+                    .ThenInclude(rev => rev.Product)
+                .FirstOrDefaultAsync(r => r.Replyid == id);
 
             if (existing == null) return NotFound();
 
+            var oldContent = existing.Replycontent;
+            var changes = new List<string>();
+            if (oldContent != productReviewReply.Replycontent)
+            {
+                changes.Add($"Nội dung: \"{oldContent}\" ➔ \"{productReviewReply.Replycontent}\"");
+            }
+
             existing.Replycontent = productReviewReply.Replycontent;
             existing.Updatedat = DateTime.Now;
+
+            // Gửi thông báo nếu có thay đổi
+            if (changes.Any())
+            {
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = existing.Userid,
+                    Title = "Cập nhật phản hồi đánh giá",
+                    Message = $"Phản hồi của bạn trong bài đánh giá sản phẩm \"{(existing.Review?.Product?.Name ?? "Sản phẩm")}\" đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/Products/Detail/{existing.Review?.Productid}"
+                });
+            }
 
             await _context.SaveChangesAsync();
 
@@ -120,8 +148,26 @@ namespace COMICZONE.Areas.Admin.Controllers
                 child.Parentreplyid = null;
             }
 
-            var parent = await _context.ProductReviewReplies.FindAsync(id);
+            var parent = await _context.ProductReviewReplies
+                .Include(r => r.Review)
+                    .ThenInclude(rev => rev.Product)
+                .FirstOrDefaultAsync(r => r.Replyid == id);
+
             if (parent == null) return NotFound();
+
+            // Thêm thông báo trước khi xóa
+            var adminIdStr = HttpContext.Session.GetString("UserId");
+            int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = parent.Userid,
+                Title = "Xóa phản hồi đánh giá",
+                Message = $"Phản hồi của bạn trong bài đánh giá sản phẩm \"{(parent.Review?.Product?.Name ?? "Sản phẩm")}\" đã bị Admin xóa khỏi hệ thống.",
+                CreatedBy = adminId,
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            });
 
             int reviewId = parent.Reviewid;
 

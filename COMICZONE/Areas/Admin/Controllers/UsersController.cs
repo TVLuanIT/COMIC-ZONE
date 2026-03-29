@@ -23,6 +23,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         // GET: Admin/Users
         public async Task<IActionResult> Index()
         {
+            ViewBag.CurrentUserId = HttpContext.Session.GetString("UserId");
             return View(await _context.Users.ToListAsync());
         }
 
@@ -145,8 +146,14 @@ namespace COMICZONE.Areas.Admin.Controllers
             existingUser.Username = Username;
             existingUser.Email = Email;
             existingUser.Role = Role;
-            existingUser.Isactive = Isactive;
             existingUser.Avatar = Avatar;
+
+            // Sync Isactive and Isdeleted
+            if (existingUser.Isactive != Isactive)
+            {
+                existingUser.Isactive = Isactive;
+                existingUser.Isdeleted = !Isactive; // If active = true, deleted = false. If active = false, deleted = true.
+            }
 
             if (!string.IsNullOrEmpty(NewPassword))
             {
@@ -253,6 +260,13 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var currentUserIdStr = HttpContext.Session.GetString("UserId");
+            if (currentUserIdStr == id.ToString())
+            {
+                TempData["Error"] = "Bạn không thể tự xóa tài khoản của chính mình!";
+                return RedirectToAction("Delete", new { id = id });
+            }
+
             var user = await _context.Users
                 .Include(u => u.NotificationUsers)
                 .Include(u => u.NotificationCreatedByNavigations)
@@ -290,6 +304,12 @@ namespace COMICZONE.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleDelete(int id)
         {
+            var currentUserIdStr = HttpContext.Session.GetString("UserId");
+            if (currentUserIdStr == id.ToString())
+            {
+                return Json(new { success = false, message = "Bạn không thể tự xóa mềm tài khoản của chính mình!" });
+            }
+
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
@@ -303,10 +323,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 user.Isactive = false;
             }
-            else
-            {
-                user.Isactive = true; // Auto-activate on restore
-            }
+            // else: If restored, we keep Isactive = false (do nothing).
 
             // Thêm thông báo
             var adminIdStr = HttpContext.Session.GetString("UserId");
@@ -334,6 +351,13 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForceDelete(int id, bool confirmRisk)
         {
+            var currentUserIdStr = HttpContext.Session.GetString("UserId");
+            if (currentUserIdStr == id.ToString())
+            {
+                TempData["Error"] = "Bạn không thể tự xóa cưỡng bức tài khoản của chính mình!";
+                return RedirectToAction("Delete", new { id = id });
+            }
+
             if (!confirmRisk)
             {
                 TempData["Error"] = "Bạn phải xác nhận rủi ro trước khi thực hiện xóa cưỡng bức!";

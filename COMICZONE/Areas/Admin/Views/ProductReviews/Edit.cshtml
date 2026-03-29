@@ -120,13 +120,31 @@
 
                         <!-- SOFT DELETE (Isdeleted) -->
                         <div class="mb-3">
-                            <div class="form-check form-switch border rounded p-3 bg-light">
-                                <input class="form-check-input" type="checkbox" asp-for="Isdeleted" id="isDeletedCheck">
-                                <label class="form-check-label fw-bold ms-2" for="isDeletedCheck">
-                                    <i class="ti ti-ban text-danger"></i> Ẩn đánh giá này (Xóa mềm)
-                                </label>
-                                <div class="form-text mt-1 text-muted ms-4">
-                                    Nếu chọn, đánh giá này sẽ hiển thị là "Nội dung này đã bị ẩn bởi Admin" trên trang sản phẩm và không được tính vào điểm đánh giá trung bình.
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex align-items-start">
+                                    <!-- SWITCH -->
+                                    <div class="form-check form-switch me-3">
+                                        <input asp-for="Isdeleted"
+                                               class="form-check-input"
+                                               type="checkbox"
+                                               role="switch"
+                                               id="isDeletedCheck" />
+                                    </div>
+
+                                    <!-- CONTENT -->
+                                    <div>
+                                        <label class="form-check-label fw-bold"
+                                               for="isDeletedCheck">
+                                            <i class="ti ti-ban text-danger"></i>
+                                            Ẩn đánh giá này (Xóa mềm)
+                                        </label>
+
+                                        <div class="form-text text-muted mt-1">
+                                            Nếu chọn, đánh giá này sẽ hiển thị là
+                                            "Nội dung này đã bị ẩn bởi Admin"
+                                            trên trang sản phẩm và không được tính vào điểm đánh giá trung bình.
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
