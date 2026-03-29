@@ -1,4 +1,5 @@
-﻿@model IEnumerable<COMICZONE.Models.ProductReviewReply>
+@model IEnumerable<COMICZONE.Models.ProductReviewReply>
+@using COMICZONE.Extensions
 
 @{
     var userIdStr = Context.Session.GetString("UserId");
@@ -35,22 +36,14 @@
                     <!-- LEFT: Avatar + content -->
                     <div class="d-flex flex-grow-1">
                         <div class="reply-avatar me-2">
-                            @if (!string.IsNullOrEmpty(reply.User?.Avatar))
-                            {
-                                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.Avatar, size = 24 })
-                            }
-                            else
-                            {
-                                @(reply.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
-                            }
-
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.GetDisplayAvatar(), size = 24 })
                         </div>
 
                         <div class="flex-grow-1">
                             <!-- Tên người gửi + người được reply -->
                             <div class="d-flex align-items-center gap-1 mb-1 reply-username">
                                 <strong>
-                                    @(reply.User?.Username ?? "Người dùng ẩn danh")
+                                    @reply.User.GetDisplayUsername()
                                     @if (reply.Updatedat != null)
                                     {
                                         <span class="edited-label text-muted ms-1">(đã chỉnh sửa)</span>
@@ -59,7 +52,7 @@
 
                                 @if (reply.Replytouser != null)
                                 {
-                                    <span class="text-primary ms-1">@reply.Replytouser.Username</span>
+                                    <span class="text-primary ms-1">@reply.Replytouser.GetDisplayUsername()</span>
                                 }
                             </div>
 
@@ -104,7 +97,7 @@
                                 <button class="reaction-btn reply-to-reply"
                                         data-review-id="@reply.Reviewid"
                                         data-reply-to-user-id="@reply.Userid"
-                                        data-reply-to-username="@reply.User?.Username"
+                                        data-reply-to-username="@reply.User.GetDisplayUsername()"
                                         data-reply-id="@reply.Replyid">
                                     <span class="reply-text">💬 Phản hồi</span>
                                 </button>

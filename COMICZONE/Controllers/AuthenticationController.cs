@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -117,7 +117,7 @@ namespace COMICZONE.Controllers
                 return View();
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Isactive);
+            var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Isactive && !u.Isdeleted);
             if (user == null)
             {
                 ViewBag.Error = "Email hoặc mật khẩu không đúng";

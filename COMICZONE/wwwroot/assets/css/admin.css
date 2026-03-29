@@ -111,3 +111,22 @@ thead .table-actions {
 .card {
     overflow: hidden;
 }
+
+/* ================================================================================= */
+/* ================= Admin/Views/Users/Delete.cshtml ================= */
+/* ================================================================================= */
+.transition-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.transition-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+.accordion-button:not(.collapsed) {
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+    color: var(--bs-primary);
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,0.125);
+}
