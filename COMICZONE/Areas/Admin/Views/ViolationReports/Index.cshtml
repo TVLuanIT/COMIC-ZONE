@@ -1,4 +1,4 @@
-﻿@using COMICZONE.Models.Enums
+@using COMICZONE.Models.Enums
 @model IEnumerable<COMICZONE.Models.ViolationReport>
 
 
@@ -39,7 +39,7 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
+                                <tr id="report-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
                                     <!-- Loại -->
                                     <td class="text-center">
                                         <span class="badge rounded-pill px-3 py-2 fw-semibold
@@ -87,16 +87,15 @@
                                     </td>
 
                                     <!-- Đã xóa -->
-                                    <td class="text-center">
+                                    <td class="text-center" id="status-cell-@item.Id">
                                         @if (item.Isdeleted)
                                         {
-                                            <span class="badge bg-danger-subtle text-danger">Đã xóa</span>
+                                            <span class="badge bg-danger text-white rounded-pill px-3 py-2">Đã xóa</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-success-subtle text-success">Còn</span>
+                                            <span class="badge bg-success text-white rounded-pill px-3 py-2">Còn</span>
                                         }
-
                                     </td>
 
                                     <!-- Người gửi -->
@@ -107,9 +106,19 @@
                                     <!-- Hành động -->
                                     <td class="text-center">
                                         <div class="btn-group">
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">✏️</a>
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">🔍</a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">🗑</a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">✏️</a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết">🔍</a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa cứng">🗑</a>
+                                            
+                                            <!-- Nút Xóa mềm (Toggle) -->
+                                            <button type="button"
+                                                    title="Xóa mềm / Khôi phục"
+                                                    data-id="@item.Id"
+                                                    data-url="@Url.Action("ToggleDelete", "ViolationReports", new { area = "Admin" })"
+                                                    class="btn btn-sm ajax-toggle-report-status
+                                                        @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
+                                                <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

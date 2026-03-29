@@ -238,5 +238,20 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             return _context.ViolationReports.Any(e => e.Id == id);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var report = await _context.ViolationReports.FindAsync(id);
+            if (report == null)
+            {
+                return NotFound();
+            }
+
+            report.Isdeleted = !report.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = report.Isdeleted });
+        }
     }
 }
