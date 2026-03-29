@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using COMICZONE.Data;
+using COMICZONE.Extensions;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -64,20 +65,25 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (report == null)
                 return NotFound();
 
-            // Load review & reply giống Index
-            var reviewList = await _context.ProductReviews
-                .AsNoTracking()
-                .ToListAsync();
-
-            var replyList = await _context.ProductReviewReplies
-                .AsNoTracking()
-                .ToListAsync();
-
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
+            // Lấy nội dung báo cáo cụ thể (Review hoặc Reply)
+            if (report.ReportTypeEnum == ReportType.Review)
+            {
+                var review = await _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.Reviewid == report.Targetid);
+                ViewBag.ReportedItem = review;
+            }
+            else if (report.ReportTypeEnum == ReportType.Reply)
+            {
+                var reply = await _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .FirstOrDefaultAsync(r => r.Replyid == report.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
 
             return View(report);
         }
@@ -134,6 +140,9 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 try
                 {
+                    var oldStatus = existingReport.StatusEnum;
+                    bool isStatusChanged = existingReport.Status != model.Status;
+
                     existingReport.Userid = model.Userid;
                     existingReport.Reporttype = model.Reporttype;
                     existingReport.Targetid = model.Targetid;
@@ -141,6 +150,31 @@ namespace COMICZONE.Areas.Admin.Controllers
                     existingReport.Createdat = model.Createdat;
                     existingReport.Isdeleted = model.Isdeleted;
                     existingReport.Reason = model.Reason;
+
+                    // Thêm thông báo
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = null;
+                    if (int.TryParse(adminIdStr, out int parsedId))
+                    {
+                        adminId = parsedId;
+                    }
+
+                    string notifMsg = $"Báo cáo vi phạm #{existingReport.Id} của bạn đã được Admin cập nhật.";
+                    if (isStatusChanged)
+                    {
+                        notifMsg = $"Trạng thái báo cáo vi phạm #{existingReport.Id} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {existingReport.StatusEnum.GetDisplayName()}.";
+                    }
+
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = existingReport.Userid,
+                        Title = "Cập nhật báo cáo vi phạm",
+                        Message = notifMsg,
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = "/UserProfiles/Notifications"
+                    });
 
                     await _context.SaveChangesAsync();
 
@@ -166,42 +200,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(model);
         }
 
-        //// POST: Admin/ViolationReports/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Userid,Reporttype,Targetid,Reason,Status,Createdat,Isdeleted")] ViolationReport violationReport)
-        //{
-        //    if (id != violationReport.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(violationReport);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!ViolationReportExists(violationReport.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["Userid"] = new SelectList(_context.Users, "Id", "Id", violationReport.Userid);
-        //    return View(violationReport);
-        //}
-
         // GET: Admin/ViolationReports/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -219,14 +217,25 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var reviewList = await _context.ProductReviews.ToListAsync();
-            var replyList = await _context.ProductReviewReplies.ToListAsync();
-
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
+            // Lấy nội dung báo cáo cụ thể (Review hoặc Reply)
+            if (violationReport.ReportTypeEnum == ReportType.Review)
+            {
+                var review = await _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.Reviewid == violationReport.Targetid);
+                ViewBag.ReportedItem = review;
+            }
+            else if (violationReport.ReportTypeEnum == ReportType.Reply)
+            {
+                var reply = await _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                    .FirstOrDefaultAsync(r => r.Replyid == violationReport.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
 
             return View(violationReport);
         }
@@ -239,6 +248,25 @@ namespace COMICZONE.Areas.Admin.Controllers
             var violationReport = await _context.ViolationReports.FindAsync(id);
             if (violationReport != null)
             {
+                // Thêm thông báo
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = null;
+                if (int.TryParse(adminIdStr, out int parsedId))
+                {
+                    adminId = parsedId;
+                }
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = violationReport.Userid,
+                    Title = "Báo cáo vi phạm bị gỡ",
+                    Message = $"Báo cáo vi phạm #{violationReport.Id} của bạn đã bị gỡ/xóa bởi hệ thống.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = "/UserProfiles/Notifications"
+                });
+
                 _context.ViolationReports.Remove(violationReport);
             }
 
@@ -257,6 +285,21 @@ namespace COMICZONE.Areas.Admin.Controllers
         private bool ViolationReportExists(int id)
         {
             return _context.ViolationReports.Any(e => e.Id == id);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var report = await _context.ViolationReports.FindAsync(id);
+            if (report == null)
+            {
+                return NotFound();
+            }
+
+            report.Isdeleted = !report.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = report.Isdeleted });
         }
     }
 }

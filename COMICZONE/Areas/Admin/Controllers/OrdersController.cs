@@ -218,8 +218,23 @@ namespace COMICZONE.Areas.Admin.Controllers
 
                 await _context.SaveChangesAsync();
             }
-
+ 
             return RedirectToAction(nameof(Index));
+        }
+ 
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+ 
+            order.Isdeleted = !order.Isdeleted;
+            await _context.SaveChangesAsync();
+ 
+            return Json(new { success = true, isDeleted = order.Isdeleted });
         }
     }
 }
