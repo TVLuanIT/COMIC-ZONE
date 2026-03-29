@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using COMICZONE.Data;
+using COMICZONE.Extensions;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -139,6 +140,9 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 try
                 {
+                    var oldStatus = existingReport.StatusEnum;
+                    bool isStatusChanged = existingReport.Status != model.Status;
+
                     existingReport.Userid = model.Userid;
                     existingReport.Reporttype = model.Reporttype;
                     existingReport.Targetid = model.Targetid;
@@ -146,6 +150,31 @@ namespace COMICZONE.Areas.Admin.Controllers
                     existingReport.Createdat = model.Createdat;
                     existingReport.Isdeleted = model.Isdeleted;
                     existingReport.Reason = model.Reason;
+
+                    // Thêm thông báo
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = null;
+                    if (int.TryParse(adminIdStr, out int parsedId))
+                    {
+                        adminId = parsedId;
+                    }
+
+                    string notifMsg = $"Báo cáo vi phạm #{existingReport.Id} của bạn đã được Admin cập nhật.";
+                    if (isStatusChanged)
+                    {
+                        notifMsg = $"Trạng thái báo cáo vi phạm #{existingReport.Id} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {existingReport.StatusEnum.GetDisplayName()}.";
+                    }
+
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = existingReport.Userid,
+                        Title = "Cập nhật báo cáo vi phạm",
+                        Message = notifMsg,
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = "/UserProfiles/Notifications"
+                    });
 
                     await _context.SaveChangesAsync();
 
@@ -219,6 +248,25 @@ namespace COMICZONE.Areas.Admin.Controllers
             var violationReport = await _context.ViolationReports.FindAsync(id);
             if (violationReport != null)
             {
+                // Thêm thông báo
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = null;
+                if (int.TryParse(adminIdStr, out int parsedId))
+                {
+                    adminId = parsedId;
+                }
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = violationReport.Userid,
+                    Title = "Báo cáo vi phạm bị gỡ",
+                    Message = $"Báo cáo vi phạm #{violationReport.Id} của bạn đã bị gỡ/xóa bởi hệ thống.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = "/UserProfiles/Notifications"
+                });
+
                 _context.ViolationReports.Remove(violationReport);
             }
 
