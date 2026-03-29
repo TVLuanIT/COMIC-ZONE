@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -124,6 +125,9 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.Product)
                     .ThenInclude(p => p.Pictures)
                 .Include(p => p.User)
+                .Include(p => p.ProductReviewReplies)
+                    .ThenInclude(r => r.User)
+                .Include(p => p.ProductReviewLikes)
                 .FirstOrDefaultAsync(m => m.Reviewid == id);
             if (productReview == null)
             {
@@ -138,13 +142,62 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var productReview = await _context.ProductReviews.FindAsync(id);
+            var productReview = await _context.ProductReviews
+                .Include(r => r.ProductReviewLikes)
+                .Include(r => r.ProductReviewReplies)
+                .FirstOrDefaultAsync(m => m.Reviewid == id);
+
             if (productReview != null)
             {
-                _context.ProductReviews.Remove(productReview);
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    // 1. Xóa Lượt thích của đánh giá
+                    if (productReview.ProductReviewLikes.Any())
+                    {
+                        _context.ProductReviewLikes.RemoveRange(productReview.ProductReviewLikes);
+                    }
+
+                    // 2. Xóa các Phản hồi và dữ liệu liên quan của phản hồi
+                    var replyIds = productReview.ProductReviewReplies.Select(r => r.Replyid).ToList();
+                    
+                    if (replyIds.Any())
+                    {
+                        // Xóa Lượt thích của các phản hồi
+                        var replyLikes = await _context.ProductReviewReplyLikes
+                            .Where(rl => replyIds.Contains(rl.Replyid))
+                            .ToListAsync();
+                        if (replyLikes.Any()) _context.ProductReviewReplyLikes.RemoveRange(replyLikes);
+
+                        // Xóa Báo cáo vi phạm của các phản hồi
+                        var replyReports = await _context.ViolationReports
+                            .Where(vr => vr.Reporttype == (int)ReportType.Reply && replyIds.Contains(vr.Targetid))
+                            .ToListAsync();
+                        if (replyReports.Any()) _context.ViolationReports.RemoveRange(replyReports);
+
+                        // Xóa các phản hồi
+                        _context.ProductReviewReplies.RemoveRange(productReview.ProductReviewReplies);
+                    }
+
+                    // 3. Xóa Báo cáo vi phạm trực tiếp của đánh giá
+                    var reviewReports = await _context.ViolationReports
+                        .Where(vr => vr.Reporttype == (int)ReportType.Review && vr.Targetid == id)
+                        .ToListAsync();
+                    if (reviewReports.Any()) _context.ViolationReports.RemoveRange(reviewReports);
+
+                    // 4. Cuối cùng xóa bản ghi Đánh giá chính
+                    _context.ProductReviews.Remove(productReview);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
     }
