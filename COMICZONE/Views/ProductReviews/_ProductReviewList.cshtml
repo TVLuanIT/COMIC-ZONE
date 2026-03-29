@@ -1,4 +1,5 @@
-﻿@model IEnumerable<COMICZONE.Models.ProductReview>
+@model IEnumerable<COMICZONE.Models.ProductReview>
+@using COMICZONE.Extensions
 @{
     // Lấy ProductId an toàn từ ViewBag
     int productId = ViewBag.ProductId is int id ? id : 0;
@@ -35,28 +36,14 @@
                 <div class="review-header d-flex justify-content-between">
                     <div class="d-flex">
                         <div class="review-avatar me-2">
-                            @if (!string.IsNullOrEmpty(review.User?.Avatar))
-                            {
-                                @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User?.Avatar, size = 32 })
-                            }
-                            else
-                            {
-                                @(review.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
-                            }
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User.GetDisplayAvatar(), size = 32 })
                         </div>
                         <div>
                             <div class="review-username">
-                                @if (string.IsNullOrWhiteSpace(review.User?.Username))
-                                {
-                                    <span>Người dùng ẩn danh</span>
-                                }
-                                else
-                                {
-                                    <span class="username-text">@review.User.Username</span>
-                                    <span class="edit-label text-muted small ms-1 @(review.Updatedat.HasValue ? "" : "d-none")">
-                                        (đã chỉnh sửa)
-                                    </span>
-                                }
+                                <span class="username-text">@review.User.GetDisplayUsername()</span>
+                                <span class="edit-label text-muted small ms-1 @(review.Updatedat.HasValue ? "" : "d-none")">
+                                    (đã chỉnh sửa)
+                                </span>
                             </div>
                             <div class="review-date">
                                 @{
@@ -208,7 +195,7 @@
                     <button class="reaction-btn toggle-reply"
                             data-review-id="@review.Reviewid"
                             data-reply-to-user-id="@review.Userid"
-                            data-reply-to-username="@review.User?.Username"
+                            data-reply-to-username="@review.User.GetDisplayUsername()"
                             title="Trả lời">
                         <span class="reply-text">💬 Phản hồi</span>
                     </button>

@@ -47,6 +47,9 @@ public partial class User
     [Column("RESET_TOKEN_EXPIRE", TypeName = "datetime")]
     public DateTime? ResetTokenExpire { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
 

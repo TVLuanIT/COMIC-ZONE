@@ -1,4 +1,4 @@
-﻿@model IEnumerable<COMICZONE.Models.User>
+@model IEnumerable<COMICZONE.Models.User>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -20,17 +20,18 @@
                 <th>Ảnh đại diện</th>
                 <th>Tên người dùng</th>
                 <th>Email</th>
-                <th>Vai trò</th>
-                <th>Trạng thái</th>
+                <th class="text-center">Vai trò</th>
+                <th class="text-center">Trạng thái xóa</th>
+                <th class="text-center">Hoạt động</th>
                 <th>Ngày tạo</th>
-                <th>Hành động</th>
+                <th class="text-center">Hành động</th>
             </tr>
         </thead>
 
         <tbody>
             @foreach (var user in Model)
             {
-                <tr>
+                <tr id="user-row-@user.Id" class="@(user.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                     <td>
                         <img src="@user.Avatar.AvatarOrDefault()"
                              alt="@user.Username" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
@@ -40,24 +41,65 @@
                     
                     <td>@user.Email</td>
                     
-                    <td>
-                        <span class="badge bg-@(user.Role == "Admin" ? "danger" : "secondary")">
-                            @(user.Role == "Admin" ? "Quản trị viên" : "Người dùng")
+                    <td class="text-center">
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold
+                            @(user.UserRoleEnum == UserRole.Admin
+                            ? "bg-danger-subtle text-danger"
+                            : "bg-success-subtle text-success")">
+
+                            @user.UserRoleEnum.GetDisplayName()
                         </span>
                     </td>
 
-                    <td>
-                        <span class="badge bg-@(user.Isactive ? "success" : "warning")">
-                            @(user.Isactive ? "Đang hoạt động" : "Ngưng hoạt động")
+                    <td class="text-center">
+                        <span id="soft-delete-status-cell-@user.Id">
+                        @if (user.Isdeleted)
+                            {
+                                <span class="badge bg-danger">Đã xóa mềm</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Chưa xóa</span>
+                            }
+                        </span>
+                    </td>
+
+                    <td class="text-center">
+                        <span id="active-status-cell-@user.Id">
+                            <span class="badge bg-@(user.Isactive ? "success" : "warning")">
+                                @(user.Isactive ? "Hoạt động" : "Ngưng hoạt động")
+                            </span>
                         </span>
                     </td>
                     
                     <td>@user.Createdat.ToString("dd/MM/yyyy")</td>
                     
-                    <td>
-                        <a class="btn btn-sm btn-info me-1" asp-action="Details" asp-route-id="@user.Id"><i class="ti ti-eye"></i></a>
-                        <a class="btn btn-sm btn-warning me-1" asp-action="Edit" asp-route-id="@user.Id"><i class="ti ti-edit"></i></a>
-                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id"><i class="ti ti-trash"></i></a>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-icon btn-outline-info me-1" 
+                           asp-action="Details" asp-route-id="@user.Id" 
+                           title="Chi tiết người dùng">
+                           <i class="ti ti-eye"></i>
+                        </a>
+
+                        <a class="btn btn-sm btn-icon btn-outline-warning me-1" 
+                           asp-action="Edit" asp-route-id="@user.Id" 
+                           title="Chỉnh sửa">
+                           <i class="ti ti-edit"></i>
+                        </a>
+
+                        <button type="button" 
+                                class="btn btn-sm btn-icon ajax-toggle-user-status me-1 @(user.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                data-id="@user.Id" 
+                                data-url="@Url.Action("ToggleDelete", "Users", new { area = "Admin" })"
+                                title="@(user.Isdeleted ? "Khôi phục tài khoản" : "Xóa mềm (Vô hiệu hóa)")">
+                            <i class="ti @(user.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                        </button>
+
+                        <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm" 
+                           asp-action="Delete" asp-route-id="@user.Id" 
+                           title="Trang xóa & Quản lý phụ thuộc">
+                           <i class="ti ti-trash"></i>
+                        </a>
                     </td>
                 </tr>
             }
