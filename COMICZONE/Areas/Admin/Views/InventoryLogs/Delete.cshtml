@@ -1,0 +1,77 @@
+@model COMICZONE.Models.InventoryLog
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa nhật ký kho";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Nhật ký kho</a></li>
+                    <li class="breadcrumb-item active">Xóa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold text-danger"><i class="ti ti-trash me-2"></i>Xác nhận xóa nhật ký</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="ti ti-alert-triangle fs-4 me-2"></i>
+                        <div>
+                            Bạn có chắc chắn muốn xóa bản ghi nhật ký này không? Hành động này không thể hoàn tác.
+                        </div>
+                    </div>
+
+                    <div class="p-4 border rounded bg-light mb-4 text-center">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Sản phẩm</h6>
+                        <h4 class="mb-3 text-dark">@Model.Product.Name</h4>
+                        
+                        <div class="d-flex justify-content-center gap-4 mt-3">
+                            <div>
+                                <small class="text-muted d-block">Số lượng</small>
+                                <span class="fw-bold @(Model.ChangeAmount > 0 ? "text-success" : "text-danger")">
+                                    @(Model.ChangeAmount > 0 ? "+" : "")@Model.ChangeAmount
+                                </span>
+                            </div>
+                            <div class="vr"></div>
+                            <div>
+                                <small class="text-muted d-block">Loại</small>
+                                <span class="fw-bold text-dark">@(Model.Type?.ToLower() == "import" ? "Nhập kho" : "Xuất kho")</span>
+                            </div>
+                            <div class="vr"></div>
+                            <div>
+                                <small class="text-muted d-block">Ngày tạo</small>
+                                <span class="fw-bold text-dark">@(Model.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                                <i class="ti ti-arrow-left me-1"></i> Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                <i class="ti ti-trash me-1"></i> Xác nhận xóa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

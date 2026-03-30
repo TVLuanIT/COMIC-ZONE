@@ -1,0 +1,93 @@
+@model COMICZONE.Models.InventoryLog
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết nhật ký kho";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Nhật ký kho</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold"><i class="ti ti-info-circle me-2"></i>Chi tiết bản ghi #@Model.Id</h5>
+                    <div class="btn-group">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 me-2">
+                            <i class="ti ti-edit me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light mb-3">
+                                <small class="text-muted text-uppercase fw-bold d-block mb-1">Sản phẩm</small>
+                                <h5 class="mb-0 text-dark">@Model.Product.Name</h5>
+                                <p class="mb-0 small text-muted">ID: #@Model.ProductId</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light mb-3">
+                                <small class="text-muted text-uppercase fw-bold d-block mb-1">Ngày tạo</small>
+                                <h5 class="mb-0 text-dark">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th class="bg-light w-25">Số lượng thay đổi</th>
+                                    <td>
+                                        @{
+                                            var isPositive = Model.ChangeAmount > 0;
+                                            var colorClass = isPositive ? "text-success" : "text-danger";
+                                            var prefix = isPositive ? "+" : "";
+                                        }
+                                        <span class="fw-bold fs-5 @colorClass">@prefix@Model.ChangeAmount</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Loại giao dịch</th>
+                                    <td>
+                                        @if (Model.Type?.ToLower() == "import" || Model.Type?.Contains("Nhập") == true) {
+                                            <span class="badge bg-success text-white px-3 py-2 rounded">
+                                                <i class="ti ti-arrow-up-right me-1"></i>Nhập kho
+                                            </span>
+                                        } else {
+                                            <span class="badge bg-danger text-white px-3 py-2 rounded">
+                                                <i class="ti ti-arrow-down-left me-1"></i>Xuất kho
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-start">
+                        <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                            <i class="ti ti-arrow-left me-1"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

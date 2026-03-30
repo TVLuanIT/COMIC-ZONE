@@ -733,6 +733,38 @@ const ArtistIndex = () => {
     return { init };
 };
 
+const AdminLayout = () => {
+    const init = () => {
+        handleCollapseIcon();
+    };
+
+    const handleCollapseIcon = () => {
+        const menu = document.getElementById("systemMenu");
+        if (!menu) return;
+
+        const parent = menu.closest(".nav-item");
+        const plusIcon = parent.querySelector(".icon-plus");
+        const minusIcon = parent.querySelector(".icon-minus");
+
+        function updateIcon() {
+            if (menu.classList.contains("show")) {
+                plusIcon.style.display = "none";
+                minusIcon.style.display = "inline-block";
+            } else {
+                plusIcon.style.display = "inline-block";
+                minusIcon.style.display = "none";
+            }
+        }
+
+        menu.addEventListener("shown.bs.collapse", updateIcon);
+        menu.addEventListener("hidden.bs.collapse", updateIcon);
+
+        updateIcon();
+    };
+
+    return { init };
+};
+
 // ===============================
 // DOM READY
 // ===============================
@@ -762,6 +794,7 @@ const initAdmin = () => {
     safeInit(ProductReviewReplyIndex);
     safeInit(TagIndex);
     safeInit(ArtistIndex);
+    safeInit(AdminLayout);
 };
 
 document.readyState !== "loading"
