@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.ProductReviewReply
+@model COMICZONE.Models.ProductReviewReply
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -27,17 +27,60 @@
                         Bạn có chắc chắn muốn xóa phản hồi này không?
                     </div>
 
-                    <!-- REVIEW INFO -->
+                    <!-- ORIGINAL REVIEW CONTEXT -->
+                    <div class="mb-4 p-3 bg-light rounded-3 border-start border-primary border-4">
+                        <div class="d-flex align-items-center mb-2">
+                             <i class="ti ti-package me-2 text-primary"></i>
+                             <span class="fw-bold">Thông tin sản phẩm:</span>
+                             <span class="ms-2">@Html.Raw(Model.Review?.Product?.GetProductCell())</span>
+                        </div>
+
+                        <div class="small text-muted mb-2">
+                            <i class="ti ti-user me-1"></i> Bài đánh giá của <strong> @Model.Review?.User?.Username </strong>
+                        
+                            <span class="ms-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="ti ti-star@(i <= Model.Review?.Rating ? "-filled text-warning" : " text-muted")"></i>
+                                }
+                            </span>
+                        </div>
+
+                        <div class="p-2 bg-white rounded border italic">
+                            "@Model.Review?.Reviewcontent"
+                        </div>
+                    </div>
+
+                    @if (Model.Parentreply != null)
+                    {
+                        <!-- PARENT REPLY CONTEXT -->
+                        <div class="mb-4 ps-4 border-start border-info border-3">
+                            <div class="fw-semibold text-muted small mb-1">Đang trả lời cho: <strong>@Model.Parentreply.User?.Username</strong></div>
+                            <div class="p-2 bg-light rounded border small">
+                                "@Model.Parentreply.Replycontent"
+                            </div>
+                        </div>
+                    }
+
+                    <hr class="my-4" />
+
+                    <!-- CURRENT REPLY INFO -->
                     <div class="mb-3">
-                        <div class="fw-semibold text-muted mb-1">Người viết</div>
+                        <div class="fw-semibold text-muted mb-1">Người viết phản hồi</div>
                         <div class="fw-bold">
-                            @Model.User?.Username
+                            @Model.User?.Username 
+                            @if(Model.ProductReviewReplyLikes.Any())
+                            {
+                                <span class="ms-2 badge bg-light text-dark border fw-normal">
+                                    <i class="ti ti-thumb-up text-primary me-1"></i> @Model.ProductReviewReplyLikes.Count() Lượt thích
+                                </span>
+                            }
                         </div>
                     </div>
 
                     <!-- REPLY CONTENT -->
                     <div class="mb-3">
-                        <div class="fw-semibold text-muted mb-1">Nội dung phản hồi</div>
+                        <div class="fw-semibold text-muted mb-1">Nội dung phản hồi muốn xóa</div>
                         <div class="p-3 bg-light rounded-3 border">
                             @Model.Replycontent
                         </div>
@@ -52,18 +95,18 @@
                         }
                     </div>
 
-                    <!-- ACTION -->
+                    <!-- ACTIONS -->
                     <form asp-action="Delete" method="post">
                         <input type="hidden" asp-for="Replyid" />
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review.Reviewid" class="btn btn-light px-4">
+                             <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@Model.Review.Reviewid" class="btn btn-light px-4">
                                 Hủy
                             </a>
 
                             <button type="submit" class="btn btn-danger px-4 shadow-sm">
-                                <i class="ti ti-trash me-1"></i> Xóa
-                            </button>
+                                    <i class="ti ti-trash me-1"></i> Xóa vĩnh viễn
+                                </button>
                         </div>
                     </form>
                 </div>

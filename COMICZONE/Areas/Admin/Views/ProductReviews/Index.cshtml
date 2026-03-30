@@ -1,4 +1,4 @@
-﻿@using COMICZONE.Helpers;
+@using COMICZONE.Helpers;
 
 @model IEnumerable<COMICZONE.Models.ProductReview>
 
@@ -28,6 +28,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>⭐ Rating</th>
+                        <th class="text-center">Trạng thái</th>
                         <th>Nội dung</th>
                         <th>Sản phẩm</th>
                         <th>Người dùng</th>
@@ -39,11 +40,25 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr id="review-row-@item.Reviewid" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                             <!-- RATING -->
                             <td>
                                 <span class="badge bg-warning text-dark">
                                     @item.Rating ★
+                                </span>
+                            </td>
+
+                            <!-- STATUS -->
+                            <td class="text-center">
+                                <span id="status-cell-@item.Reviewid">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger">Đã ẩn</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Hiển thị</span>
+                                    }
                                 </span>
                             </td>
 
@@ -80,21 +95,32 @@
                                 <div class="d-flex justify-content-center gap-2">
                                     <a asp-action="Details"
                                        asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-light">
+                                       class="btn btn-sm btn-light"
+                                       title="Xem chi tiết">
                                         <i class="ti ti-eye"></i>
                                     </a>
 
                                     <a asp-action="Edit"
                                        asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-primary">
+                                       class="btn btn-sm btn-primary"
+                                       title="Chỉnh sửa">
                                         <i class="ti ti-edit"></i>
                                     </a>
 
                                     <a asp-action="Delete"
                                        asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-danger">
+                                       class="btn btn-sm btn-danger"
+                                       title="Xóa vĩnh viễn">
                                         <i class="ti ti-trash"></i>
                                     </a>
+
+                                    <button type="button"
+                                            class="btn btn-sm ajax-toggle-review-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                            data-id="@item.Reviewid"
+                                            data-url="@Url.Action("ToggleDelete", "ProductReviews", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Hiện đánh giá" : "Ẩn đánh giá")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>

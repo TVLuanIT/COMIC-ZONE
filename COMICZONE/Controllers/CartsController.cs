@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Controllers
 {
-    public class CartsController : Controller
+    public class CartsController : BaseController
     {
         private readonly ComiczoneContext _context;
         private readonly PaypalClient _paypalClient;

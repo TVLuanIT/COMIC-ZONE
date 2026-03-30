@@ -162,50 +162,70 @@
                     </div>
                 </div>
                 <div class="review-stars mt-1 mb-2">
-                    @for (int i = 1; i <= 5; i++)
+                    @if (review.Isdeleted)
                     {
-                        <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
+                        <span class="text-muted small italic">Phần đánh giá sao đã bị ẩn</span>
                     }
-
+                    else
+                    {
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
+                        }
+                    }
                 </div>
                 <div class="review-content mb-2">
-                    <div class="review-text" id="review-text-@review.Reviewid">
-                        @review.Reviewcontent
+                    <div class="review-text @(review.Isdeleted ? "text-muted fst-italic py-2 px-3 bg-light rounded border-start border-4 border-warning" : "")" id="review-text-@review.Reviewid">
+                        @if (review.Isdeleted)
+                        {
+                            <i class="bi bi-eye-slash-fill me-1"></i>
+                            <span>Nội dung này đã bị ẩn bởi Admin</span>
+                        }
+                        else
+                        {
+                            @review.Reviewcontent
+                        }
                     </div>
 
-                    @await Html.PartialAsync("_EditReviewForm.cshtml", review)
+                    @if (!review.Isdeleted)
+                    {
+                        @await Html.PartialAsync("_EditReviewForm.cshtml", review)
+                    }
                 </div>
-                <div class="review-actions mt-2">
-                    <!-- LIKE -->
-                    <button class="reaction-btn toggle-like @(review.IsLikedByUser ? "liked" : "")"
-                            data-review-id="@review.Reviewid">
-                        <svg class="icon like-icon" viewBox="0 0 24 24">
-                            <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
-                        </svg>
-                        <span class="like-count">@review.LikeCount</span>
-                    </button>
-                    <!-- DISLIKE -->
-                    <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
-                            data-review-id="@review.Reviewid">
-                        <svg class="icon dislike-icon" viewBox="0 0 24 24">
-                            <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
-                        </svg>
-                    </button>
-                    <!-- REPLY -->
-                    <button class="reaction-btn toggle-reply"
-                            data-review-id="@review.Reviewid"
-                            data-reply-to-user-id="@review.Userid"
-                            data-reply-to-username="@review.User.GetDisplayUsername()"
-                            title="Trả lời">
-                        <span class="reply-text">💬 Phản hồi</span>
-                    </button>
-                </div>
+                @if (!review.Isdeleted)
+                {
+                    <div class="review-actions mt-2">
+                        <!-- LIKE -->
+                        <button class="reaction-btn toggle-like @(review.IsLikedByUser ? "liked" : "")"
+                                data-review-id="@review.Reviewid">
+                            <svg class="icon like-icon" viewBox="0 0 24 24">
+                                <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.3l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.82 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z" />
+                            </svg>
+                            <span class="like-count">@review.LikeCount</span>
+                        </button>
+                        <!-- DISLIKE -->
+                        <button class="reaction-btn toggle-dislike @(review.IsDislikedByUser ? "disliked" : "")"
+                                data-review-id="@review.Reviewid">
+                            <svg class="icon dislike-icon" viewBox="0 0 24 24">
+                                <path d="M15 3H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v1c0 1.1.9 2 2 2h6.3l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
+                            </svg>
+                        </button>
+                        <!-- REPLY -->
+                        <button class="reaction-btn toggle-reply"
+                                data-review-id="@review.Reviewid"
+                                data-reply-to-user-id="@review.Userid"
+                                data-reply-to-username="@review.User.GetDisplayUsername()"
+                                title="Trả lời">
+                            <span class="reply-text">💬 Phản hồi</span>
+                        </button>
+                    </div>
+                }
 
                 @* neo cố định trong review *@
                 <div id="review-reply-anchor-@review.Reviewid"></div>
 
-                @* Form chỉ hiện khi login *@
-                @if (isLoggedIn)
+                @* Form chỉ hiện khi login và review chưa ẩn *@
+                @if (isLoggedIn && !review.Isdeleted)
                 {
                     @await Html.PartialAsync("~/Views/ProductReviewReplies/_ProductReviewReplyForm.cshtml", review)
                 }

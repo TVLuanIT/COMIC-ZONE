@@ -33,6 +33,9 @@ public partial class ProductReview
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("Productid")]
     [InverseProperty("ProductReviews")]
     public virtual Product Product { get; set; } = null!;

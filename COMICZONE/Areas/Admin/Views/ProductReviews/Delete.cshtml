@@ -1,4 +1,4 @@
-﻿@using COMICZONE.Helpers;
+@using COMICZONE.Helpers;
 
 @model COMICZONE.Models.ProductReview
 
@@ -71,6 +71,24 @@
                         </div>
                     </div>
 
+                    <!-- LIKES & REPLIES COUNT -->
+                    <div class="mb-3 d-flex gap-4">
+                        <div>
+                            <span class="fw-semibold text-muted mb-1 d-block">Lượt thích</span>
+                            <span class="badge bg-light text-dark border p-2">
+                                <i class="ti ti-thumb-up me-1 text-primary"></i>
+                                @(Model.ProductReviewLikes?.Count ?? 0)
+                            </span>
+                        </div>
+                        <div>
+                            <span class="fw-semibold text-muted mb-1 d-block">Phản hồi</span>
+                            <span class="badge bg-light text-dark border p-2">
+                                <i class="ti ti-message-circle me-1 text-success"></i>
+                                @(Model.ProductReviewReplies?.Count ?? 0)
+                            </span>
+                        </div>
+                    </div>
+
                     <!-- TIME -->
                     <div class="mb-4 text-muted small">
                         Tạo lúc: @Model.Createdat?.ToString("dd/MM/yyyy HH:mm") <br />
@@ -96,6 +114,12 @@
                     </form>
                 </div>
             </div>
+
+            <!-- LIST REPLIES -->
+            @if (Model.ProductReviewReplies != null && Model.ProductReviewReplies.Any())
+            {
+                @await Html.PartialAsync("_ListReplies", Model.ProductReviewReplies)
+            }
         </div>
     </div>
 </div>

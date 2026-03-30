@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.ProductReviewReply
+@model COMICZONE.Models.ProductReviewReply
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -107,6 +107,29 @@
                                 rows="4"
                                 style="border-radius:14px; background:#f8f9fa;"
                                 placeholder="Nhập nội dung phản hồi..."></textarea>
+                        </div>
+
+                        <!-- SOFT DELETE (Isdeleted) -->
+                        <div class="mb-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check form-switch me-3">
+                                        <input asp-for="Isdeleted" 
+                                               class="form-check-input" 
+                                               type="checkbox" 
+                                               role="switch" 
+                                               id="isDeletedCheck" />
+                                    </div>
+                                    <div>
+                                        <label class="form-check-label fw-bold mb-0" for="isDeletedCheck">
+                                            <i class="ti ti-ban text-danger me-1"></i> Ẩn phản hồi này (Xóa mềm)
+                                        </label>
+                                        <div class="form-text text-muted small mt-1">
+                                            Nếu chọn, phản hồi này sẽ bị ẩn khỏi trang sản phẩm đối với người dùng.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- ACTION -->

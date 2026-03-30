@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -370,7 +370,7 @@ namespace COMICZONE.Controllers
             return _context.ProductReviewReplies
                 .Include(r => r.Review)
                 .ThenInclude(r => r.Product)
-                .Where(r => r.Userid == userId)
+                .Where(r => r.Userid == userId && !r.Isdeleted)
                 .OrderByDescending(r => r.Createdat)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -381,7 +381,7 @@ namespace COMICZONE.Controllers
         {
             return _context.ProductReviews
                 .Include(r => r.Product)
-                .Where(r => r.Userid == userId)
+                .Where(r => r.Userid == userId && !r.Isdeleted)
                 .OrderByDescending(r => r.Createdat)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -400,7 +400,7 @@ namespace COMICZONE.Controllers
             int userId = int.Parse(userIdStr);
 
             var orders = _context.Orders
-                .Where(o => o.UserId == userId)
+                .Where(o => o.UserId == userId && !o.Isdeleted)
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
@@ -437,13 +437,13 @@ namespace COMICZONE.Controllers
             int userId = int.Parse(userIdStr);
 
             // REVIEWS
-            var reviewQuery = _context.ProductReviews.Where(r => r.Userid == userId);
+            var reviewQuery = _context.ProductReviews.Where(r => r.Userid == userId && !r.Isdeleted);
             int totalReviews = reviewQuery.Count();
 
             var reviews = GetReviews(reviewPage, pageSize, userId);
 
             // REPLIES
-            var replyQuery = _context.ProductReviewReplies.Where(r => r.Userid == userId);
+            var replyQuery = _context.ProductReviewReplies.Where(r => r.Userid == userId && !r.Isdeleted);
             int totalReplies = replyQuery.Count();
 
             var replies = GetReplies(replyPage, pageSize, userId);

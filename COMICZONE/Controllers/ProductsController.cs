@@ -30,6 +30,9 @@ namespace COMICZONE.Controllers
                 .Include(p => p.ProductReviewSummary)
                 .Include(p => p.ProductReviews)
                     .ThenInclude(pr => pr.User)
+                .Include(p => p.ProductReviews)
+                    .ThenInclude(pr => pr.ProductReviewReplies)
+                        .ThenInclude(rp => rp.User)
                 .Where(p => !p.Isdeleted)
                 .FirstOrDefaultAsync(p => p.Id == id);
 

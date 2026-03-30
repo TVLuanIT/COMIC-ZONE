@@ -34,6 +34,9 @@ public partial class ProductReviewReply
     [Column("PARENTREPLYID")]
     public int? Parentreplyid { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [InverseProperty("Parentreply")]
     public virtual ICollection<ProductReviewReply> InverseParentreply { get; set; } = new List<ProductReviewReply>();
 
