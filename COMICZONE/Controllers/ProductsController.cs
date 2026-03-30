@@ -252,7 +252,7 @@ namespace COMICZONE.Controllers
                             .Distinct()
                             .ToListAsync()) },
                 { "Họa sĩ", await _context.Artists
-                            .Where(a => a.Products.Any(p => !p.Isdeleted))
+                            .Where(a => !a.Isdeleted && a.Products.Any(p => !p.Isdeleted))
                             .Select(a => a.Name!)
                             .Distinct()
                             .ToListAsync() },

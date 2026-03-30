@@ -86,7 +86,7 @@
                             <td>@item.Translator</td>
 
                             <td>
-                                @foreach (var artist in item.Artists)
+                                @foreach (var artist in item.Artists.Where(a => !a.Isdeleted))
                                 {
                                     <span class="badge bg-secondary">@artist.Name</span>
                                 }

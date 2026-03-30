@@ -113,13 +113,13 @@
                             </tr>
                         }
 
-                        @if (Model.Artists != null && Model.Artists.Any())
+                        @if (Model.Artists != null && Model.Artists.Any(a => !a.Isdeleted))
                         {
                             <tr>
                                 <td class="fw-semibold">Họa sĩ</td>
                                 <td>
                                     @{
-                                        var artists = Model.Artists.ToList();
+                                        var artists = Model.Artists.Where(a => !a.Isdeleted).ToList();
                                     }
 
                                     @for (int i = 0; i < artists.Count; i++)
