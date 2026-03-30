@@ -1,0 +1,135 @@
+@model COMICZONE.Models.Payment
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết thanh toán";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Thanh toán</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold"><i class="ti ti-info-circle me-2 text-info"></i>Thông tin chi tiết #@Model.Paymentid</h5>
+                    <a asp-action="Edit" asp-route-id="@Model.Paymentid" class="btn btn-primary btn-sm rounded-pill px-3">
+                        <i class="ti ti-edit me-1"></i> Chỉnh sửa
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Đơn hàng</label>
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-receipt fs-4 me-2 text-primary"></i>
+                                <span class="fw-bold text-dark fs-5">#@Model.Orderid</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Số tiền</label>
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-coin fs-4 me-2 text-success"></i>
+                                <span class="fw-bold text-dark fs-5">@string.Format("{0:N0} VNĐ", Model.Amount)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Trạng thái</label>
+                            @{
+                                var statusClass = Model.Paymentstatus switch
+                                {
+                                    "SUCCESS" => "bg-success-subtle text-success",
+                                    "PENDING" => "bg-warning-subtle text-warning",
+                                    "FAILED" => "bg-danger-subtle text-danger",
+                                    "CANCELLED" => "bg-secondary-subtle text-secondary",
+                                    "REFUNDED" => "bg-info-subtle text-info",
+                                    _ => "bg-light text-dark"
+                                };
+                                var statusText = Model.Paymentstatus switch
+                                {
+                                    "SUCCESS" => "Thành công",
+                                    "PENDING" => "Chờ thanh toán",
+                                    "FAILED" => "Thất bại",
+                                    "CANCELLED" => "Đã hủy",
+                                    "REFUNDED" => "Đã hoàn tiền",
+                                    _ => Model.Paymentstatus
+                                };
+                            }
+                            <span class="badge @statusClass px-3 py-2 rounded fs-6">
+                                @statusText
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Phương thức</label>
+                            <div class="d-flex align-items-center">
+                                @if (Model.Paymentmethod?.ToLower() == "vnpay")
+                                {
+                                    <i class="ti ti-brand-stripe fs-4 me-2 text-primary"></i>
+                                    <span class="fw-medium">VNPay</span>
+                                }
+                                else if (Model.Paymentmethod?.ToLower() == "cod")
+                                {
+                                    <i class="ti ti-truck fs-4 me-2 text-secondary"></i>
+                                    <span class="fw-medium">COD (Thanh toán khi nhận hàng)</span>
+                                }
+                                else
+                                {
+                                    <i class="ti ti-credit-card fs-4 me-2 text-muted"></i>
+                                    <span class="fw-medium">@Model.Paymentmethod</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 border-top pt-4">
+                        <div class="col-md-12">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Mã giao dịch (TXID)</label>
+                            <div class="bg-light p-2 rounded border font-monospace">
+                                @(string.IsNullOrEmpty(Model.Transactionid) ? "N/A" : Model.Transactionid)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Ngày tạo hệ thống</label>
+                            <div class="text-dark">
+                                <i class="ti ti-calendar-plus me-1 text-muted"></i>
+                                @(Model.Createdat?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Ngày xác nhận thanh toán</label>
+                            <div class="text-dark">
+                                <i class="ti ti-calendar-check me-1 text-muted"></i>
+                                @(Model.Paidat?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-start align-items-center border-top pt-3 mt-4">
+                        <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                            <i class="ti ti-arrow-left me-1"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

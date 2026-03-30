@@ -1,0 +1,121 @@
+@model COMICZONE.Models.Payment
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa thanh toán";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Thanh toán</a></li>
+                    <li class="breadcrumb-item active">Chỉnh sửa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold"><i class="ti ti-edit me-2 text-primary"></i>Chỉnh sửa thông tin thanh toán #@Model.Paymentid</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Paymentid" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Orderid" class="form-label fw-bold">Đơn hàng</label>
+                                <select asp-for="Orderid" class="form-select select2" asp-items="ViewBag.Orderid"></select>
+                                <span asp-validation-for="Orderid" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Amount" class="form-label fw-bold">Số tiền (VNĐ)</label>
+                                <div class="input-group">
+                                    <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+                                    <span class="input-group-text">VNĐ</span>
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Paymentstatus" class="form-label fw-bold">Trạng thái thanh toán</label>
+                                <select asp-for="Paymentstatus" class="form-select">
+                                    <option value="PENDING">Chờ thanh toán</option>
+                                    <option value="SUCCESS">Thanh toán thành công</option>
+                                    <option value="FAILED">Thanh toán thất bại</option>
+                                    <option value="CANCELLED">Đã hủy thanh toán</option>
+                                    <option value="REFUND_PENDING">Chờ hoàn tiền</option>
+                                    <option value="REFUNDED">Đã hoàn tiền</option>
+                                </select>
+                                <span asp-validation-for="Paymentstatus" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Transactionid" class="form-label fw-bold">Mã giao dịch</label>
+                                <input asp-for="Transactionid" class="form-control" />
+                                <span asp-validation-for="Transactionid" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Paymentmethod" class="form-label fw-bold">Phương thức</label>
+                                <input asp-for="Paymentmethod" class="form-control" />
+                                <span asp-validation-for="Paymentmethod" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Paidat" class="form-label fw-bold">Ngày thanh toán</label>
+                                <input asp-for="Paidat" class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                                <span asp-validation-for="Paidat" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="Createdat" class="form-label fw-bold">Ngày tạo (UTC)</label>
+                                <input asp-for="Createdat" class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                                <span asp-validation-for="Createdat" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                            <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                                <i class="ti ti-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="ti ti-device-floppy me-1"></i> Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        jQuery(document).ready(function() {
+            if (typeof jQuery.fn.select2 === 'function') {
+                jQuery('.select2').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%'
+                });
+            } else {
+                console.warn('Select2 plugin not loaded. Falling back to standard select.');
+            }
+        });
+    </script>
+}
+

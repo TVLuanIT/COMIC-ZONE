@@ -41,7 +41,6 @@ const AlertHelper = (() => {
 
 })();
 
-
 // ===============================
 // Areas/Admin/Views/Products/Edit.cshtml
 // ===============================
@@ -733,6 +732,49 @@ const ArtistIndex = () => {
     return { init };
 };
 
+const GlobalNotifications = () => {
+    const init = () => {
+        if (typeof Swal === "undefined" || !window.notifications) return;
+
+        const { success, error, warning } = window.notifications;
+
+        if (success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: success,
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: error,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: true
+            });
+        }
+
+        if (warning) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cảnh báo!',
+                text: warning,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: true
+            });
+        }
+    };
+    return { init };
+};
+
 const AdminLayout = () => {
     const init = () => {
         handleCollapseIcon();
@@ -747,12 +789,14 @@ const AdminLayout = () => {
         const minusIcon = parent.querySelector(".icon-minus");
 
         function updateIcon() {
-            if (menu.classList.contains("show")) {
-                plusIcon.style.display = "none";
-                minusIcon.style.display = "inline-block";
-            } else {
-                plusIcon.style.display = "inline-block";
-                minusIcon.style.display = "none";
+            if (plusIcon && minusIcon) {
+                if (menu.classList.contains("show")) {
+                    plusIcon.style.display = "none";
+                    minusIcon.style.display = "inline-block";
+                } else {
+                    plusIcon.style.display = "inline-block";
+                    minusIcon.style.display = "none";
+                }
             }
         }
 
@@ -783,6 +827,7 @@ const initAdmin = () => {
 
     console.log("admin.js loaded");
 
+    safeInit(GlobalNotifications);
     safeInit(ProductIndex);
     safeInit(BadgeSelect);
     safeInit(ImagesUpload);

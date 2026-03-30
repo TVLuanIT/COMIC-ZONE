@@ -1,4 +1,4 @@
-﻿@{
+@{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 
@@ -16,7 +16,8 @@
         <link href="https://unpkg.com/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
 
         <!-- Select2 -->
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     </head>
 
     <body>
@@ -240,9 +241,11 @@
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
         <!-- Select2 -->
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+        <!-- SweetAlert2 -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <!-- admin -->
@@ -252,5 +255,14 @@
 
         <!-- script từ view -->
         @RenderSection("Scripts", required: false)
+
+        <!-- Global Notifications Handler -->
+        <script>
+            window.notifications = {
+                success: '@Html.Raw(TempData["Success"]?.ToString()?.Replace("'", "\\'"))',
+                error: '@Html.Raw(TempData["Error"]?.ToString()?.Replace("'", "\\'"))',
+                warning: '@Html.Raw(TempData["Warning"]?.ToString()?.Replace("'", "\\'"))'
+            };
+        </script>
     </body>
 </html>
