@@ -255,7 +255,7 @@ namespace COMICZONE.Controllers
                     {
                         ProductId = product.Id,
                         ChangeAmount = -item.Quantity,
-                        Type = "ORDER_CREATED",
+                        Type = "Export",
                         CreatedAt = DateTime.Now
                     });
 

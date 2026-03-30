@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using COMICZONE.Models;
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class InventoryLogsController : Controller
+    public class InventoryLogsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 
@@ -49,7 +49,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         // GET: Admin/InventoryLogs/Create
         public IActionResult Create()
         {
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id");
+            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name");
             return View();
         }
 
@@ -66,7 +66,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", inventoryLog.ProductId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", inventoryLog.ProductId);
             return View(inventoryLog);
         }
 
@@ -83,7 +83,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", inventoryLog.ProductId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", inventoryLog.ProductId);
             return View(inventoryLog);
         }
 
@@ -119,7 +119,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", inventoryLog.ProductId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", inventoryLog.ProductId);
             return View(inventoryLog);
         }
 
