@@ -94,30 +94,33 @@ namespace COMICZONE.Areas.Admin.Controllers
                 existingOrder.ShippingAddress = order.ShippingAddress;
                 existingOrder.Note = order.Note;
 
-                // Thêm thông báo
-                var adminIdStr = HttpContext.Session.GetString("UserId");
-                int? adminId = null;
-                if (int.TryParse(adminIdStr, out int parsedId))
+                // Thêm thông báo (chỉ thông báo nếu bản ghi chưa bị xóa mềm)
+                if (!existingOrder.Isdeleted)
                 {
-                    adminId = parsedId;
-                }
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = null;
+                    if (int.TryParse(adminIdStr, out int parsedId))
+                    {
+                        adminId = parsedId;
+                    }
 
-                string notifMsg = $"Đơn hàng #{existingOrder.OrderId} của bạn đã được Admin cập nhật.";
-                if (isStatusChanged)
-                {
-                    notifMsg = $"Trạng thái đơn hàng #{existingOrder.OrderId} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {order.OrderStatusEnum.GetDisplayName()}.";
-                }
+                    string notifMsg = $"Đơn hàng #{existingOrder.OrderId} của bạn đã được Admin cập nhật.";
+                    if (isStatusChanged)
+                    {
+                        notifMsg = $"Trạng thái đơn hàng #{existingOrder.OrderId} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {order.OrderStatusEnum.GetDisplayName()}.";
+                    }
 
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = existingOrder.UserId,
-                    Title = "Cập nhật đơn hàng",
-                    Message = notifMsg,
-                    CreatedBy = adminId,
-                    CreatedAt = DateTime.Now,
-                    IsRead = false,
-                    Link = $"/UserProfiles/MyOrders"
-                });
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = existingOrder.UserId,
+                        Title = "Cập nhật đơn hàng",
+                        Message = notifMsg,
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = $"/UserProfiles/MyOrders"
+                    });
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -168,24 +171,27 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (order != null)
             {
-                // Thêm thông báo
-                var adminIdStr = HttpContext.Session.GetString("UserId");
-                int? adminId = null;
-                if (int.TryParse(adminIdStr, out int parsedId))
+                // Thêm thông báo (chỉ thông báo nếu bản ghi chưa bị xóa mềm)
+                if (!order.Isdeleted)
                 {
-                    adminId = parsedId;
-                }
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = null;
+                    if (int.TryParse(adminIdStr, out int parsedId))
+                    {
+                        adminId = parsedId;
+                    }
 
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = order.UserId,
-                    Title = "Đơn hàng bị hủy",
-                    Message = $"Đơn hàng #{order.OrderId} của bạn đã bị hủy/xóa bởi hệ thống.",
-                    CreatedBy = adminId,
-                    CreatedAt = DateTime.Now,
-                    IsRead = false,
-                    Link = $"/UserProfiles/MyOrders"
-                });
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = order.UserId,
+                        Title = "Đơn hàng bị hủy",
+                        Message = $"Đơn hàng #{order.OrderId} của bạn đã bị hủy/xóa bởi hệ thống.",
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = $"/UserProfiles/MyOrders"
+                    });
+                }
 
                 // 1. Delete associated Payments and their transactions/refunds
                 if (order.Payments != null && order.Payments.Any())

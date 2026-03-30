@@ -106,8 +106,11 @@ namespace COMICZONE.Areas.Admin.Controllers
             review.Isdeleted = model.Isdeleted;
             review.Updatedat = DateTime.Now;
 
-            // Gửi thông báo nếu có thay đổi
-            if (changes.Any())
+            // Gửi thông báo nếu có thay đổi và không phải trường hợp đang bị ẩn (xóa mềm)
+            bool statusChanged = oldIsDeleted != model.Isdeleted;
+            bool remainsHidden = oldIsDeleted && model.Isdeleted;
+
+            if (changes.Any() && !remainsHidden)
             {
                 var adminIdStr = HttpContext.Session.GetString("UserId");
                 int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
@@ -115,8 +118,10 @@ namespace COMICZONE.Areas.Admin.Controllers
                 _context.Notifications.Add(new Notification
                 {
                     UserId = review.Userid,
-                    Title = "Cập nhật đánh giá sản phẩm",
-                    Message = $"Đánh giá của bạn cho sản phẩm \"{review.Product.Name}\" đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
+                    Title = statusChanged ? (review.Isdeleted ? "Đánh giá bị ẩn" : "Đánh giá đã được khôi phục") : "Cập nhật đánh giá sản phẩm",
+                    Message = statusChanged
+                        ? $"Đánh giá của bạn cho sản phẩm \"{review.Product.Name}\" đã bị " + (review.Isdeleted ? "ẩn bởi Admin." : "Admin khôi phục thành công.")
+                        : $"Đánh giá của bạn cho sản phẩm \"{review.Product.Name}\" đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
                     CreatedBy = adminId,
                     CreatedAt = DateTime.Now,
                     IsRead = false,
@@ -224,19 +229,22 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (productReview != null)
             {
-                // Thêm thông báo trước khi xóa vĩnh viễn
-                var adminIdStr = HttpContext.Session.GetString("UserId");
-                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
-
-                _context.Notifications.Add(new Notification
+                // Thêm thông báo trước khi xóa vĩnh viễn (chỉ thông báo nếu bản ghi chưa bị xóa mềm)
+                if (!productReview.Isdeleted)
                 {
-                    UserId = productReview.Userid,
-                    Title = "Xóa đánh giá sản phẩm vĩnh viễn",
-                    Message = $"Đánh giá của bạn cho sản phẩm \"{productReview.Product.Name}\" đã bị Admin xóa vĩnh viễn khỏi hệ thống.",
-                    CreatedBy = adminId,
-                    CreatedAt = DateTime.Now,
-                    IsRead = false
-                });
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = productReview.Userid,
+                        Title = "Xóa đánh giá sản phẩm vĩnh viễn",
+                        Message = $"Đánh giá của bạn cho sản phẩm \"{productReview.Product.Name}\" đã bị Admin xóa vĩnh viễn khỏi hệ thống.",
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false
+                    });
+                }
 
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try

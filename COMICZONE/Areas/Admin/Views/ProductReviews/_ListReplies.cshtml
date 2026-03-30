@@ -1,4 +1,4 @@
-﻿@model IEnumerable<COMICZONE.Models.ProductReviewReply>
+@model IEnumerable<COMICZONE.Models.ProductReviewReply>
 
 <div class="card shadow-sm border-0 mt-4">
     <div class="card-header bg-white">
@@ -20,19 +20,31 @@
             <div class="list-group list-group-flush">
                 @foreach (var reply in Model)
                 {
-                    <div class="list-group-item px-0">
+                    <div id="reply-row-@reply.Replyid" class="list-group-item px-0 @(reply.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="fw-semibold">@reply.User?.Username</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="fw-semibold">@reply.User?.Username</div>
+                                    <span id="status-cell-@reply.Replyid">
+                                        @if (reply.Isdeleted)
+                                        {
+                                            <span class="badge bg-danger">Đã ẩn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Hiển thị</span>
+                                        }
+                                    </span>
+                                </div>
                                 <small class="text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</small>
                             </div>
 
                             <!-- ACTION -->
-                            <div class="d-flex justify-content-center gap-2">
+                            <div class="d-flex justify-content-center gap-1">
                                 <a asp-controller="ProductReviewReplies"
                                    asp-action="Details"
                                    asp-route-id="@reply.Replyid"
-								   title="Xem chi tiết phản hồi"
+                                   title="Xem chi tiết phản hồi"
                                    class="btn btn-sm btn-light">
                                     <i class="ti ti-eye"></i>
                                 </a>
@@ -40,7 +52,7 @@
                                 <a asp-controller="ProductReviewReplies"
                                    asp-action="Edit"
                                    asp-route-id="@reply.Replyid"
-								   title="Chỉnh sửa phản hồi"
+                                   title="Chỉnh sửa phản hồi"
                                    class="btn btn-sm btn-primary">
                                     <i class="ti ti-edit"></i>
                                 </a>
@@ -48,10 +60,19 @@
                                 <a asp-controller="ProductReviewReplies"
                                    asp-action="Delete"
                                    asp-route-id="@reply.Replyid"
-                                   title="Xóa phản hồi"
-                                   class="btn btn-sm btn-danger">
+                                   title="Xóa vĩnh viễn"
+                                   class="btn btn-sm btn-outline-danger">
                                     <i class="ti ti-trash"></i>
                                 </a>
+
+                                <button type="button"
+                                        class="btn btn-sm ajax-toggle-reply-status @(reply.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                        data-id="@reply.Replyid"
+                                        data-url="@Url.Action("ToggleSoftDelete", "ProductReviewReplies", new { area = "Admin" })"
+                                        title="@(reply.Isdeleted ? "Hiện phản hồi" : "Ẩn phản hồi")">
+                                    
+                                    <i class="ti @(reply.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                </button>
 
                                 <a asp-area="Admin"
                                    asp-controller="ProductReviewReplies"

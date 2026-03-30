@@ -151,30 +151,36 @@ namespace COMICZONE.Areas.Admin.Controllers
                     existingReport.Isdeleted = model.Isdeleted;
                     existingReport.Reason = model.Reason;
 
-                    // Thêm thông báo
-                    var adminIdStr = HttpContext.Session.GetString("UserId");
-                    int? adminId = null;
-                    if (int.TryParse(adminIdStr, out int parsedId))
-                    {
-                        adminId = parsedId;
-                    }
+                    // Gửi thông báo nếu có thay đổi và không phải trường hợp đang bị ẩn (xóa mềm)
+                    bool remainsHidden = existingReport.Isdeleted && model.Isdeleted;
+                    bool statusChanged = oldStatus != existingReport.StatusEnum;
 
-                    string notifMsg = $"Báo cáo vi phạm #{existingReport.Id} của bạn đã được Admin cập nhật.";
-                    if (isStatusChanged)
+                    if (!remainsHidden)
                     {
-                        notifMsg = $"Trạng thái báo cáo vi phạm #{existingReport.Id} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {existingReport.StatusEnum.GetDisplayName()}.";
-                    }
+                        var adminIdStr = HttpContext.Session.GetString("UserId");
+                        int? adminId = null;
+                        if (int.TryParse(adminIdStr, out int parsedId))
+                        {
+                            adminId = parsedId;
+                        }
 
-                    _context.Notifications.Add(new Notification
-                    {
-                        UserId = existingReport.Userid,
-                        Title = "Cập nhật báo cáo vi phạm",
-                        Message = notifMsg,
-                        CreatedBy = adminId,
-                        CreatedAt = DateTime.Now,
-                        IsRead = false,
-                        Link = "/UserProfiles/Notifications"
-                    });
+                        string notifMsg = $"Báo cáo vi phạm #{existingReport.Id} của bạn đã được Admin cập nhật.";
+                        if (isStatusChanged)
+                        {
+                            notifMsg = $"Trạng thái báo cáo vi phạm #{existingReport.Id} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {existingReport.StatusEnum.GetDisplayName()}.";
+                        }
+
+                        _context.Notifications.Add(new Notification
+                        {
+                            UserId = existingReport.Userid,
+                            Title = "Cập nhật báo cáo vi phạm",
+                            Message = notifMsg,
+                            CreatedBy = adminId,
+                            CreatedAt = DateTime.Now,
+                            IsRead = false,
+                            Link = "/UserProfiles/Notifications"
+                        });
+                    }
 
                     await _context.SaveChangesAsync();
 
@@ -248,24 +254,27 @@ namespace COMICZONE.Areas.Admin.Controllers
             var violationReport = await _context.ViolationReports.FindAsync(id);
             if (violationReport != null)
             {
-                // Thêm thông báo
-                var adminIdStr = HttpContext.Session.GetString("UserId");
-                int? adminId = null;
-                if (int.TryParse(adminIdStr, out int parsedId))
+                // Thêm thông báo trước khi xóa (chỉ thông báo nếu bản ghi chưa bị xóa mềm)
+                if (!violationReport.Isdeleted)
                 {
-                    adminId = parsedId;
-                }
+                    var adminIdStr = HttpContext.Session.GetString("UserId");
+                    int? adminId = null;
+                    if (int.TryParse(adminIdStr, out int parsedId))
+                    {
+                        adminId = parsedId;
+                    }
 
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = violationReport.Userid,
-                    Title = "Báo cáo vi phạm bị gỡ",
-                    Message = $"Báo cáo vi phạm #{violationReport.Id} của bạn đã bị gỡ/xóa bởi hệ thống.",
-                    CreatedBy = adminId,
-                    CreatedAt = DateTime.Now,
-                    IsRead = false,
-                    Link = "/UserProfiles/Notifications"
-                });
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = violationReport.Userid,
+                        Title = "Báo cáo vi phạm bị gỡ",
+                        Message = $"Báo cáo vi phạm #{violationReport.Id} của bạn đã bị gỡ/xóa bởi hệ thống.",
+                        CreatedBy = adminId,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = "/UserProfiles/Notifications"
+                    });
+                }
 
                 _context.ViolationReports.Remove(violationReport);
             }

@@ -160,8 +160,11 @@ namespace COMICZONE.Areas.Admin.Controllers
                 existingUser.Passwordhash = BCrypt.Net.BCrypt.HashPassword(NewPassword);
             }
 
-            // Gửi thông báo nếu có thay đổi
-            if (changes.Any())
+            // Gửi thông báo nếu có thay đổi và không phải trường hợp đang bị vô hiệu hóa (xóa mềm)
+            bool statusChanged = oldIsactive != Isactive;
+            bool remainsHidden = !oldIsactive && !Isactive;
+
+            if (changes.Any() && !remainsHidden)
             {
                 var adminIdStr = HttpContext.Session.GetString("UserId");
                 int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
@@ -169,8 +172,10 @@ namespace COMICZONE.Areas.Admin.Controllers
                 _context.Notifications.Add(new Notification
                 {
                     UserId = existingUser.Id,
-                    Title = "Cập nhật tài khoản",
-                    Message = "Thông tin tài khoản của bạn đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
+                    Title = statusChanged ? (Isactive ? "Tài khoản đã được khôi phục" : "Tài khoản bị vô hiệu hóa") : "Cập nhật tài khoản",
+                    Message = statusChanged
+                        ? (Isactive ? "Tài khoản của bạn đã được Quản trị viên khôi phục thành công." : "Tài khoản của bạn đã bị vô hiệu hóa bởi Quản trị viên.")
+                        : "Thông tin tài khoản của bạn đã được Admin cập nhật:\n- " + string.Join("\n- ", changes),
                     CreatedBy = adminId,
                     CreatedAt = DateTime.Now,
                     IsRead = false,
@@ -284,6 +289,23 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (user == null)
                 return NotFound();
+
+            // Thêm thông báo trước khi xóa (chỉ thông báo nếu bản ghi chưa bị xóa mềm)
+            if (!user.Isdeleted)
+            {
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Xóa tài khoản vĩnh viễn",
+                    Message = "Tài khoản của bạn đã bị Admin xóa vĩnh viễn khỏi hệ thống bởi các hành vi vi phạm nghiêm trọng.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                });
+            }
 
             // Kiểm tra nếu còn dữ liệu liên quan thì không xóa
             if (user.NotificationUsers.Any() || user.NotificationCreatedByNavigations.Any()
