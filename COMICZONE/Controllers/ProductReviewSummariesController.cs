@@ -10,7 +10,7 @@ using COMICZONE.Models;
 
 namespace COMICZONE.Controllers
 {
-    public class ProductReviewSummariesController : Controller
+    public class ProductReviewSummariesController : BaseController
     {
         private readonly ComiczoneContext _context;
 

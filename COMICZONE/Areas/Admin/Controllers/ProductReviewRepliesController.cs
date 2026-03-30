@@ -32,6 +32,9 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.Parentreply!)
                     .ThenInclude(pr => pr.User)
                 .Include(p => p.Review)
+                    .ThenInclude(r => r.Product)
+                .Include(p => p.Review)
+                    .ThenInclude(r => r.User)
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.Replyid == id);
 
@@ -123,7 +126,13 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.User)
                 .Include(p => p.Parentreply)
                     .ThenInclude(pr => pr!.User)
+                .Include(p => p.Replytouser)
                 .Include(p => p.Review)
+                    .ThenInclude(r => r.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                .Include(p => p.Review)
+                    .ThenInclude(r => r.User)
+                .Include(p => p.ProductReviewReplyLikes)
                 .FirstOrDefaultAsync(m => m.Replyid == id);
 
             if (productReviewReply == null)

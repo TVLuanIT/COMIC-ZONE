@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Controllers
 {
-    public class ProductReviewsController : Controller
+    public class ProductReviewsController : BaseController
     {
         private readonly ComiczoneContext _context;
 

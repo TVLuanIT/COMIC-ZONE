@@ -1,9 +1,10 @@
+using COMICZONE.Controllers;
 using COMICZONE.Services;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("Chatbot")]
-public class ChatbotController : Controller
+public class ChatbotController : BaseController
 {
     private readonly IChatbotService _chatService;
 
