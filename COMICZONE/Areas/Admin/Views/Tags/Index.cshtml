@@ -1,4 +1,4 @@
-﻿@model IEnumerable<COMICZONE.Models.Tag>
+@model IEnumerable<COMICZONE.Models.Tag>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -24,6 +24,7 @@
                     <tr class="text-uppercase small text-secondary">
                         <th>#</th>
                         <th>Tên thẻ</th>
+                        <th class="text-center">Trạng thái</th>
                         <th class="text-center">Số sản phẩm</th>
 
                         <th class="text-end table-actions">
@@ -35,13 +36,26 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr id="tag-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                             <td>
                                 <span class="fw-medium">#@item.Id</span>
                             </td>
 
                             <td>
                                 <span class="fw-medium">@item.Name</span>
+                            </td>
+
+                            <td class="text-center">
+                                <span id="status-cell-@item.Id">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger">Đã ẩn</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Hiển thị</span>
+                                    }
+                                </span>
                             </td>
 
                             <td class="text-center">
@@ -68,6 +82,16 @@
                                    class="btn btn-sm btn-light text-danger">
                                     <i class="ti ti-trash"></i>
                                 </a>
+
+                                <button type="button"
+                                        title="@(item.Isdeleted ? "Hiện thẻ" : "Ẩn thẻ")"
+                                        data-id="@item.Id"
+                                        data-url="@Url.Action("ToggleDelete", "Tags", new { area = "Admin" })"
+                                        class="btn btn-sm ajax-toggle-tag-status
+                                        @(item.Isdeleted ? "btn-success" : "btn-light text-danger")">
+                                 
+                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                </button>
                             </td>
                         </tr>
                     }

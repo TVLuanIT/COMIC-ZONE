@@ -267,7 +267,7 @@ namespace COMICZONE.Controllers
                             .Distinct()
                             .ToListAsync()) },
                 { "Tag", await _context.Tags
-                            .Where(t => t.Products.Any(p => !p.Isdeleted))
+                            .Where(t => !t.Isdeleted && t.Products.Any(p => !p.Isdeleted))
                             .Select(a => a.Name!)
                             .Distinct()
                             .ToListAsync() },

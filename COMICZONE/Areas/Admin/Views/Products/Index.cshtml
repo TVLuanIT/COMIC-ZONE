@@ -93,7 +93,7 @@
                             </td>
 
                             <td>
-                                @foreach (var tag in item.Tags)
+                                @foreach (var tag in item.Tags.Where(t => !t.Isdeleted))
                                 {
                                     <span class="badge bg-secondary">@tag.Name</span>
                                 }

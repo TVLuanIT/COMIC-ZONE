@@ -18,6 +18,9 @@ public partial class Artist
     [StringLength(150)]
     public string? Name { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("ArtistId")]
     [InverseProperty("Artists")]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();

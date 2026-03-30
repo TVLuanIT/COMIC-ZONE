@@ -59,7 +59,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Artists = await _context.Artists.ToListAsync();
-            ViewBag.Tags = await _context.Tags.ToListAsync();
+            ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
 
             return View();
         }
@@ -75,7 +75,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Artists = await _context.Artists.ToListAsync();
-                ViewBag.Tags = await _context.Tags.ToListAsync();
+                ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
                 return View(product);
             }
 
@@ -157,7 +157,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
 
             ViewBag.Artists = await _context.Artists.ToListAsync();
-            ViewBag.Tags = await _context.Tags.ToListAsync();
+            ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
 
             return View(product);
         }
@@ -177,7 +177,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Artists = await _context.Artists.ToListAsync();
-                ViewBag.Tags = await _context.Tags.ToListAsync();
+                ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
                 return View(model);
             }
 
