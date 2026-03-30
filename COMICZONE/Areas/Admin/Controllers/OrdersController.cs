@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Extensions;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -79,10 +80,18 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             ModelState.Remove("User");
 
-            var existingOrder = await _context.Orders.FindAsync(id);
+            var existingOrder = await _context.Orders
+                .Include(o => o.Payments)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (existingOrder == null)
                 return NotFound();
+
+            if (order.OrderStatusEnum == OrderStatus.Completed && 
+                !existingOrder.Payments.Any(p => p.Paymentstatus == "SUCCESS"))
+            {
+                ModelState.AddModelError("OrderStatusEnum", "Không thể hoàn thành đơn hàng chưa được thanh toán thành công.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -123,6 +132,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Cập nhật đơn hàng thành công!";
 
                 return RedirectToAction(nameof(Index));
             }
