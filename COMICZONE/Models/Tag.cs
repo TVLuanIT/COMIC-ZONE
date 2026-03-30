@@ -18,6 +18,9 @@ public partial class Tag
     [StringLength(150)]
     public string? Name { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("TagId")]
     [InverseProperty("Tags")]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();

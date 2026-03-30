@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -121,6 +121,21 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(artist);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var artist = await _context.Artists.FindAsync(id);
+            if (artist == null)
+            {
+                return NotFound();
+            }
+
+            artist.Isdeleted = !artist.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = artist.Isdeleted });
         }
 
         // GET: Admin/Artists/Delete/5

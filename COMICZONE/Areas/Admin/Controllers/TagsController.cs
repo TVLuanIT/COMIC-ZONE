@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -122,6 +122,21 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(tag);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var tag = await _context.Tags.FindAsync(id);
+            if (tag == null)
+            {
+                return NotFound();
+            }
+
+            tag.Isdeleted = !tag.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = tag.Isdeleted });
+        }
+
         // GET: Admin/Tags/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -131,6 +146,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             var tag = await _context.Tags
+                .Include(t => t.Products)
+                    .ThenInclude(pr => pr.Pictures)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (tag == null)
             {
@@ -144,7 +161,9 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tag = await _context.Tags.FindAsync(id);
+            var tag = await _context.Tags
+                .Include(t => t.Products)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (tag == null)
             {
@@ -153,16 +172,13 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             try
             {
+                // Gỡ bỏ tất cả các liên kết với Sản phẩm (xóa dòng trong bảng trung gian)
+                tag.Products.Clear();
+                
                 _context.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError("", "Không thể xóa tag vì đang có sản phẩm sử dụng.");
-
-                return View(tag);
             }
             catch (Exception)
             {

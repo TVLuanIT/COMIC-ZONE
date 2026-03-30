@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.Product
+@model COMICZONE.Models.Product
 @using System.Globalization;
 @using COMICZONE.Extensions;
 
@@ -113,13 +113,13 @@
                             </tr>
                         }
 
-                        @if (Model.Artists != null && Model.Artists.Any())
+                        @if (Model.Artists != null && Model.Artists.Any(a => !a.Isdeleted))
                         {
                             <tr>
                                 <td class="fw-semibold">Họa sĩ</td>
                                 <td>
                                     @{
-                                        var artists = Model.Artists.ToList();
+                                        var artists = Model.Artists.Where(a => !a.Isdeleted).ToList();
                                     }
 
                                     @for (int i = 0; i < artists.Count; i++)
@@ -185,10 +185,10 @@
 
 
                 <!-- TAG -->
-                @if (Model.Tags != null && Model.Tags.Any())
+                @if (Model.Tags != null && Model.Tags.Any(t => !t.Isdeleted))
                 {
                     <div class="mt-3">
-                        @foreach (var tag in Model.Tags)
+                        @foreach (var tag in Model.Tags.Where(t => !t.Isdeleted))
                         {
                             <a asp-action="Index"
                                asp-controller="Products"

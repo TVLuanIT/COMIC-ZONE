@@ -86,14 +86,14 @@
                             <td>@item.Translator</td>
 
                             <td>
-                                @foreach (var artist in item.Artists)
+                                @foreach (var artist in item.Artists.Where(a => !a.Isdeleted))
                                 {
                                     <span class="badge bg-secondary">@artist.Name</span>
                                 }
                             </td>
 
                             <td>
-                                @foreach (var tag in item.Tags)
+                                @foreach (var tag in item.Tags.Where(t => !t.Isdeleted))
                                 {
                                     <span class="badge bg-secondary">@tag.Name</span>
                                 }
