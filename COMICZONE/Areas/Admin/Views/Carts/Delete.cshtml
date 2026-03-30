@@ -1,0 +1,77 @@
+@model COMICZONE.Models.Cart
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa giỏ hàng";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Giỏ hàng</a></li>
+                    <li class="breadcrumb-item active">Xóa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 border-top border-danger border-3">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="ti ti-alert-triangle fs-1 text-danger"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-3">Xác nhận xóa giỏ hàng?</h3>
+                    <p class="text-muted mb-5 small">
+                        Bạn có chắc chắn muốn xóa vĩnh viễn giỏ hàng <span class="fw-bold text-dark">#@Model.CartId</span> 
+                        của khách hàng <span class="fw-bold text-primary">@Model.User?.Username</span>? 
+                        Hành động này <span class="text-danger fw-bold text-uppercase">không thể hoàn tác</span>.
+                    </p>
+
+                    <div class="bg-light rounded p-4 mb-5 text-start shadow-sm border border-danger-subtle">
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted small">Mã giỏ hàng:</div>
+                            <div class="col-7 fw-bold text-dark">#@Model.CartId</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted small">Thời gian tạo:</div>
+                            <div class="col-7 fw-bold text-dark text-nowrap">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted small">Khách hàng:</div>
+                            <div class="col-7 fw-bold text-dark">@Model.User?.Username</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 text-muted small">Số món hiện có:</div>
+                            <div class="col-7 fw-bold text-danger fs-5">@Model.CartItems.Count món</div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="CartId" />
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-4 pt-1">
+                            <a asp-action="Index" class="btn btn-light rounded-pill px-5 shadow-sm">
+                                <i class="ti ti-arrow-left me-1"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-danger rounded-pill px-5 shadow-sm">
+                                <i class="ti ti-trash me-1"></i>Xác nhận xóa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <p class="text-center text-muted small mt-4 italic">
+                Lưu ý: Thao tác này sẽ xóa toàn bộ các sản phẩm liên kết bên trong giỏ hàng này.
+            </p>
+        </div>
+    </div>
+</div>

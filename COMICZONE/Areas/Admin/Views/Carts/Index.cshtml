@@ -1,0 +1,119 @@
+@model IEnumerable<COMICZONE.Models.Cart>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý giỏ hàng";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Giỏ hàng</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+            <h5 class="card-title mb-0 fw-bold">
+                <i class="ti ti-shopping-cart me-2 text-primary"></i>Danh sách giỏ hàng ẩn
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-nowrap">
+                    <thead class="table-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Khách hàng</th>
+                            <th class="text-center">Số lượng món</th>
+                            <th class="text-end">Tổng giá trị</th>
+                            <th class="text-center">Ngày cập nhật</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">#@item.CartId</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-circle symbol-35px me-3">
+                                            <div class="symbol-label bg-light-info text-info fs-6 fw-bold text-uppercase">
+                                                @if (!string.IsNullOrEmpty(item.User?.Avatar) && item.User.Avatar != "default.png")
+                                                {
+                                                    <img src="@item.User.GetDisplayAvatar()"
+                                                         alt="@item.User.Username" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
+                                                }
+                                                else
+                                                {
+                                                    @item.User?.Username?.Substring(0, 1).ToUpper()
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="text-dark fw-bold mb-0">@item.User?.Username</div>
+                                            <div class="text-muted small">@item.User?.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2">
+                                        @item.CartItems.Count món
+                                    </span>
+                                </td>
+                                
+                                <td class="text-end fw-bold text-dark">
+                                    @{
+                                        var total = item.CartItems.Sum(ci => ci.Quantity * (ci.Product?.Price ?? 0));
+                                    }
+                                    @total.ToString("N0") VNĐ
+                                </td>
+                                
+                                <td class="text-center text-muted small">
+                                    @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@item.CartId" class="btn btn-light btn-sm text-info" title="Xem chi tiết">
+                                            <i class="ti ti-eye fs-5"></i>
+                                        </a>
+
+                                        <a asp-action="Edit" asp-route-id="@item.CartId" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
+                                            <i class="ti ti-edit fs-5"></i>
+                                        </a>
+                                        
+                                        <a asp-action="Delete" asp-route-id="@item.CartId" class="btn btn-light btn-sm text-danger" title="Xóa">
+                                            <i class="ti ti-trash fs-5"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="ti ti-shopping-cart-x fs-1 text-muted mb-2"></i>
+                    <p class="text-muted">Không tìm thấy dữ liệu giỏ hàng nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
