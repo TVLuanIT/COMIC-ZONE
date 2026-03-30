@@ -60,10 +60,21 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ProductId,ChangeAmount,Type,CreatedAt")] InventoryLog inventoryLog)
         {
+            if (inventoryLog.Type == "Import" && inventoryLog.ChangeAmount <= 0)
+            {
+                ModelState.AddModelError("ChangeAmount", "Nhập kho phải có số lượng lớn hơn 0 (+)");
+            }
+            if (inventoryLog.Type == "Export" && inventoryLog.ChangeAmount >= 0)
+            {
+                ModelState.AddModelError("ChangeAmount", "Xuất kho phải có số lượng nhỏ hơn 0 (-)");
+            }
+
+            ModelState.Remove("Product");
             if (ModelState.IsValid)
             {
                 _context.Add(inventoryLog);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm log kho thành công!";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", inventoryLog.ProductId);
@@ -99,12 +110,23 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            if (inventoryLog.Type == "Import" && inventoryLog.ChangeAmount <= 0)
+            {
+                ModelState.AddModelError("ChangeAmount", "Nhập kho phải có số lượng lớn hơn 0 (+)");
+            }
+            if (inventoryLog.Type == "Export" && inventoryLog.ChangeAmount >= 0)
+            {
+                ModelState.AddModelError("ChangeAmount", "Xuất kho phải có số lượng nhỏ hơn 0 (-)");
+            }
+
+            ModelState.Remove("Product");
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(inventoryLog);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật log kho thành công!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {

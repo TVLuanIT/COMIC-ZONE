@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.Order
+@model COMICZONE.Models.Order
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -36,7 +36,7 @@
     </div>
 
     <form asp-action="Edit" method="post">
-        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="OrderId" />
         <input type="hidden" asp-for="UserId" />
@@ -62,15 +62,10 @@
                                     Trạng thái
                                 </label>
 
-                                <select asp-for="Status" class="form-select">
-                                    <option value="Pending">Chờ xử lý</option>
-
-                                    <option value="Completed">Hoàn thành</option>
-
-                                    <option value="Cancelled">Đã hủy</option>
+                                <select asp-for="OrderStatusEnum" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
                                 </select>
 
-                                <span asp-validation-for="Status" class="text-danger"></span>
+                                <span asp-validation-for="OrderStatusEnum" class="text-danger"></span>
                             </div>
 
 

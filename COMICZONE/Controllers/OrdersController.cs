@@ -212,6 +212,31 @@ namespace COMICZONE.Controllers
                 _context.Orders.Add(order);
                 _context.SaveChanges();
 
+                // NOTIFICATION: Order Created
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = request.UserId,
+                    Title = "Tạo đơn hàng thành công",
+                    Message = $"Đơn hàng #{order.OrderId} của bạn đã được khởi tạo thành công. Chúng tôi sẽ sớm xử lý yêu cầu của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/UserProfiles/MyOrders"
+                });
+
+                // NOTIFICATION: Payment Success (if applicable)
+                if (request.IsPaid)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = request.UserId,
+                        Title = "Thanh toán thành công",
+                        Message = $"Giao dịch thanh toán cho đơn hàng #{order.OrderId} đã được xác nhận thành công. Cảm ơn bạn!",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        Link = $"/UserProfiles/MyOrders"
+                    });
+                }
+
                 // ORDER STATUS HISTORY
                 _context.OrderStatusHistories.Add(new OrderStatusHistory
                 {
