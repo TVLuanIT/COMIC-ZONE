@@ -1,0 +1,137 @@
+@model COMICZONE.Models.Invoice
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết hóa đơn";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Hóa đơn</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold text-primary">
+                        <i class="ti ti-file-description me-2"></i>Hóa đơn #@Model.Id
+                    </h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="ti ti-printer me-1"></i>In hóa đơn
+                        </button>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="ti ti-edit me-1"></i>Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-5">
+                        <div class="col-md-4">
+                            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Thông tin khách hàng</h6>
+                            <p class="mb-1 fw-bold fs-5 text-dark">@Model.CustomerName</p>
+                            <p class="text-muted mb-1">
+                                <i class="ti ti-phone me-1 small"></i> @(Model.Order?.PhoneNumber ?? "N/A")
+                            </p>
+                            <p class="text-muted mb-0">
+                                <i class="ti ti-map-pin me-1 small"></i> @(Model.Order?.ShippingAddress ?? "N/A")
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Hóa đơn điện tử</h6>
+                            <div class="d-flex mb-2">
+                                <span class="text-muted me-2" style="width: 120px;">Ngày xuất:</span>
+                                <span class="fw-bold">@(Model.IssueDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</span>
+                            </div>
+                            <div class="d-flex mb-2">
+                                <span class="text-muted me-2" style="width: 120px;">Mã đơn hàng:</span>
+                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.OrderId" class="fw-bold text-primary text-decoration-none">
+                                    #@Model.OrderId
+                                </a>
+                            </div>
+                            <div class="d-flex">
+                                <span class="text-muted me-2" style="width: 120px;">Trạng thái:</span>
+                                <span class="badge bg-success-subtle text-success">Đã hoàn tất</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Tổng tiền thanh toán</h6>
+                            <h2 class="fw-bold text-primary mb-0">@string.Format("{0:N0} VNĐ", Model.TotalAmount)</h2>
+                            <p class="text-muted small">Đã bao gồm các loại thuế phí</p>
+                        </div>
+                    </div>
+
+                    <h6 class="text-muted text-uppercase fw-bold mb-3 small border-bottom pb-2">Danh sách sản phẩm</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">STT</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Order?.OrderItems != null && Model.Order.OrderItems.Any())
+                                {
+                                    int count = 1;
+                                    foreach (var item in Model.Order.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>@(count++)</td>
+                                            <td>
+                                                <div class="fw-bold">@Html.Raw(item.Product?.GetProductCell())</div>
+                                                <div class="small text-muted">ID: @item.ProductId</div>
+                                            </td>
+                                            <td class="text-end">@string.Format("{0:N0} VNĐ", item.Price)</td>
+                                            <td class="text-center">@item.Quantity</td>
+                                            <td class="text-end fw-bold">@string.Format("{0:N0} VNĐ", item.Subtotal)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="ti ti-package-off me-1"></i>Không có dữ liệu chi tiết đơn hàng.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">Tổng cộng:</td>
+                                    <td class="text-end fw-bold text-primary fs-5">@string.Format("{0:N0} VNĐ", Model.TotalAmount)</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                            <i class="ti ti-arrow-left me-1"></i>Quay lại danh sách
+                        </a>
+                        <div class="small text-muted italic">
+                            * Hóa đơn này được tạo tự động bởi hệ thống COMIC ZONE.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
