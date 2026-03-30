@@ -1,0 +1,68 @@
+@model COMICZONE.Models.Invoice
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa hóa đơn";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Hóa đơn</a></li>
+                    <li class="breadcrumb-item active">Xóa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 border-top border-danger border-3">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="ti ti-alert-triangle fs-1 text-danger"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-3">Xác nhận xóa hóa đơn?</h3>
+                    <p class="text-muted mb-5">
+                        Bạn có chắc chắn muốn xóa hóa đơn <span class="fw-bold text-dark">#@Model.Id</span> của khách hàng <span class="fw-bold text-dark">@Model.CustomerName</span>? 
+                        Hành động này không thể hoàn tác.
+                    </p>
+
+                    <div class="bg-light rounded p-4 mb-5 text-start">
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">Mã đơn hàng:</div>
+                            <div class="col-7 fw-bold">#@Model.OrderId</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">Tổng số tiền:</div>
+                            <div class="col-7 fw-bold text-danger">@string.Format("{0:N0} VNĐ", Model.TotalAmount)</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 text-muted">Ngày xuất:</div>
+                            <div class="col-7 fw-bold">@(Model.IssueDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a asp-action="Index" class="btn btn-light rounded-pill px-5">
+                                <i class="ti ti-arrow-left me-1"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-danger rounded-pill px-5">
+                                <i class="ti ti-trash me-1"></i>Xác nhận xóa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

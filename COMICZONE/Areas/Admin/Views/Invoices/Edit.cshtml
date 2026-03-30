@@ -1,0 +1,109 @@
+@model COMICZONE.Models.Invoice
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa hóa đơn";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Hóa đơn</a></li>
+                    <li class="breadcrumb-item active">Chỉnh sửa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold text-primary">
+                        <i class="ti ti-edit me-2"></i>Cập nhật hóa đơn #@Model.Id
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="OrderId" class="form-label fw-bold small text-uppercase mb-2">Đơn hàng liên kết</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-receipt text-muted"></i>
+                                    </span>
+                                    <select asp-for="OrderId" class="form-select select2-init" asp-items="ViewBag.OrderId"></select>
+                                </div>
+                                <span asp-validation-for="OrderId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CustomerName" class="form-label fw-bold small text-uppercase mb-2">Tên khách hàng</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-user text-muted"></i>
+                                    </span>
+                                    <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên khách hàng..." />
+                                </div>
+                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IssueDate" class="form-label fw-bold small text-uppercase mb-2">Ngày xuất hóa đơn</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-calendar text-muted"></i>
+                                    </span>
+                                    <input asp-for="IssueDate" class="form-control" type="datetime-local" />
+                                </div>
+                                <span asp-validation-for="IssueDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TotalAmount" class="form-label fw-bold small text-uppercase mb-2">Tổng số tiền (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-currency-dong text-muted"></i>
+                                    </span>
+                                    <input asp-for="TotalAmount" class="form-control" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="TotalAmount" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4 border-top pt-4">
+                            <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+                                <i class="ti ti-arrow-left me-1"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="ti ti-device-floppy me-1"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            $('.select2-init').select2({
+                theme: 'bootstrap-5',
+                width: '100%'
+            });
+        });
+    </script>
+}
