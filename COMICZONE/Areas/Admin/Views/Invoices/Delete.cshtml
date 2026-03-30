@@ -31,8 +31,8 @@
                     </div>
                     <h3 class="fw-bold text-dark mb-3">Xác nhận xóa hóa đơn?</h3>
                     <p class="text-muted mb-5">
-                        Bạn có chắc chắn muốn xóa hóa đơn <span class="fw-bold text-dark">#@Model.Id</span> của khách hàng <span class="fw-bold text-dark">@Model.CustomerName</span>? 
-                        Hành động này không thể hoàn tác.
+                        Bạn có chắc chắn muốn <span class="fw-bold text-danger text-uppercase">xóa vĩnh viễn</span> hóa đơn <span class="fw-bold text-dark">#@Model.Id</span>? 
+                        Hành động này <span class="text-danger fw-bold">không thể hoàn tác</span>.
                     </p>
 
                     <div class="bg-light rounded p-4 mb-5 text-start">
@@ -52,12 +52,12 @@
 
                     <form asp-action="Delete">
                         <input type="hidden" asp-for="Id" />
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-4">
                             <a asp-action="Index" class="btn btn-light rounded-pill px-5">
                                 <i class="ti ti-arrow-left me-1"></i>Hủy bỏ
                             </a>
                             <button type="submit" class="btn btn-danger rounded-pill px-5">
-                                <i class="ti ti-trash me-1"></i>Xác nhận xóa
+                                <i class="ti ti-trash me-1"></i>Xác nhận xóa vĩnh viễn
                             </button>
                         </div>
                     </form>

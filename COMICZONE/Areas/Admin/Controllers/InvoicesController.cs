@@ -23,7 +23,9 @@ namespace COMICZONE.Areas.Admin.Controllers
         // GET: Admin/Invoices
         public async Task<IActionResult> Index()
         {
-            var comiczoneContext = _context.Invoices.Include(i => i.Order);
+            var comiczoneContext = _context.Invoices
+                .Include(i => i.Order)
+                    .ThenInclude(o => o.User);
             return View(await comiczoneContext.ToListAsync());
         }
 
@@ -138,7 +140,25 @@ namespace COMICZONE.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Xóa vĩnh viễn hóa đơn thành công!";
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/Invoices/ToggleDelete/5
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var invoice = await _context.Invoices.FindAsync(id);
+            if (invoice == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hóa đơn." });
+            }
+
+            invoice.Isdeleted = !invoice.Isdeleted;
+            _context.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = invoice.Isdeleted });
         }
 
         private bool InvoiceExists(int id)

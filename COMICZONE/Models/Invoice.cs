@@ -26,6 +26,9 @@ public partial class Invoice
     [StringLength(255)]
     public string? CustomerName { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("OrderId")]
     [InverseProperty("Invoices")]
     public virtual Order Order { get; set; } = null!;

@@ -32,48 +32,88 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Mã hóa đơn</th>
+                        <tr class="text-secondary small text-uppercase">
+                            <th class="ps-4">Hóa đơn</th>
                             <th>Khách hàng</th>
-                            <th>Mã đơn hàng</th>
-                            <th class="text-end">Tổng tiền</th>
-                            <th class="text-center">Ngày xuất</th>
-                            <th class="text-end pe-4">Thao tác</th>
+                            <th>Ngày xuất</th>
+                            <th>Tổng tiền</th>
+                            <th class="text-center">Hiển thị</th>
+                            <th class="text-center">Thao tác</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        @foreach (var item in Model) {
-                            <tr>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="invoice-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                                 <td class="ps-4">
-                                    <span class="fw-bold text-dark">#@item.Id</span>
-                                </td>
-                                <td>
-                                    <div class="fw-bold">@item.CustomerName</div>
-                                    <div class="small text-muted">Hóa đơn điện tử</div>
-                                </td>
-                                <td>
-                                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@item.OrderId" class="badge bg-info-subtle text-info text-decoration-none">
-                                        Đơn hàng #@item.Order?.OrderId
-                                    </a>
-                                </td>
-                                <td class="text-end">
-                                    <span class="fw-bold text-success">@string.Format("{0:N0} VNĐ", item.TotalAmount)</span>
-                                </td>
-                                <td class="text-center text-muted">
-                                    @(item.IssueDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm text-info" title="Chi tiết">
-                                            <i class="ti ti-eye fs-5"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
-                                            <i class="ti ti-edit fs-5"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light btn-sm text-danger" title="Xóa">
-                                            <i class="ti ti-trash fs-5"></i>
-                                        </a>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-40px me-3">
+                                            <div class="symbol-label bg-light-primary text-primary fw-bold">
+                                                #@item.Id
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="text-dark fw-bold text-hover-primary mb-1">Hóa đơn #@item.Id</div>
+                                        
+                                            <a asp-controller="Orders" asp-action="Details" asp-route-id="@item.OrderId" class="badge bg-info-subtle text-info text-decoration-none">
+                                                Đơn hàng #@item.OrderId
+                                            </a>
+                                        </div>
                                     </div>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-circle symbol-35px me-3">
+                                            <img src="@item.Order.User.GetDisplayAvatar()"
+                                                 alt="@item.Order.User.Username" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
+                                        </div>
+                                        
+                                        <div class="text-dark fw-medium">@item.CustomerName</div>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="text-dark">@(item.IssueDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                                </td>
+                                
+                                <td>
+                                    <div class="text-dark fw-bold">@string.Format("{0:N0} VNĐ", item.TotalAmount)</div>
+                                </td>
+
+                                <td class="text-center" id="soft-delete-status-cell-@item.Id">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger">Đã ẩn</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Đang hiện</span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm text-info" title="Xem chi tiết">
+                                        <i class="ti ti-eye fs-5"></i>
+                                    </a>
+
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
+                                        <i class="ti ti-edit fs-5"></i>
+                                    </a>
+                                        
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
+                                        <i class="ti ti-trash fs-5"></i>
+                                    </a>
+
+                                    <button type="button"
+                                            class="btn btn-sm ajax-toggle-invoice-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                            data-id="@item.Id"
+                                            data-url="@Url.Action("ToggleDelete", "Invoices", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Khôi phục hóa đơn" : "Ẩn hóa đơn")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                    </button>
                                 </td>
                             </tr>
                         }
