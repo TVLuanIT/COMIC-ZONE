@@ -130,3 +130,94 @@ thead .table-actions {
     box-shadow: none;
     border-color: rgba(0,0,0,0.125);
 }
+
+/* ================================================================================= */
+/* ================= Areas/Admin/Views/Shared/_AdminLayout.cshtml ================= */
+/* ================================================================================= */
+/* ===== MENU CHA ===== */
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: #333;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #f5f7fb;
+}
+
+/* ===== MENU CON ===== */
+.nav-item ul {
+    margin-top: 5px;
+    padding-left: 8px;
+}
+
+/* từng item con */
+.nav-item ul li a {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 2px 0;
+    font-size: 14px;
+    color: #555;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+/* hover đẹp */
+.nav-item ul li a:hover {
+    background: #eef2ff;
+    color: #4f46e5;
+    transform: translateX(4px);
+}
+
+/* icon spacing */
+.nav-item ul li a i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* ===== collapse background ===== */
+.nav-item ul {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 6px;
+}
+.nav-item ul {
+    border-left: 2px solid #e5e7eb;
+    margin-left: 10px;
+}
+.nav-item ul li a.active {
+    background: #4f46e5;
+    color: white;
+}
+.collapse {
+    transition: all 0.3s ease;
+}
+
+/* Mặc định: chỉ hiện dấu + */
+.icon-plus,
+.icon-minus {
+    transition: all 0.2s ease;
+}
+
+/* mặc định */
+.icon-minus {
+    opacity: 0;
+    transform: rotate(-90deg);
+    position: absolute;
+}
+
+/* khi mở */
+.nav-item:has(.collapse.show) .icon-plus {
+    opacity: 0;
+    transform: rotate(90deg);
+}
+
+.nav-item:has(.collapse.show) .icon-minus {
+    opacity: 1;
+    transform: rotate(0);
+}

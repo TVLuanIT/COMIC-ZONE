@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8" />
@@ -8,6 +12,8 @@
 
         <link rel="stylesheet" href="~/assets/css/main.css">
         <link rel="stylesheet" href="~/assets/css/admin.css">
+
+        <link href="https://unpkg.com/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
 
         <!-- Select2 -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -32,8 +38,9 @@
             </div>
 
             <ul class="nav flex-column">
-                <li>
-                    <a class="nav-link"
+                <!-- 1. Tổng quan -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "Dashboard" ? "active" : "")"
                        asp-area="Admin"
                        asp-controller="Dashboard"
                        asp-action="Index">
@@ -42,74 +49,186 @@
                     </a>
                 </li>
 
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="Products"
-                       asp-action="Index">
-                        <i class="ti ti-box-seam"></i>
-                        <span class="nav-text">Quản lý sản phẩm</span>
+                <!-- 2. Sản phẩm -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "Products" || controller == "Artists" || controller == "Tags" || controller == "InventoryLogs" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#productMenu">
+                        <i class="ti ti-package"></i>
+                        <span class="nav-text">Sản phẩm</span>
+
+                        <i class="ti ti-plus ms-auto icon-plus"></i>
                     </a>
+
+                    <ul class="collapse ps-3 @(controller == "Products" || controller == "Artists" || controller == "Tags" || controller == "InventoryLogs" ? "show" : "")"
+                        id="productMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Products" asp-action="Index"
+                               class="@(controller == "Products" ? "active" : "")">
+                                <i class="ti ti-box"></i> Quản lý sản phẩm
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Artists" asp-action="Index"
+                               class="@(controller == "Artists" ? "active" : "")">
+                                <i class="ti ti-palette"></i> Quản lý họa sĩ
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Tags" asp-action="Index"
+                               class="@(controller == "Tags" ? "active" : "")">
+                                <i class="ti ti-tag"></i> Quản lý thẻ
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="InventoryLogs" asp-action="Index"
+                               class="@(controller == "InventoryLogs" ? "active" : "")">
+                                <i class="ti ti-building-warehouse"></i> Quản lý kho
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="Orders"
-                       asp-action="Index">
-                        <i class="ti ti-receipt"></i>
-                        <span class="nav-text">Quản lý đơn hàng</span>
+                <!-- 3. Bán hàng -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "Orders" || controller == "Payments" || controller == "Refunds" || controller == "Invoices" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#orderMenu">
+                        <i class="ti ti-shopping-cart"></i>
+                        <span class="nav-text">Bán hàng</span>
+
+                        <i class="ti ti-plus ms-auto icon-plus"></i>
                     </a>
+
+                    <ul class="collapse ps-3 @(controller == "Orders" || controller == "Payments" || controller == "Refunds" || controller == "Invoices" ? "show" : "")"
+                        id="orderMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Orders" asp-action="Index"
+                               class="@(controller == "Orders" ? "active" : "")">
+                                <i class="ti ti-receipt"></i> Quản lý đơn hàng
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Payments" asp-action="Index"
+                               class="@(controller == "Payments" ? "active" : "")">
+                                <i class="ti ti-credit-card"></i> Quản lý thanh toán
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Refunds" asp-action="Index"
+                               class="@(controller == "Refunds" ? "active" : "")">
+                                <i class="ti ti-cash"></i> Quản lý hoàn tiền
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Invoices" asp-action="Index"
+                               class="@(controller == "Invoices" ? "active" : "")">
+                                <i class="ti ti-file-invoice"></i> Quản lý hóa đơn
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="Artists"
-                       asp-action="Index">
-                        <i class="ti ti-palette"></i>
-                        <span class="nav-text">Quản lý họa sĩ</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="Tags"
-                       asp-action="Index">
-                        <i class="ti ti-tag"></i>
-                        <span class="nav-text">Quản lý thẻ</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="ProductReviews"
-                       asp-action="Index">
-                        <i class="ti ti-star"></i>
-                        <span class="nav-text">Quản lý đánh giá</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="Users"
-                       asp-action="Index">
+                <!-- 4. Người dùng -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "Users" || controller == "Carts" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#userMenu">
                         <i class="ti ti-users"></i>
-                        <span class="nav-text">Quản lý người dùng</span>
+                        <span class="nav-text">Người dùng</span>
+
+                        <i class="ti ti-plus ms-auto icon-plus"></i>
                     </a>
+
+                    <ul class="collapse ps-3 @(controller == "Users" || controller == "Carts" ? "show" : "")"
+                        id="userMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Users" asp-action="Index"
+                               class="@(controller == "Users" ? "active" : "")">
+                                <i class="ti ti-user"></i> Quản lý người dùng
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Carts" asp-action="Index"
+                               class="@(controller == "Carts" ? "active" : "")">
+                                <i class="ti ti-shopping-cart-plus"></i> Quản lý giỏ hàng
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <li>
-                    <a class="nav-link"
-                       asp-area="Admin"
-                       asp-controller="ViolationReports"
-                       asp-action="Index">
-                        <i class="ti ti-flag"></i>
-                        <span class="nav-text">Báo cáo vi phạm</span>
+                <!-- 5. Nội dung -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#contentMenu">
+                        <i class="ti ti-article"></i>
+                        <span class="nav-text">Nội dung</span>
+
+                        <i class="ti ti-plus ms-auto icon-plus"></i>
                     </a>
+
+                    <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "show" : "")"
+                        id="contentMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="ProductReviews" asp-action="Index"
+                               class="@(controller == "ProductReviews" ? "active" : "")">
+                                <i class="ti ti-star"></i> Quản lý đánh giá
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Blogs" asp-action="Index"
+                               class="@(controller == "Blogs" ? "active" : "")">
+                                <i class="ti ti-news"></i> Quản lý blogs
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="BlogCategories" asp-action="Index"
+                               class="@(controller == "BlogCategories" ? "active" : "")">
+                                <i class="ti ti-folder"></i> Danh mục blog
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 6. Hệ thống -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "Notifications" || controller == "ViolationReports" || controller == "Reports" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#systemMenu">
+                        <i class="ti ti-settings"></i>
+                        <span class="nav-text">Hệ thống</span>
+
+                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                    </a>
+
+                    <ul class="collapse ps-3 @(controller == "Notifications" || controller == "ViolationReports" || controller == "Reports" ? "show" : "")"
+                        id="systemMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Notifications" asp-action="Index"
+                               class="@(controller == "Notifications" ? "active" : "")">
+                                <i class="ti ti-bell"></i> Quản lý thông báo
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="ViolationReports" asp-action="Index"
+                               class="@(controller == "ViolationReports" ? "active" : "")">
+                                <i class="ti ti-flag"></i> Báo cáo vi phạm
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Reports" asp-action="Index"
+                               class="@(controller == "Reports" ? "active" : "")">
+                                <i class="ti ti-chart-bar"></i> Thống kê
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </aside>
