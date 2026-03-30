@@ -1,0 +1,149 @@
+@model COMICZONE.Models.Cart
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết giỏ hàng";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Giỏ hàng</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Info Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold text-primary">
+                        <i class="ti ti-user me-2"></i>Chủ sở hữu
+                    </h5>
+                </div>
+                <div class="card-body text-center p-4">
+                    <div class="symbol symbol-circle mb-3 mx-auto" style="width: 100px; height: 100px;">
+                        @if (!string.IsNullOrEmpty(Model.User?.Avatar) && Model.User.Avatar != "default.png")
+                        {
+                            <img src="@Model.User.GetDisplayAvatar()" 
+                                 class="h-100 w-100 rounded-circle shadow-sm" alt="user" />
+                        }
+                        else
+                        {
+                            <div class="symbol-label bg-light-info text-info fs-6 fw-bold text-uppercase" style="width: 35px; height: 35px;">
+                                @Model.User?.Username?.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                    </div>
+
+                    <h4 class="fw-bold text-dark mb-1">@Model.User?.Username</h4>
+                    <p class="text-muted small mb-3">@Model.User?.Email</p>
+                    
+                    <div class="bg-light rounded p-3 text-start">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Mã giỏ hàng:</span>
+                            <span class="fw-bold text-dark">#@Model.CartId</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Ngày tạo:</span>
+                            <span class="fw-bold text-dark">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Sản phẩm:</span>
+                            <span class="fw-bold text-primary">@Model.CartItems.Count món</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-center gap-2 pb-4">
+                    <a asp-action="Edit" asp-route-id="@Model.CartId" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                        <i class="ti ti-edit me-1"></i>Sửa thông tin
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Items Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+                    <h5 class="card-title mb-0 fw-bold text-primary">
+                        <i class="ti ti-list me-2"></i>Các món trong giỏ
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small fw-bold">
+                                <tr>
+                                    <th class="ps-4">Sản phẩm</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end pe-4">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.CartItems.Any())
+                                {
+                                    foreach (var item in Model.CartItems)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                @Html.Raw(item.Product?.GetProductCell())
+                                            </td>
+                                            <td class="text-end">
+                                                @((item.Product?.Price ?? 0).ToString("N0")) VNĐ
+                                            </td>
+                                            <td class="text-center fw-bold">
+                                                @item.Quantity
+                                            </td>
+                                            <td class="text-end pe-4 fw-bold text-primary">
+                                                @((item.Quantity * (item.Product?.Price ?? 0)).ToString("N0")) VNĐ
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted small">
+                                            <i class="ti ti-package-off fs-1 mb-2"></i>
+                                            <p>Giỏ hàng rỗng.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            @if (Model.CartItems.Any())
+                            {
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold py-3">Tổng giá trị:</td>
+                                        <td class="text-end pe-4 fw-bold fs-4 text-primary py-3">
+                                            @Model.CartItems.Sum(ci => ci.Quantity * (ci.Product?.Price ?? 0)).ToString("N0") VNĐ
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 pt-4 border-top">
+        <a asp-action="Index" class="btn btn-light rounded-pill px-4">
+            <i class="ti ti-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+    </div>
+</div>
