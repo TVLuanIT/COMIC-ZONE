@@ -248,7 +248,7 @@ namespace COMICZONE.Controllers
             int userId = int.Parse(userIdStr);
 
             var notifications = _context.Notifications
-                .Where(n => n.UserId == userId)
+                .Where(n => n.UserId == userId && !n.Isdeleted)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
 
