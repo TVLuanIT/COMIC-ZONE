@@ -855,33 +855,31 @@ const ReportsDashboard = () => {
 
         console.info("Reports Dashboard Init", apiUrls);
 
-        if (typeof flatpickr === 'undefined') return;
-
-        // Khởi tạo Flatpickr
+        // Khởi tạo Flatpickr (Nếu có phần tử chọn ngày)
         const pickerEle = document.getElementById("dateRangePicker");
-        if (!pickerEle) return;
-
-        fp = flatpickr(pickerEle, {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "d/m/Y",
-            locale: "vn",
-            maxDate: "today",
-            defaultDate: [
-                new Date(new Date().setDate(new Date().getDate() - 6)),
-                new Date()
-            ],
-            onClose: function (selectedDates) {
-                if (selectedDates.length === 2) {
-                    updateReports(selectedDates[0], selectedDates[1]);
-                    const btn = document.getElementById('btnQuickFilter');
-                    if (btn) btn.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> Tùy chọn';
+        if (pickerEle && typeof flatpickr !== 'undefined') {
+            fp = flatpickr(pickerEle, {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                locale: "vn",
+                maxDate: "today",
+                defaultDate: [
+                    new Date(new Date().setDate(new Date().getDate() - 6)),
+                    new Date()
+                ],
+                onClose: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        updateReports(selectedDates[0], selectedDates[1]);
+                        const btn = document.getElementById('btnQuickFilter');
+                        if (btn) btn.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> Tùy chọn';
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        // Xử lý Quick Filters
+        // Xử lý Quick Filters (Nếu có)
         document.querySelectorAll('.quick-filter').forEach(item => {
             item.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -895,7 +893,7 @@ const ReportsDashboard = () => {
                 const start = new Date();
                 start.setDate(end.getDate() - (days - 1));
 
-                fp.setDate([start, end]);
+                if (fp) fp.setDate([start, end]);
                 updateReports(start, end);
             });
         });
@@ -905,17 +903,17 @@ const ReportsDashboard = () => {
         const start = new Date();
         start.setDate(end.getDate() - 6); // 7 ngày bao gồm hôm nay
 
-        // Cập nhật giao diện chọn nhanh
+        // Cập nhật giao diện chọn nhanh (Nếu có)
         const btnF = document.getElementById('btnQuickFilter');
         if (btnF) btnF.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> 7 ngày qua';
 
-        // Cập nhật bộ chọn ngày
+        // Cập nhật bộ chọn ngày (Nếu có)
         if (fp) fp.setDate([start, end]);
 
-        // Tải dữ liệu
+        // Tải dữ liệu mặc định
         updateReports(start, end);
 
-        // Xử lý Xuất Excel
+        // Xử lý Xuất Excel (Nếu có)
         const btnExport = document.getElementById('btnExport');
         if (btnExport) {
             btnExport.addEventListener('click', function () {
@@ -977,108 +975,78 @@ const ReportsDashboard = () => {
         const ctx = document.getElementById('salesChart');
         if (!ctx || typeof Chart === 'undefined') return;
 
-        // Tạo Gradient (Đổ màu bóng)
+        const type = data.type || 'line'; // 'line' hoặc 'bar'
+        const unit = data.unit || '₫';
+
+        // Tạo Gradient (Chỉ cho line chart)
         const chartCtx = ctx.getContext('2d');
-        const gradient = chartCtx.createLinearGradient(0, 0, 0, 350);
-        gradient.addColorStop(0, 'rgba(78, 115, 223, 0.2)');
-        gradient.addColorStop(1, 'rgba(78, 115, 223, 0)');
+        let background = 'rgba(78, 115, 223, 0.1)';
+        if (type === 'line') {
+            const gradient = chartCtx.createLinearGradient(0, 0, 0, 350);
+            gradient.addColorStop(0, 'rgba(78, 115, 223, 0.2)');
+            gradient.addColorStop(1, 'rgba(78, 115, 223, 0)');
+            background = gradient;
+        } else {
+            background = '#4e73df'; // Màu cột đặc cho Bar chart
+        }
 
         // Luôn tìm và hủy biểu đồ cũ một cách triệt để
         const existing = Chart.getChart(ctx);
         if (existing) existing.destroy();
 
         salesChart = new Chart(ctx, {
-            type: 'line',
+            type: type,
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: 'Doanh thu (₫)',
+                    label: unit === '₫' ? 'Doanh thu (₫)' : 'Số lượng đơn (đơn)',
                     data: data.values,
-                    fill: true,
-                    backgroundColor: gradient, // Sử dụng gradient đã tạo
+                    fill: type === 'line',
+                    backgroundColor: background,
                     borderColor: '#4e73df',
-                    borderWidth: 3,
+                    borderWidth: type === 'line' ? 3 : 1,
+                    borderRadius: type === 'bar' ? 4 : 0,
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#4e73df',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: '#4e73df',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2,
-                    tension: 0.4 // Đường cong mềm mại hơn
+                    pointRadius: type === 'line' ? 5 : 0,
+                    tension: 0.4
                 }]
             },
             options: {
-                maintainAspectRatio: false, // Rất quan trọng để biểu đồ thu nhỏ theo khung hình
+                maintainAspectRatio: false,
                 responsive: true,
-                layout: {
-                    padding: {
-                        top: 5,
-                        bottom: 15,
-                        left: 10,
-                        right: 0
-                    }
-                },
+                layout: { padding: { top: 5, bottom: 15, left: 10, right: 0 } },
                 scales: {
                     y: {
                         beginAtZero: true,
                         min: 0,
-                        suggestedMin: 0,
                         ticks: {
-                            stepSize: 50000,
-                            maxTicksLimit: 15,
-                            font: {
-                                size: 10
-                            },
+                            maxTicksLimit: 10,
+                            font: { size: 10 },
                             callback: function (value) {
-                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-                                return value.toLocaleString() + ' ₫';
+                                if (unit === '₫') {
+                                    if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                    return value.toLocaleString() + ' ₫';
+                                }
+                                return value; // Cho số lượng đơn
                             }
                         }
                     },
-                    x: {
-                        ticks: {
-                            maxRotation: 0,
-                            minRotation: 0,
-                            font: {
-                                size: 11
-                            },
-                            padding: 3
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                    axis: 'x'
-                },
-                hover: {
-                    animationDuration: 400
-                },
-                animations: {
-                    radius: {
-                        duration: 400,
-                        easing: 'linear',
-                        loop: (context) => context.active
-                    }
+                    x: { ticks: { maxRotation: 0, minRotation: 0, font: { size: 11 }, padding: 3 } }
                 },
                 plugins: {
                     tooltip: {
                         enabled: true,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        cornerRadius: 8,
-                        titleFont: { size: 14, weight: 'bold' },
-                        bodyFont: { size: 13 },
                         callbacks: {
                             label: function (context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
+                                let label = (unit === '₫' ? 'Doanh thu' : 'Số lượng') + ': ';
                                 if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                    if (unit === '₫') {
+                                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                    } else {
+                                        label += context.parsed.y + ' đơn';
+                                    }
                                 }
                                 return label;
                             }
@@ -1243,10 +1211,21 @@ const initAdmin = () => {
     safeInit(AdminLayout);
 
     // Reports Dashboard is manually initialized in View to pass URLs
-    if (typeof window.initReports === 'function') {
+    // Or automatically if the element with [data-reports-config] exists
+    const reportsConfig = document.querySelector('[data-reports-config]');
+    if (reportsConfig) {
+        try {
+            const urls = JSON.parse(reportsConfig.getAttribute('data-reports-config'));
+            if (typeof ReportsDashboard === 'function') {
+                ReportsDashboard().init(urls);
+            }
+        } catch (e) {
+            console.error("Failed to parse reports config", e);
+        }
+    } else if (typeof window.initReports === 'function') {
         window.initReports();
     }
-};
+}
 
 document.readyState !== "loading"
     ? initAdmin()

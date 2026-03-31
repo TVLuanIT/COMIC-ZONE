@@ -71,7 +71,38 @@ namespace COMICZONE.Areas.Admin.Controllers
                 values.Add(daySales?.Revenue ?? 0);
             }
 
-            return Json(new { labels, values });
+            return Json(new { labels, values, type = "line", unit = "₫" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrderVolumeData(DateTime? startDate, DateTime? endDate)
+        {
+            var end = endDate ?? DateTime.Now.Date;
+            var start = startDate ?? end.AddDays(-6); // Mặc định 7 ngày gần nhất
+
+            var ordersData = await _context.Orders
+                .Where(o => o.CreatedAt >= start && o.CreatedAt < end.AddDays(1))
+                .GroupBy(o => o.CreatedAt.Value.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            // Đảm bảo đủ các ngày trong khoảng (kể cả những ngày không có đơn hàng)
+            var labels = new List<string>();
+            var values = new List<int>();
+
+            for (var date = start; date <= end; date = date.AddDays(1))
+            {
+                labels.Add(date.ToString("dd/MM"));
+                var dayOrders = ordersData.FirstOrDefault(s => s.Date == date);
+                values.Add(dayOrders?.Count ?? 0);
+            }
+
+            return Json(new { labels, values, type = "bar", unit = "đơn" });
         }
 
         [HttpGet]
@@ -147,11 +178,11 @@ namespace COMICZONE.Areas.Admin.Controllers
                     worksheet.Range(currentRow, 1, currentRow, 6).Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
                 }
 
-                // Tính tổng cộng
+                // Tính tổng cộng (Chỉ tính các đơn đã hoàn thành)
                 currentRow += 2;
-                worksheet.Cell(currentRow, 4).Value = "TỔNG CỘNG:";
+                worksheet.Cell(currentRow, 4).Value = "TỔNG DOANH THU (HOÀN THÀNH):";
                 worksheet.Cell(currentRow, 4).Style.Font.SetBold();
-                var total = orders.Sum(o => o.TotalAmount);
+                var total = orders.Where(o => o.Status == "Completed").Sum(o => o.TotalAmount);
                 worksheet.Cell(currentRow, 5).Value = total;
                 worksheet.Cell(currentRow, 5).Style.Font.SetBold().NumberFormat.Format = "#,##0 \"₫\"";
 

@@ -7,7 +7,12 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-<div class="container-fluid">
+<div class="container-fluid py-4"
+     data-reports-config='{
+        "sales": "@Url.Action("GetSalesChartData", "Reports", new { area = "Admin" })",
+        "status": "@Url.Action("GetOrderStatusData", "Reports", new { area = "Admin" })",
+        "export": "@Url.Action("ExportToExcel", "Reports", new { area = "Admin" })"
+     }'>
     <!-- HÀNG HEADER & FILTER -->
     <partial name="_DashboardHeader" />
 
@@ -22,17 +27,4 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
-
-    <script>
-        // Hàm này sẽ được admin.js gọi khi DOM ready
-        window.initReports = function() {
-            if (typeof ReportsDashboard === 'function') {
-                ReportsDashboard().init({
-                    sales: '@Url.Action("GetSalesChartData", "Reports", new { area = "Admin" })',
-                    status: '@Url.Action("GetOrderStatusData", "Reports", new { area = "Admin" })',
-                    export: '@Url.Action("ExportToExcel", "Reports", new { area = "Admin" })'
-                });
-            }
-        };
-    </script>
 }
