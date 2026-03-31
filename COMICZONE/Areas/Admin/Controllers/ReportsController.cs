@@ -24,7 +24,11 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             var summary = new DashboardSummaryViewModel
             {
-                TotalUsers = await _context.Users.CountAsync(),
+                TotalUsers = await _context.Orders
+                    .Where(o => o.Status != "Cancelled")
+                    .Select(o => o.UserId)
+                    .Distinct()
+                    .CountAsync(),
                 TotalProducts = await _context.Products.CountAsync(),
                 TotalOrders = await _context.Orders.CountAsync(),
                 TotalRevenue = await _context.Orders

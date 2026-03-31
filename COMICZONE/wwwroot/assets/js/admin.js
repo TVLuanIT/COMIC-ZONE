@@ -848,10 +848,11 @@ const ReportsDashboard = () => {
     let fp = null;
     let currentStartDate = null;
     let currentEndDate = null;
+    let apiUrls = null;
 
     const init = (urls) => {
         apiUrls = urls;
-        
+
         console.info("Reports Dashboard Init", apiUrls);
 
         if (typeof flatpickr === 'undefined') return;
@@ -871,7 +872,7 @@ const ReportsDashboard = () => {
                 new Date(new Date().setDate(new Date().getDate() - 6)),
                 new Date()
             ],
-            onClose: function(selectedDates) {
+            onClose: function (selectedDates) {
                 if (selectedDates.length === 2) {
                     updateReports(selectedDates[0], selectedDates[1]);
                     const btn = document.getElementById('btnQuickFilter');
@@ -882,18 +883,18 @@ const ReportsDashboard = () => {
 
         // Xử lý Quick Filters
         document.querySelectorAll('.quick-filter').forEach(item => {
-            item.addEventListener('click', function(e) {
+            item.addEventListener('click', function (e) {
                 e.preventDefault();
                 const days = parseInt(this.getAttribute('data-days'));
                 const filterText = this.innerText;
-                
+
                 const btn = document.getElementById('btnQuickFilter');
                 if (btn) btn.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> ' + filterText;
-                
+
                 const end = new Date();
                 const start = new Date();
                 start.setDate(end.getDate() - (days - 1));
-                
+
                 fp.setDate([start, end]);
                 updateReports(start, end);
             });
@@ -903,21 +904,21 @@ const ReportsDashboard = () => {
         const end = new Date();
         const start = new Date();
         start.setDate(end.getDate() - 6); // 7 ngày bao gồm hôm nay
-        
+
         // Cập nhật giao diện chọn nhanh
         const btnF = document.getElementById('btnQuickFilter');
         if (btnF) btnF.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> 7 ngày qua';
-        
+
         // Cập nhật bộ chọn ngày
         if (fp) fp.setDate([start, end]);
-        
+
         // Tải dữ liệu
         updateReports(start, end);
 
         // Xử lý Xuất Excel
         const btnExport = document.getElementById('btnExport');
         if (btnExport) {
-            btnExport.addEventListener('click', function() {
+            btnExport.addEventListener('click', function () {
                 if (currentStartDate && currentEndDate) {
                     window.location.href = `${apiUrls.export}?startDate=${currentStartDate}&endDate=${currentEndDate}`;
                 } else {
@@ -934,10 +935,10 @@ const ReportsDashboard = () => {
     async function updateReports(dStart, dEnd) {
         currentStartDate = dStart.toISOString().split('T')[0];
         currentEndDate = dEnd.toISOString().split('T')[0];
-        
+
         const sStr = currentStartDate;
         const eStr = currentEndDate;
-        
+
         const titleEle = document.getElementById('salesChartTitle');
         if (titleEle) {
             const sFormatted = sStr.split('-').reverse().join('/');
@@ -975,7 +976,7 @@ const ReportsDashboard = () => {
     function renderSalesChart(data) {
         const ctx = document.getElementById('salesChart');
         if (!ctx || typeof Chart === 'undefined') return;
-        
+
         // Tạo Gradient (Đổ màu bóng)
         const chartCtx = ctx.getContext('2d');
         const gradient = chartCtx.createLinearGradient(0, 0, 0, 350);
@@ -985,7 +986,7 @@ const ReportsDashboard = () => {
         // Luôn tìm và hủy biểu đồ cũ một cách triệt để
         const existing = Chart.getChart(ctx);
         if (existing) existing.destroy();
-        
+
         salesChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -1012,23 +1013,75 @@ const ReportsDashboard = () => {
                 maintainAspectRatio: false, // Rất quan trọng để biểu đồ thu nhỏ theo khung hình
                 responsive: true,
                 layout: {
-                    padding: { bottom: 10 } // Tạo khoảng trống dưới đáy để không bị cắt nhãn
+                    padding: {
+                        top: 5,
+                        bottom: 15,
+                        left: 10,
+                        right: 0
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         min: 0,
+                        suggestedMin: 0,
                         ticks: {
-                            callback: function(value) {
-                                if (value >= 1000000) return (value/1000000).toFixed(1) + 'M';
+                            stepSize: 50000,
+                            maxTicksLimit: 15,
+                            font: {
+                                size: 10
+                            },
+                            callback: function (value) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
                                 return value.toLocaleString() + ' ₫';
                             }
                         }
                     },
                     x: {
                         ticks: {
-                            maxRotation: 45,
-                            minRotation: 45
+                            maxRotation: 0,
+                            minRotation: 0,
+                            font: {
+                                size: 11
+                            },
+                            padding: 3
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                    axis: 'x'
+                },
+                hover: {
+                    animationDuration: 400
+                },
+                animations: {
+                    radius: {
+                        duration: 400,
+                        easing: 'linear',
+                        loop: (context) => context.active
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
                         }
                     }
                 }
