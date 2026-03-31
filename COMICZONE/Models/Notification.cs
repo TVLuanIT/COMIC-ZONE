@@ -36,6 +36,9 @@ public partial class Notification
     [Column("CREATED_AT", TypeName = "datetime")]
     public DateTime? CreatedAt { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("CreatedBy")]
     [InverseProperty("NotificationCreatedByNavigations")]
     public virtual User? CreatedByNavigation { get; set; }

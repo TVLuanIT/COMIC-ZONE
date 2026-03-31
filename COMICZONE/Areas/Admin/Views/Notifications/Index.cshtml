@@ -1,0 +1,171 @@
+@model IEnumerable<COMICZONE.Models.Notification>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý thông báo";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Thông báo</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+            <h5 class="card-title mb-0 fw-bold">
+                <i class="ti ti-bell me-2 text-primary"></i>Danh sách thông báo
+            </h5>
+
+            <a asp-action="Create" class="btn btn-primary btn-sm px-3 rounded-pill shadow-sm">
+                <i class="ti ti-plus me-1"></i> Tạo thông báo mới
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-nowrap">
+                    <thead class="table-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Thông báo</th>
+                            <th>Người nhận</th>
+                            <th>Người gửi</th>
+                            <th class="text-center">Hiển thị</th>
+                            <th class="text-center">Đã đọc</th>
+                            <th class="text-center">Ngày tạo</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="notification-row-@item.NotificationId" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                                <td class="ps-4 fw-bold text-dark">#@item.NotificationId</td>
+
+                                <td>
+                                    <div class="d-flex flex-column" style="max-width: 300px;">
+                                        <div class="text-dark fw-bold text-truncate" title="@item.Title">@item.Title</div>
+                                        <div class="text-muted small text-truncate" title="@item.Message">@item.Message</div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@item.User?.GetDisplayAvatar()" 
+                                             alt="Avatar" 
+                                             class="rounded-circle border" 
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                        <div class="text-dark fw-semibold small">@item.User?.Username</div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (item.CreatedByNavigation != null)
+                                        {
+                                            <img src="@item.CreatedByNavigation.GetDisplayAvatar()" 
+                                                 alt="Admin" 
+                                                 class="rounded-circle border" 
+                                                 style="width: 32px; height: 32px; object-fit: cover;">
+                                            <div class="text-dark fw-semibold small">@item.CreatedByNavigation.Username</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary-subtle text-secondary rounded-circle border border-secondary-subtle d-flex align-items-center justify-content-center" 
+                                                 style="width: 32px; height: 32px;"
+                                                 title="Hệ thống">
+                                                <i class="ti ti-settings small"></i>
+                                            </div>
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 small">
+                                                Hệ thống
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                
+                                <td id="soft-delete-status-cell-@item.NotificationId" class="text-center">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">
+                                            <i class="ti ti-eye-off me-1 small"></i> Ẩn
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">
+                                            <i class="ti ti-eye me-1 small"></i> Hiện
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.IsRead == true)
+                                    {
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2">
+                                            <i class="ti ti-check me-1 small"></i> Rồi
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2">
+                                            <i class="ti ti-mail-opened me-1 small"></i> Chưa
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-center text-muted small">
+                                    @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="btn-group shadow-sm">
+                                        <a asp-action="Details" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-info" title="Xem chi tiết">
+                                            <i class="ti ti-eye fs-5"></i>
+                                        </a>
+
+                                        <a asp-action="Edit" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
+                                            <i class="ti ti-edit fs-5"></i>
+                                        </a>
+
+                                        <a asp-action="Delete" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
+                                            <i class="ti ti-trash fs-5"></i>
+                                        </a>
+
+                                        <button type="button" 
+                                                class="btn btn-light btn-sm ajax-toggle-notification-status @(item.Isdeleted ? "text-success" : "text-danger")" 
+                                                data-id="@item.NotificationId" 
+                                                data-url="@Url.Action("ToggleDeleted", "Notifications")"
+                                                title="@(item.Isdeleted ? "Khôi phục" : "Xóa mềm")">
+                                            <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="ti ti-bell-off fs-1 text-muted mb-2"></i>
+                    <p class="text-muted">Không tìm thấy thông báo nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

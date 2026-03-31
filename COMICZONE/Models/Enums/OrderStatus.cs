@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace COMICZONE.Models.Enums
 {
@@ -6,6 +6,12 @@ namespace COMICZONE.Models.Enums
     {
         [Display(Name = "Chờ xử lý")]
         Pending = 1,
+
+        [Display(Name = "Đang xử lý")]
+        Processing = 4,
+
+        [Display(Name = "Đang giao hàng")]
+        Shipping = 5,
 
         [Display(Name = "Hoàn thành")]
         Completed = 2,
