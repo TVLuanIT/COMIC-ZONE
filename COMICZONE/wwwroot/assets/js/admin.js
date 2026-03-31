@@ -842,6 +842,242 @@ const NotificationIndex = () => {
     return { init };
 };
 
+const ReportsDashboard = () => {
+    let salesChart = null;
+    let statusChart = null;
+    let fp = null;
+    let currentStartDate = null;
+    let currentEndDate = null;
+
+    const init = (urls) => {
+        apiUrls = urls;
+        
+        console.info("Reports Dashboard Init", apiUrls);
+
+        if (typeof flatpickr === 'undefined') return;
+
+        // Khởi tạo Flatpickr
+        const pickerEle = document.getElementById("dateRangePicker");
+        if (!pickerEle) return;
+
+        fp = flatpickr(pickerEle, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            locale: "vn",
+            maxDate: "today",
+            defaultDate: [
+                new Date(new Date().setDate(new Date().getDate() - 6)),
+                new Date()
+            ],
+            onClose: function(selectedDates) {
+                if (selectedDates.length === 2) {
+                    updateReports(selectedDates[0], selectedDates[1]);
+                    const btn = document.getElementById('btnQuickFilter');
+                    if (btn) btn.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> Tùy chọn';
+                }
+            }
+        });
+
+        // Xử lý Quick Filters
+        document.querySelectorAll('.quick-filter').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const days = parseInt(this.getAttribute('data-days'));
+                const filterText = this.innerText;
+                
+                const btn = document.getElementById('btnQuickFilter');
+                if (btn) btn.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> ' + filterText;
+                
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - (days - 1));
+                
+                fp.setDate([start, end]);
+                updateReports(start, end);
+            });
+        });
+
+        // Load ban đầu mặc định (7 ngày qua)
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 6); // 7 ngày bao gồm hôm nay
+        
+        // Cập nhật giao diện chọn nhanh
+        const btnF = document.getElementById('btnQuickFilter');
+        if (btnF) btnF.innerHTML = '<i class="ti ti-clock-hour-4 me-1"></i> 7 ngày qua';
+        
+        // Cập nhật bộ chọn ngày
+        if (fp) fp.setDate([start, end]);
+        
+        // Tải dữ liệu
+        updateReports(start, end);
+
+        // Xử lý Xuất Excel
+        const btnExport = document.getElementById('btnExport');
+        if (btnExport) {
+            btnExport.addEventListener('click', function() {
+                if (currentStartDate && currentEndDate) {
+                    window.location.href = `${apiUrls.export}?startDate=${currentStartDate}&endDate=${currentEndDate}`;
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('Chú ý', 'Vui lòng chọn khoảng thời gian để xuất báo cáo', 'warning');
+                    } else {
+                        alert('Vui lòng chọn khoảng thời gian để xuất báo cáo');
+                    }
+                }
+            });
+        }
+    };
+
+    async function updateReports(dStart, dEnd) {
+        currentStartDate = dStart.toISOString().split('T')[0];
+        currentEndDate = dEnd.toISOString().split('T')[0];
+        
+        const sStr = currentStartDate;
+        const eStr = currentEndDate;
+        
+        const titleEle = document.getElementById('salesChartTitle');
+        if (titleEle) {
+            const sFormatted = sStr.split('-').reverse().join('/');
+            const eFormatted = eStr.split('-').reverse().join('/');
+            titleEle.innerText = `${sFormatted} - ${eFormatted}`;
+        }
+
+        toggleLoading(true);
+
+        const query = `?startDate=${sStr}&endDate=${eStr}`;
+
+        try {
+            const [resSales, resStatus] = await Promise.all([
+                fetch(apiUrls.sales + query).then(r => r.json()),
+                fetch(apiUrls.status + query).then(r => r.json())
+            ]);
+
+            renderSalesChart(resSales);
+            renderStatusChart(resStatus);
+        } catch (error) {
+            console.error("API Error:", error);
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    function toggleLoading(isLoading) {
+        const sLoad = document.getElementById('salesLoading');
+        const tLoad = document.getElementById('statusLoading');
+        const display = isLoading ? 'flex' : 'none';
+        if (sLoad) sLoad.style.display = display;
+        if (tLoad) tLoad.style.display = display;
+    }
+
+    function renderSalesChart(data) {
+        const ctx = document.getElementById('salesChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        
+        // Tạo Gradient (Đổ màu bóng)
+        const chartCtx = ctx.getContext('2d');
+        const gradient = chartCtx.createLinearGradient(0, 0, 0, 350);
+        gradient.addColorStop(0, 'rgba(78, 115, 223, 0.2)');
+        gradient.addColorStop(1, 'rgba(78, 115, 223, 0)');
+
+        // Luôn tìm và hủy biểu đồ cũ một cách triệt để
+        const existing = Chart.getChart(ctx);
+        if (existing) existing.destroy();
+        
+        salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: data.values,
+                    fill: true,
+                    backgroundColor: gradient, // Sử dụng gradient đã tạo
+                    borderColor: '#4e73df',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#4e73df',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#4e73df',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    tension: 0.4 // Đường cong mềm mại hơn
+                }]
+            },
+            options: {
+                maintainAspectRatio: false, // Rất quan trọng để biểu đồ thu nhỏ theo khung hình
+                responsive: true,
+                layout: {
+                    padding: { bottom: 10 } // Tạo khoảng trống dưới đáy để không bị cắt nhãn
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) return (value/1000000).toFixed(1) + 'M';
+                                return value.toLocaleString() + ' ₫';
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderStatusChart(data) {
+        const ctx = document.getElementById('orderStatusChart');
+        const noData = document.getElementById('noDataAlert');
+        if (!ctx || !noData || typeof Chart === 'undefined') return;
+
+        // Luôn tìm và hủy biểu đồ cũ một cách triệt để
+        const existing = Chart.getChart(ctx);
+        if (existing) existing.destroy();
+
+        if (!data || data.length === 0) {
+            noData.classList.remove('d-none');
+            ctx.style.display = 'none';
+            return;
+        }
+
+        noData.classList.add('d-none');
+        ctx.style.display = 'block';
+
+        statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(x => x.status),
+                datasets: [{
+                    data: data.map(x => x.count),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+                },
+                cutout: '75%'
+            }
+        });
+    }
+
+    return { init };
+};
+
 const GlobalNotifications = () => {
     const init = () => {
         if (typeof Swal === "undefined" || !window.notifications) return;
@@ -952,6 +1188,11 @@ const initAdmin = () => {
     safeInit(InvoiceIndex);
     safeInit(NotificationIndex);
     safeInit(AdminLayout);
+
+    // Reports Dashboard is manually initialized in View to pass URLs
+    if (typeof window.initReports === 'function') {
+        window.initReports();
+    }
 };
 
 document.readyState !== "loading"
