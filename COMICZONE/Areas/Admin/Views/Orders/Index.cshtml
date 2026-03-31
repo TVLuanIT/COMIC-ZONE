@@ -1,3 +1,4 @@
+@using COMICZONE.Helpers
 @model IEnumerable<COMICZONE.Models.Order>
 
 @{
@@ -5,132 +6,206 @@
     ViewData["Title"] = "Quản lý đơn hàng";
 }
 
-<div class="container-fluid">
+<div class="container-fluid py-4">
+    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fs-3">Quản lý đơn hàng</h1>
+        <div>
+            <h1 class="h3 mb-0 text-gray-800 fw-bold">
+                <i class="ti ti-shopping-cart me-2 text-primary"></i>Quản lý đơn hàng
+            </h1>
+            <p class="text-muted small mb-0">Theo dõi và quản lý các đơn hàng của khách hàng.</p>
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-wrapper">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-uppercase small text-secondary">
-                        <th>Mã đơn</th>
-                        <th class="text-center">Hiển thị</th>
+    <!-- Stats Summary (Optional/Placeholder for future) -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-primary-subtle text-primary p-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary text-white p-2 me-3">
+                        <i class="ti ti-box fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.Count()</div>
+                        <div class="small opacity-75">Tổng đơn hàng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning-subtle text-warning p-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-warning text-white p-2 me-3">
+                        <i class="ti ti-clock fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.Count(o => o.OrderStatusEnum == OrderStatus.Pending)</div>
+                        <div class="small opacity-75">Chờ xử lý</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success-subtle text-success p-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success text-white p-2 me-3">
+                        <i class="ti ti-check fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.Count(o => o.OrderStatusEnum == OrderStatus.Completed)</div>
+                        <div class="small opacity-75">Đã hoàn thành</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info-subtle text-info p-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-info text-white p-2 me-3">
+                        <i class="ti ti-calculator fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.Sum(o => o.TotalAmount)?.ToString("N0") ₫</div>
+                        <div class="small opacity-75">Tổng doanh thu</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex align-items-center">
+                <h5 class="mb-0 fw-bold">Danh sách đơn hàng</h5>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="table-light text-uppercase small fw-bold">
+                    <tr>
+                        <th class="ps-4">Mã đơn</th>
                         <th>Khách hàng</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                        <th>SĐT</th>
-                        <th>Địa chỉ giao</th>
-                        <th>Ghi chú</th>
-                        <th>Ngày tạo</th>
- 
-                        <th class="text-end table-actions">
-                            Hành động
-                        </th>
+                        <th class="text-center">Ngày đặt</th>
+                        <th class="text-center">Tổng tiền</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Hiển thị</th>
+                        <th class="text-end pe-4">Thao tác</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr id="order-row-@item.OrderId" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
-                            <td>
-                                <span class="fw-medium">#@item.OrderId</span>
-                            </td>
-
-                            <td class="text-center" id="soft-delete-status-cell-@item.OrderId">
-                                @if (item.Isdeleted)
-                                {
-                                    <span class="badge bg-danger">Đã ẩn</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">Hiện</span>
-                                }
-                            </td>
+                        <tr id="order-row-@item.OrderId" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                            <td class="ps-4 fw-bold text-dark">#@item.OrderId</td>
 
                             <td>
-                                @item.User?.Username
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-35px me-3">
+                                        @if (item.User != null)
+                                        {
+                                            <img src="@item.User.GetDisplayAvatar()" 
+                                                 alt="@item.User.Username" class="rounded-circle" style="width:35px; height:35px; object-fit:cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="symbol-label bg-light-secondary text-secondary rounded-circle" style="width:35px; height:35px; display:flex; align-items:center; justify-content:center;">
+                                                <i class="ti ti-user fs-5"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="text-dark fw-bold small">@(item.User?.Username ?? "Khách vãng lai")</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">@item.PhoneNumber</div>
+                                    </div>
+                                </div>
                             </td>
 
-                            <td>
-                                @item.OrderDate?.ToString("dd/MM/yyyy")
+                            <td class="text-center text-muted small">
+                                @(item.OrderDate?.ToString("dd/MM/yyyy") ?? "N/A")
                             </td>
 
-                            <td class="fw-medium">
+                            <td class="text-center fw-bold text-dark">
                                 @item.TotalAmount?.ToString("N0") ₫
                             </td>
 
-                            <td>
-                                <span class="badge @(item.OrderStatusEnum switch
+                            <td class="text-center">
+                                @{
+                                    var (bgClass, textClass, icon) = item.OrderStatusEnum switch
                                     {
-                                        OrderStatus.Pending => "bg-warning text-dark",
-                                        OrderStatus.Completed => "bg-success",
-                                        OrderStatus.Cancelled => "bg-danger",
-                                        _ => "bg-secondary"
-                                    })">
-
-                                    @item.OrderStatusEnum.GetDisplayName()
+                                        OrderStatus.Pending => ("bg-warning-subtle", "text-warning", "ti-clock"),
+                                        OrderStatus.Completed => ("bg-success-subtle", "text-success", "ti-check"),
+                                        OrderStatus.Cancelled => ("bg-danger-subtle", "text-danger", "ti-x"),
+                                        _ => ("bg-secondary-subtle", "text-secondary", "ti-info-circle")
+                                    };
+                                }
+                                <span class="badge @bgClass @textClass border border-@textClass-subtle px-2">
+                                    <i class="ti @icon me-1 small"></i> @item.OrderStatusEnum.GetDisplayName()
                                 </span>
                             </td>
 
-                            <td>
-                                @item.PhoneNumber
-                            </td>
-
-                            <td class="small">
-                                @{
-                                    var address = item.ShippingAddress ?? "";
-                                    var shortAddress = address.Length > 40 ? address.Substring(0, 40) + "..." : address;
+                            <td id="soft-delete-status-cell-@item.OrderId" class="text-center">
+                                @if (item.Isdeleted)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">
+                                        <i class="ti ti-eye-off me-1 small"></i> Đã ẩn
+                                    </span>
                                 }
-                                <span title="@address">@shortAddress</span>
-                            </td>
-
-                            <td class="small">
-                                @{
-                                    var note = item.Note ?? "";
-                                    var shortNote = note.Length > 40 ? note.Substring(0, 40) + "..." : note;
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2">
+                                        <i class="ti ti-eye me-1 small"></i> Hiện
+                                    </span>
                                 }
-                                <span title="@note">@shortNote</span>
                             </td>
 
-                            <td>
-                                @item.CreatedAt?.ToString("dd/MM/yyyy")
-                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Details" asp-route-id="@item.OrderId" 
+                                       class="btn btn-light btn-sm text-info" title="Xem chi tiết">
+                                        <i class="ti ti-eye fs-5"></i>
+                                    </a>
 
-                            <td class="text-end table-actions">
-                                <a asp-action="Edit"
-                                   asp-route-id="@item.OrderId"
-                                   class="btn btn-sm btn-light">
-                                    <i class="ti ti-edit"></i>
-                                </a>
+                                    <a asp-action="Edit" asp-route-id="@item.OrderId" 
+                                       class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
+                                        <i class="ti ti-edit fs-5"></i>
+                                    </a>
 
-                                <a asp-action="Details"
-                                   asp-route-id="@item.OrderId"
-                                   class="btn btn-sm btn-light">
-                                    <i class="ti ti-eye"></i>
-                                </a>
+                                    <a asp-action="Delete" asp-route-id="@item.OrderId" 
+                                       class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
+                                        <i class="ti ti-trash fs-5"></i>
+                                    </a>
 
-                                <a asp-action="Delete"
-                                   asp-route-id="@item.OrderId"
-                                   class="btn btn-sm btn-light text-danger">
-                                    <i class="ti ti-trash"></i>
-                                </a>
- 
-                                <button type="button"
-                                        title="Xóa mềm / Hiện lại"
-                                        data-id="@item.OrderId"
-                                        data-url="@Url.Action("ToggleDelete", "Orders", new { area = "Admin" })"
-                                        class="btn btn-sm ajax-toggle-order-status
-                                            @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
-                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
-                                </button>
+                                    <button type="button"
+                                            class="btn btn-light btn-sm ajax-toggle-order-status @(item.Isdeleted ? "text-success" : "text-danger")"
+                                            data-id="@item.OrderId"
+                                            data-url="@Url.Action("ToggleDelete", "Orders", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Hiện lại" : "Ẩn đi")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="ti ti-shopping-cart-x fs-1 text-muted mb-2"></i>
+                <h5 class="text-muted">Không tìm thấy đơn hàng nào.</h5>
+            </div>
+        }
+    </div>
+</div>
+dy>
             </table>
         </div>
     </div>

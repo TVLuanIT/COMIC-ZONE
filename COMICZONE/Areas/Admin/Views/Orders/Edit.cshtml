@@ -1,3 +1,4 @@
+@using COMICZONE.Helpers
 @model COMICZONE.Models.Order
 
 @{
@@ -5,38 +6,42 @@
     ViewData["Title"] = "Chỉnh sửa đơn hàng";
 }
 
-<div class="container-fluid">
-    <!-- HEADER -->
+<div class="container-fluid py-4">
+    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1">Đơn hàng #@Model.OrderId</h4>
-
-            <span class="badge @(Model.OrderStatusEnum switch
-                  {
-                      OrderStatus.Pending => "bg-warning text-dark",
-                      OrderStatus.Completed => "bg-success",
-                      OrderStatus.Cancelled => "bg-danger",
-                      _ => "bg-secondary"
-                  })">
-
-                @Model.OrderStatusEnum.GetDisplayName()
-            </span>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h4 class="mb-0 fw-bold text-dark">Chỉnh sửa đơn hàng #@Model.OrderId</h4>
+                
+                @{
+                    var (bgClass, textClass, icon) = Model.OrderStatusEnum switch
+                    {
+                        OrderStatus.Pending => ("bg-warning-subtle", "text-warning", "ti-clock"),
+                        OrderStatus.Completed => ("bg-success-subtle", "text-success", "ti-check"),
+                        OrderStatus.Cancelled => ("bg-danger-subtle", "text-danger", "ti-x"),
+                        _ => ("bg-secondary-subtle", "text-secondary", "ti-info-circle")
+                    };
+                }
+                <span class="badge @bgClass @textClass border border-@textClass-subtle px-2 py-1">
+                    <i class="ti @icon me-1 small"></i> @Model.OrderStatusEnum.GetDisplayName()
+                </span>
+            </div>
+            <p class="text-muted small mb-0">Cập nhật trạng thái và thông tin vận chuyển.</p>
         </div>
 
         <div class="d-flex gap-2">
-            <a asp-action="Details" asp-route-id="@Model.OrderId"
-               class="btn btn-light">
-                <i class="ti ti-eye"></i> Xem chi tiết
+            <a asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-light shadow-sm">
+                <i class="ti ti-eye me-1"></i> Xem chi tiết
             </a>
 
-            <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="ti ti-arrow-left"></i> Quay lại
+            <a asp-action="Index" class="btn btn-light shadow-sm">
+                <i class="ti ti-arrow-left me-1"></i> Quay lại
             </a>
         </div>
     </div>
 
     <form asp-action="Edit" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 font-medium"></div>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="OrderId" />
         <input type="hidden" asp-for="UserId" />
@@ -45,93 +50,109 @@
         <input type="hidden" asp-for="TotalAmount" />
 
         <div class="row g-4">
-            <!-- LEFT -->
+            <!-- Left Side: Form Controls -->
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="ti ti-settings"></i>
-                            Cập nhật đơn hàng
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="ti ti-edit me-2 text-primary"></i>Thông tin đơn hàng
                         </h5>
                     </div>
 
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">
-                                    Trạng thái
-                                </label>
-
-                                <select asp-for="OrderStatusEnum" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
-                                </select>
-
-                                <span asp-validation-for="OrderStatusEnum" class="text-danger"></span>
+                    <div class="card-body py-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark mb-2">Trạng thái đơn hàng</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-flag"></i>
+                                    </span>
+                                    <select asp-for="OrderStatusEnum" class="form-select border-start-0 ps-0" asp-items="Html.GetEnumSelectList<OrderStatus>()">
+                                    </select>
+                                </div>
+                                <span asp-validation-for="OrderStatusEnum" class="text-danger small mt-1 d-block"></span>
                             </div>
 
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Số điện thoại</label>
-
-                                <input asp-for="PhoneNumber" class="form-control" />
-
-                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark mb-2">Số điện thoại liên hệ</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="ti ti-phone"></i>
+                                    </span>
+                                    <input asp-for="PhoneNumber" class="form-control border-start-0 ps-0" placeholder="Nhập số điện thoại..." />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
                             </div>
 
-
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label fw-semibold">Địa chỉ giao hàng</label>
-
-                                <input asp-for="ShippingAddress" class="form-control" />
-
-                                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-dark mb-2">Địa chỉ giao hàng</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 align-items-start pt-2">
+                                        <i class="ti ti-map-pin"></i>
+                                    </span>
+                                    <textarea asp-for="ShippingAddress" class="form-control border-start-0 ps-0" rows="3" placeholder="Nhập địa chỉ giao hàng chi tiết..."></textarea>
+                                </div>
+                                <span asp-validation-for="ShippingAddress" class="text-danger small mt-1 d-block"></span>
                             </div>
 
-
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label fw-semibold">Ghi chú</label>
-
-                                <textarea asp-for="Note" rows="3" class="form-control"></textarea>
-
-                                <span asp-validation-for="Note" class="text-danger"></span>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-dark mb-2">Ghi chú quản lý</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 align-items-start pt-2">
+                                        <i class="ti ti-notes"></i>
+                                    </span>
+                                    <textarea asp-for="Note" rows="3" class="form-control border-start-0 ps-0" placeholder="Ghi chú thêm về đơn hàng này..."></textarea>
+                                </div>
+                                <span asp-validation-for="Note" class="text-danger small mt-1 d-block"></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT -->
+            <!-- Right Side: Order Info & Actions -->
             <div class="col-lg-4">
-                <!-- CUSTOMER -->
-                <!-- ẩn Note -->
-                <partial name="_CustomerInfo"
-                    model="Model"
-                    view-data='new ViewDataDictionary(ViewData)
-                        {
-                            { "ShowNote", false }
-                        }' />
-
-                <!-- TOTAL -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0">
-                            Tổng thanh toán
-                        </h6>
+                <div class="row g-4">
+                    <!-- Customer partial (keep as is but within card if partial allows, or assume it emits a card) -->
+                    <div class="col-12">
+                        <partial name="_CustomerInfo" 
+                                 model="Model" 
+                                 view-data='new ViewDataDictionary(ViewData) { { "ShowNote", false } }' />
                     </div>
 
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tổng tiền</span>
-                            <span class="fw-semibold">
-                                @Model.TotalAmount?.ToString("N0") ₫
-                            </span>
+                    <!-- Summary & Action -->
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h6 class="mb-0 fw-bold text-dark">Tổng kết & Thao tác</h6>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Tổng giá trị:</span>
+                                    <span class="fw-bold text-dark">
+                                        @Model.TotalAmount?.ToString("N0") ₫
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="text-muted small">Ngày đặt:</span>
+                                    <span class="text-dark small">
+                                        @Model.OrderDate?.ToString("dd/MM/yyyy")
+                                    </span>
+                                </div>
+
+                                <hr class="my-3 opacity-10">
+
+                                <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm">
+                                    <i class="ti ti-device-floppy me-1"></i>
+                                    Lưu thay đổi
+                                </button>
+                                
+                                <p class="text-muted tiny text-center mt-3 mb-0">
+                                    Cập nhật lần cuối: @(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                </p>
+                            </div>
                         </div>
-
-                        <hr />
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="ti ti-device-floppy"></i>
-                            Lưu thay đổi
-                        </button>
                     </div>
                 </div>
             </div>
@@ -142,5 +163,8 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+rPartialAsync("_ValidationScriptsPartial");
     }
 }
