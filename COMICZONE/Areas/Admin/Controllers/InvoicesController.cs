@@ -42,6 +42,8 @@ namespace COMICZONE.Areas.Admin.Controllers
                     .ThenInclude(o => o.OrderItems)
                         .ThenInclude(oi => oi.Product)
                             .ThenInclude(pr => pr.Pictures)
+                .Include(i => i.Order)
+                    .ThenInclude(o => o.Payments)
                 .FirstOrDefaultAsync(m => m.Id == id);
                 
             if (invoice == null)

@@ -166,6 +166,14 @@
 
                             <td class="text-end pe-4">
                                 <div class="btn-group shadow-sm">
+                                    @if (item.Invoices != null && item.Invoices.Any())
+                                    {
+                                        <a asp-controller="Invoices" asp-action="Details" asp-route-id="@item.Invoices.First().Id"
+                                           class="btn btn-light btn-sm text-success" title="Chi tiết hóa đơn">
+                                            <i class="ti ti-file-invoice fs-5"></i>
+                                        </a>
+                                    }
+
                                     <a asp-action="Details" asp-route-id="@item.OrderId" 
                                        class="btn btn-light btn-sm text-info" title="Xem chi tiết">
                                         <i class="ti ti-eye fs-5"></i>

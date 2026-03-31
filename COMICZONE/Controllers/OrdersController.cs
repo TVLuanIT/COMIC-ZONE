@@ -23,12 +23,14 @@ namespace COMICZONE.Controllers
         private readonly ComiczoneContext _context;
         private readonly IVnPayService _vnPayservice;
         private readonly PaypalClient _paypalClient;
+        private readonly IInvoiceService _invoiceService;
 
-        public OrdersController(ComiczoneContext context, IVnPayService vnPayservice, PaypalClient paypalClient)
+        public OrdersController(ComiczoneContext context, IVnPayService vnPayservice, PaypalClient paypalClient, IInvoiceService invoiceService)
         {
             _context = context;
             _vnPayservice = vnPayservice;
             _paypalClient = paypalClient;
+            _invoiceService = invoiceService;
         }
 
         public IActionResult OrderDetails(int id)
@@ -58,7 +60,7 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout(CheckoutViewModel model)
+        public async Task<IActionResult> Checkout(CheckoutViewModel model)
         {
             var userIdStr = CurrentUserId();
 
@@ -102,7 +104,7 @@ namespace COMICZONE.Controllers
             // ================= COD =================
             if (model.PaymentMethod == PaymentMethod.COD)
             {
-                var result = CreateOrder(new CreateOrderConRequest
+                var result = await CreateOrder(new CreateOrderConRequest
                 {
                     UserId = userId,
                     Address = model.Address,
@@ -111,11 +113,11 @@ namespace COMICZONE.Controllers
                     PaymentMethod = "COD",
                     IsPaid = false,
                     TransactionId = null
-                }, false, out errorMessage);
+                }, false);
 
-                if (!result)
+                if (!result.Success)
                 {
-                    TempData["Error"] = errorMessage;
+                    TempData["Error"] = result.ErrorMessage;
                     return RedirectToAction("Index", "Carts");
                 }
 
@@ -154,9 +156,9 @@ namespace COMICZONE.Controllers
             return RedirectToAction("Index", "Carts");
         }
 
-        private bool CreateOrder(CreateOrderConRequest request, bool allowOutOfStockOrder, out string? errorMessage)
+        private async Task<(bool Success, string? ErrorMessage)> CreateOrder(CreateOrderConRequest request, bool allowOutOfStockOrder)
         {
-            errorMessage = null;
+            string? errorMessage = null;
 
             using var transaction = _context.Database.BeginTransaction();
 
@@ -171,7 +173,7 @@ namespace COMICZONE.Controllers
                 if (!cartItems.Any())
                 {
                     errorMessage = "Giỏ hàng đang trống.";
-                    return false;
+                    return (false, errorMessage);
                 }
 
                 bool hasOutOfStockItem = false;
@@ -187,7 +189,7 @@ namespace COMICZONE.Controllers
                         {
                             errorMessage =
                                 $"Sản phẩm '{product.Name}' không đủ số lượng trong kho.";
-                            return false;
+                            return (false, errorMessage);
                         }
                         hasOutOfStockItem = true;
                     }
@@ -297,16 +299,7 @@ namespace COMICZONE.Controllers
                 // CREATE INVOICE (nếu đã thanh toán)
                 if (request.IsPaid)
                 {
-                    var customer = _context.Customers
-                        .FirstOrDefault(x => x.Userid == request.UserId);
-
-                    _context.Invoices.Add(new Invoice
-                    {
-                        OrderId = order.OrderId,
-                        TotalAmount = totalAmount,
-                        IssueDate = DateTime.Now,
-                        CustomerName = customer?.Fullname ?? "Guest"
-                    });
+                    await _invoiceService.CreateInvoiceAsync(order.OrderId);
                 }
 
                 _context.CartItems.RemoveRange(cartItems);
@@ -314,7 +307,7 @@ namespace COMICZONE.Controllers
 
                 transaction.Commit();
 
-                return true;
+                return (true, null);
             }
             catch
             {
@@ -323,7 +316,7 @@ namespace COMICZONE.Controllers
             }
         }
 
-        public IActionResult PaymentCallBack()
+        public async Task<IActionResult> PaymentCallBack()
         {
             var response = _vnPayservice.PaymentExecute(Request.Query);
 
@@ -361,7 +354,7 @@ namespace COMICZONE.Controllers
 
             string? errorMessage;
 
-            var result = CreateOrder(new CreateOrderConRequest
+            var result = await CreateOrder(new CreateOrderConRequest
             {
                 UserId = userId,
                 Address = address,
@@ -370,11 +363,11 @@ namespace COMICZONE.Controllers
                 PaymentMethod = PaymentMethod.VNPAY.ToString(),
                 IsPaid = true,
                 TransactionId = response.TransactionId ?? "UNKNOWN"
-            }, true, out errorMessage);
+            }, true);
 
-            if (!result)
+            if (!result.Success)
             {
-                TempData["Error"] = errorMessage;
+                TempData["Error"] = result.ErrorMessage;
                 return RedirectToAction("Index", "Carts");
             }
 
@@ -466,7 +459,7 @@ namespace COMICZONE.Controllers
 
                 string? errorMessage;
 
-                var result = CreateOrder(new CreateOrderConRequest
+                var result = await CreateOrder(new CreateOrderConRequest
                 {
                     UserId = userId,
                     Address = address,
@@ -475,11 +468,11 @@ namespace COMICZONE.Controllers
                     PaymentMethod = PaymentMethod.PAYPAL.ToString(),
                     IsPaid = true,
                     TransactionId = orderID
-                }, true, out errorMessage);
+                }, true);
 
-                if (!result)
+                if (!result.Success)
                 {
-                    TempData["Error"] = errorMessage;
+                    TempData["Error"] = result.ErrorMessage;
                     return RedirectToAction("Index", "Carts");
                 }
 

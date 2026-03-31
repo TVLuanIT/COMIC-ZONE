@@ -9,6 +9,7 @@ using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Services;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -16,10 +17,12 @@ namespace COMICZONE.Areas.Admin.Controllers
     public class OrdersController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
+        private readonly IInvoiceService _invoiceService;
 
-        public OrdersController(ComiczoneContext context)
+        public OrdersController(ComiczoneContext context, IInvoiceService invoiceService)
         {
             _context = context;
+            _invoiceService = invoiceService;
         }
 
         // GET: Admin/Orders
@@ -27,6 +30,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             var orders = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.Invoices)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
@@ -43,6 +47,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Pictures)
+                .Include(o => o.Invoices)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
@@ -117,6 +122,12 @@ namespace COMICZONE.Areas.Admin.Controllers
                     if (isStatusChanged)
                     {
                         notifMsg = $"Trạng thái đơn hàng #{existingOrder.OrderId} đã thay đổi: {oldStatus.GetDisplayName()} ➔ {order.OrderStatusEnum.GetDisplayName()}.";
+                        
+                        // Tự động tạo hóa đơn nếu chuyển trạng thái sang Processing hoặc Completed cho các đơn chưa có hóa đơn
+                        if (order.OrderStatusEnum == OrderStatus.Completed || order.OrderStatusEnum == OrderStatus.Processing)
+                        {
+                            await _invoiceService.CreateInvoiceAsync(id);
+                        }
                     }
 
                     _context.Notifications.Add(new Notification

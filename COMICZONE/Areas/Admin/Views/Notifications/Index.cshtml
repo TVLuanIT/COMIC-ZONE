@@ -41,6 +41,7 @@
                             <th class="ps-4">ID</th>
                             <th>Thông báo</th>
                             <th>Người nhận</th>
+                            <th>Người gửi</th>
                             <th class="text-center">Hiển thị</th>
                             <th class="text-center">Đã đọc</th>
                             <th class="text-center">Ngày tạo</th>
@@ -60,9 +61,39 @@
                                         <div class="text-muted small text-truncate" title="@item.Message">@item.Message</div>
                                     </div>
                                 </td>
-                                
+
                                 <td>
-                                    <div class="text-dark fw-semibold small">@item.User?.Username</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@item.User?.GetDisplayAvatar()" 
+                                             alt="Avatar" 
+                                             class="rounded-circle border" 
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                        <div class="text-dark fw-semibold small">@item.User?.Username</div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (item.CreatedByNavigation != null)
+                                        {
+                                            <img src="@item.CreatedByNavigation.GetDisplayAvatar()" 
+                                                 alt="Admin" 
+                                                 class="rounded-circle border" 
+                                                 style="width: 32px; height: 32px; object-fit: cover;">
+                                            <div class="text-dark fw-semibold small">@item.CreatedByNavigation.Username</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary-subtle text-secondary rounded-circle border border-secondary-subtle d-flex align-items-center justify-content-center" 
+                                                 style="width: 32px; height: 32px;"
+                                                 title="Hệ thống">
+                                                <i class="ti ti-settings small"></i>
+                                            </div>
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 small">
+                                                Hệ thống
+                                            </span>
+                                        }
+                                    </div>
                                 </td>
                                 
                                 <td id="soft-delete-status-cell-@item.NotificationId" class="text-center">
