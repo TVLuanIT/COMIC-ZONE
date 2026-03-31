@@ -1,0 +1,75 @@
+@using COMICZONE.Areas.Admin.ViewModels.Dashboard
+@model AdminDashboardViewModel
+
+<!-- TIÊU ĐỀ CHÀO MỪNG -->
+<div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+    <div>
+        <h1 class="fs-3 fw-bold mb-0">@Model.Greeting, @Model.UserName!</h1>
+        <p class="text-muted mb-0">Hôm nay là @DateTime.Now.ToString("dddd, dd/MM/yyyy")</p>
+    </div>
+    <div class="d-none d-md-block">
+        <button class="btn btn-primary shadow-sm" onclick="location.reload()">
+            <i class="ti ti-refresh me-1"></i> Làm mới dữ liệu
+        </button>
+    </div>
+</div>
+
+<!-- HÀNG THỐNG KÊ NHANH TRONG NGÀY -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="p-2 bg-white bg-opacity-25 rounded">
+                        <i class="ti ti-shopping-cart fs-4"></i>
+                    </div>
+                    <span class="badge bg-white text-primary fw-bold">Hôm nay</span>
+                </div>
+                <h3 class="fw-bold mb-1">@Model.TodayStats?.NewOrders</h3>
+                <p class="mb-0 small opacity-75">Đơn hàng mới</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="p-2 bg-white bg-opacity-25 rounded">
+                        <i class="ti ti-currency-dong fs-4"></i>
+                    </div>
+                    <span class="badge bg-white text-success fw-bold">Hôm nay</span>
+                </div>
+                <h3 class="fw-bold mb-1">@Model.TodayStats?.Revenue.ToString("N0")₫</h3>
+                <p class="mb-0 small opacity-75">Doanh thu thu về</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="p-2 bg-dark bg-opacity-10 rounded">
+                        <i class="ti ti-alert-triangle fs-4"></i>
+                    </div>
+                    <span class="badge bg-dark text-white fw-bold">Cần xử lý</span>
+                </div>
+                <h3 class="fw-bold mb-1">@Model.TodayStats?.LowStockCount</h3>
+                <p class="mb-0 small opacity-75 text-dark">Sản phẩm sắp hết hàng</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm bg-danger text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="p-2 bg-white bg-opacity-25 rounded">
+                        <i class="ti ti-flag fs-4"></i>
+                    </div>
+                    <span class="badge bg-white text-danger fw-bold">Cần xem</span>
+                </div>
+                <h3 class="fw-bold mb-1">@Model.TodayStats?.PendingReports</h3>
+                <p class="mb-0 small opacity-75">Báo cáo vi phạm mới</p>
+            </div>
+        </div>
+    </div>
+</div>
