@@ -1,0 +1,28 @@
+<div class="row align-items-center mb-6">
+    <div class="col-lg-6 col-12">
+        <h1 class="fs-3 mb-1">Thống kê kinh doanh</h1>
+        <p class="text-secondary mb-0">Tổng quan về hiệu quả bán hàng và quản trị hệ thống.</p>
+    </div>
+    <div class="col-lg-6 col-12 text-lg-end mt-3 mt-lg-0">
+        <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+            <div class="dropdown">
+                <button id="btnQuickFilter" class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="ti ti-clock-hour-4 me-1"></i> Chọn nhanh
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item quick-filter" href="#" data-days="7">7 ngày qua</a></li>
+                    <li><a class="dropdown-item quick-filter" href="#" data-days="14">14 ngày qua</a></li>
+                    <li><a class="dropdown-item quick-filter" href="#" data-days="30">30 ngày qua (1 tháng)</a></li>
+                    <li><a class="dropdown-item quick-filter" href="#" data-days="60">60 ngày qua (2 tháng)</a></li>
+                </ul>
+            </div>
+            <div class="input-group input-group-sm w-auto">
+                <span class="input-group-text bg-white border-end-0"><i class="ti ti-calendar"></i></span>
+                <input type="text" id="dateRangePicker" class="form-control bg-white border-start-0" placeholder="Chọn ngày..." style="width: 220px;">
+            </div>
+            <button id="btnExport" class="btn btn-sm btn-success d-inline-flex align-items-center">
+                <i class="ti ti-file-spreadsheet me-1"></i> Xuất Excel
+            </button>
+        </div>
+    </div>
+</div>

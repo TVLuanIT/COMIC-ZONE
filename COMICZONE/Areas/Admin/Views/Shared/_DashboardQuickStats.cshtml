@@ -1,0 +1,62 @@
+@model COMICZONE.ViewModels.Admin.Reports.DashboardSummaryViewModel
+
+<div class="row g-3 mb-6">
+    <div class="col-xl-3 col-lg-6 col-md-12 col-12">
+        <div class="card h-100 card-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semi-bold text-uppercase fs-6">Tổng doanh thu</span>
+                    <div class="icon-shape icon-md bg-light-primary text-primary rounded-2">
+                         <i class="ti ti-currency-dollar fs-4"></i>
+                    </div>
+                </div>
+                <h2 class="fw-bold mb-1">@Model.TotalRevenue.ToString("N0") ₫</h2>
+                <span class="text-success fw-semi-bold"><i class="ti ti-trending-up me-1"></i>+@Model.RevenueGrowth%</span>
+                <span class="ms-1 text-secondary">so với tháng trước</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-12 col-12">
+        <div class="card h-100 card-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semi-bold text-uppercase fs-6">Tổng đơn hàng</span>
+                     <div class="icon-shape icon-md bg-light-info text-info rounded-2">
+                         <i class="ti ti-shopping-cart fs-4"></i>
+                    </div>
+                </div>
+                <h2 class="fw-bold mb-1">@Model.TotalOrders</h2>
+                <span class="text-info fw-semi-bold">@Model.PendingOrders</span>
+                <span class="ms-1 text-secondary">đơn đang chờ duyệt</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-12 col-12">
+        <div class="card h-100 card-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semi-bold text-uppercase fs-6">Khách hàng</span>
+                    <div class="icon-shape icon-md bg-light-success text-success rounded-2">
+                         <i class="ti ti-users fs-4"></i>
+                    </div>
+                </div>
+                <h2 class="fw-bold mb-1">@Model.TotalUsers</h2>
+                <span class="ms-1 text-secondary">khách hàng đã mua hàng</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-12 col-12">
+        <div class="card h-100 card-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semi-bold text-uppercase fs-6">Sản phẩm</span>
+                    <div class="icon-shape icon-md bg-light-warning text-warning rounded-2">
+                         <i class="ti ti-box fs-4"></i>
+                    </div>
+                </div>
+                <h2 class="fw-bold mb-1">@Model.TotalProducts</h2>
+                <span class="ms-1 text-secondary">comic trong danh mục</span>
+            </div>
+        </div>
+    </div>
+</div>

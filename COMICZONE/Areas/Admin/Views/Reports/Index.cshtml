@@ -1,0 +1,30 @@
+@model COMICZONE.ViewModels.Admin.Reports.DashboardSummaryViewModel
+
+@{
+    ViewData["Title"] = "Báo cáo & Thống kê";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="container-fluid py-4"
+     data-reports-config='{
+        "sales": "@Url.Action("GetSalesChartData", "Reports", new { area = "Admin" })",
+        "status": "@Url.Action("GetOrderStatusData", "Reports", new { area = "Admin" })",
+        "export": "@Url.Action("ExportToExcel", "Reports", new { area = "Admin" })"
+     }'>
+    <!-- HÀNG HEADER & FILTER -->
+    <partial name="_DashboardHeader" />
+
+    <!-- HÀNG THẺ THỐNG KÊ NHANH -->
+    <partial name="_DashboardQuickStats" model="Model" />
+
+    <!-- HÀNG BIỂU ĐỒ -->
+    <partial name="_DashboardCharts" />
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+}

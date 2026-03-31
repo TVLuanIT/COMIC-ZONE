@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using COMICZONE.Data;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.ViewModels.Admin.Reports;
+using COMICZONE.Areas.Admin.ViewModels.Dashboard;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -15,48 +19,108 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            // _Stats.cshtml
-            ViewBag.TotalUsers = _context.Users.Count();
-            ViewBag.TotalProducts = _context.Products.Count();
-            ViewBag.TotalOrders = _context.Orders.Count();
+            var now = DateTime.Now;
+            var today = now.Date;
 
-            ViewBag.TotalRevenue = _context.Orders
-                .Where(o => o.Status == "Completed")
-                .Sum(o => (decimal?)o.TotalAmount) ?? 0;
+            // 1. Thống kê chung (Dùng lại DashboardSummaryViewModel)
+            var summary = new DashboardSummaryViewModel
+            {
+                TotalUsers = await _context.Orders
+                    .Where(o => o.Status != "Cancelled")
+                    .Select(o => o.UserId)
+                    .Distinct()
+                    .CountAsync(),
+                TotalProducts = await _context.Products.CountAsync(),
+                TotalOrders = await _context.Orders.CountAsync(),
+                TotalRevenue = await _context.Orders
+                    .Where(o => o.Status == "Completed")
+                    .SumAsync(o => (decimal?)o.TotalAmount) ?? 0,
+                PendingOrders = await _context.Orders.CountAsync(o => o.Status == "Pending")
+            };
+            summary.RevenueGrowth = 12.5m; // Ví dụ
 
-            // _TopSellingProducts.cshtml
-            var topProducts = _context.OrderItems
+            // 2. Thống kê hôm nay
+            var todayStats = new TodayStatsViewModel
+            {
+                NewOrders = await _context.Orders.CountAsync(o => o.CreatedAt >= today),
+                Revenue = await _context.Orders
+                    .Where(o => o.CreatedAt >= today && o.Status == "Completed")
+                    .SumAsync(o => (decimal?)o.TotalAmount) ?? 0,
+                PendingReports = await _context.ViolationReports.CountAsync(v => v.Status == 1),
+                LowStockCount = await _context.Products.CountAsync(p => p.StockQuantity < 10)
+            };
+
+            // 3. Top sản phẩm bán chạy (mọi thời đại hoặc gần đây)
+            var topProducts = await _context.OrderItems
                 .Include(oi => oi.Product)
                     .ThenInclude(p => p.Pictures)
                 .GroupBy(oi => oi.ProductId)
-                .Select(g => new
+                .Select(g => new TopProductViewModel
                 {
                     Product = g.First().Product,
                     TotalSold = g.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.TotalSold)
                 .Take(5)
-                .ToList();
+                .ToListAsync();
 
-            // _RecentOrders.cshtml
-            var recentOrders = _context.OrderItems
+            // 4. Đơn hàng gần đây
+            var recentOrders = await _context.OrderItems
                 .Include(o => o.Order)
                 .Include(o => o.Product)
                     .ThenInclude(p => p.Pictures)
-                .OrderByDescending(o => o.OrderId)
+                .OrderByDescending(o => o.Order.OrderDate)
                 .Take(5)
-                .Select(o => new {
+                .Select(o => new RecentOrderViewModel
+                {
+                    OrderId = o.OrderId,
                     Product = o.Product,
-                    Status = o.Order.Status
+                    Status = o.Order.Status,
+                    OrderDate = o.Order.OrderDate ?? DateTime.Now
                 })
-                .ToList();
+                .ToListAsync();
 
-            ViewBag.TopSellingProducts = topProducts;
-            ViewBag.RecentOrders = recentOrders;
+            // 5. Sản phẩm sắp hết hàng
+            var lowStock = await _context.Products
+                .Include(p => p.Pictures)
+                .Where(p => p.StockQuantity < 10 && !p.Isdeleted)
+                .OrderBy(p => p.StockQuantity)
+                .Take(5)
+                .ToListAsync();
 
-            return View();
+            // 6. Đánh giá mới nhất
+            var latestReviews = await _context.ProductReviews
+                .Include(r => r.Product)
+                    .ThenInclude(p => p.Pictures)
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Customer)
+                .OrderByDescending(r => r.Createdat)
+                .Take(5)
+                .ToListAsync();
+
+            var hour = DateTime.Now.Hour;
+            string greeting = hour switch
+            {
+                >= 5 and < 12 => "Chào buổi sáng",
+                >= 12 and < 18 => "Chào buổi chiều",
+                _ => "Chào buổi tối"
+            };
+
+            var viewModel = new AdminDashboardViewModel
+            {
+                UserName = HttpContext.Session.GetString("Username") ?? "Quản trị viên",
+                Greeting = greeting,
+                Summary = summary,
+                TodayStats = todayStats,
+                TopSellingProducts = topProducts,
+                RecentOrders = recentOrders,
+                LowStockProducts = lowStock,
+                LatestReviews = latestReviews
+            };
+
+            return View(viewModel);
         }
     }
-}
+}

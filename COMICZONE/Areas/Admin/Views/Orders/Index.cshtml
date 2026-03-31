@@ -68,7 +68,7 @@
                         <i class="ti ti-calculator fs-4"></i>
                     </div>
                     <div>
-                        <div class="fw-bold fs-5">@Model.Sum(o => o.TotalAmount)?.ToString("N0") ₫</div>
+                        <div class="fw-bold fs-5">@Model.Where(o => o.OrderStatusEnum == OrderStatus.Completed).Sum(o => o.TotalAmount)?.ToString("N0") ₫</div>
                         <div class="small opacity-75">Tổng doanh thu</div>
                     </div>
                 </div>

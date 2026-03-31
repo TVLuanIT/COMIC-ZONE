@@ -1,50 +1,27 @@
-﻿@using COMICZONE.Helpers;
-@using COMICZONE.Models;
+@using COMICZONE.Areas.Admin.ViewModels.Dashboard
+@using COMICZONE.Helpers
+@using COMICZONE.Models
+@model AdminDashboardViewModel
 
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-
     ViewData["Title"] = "Bảng điều khiển";
-
-    var products = ViewBag.TopSellingProducts as IEnumerable<dynamic>;
-    var orders = ViewBag.RecentOrders as IEnumerable<dynamic>;
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid">
+<div class="container-fluid px-4"
+     data-reports-config='{
+        "sales": "@Url.Action("GetOrderVolumeData", "Reports", new { area = "Admin" })",
+        "status": "@Url.Action("GetOrderStatusData", "Reports", new { area = "Admin" })",
+        "export": "@Url.Action("ExportToExcel", "Reports", new { area = "Admin" })"
+     }'>
+    
+    <!-- 1. Banner chào và Thống kê nhanh -->
+    <partial name="_DashboardHeader" model="Model" />
 
-    <div class="row">
-        <div class="col-12">
-            <div class="mb-6">
-                <h1 class="fs-3 mb-1">Bảng điều khiển</h1>
-            </div>
-        </div>
-    </div>
-
-    <partial name="~/Areas/Admin/Views/Dashboard/_Stats.cshtml" />
-
-    <div class="row g-3">
-
-        <partial name="_DashboardTable"
-        model='new {
-            Title = "Sản phẩm bán chạy",
-            Headers = new [] { "Sản phẩm", "Giá", "Đã bán" },
-            Rows = products?.Select(p => new [] {
-                ((Product)p.Product).GetProductCell(),
-                p.Product.Price?.ToString("N0") + " ₫",
-                p.TotalSold.ToString()
-            })
-        }' />
-
-        <partial name="_DashboardTable"
-        model='new {
-            Title = "Đơn hàng gần đây",
-            Headers = new [] { "Sản phẩm", "Trạng thái" },
-            Rows = orders?.Select(o => new [] {
-                ((Product)o.Product).GetProductCell(),
-                OrderHelper.GetStatusBadge(o.Status)
-            })
-        }' />
-
-    </div>
-
+    <!-- 2. Nội dung vận hành (Biểu đồ, Đơn hàng, Cảnh báo...) -->
+    <partial name="_DashboardOperationContent" model="Model" />
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+}

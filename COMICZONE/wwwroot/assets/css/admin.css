@@ -1,4 +1,4 @@
-﻿/* ================================================================================= */
+/* ================================================================================= */
 /* ================= Admin/Views/Products/Index.cshtml ================= */
 /* ================================================================================= */
 .table-wrapper {
@@ -221,3 +221,59 @@ thead .table-actions {
     opacity: 1;
     transform: rotate(0);
 }
+
+/* ================================================================================= */
+/* ================= Admin/Views/Reports/Index.cshtml ================= */
+/* ================================================================================= */
+.card-lift { transition: transform 0.2s ease-in-out; }
+.card-lift:hover { transform: translateY(-5px); }
+.icon-shape {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+}
+.icon-md { width: 3rem; height: 3rem; }
+.bg-light-primary { background-color: #e8e6ff; color: #4e73df; }
+.bg-light-info { background-color: #e1f5ff; color: #36b9cc; }
+.bg-light-success { background-color: #e6ffef; color: #1cc88a; }
+.bg-light-warning { background-color: #fff9e6; color: #f6c23e; }
+
+.chart-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+    display: none;
+}
+
+#dateRangePicker { cursor: pointer; border: 1px solid #e2e8f0; font-weight: 500; }
+#salesChart, #orderStatusChart { display: block; }
+
+/* ================================================================================= */
+/* ================= Admin/Views/Dashboard/Index.cshtml ================= */
+/* ================================================================================= */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.smaller { font-size: 0.75rem; }
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
