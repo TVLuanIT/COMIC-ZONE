@@ -133,8 +133,9 @@ namespace COMICZONE.Controllers
                 var vnPayModel = new VnPaymentRequestModel
                 {
                     Amount = (double)(totalAmount * 100),
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")),
                     Description = $"Thanh toán đơn hàng của {model.Fullname}",
+
                     FullName = model.Fullname,
                     OrderId = new Random().Next(1000, 10000)
                 };

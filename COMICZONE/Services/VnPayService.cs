@@ -1,4 +1,4 @@
-﻿using COMICZONE.Helpers;
+using COMICZONE.Helpers;
 using COMICZONE.Models;
 using COMICZONE.ViewModels;
 
@@ -15,23 +15,31 @@ namespace COMICZONE.Services
 
         public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model)
         {
-            var tick = DateTime.Now.Ticks.ToString();
-
             var vnpay = new VnPayLibrary();
+            var timeNow = DateTime.UtcNow.AddHours(7);
+            var tick = timeNow.Ticks.ToString();
 
             vnpay.AddRequestData("vnp_Version", _config["VnPay:Version"]);
             vnpay.AddRequestData("vnp_Command", _config["VnPay:Command"]);
             vnpay.AddRequestData("vnp_TmnCode", _config["VnPay:TmnCode"]);
-            vnpay.AddRequestData("vnp_Amount", model.Amount.ToString());
+            vnpay.AddRequestData("vnp_Amount", ((long)model.Amount).ToString());
 
-            vnpay.AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);
-            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
+
+            var ipAddr = Utils.GetIpAddress(context);
+            if (string.IsNullOrEmpty(ipAddr) || ipAddr == "::1" || ipAddr == "127.0.0.1")
+            {
+                ipAddr = "14.226.2.164"; // Dummy public IP for sandbox
+            }
+
+            vnpay.AddRequestData("vnp_IpAddr", ipAddr);
             vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
-            vnpay.AddRequestData("vnp_OrderInfo", "Thanh toán cho đơn hàng:" + model.OrderId);
-            vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
+            vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang " + model.OrderId);
+            vnpay.AddRequestData("vnp_OrderType", "other");
             vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackUrl"]);
             vnpay.AddRequestData("vnp_TxnRef", tick);
+
 
             var paymentUrl = vnpay.CreateRequestUrl(_config["VnPay:BaseUrl"], _config["VnPay:HashSecret"]);
 
