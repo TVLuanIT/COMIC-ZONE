@@ -8,6 +8,12 @@
         ? string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", Model.Price)
         : "Liên hệ";
     var RelatedByAuthor = ViewBag.RelatedByAuthor as IEnumerable<COMICZONE.Models.Product>;
+
+    // Tính toán Breakdown Ratings (5 sao, 4 sao, ...)
+    var ratingReviews = Model.ProductReviews?.Where(r => !r.Isdeleted).ToList() ?? new List<COMICZONE.Models.ProductReview>();
+    var breakdown = Enumerable.Range(1, 5)
+        .ToDictionary(i => i, i => ratingReviews.Count(r => r.Rating == i));
+    ViewBag.RatingBreakdown = breakdown;
 }
 
 @if (TempData["Success"] != null)
@@ -244,3 +250,5 @@
         thumb.classList.add('active');
     }
 </script>
+
+@await Html.PartialAsync("~/Views/ProductReviews/_ReportReviewForm.cshtml")

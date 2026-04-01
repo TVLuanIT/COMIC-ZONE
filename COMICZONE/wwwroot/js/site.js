@@ -860,8 +860,11 @@ const ProductReport = (() => {
             e.preventDefault();
 
             // CHECK LOGIN TRƯỚC
+            // Tìm container chứa thông tin login (có thể là card review hoặc container list)
             const containerLogin = $(this).closest('[data-loggedin]');
-            if (!checkLoginStatus(containerLogin)) {
+            const isLoggedIn = containerLogin.length ? (containerLogin.attr('data-loggedin') === 'true') : false;
+
+            if (!isLoggedIn) {
                 showLoginRequired('Bạn cần đăng nhập để báo cáo vi phạm.');
                 return;
             }
@@ -878,11 +881,21 @@ const ProductReport = (() => {
                 const form = modalElement.querySelector('#reportForm');
                 if (form) form.reset();
 
-                modalElement.querySelector('input[name="ReviewId"]').value = reviewId ?? '';
-                modalElement.querySelector('input[name="ReplyId"]').value = replyId ?? '';
+                // Gán ID vào các input ẩn
+                const reviewInput = modalElement.querySelector('input[name="ReviewId"]');
+                const replyInput = modalElement.querySelector('input[name="ReplyId"]');
+                
+                if (reviewInput) reviewInput.value = reviewId ?? '';
+                if (replyInput) replyInput.value = replyId ?? '';
 
-                const bsModal = new bootstrap.Modal(modalElement);
+                // Hiển thị Modal theo chuẩn Bootstrap 5
+                let bsModal = bootstrap.Modal.getInstance(modalElement);
+                if (!bsModal) {
+                    bsModal = new bootstrap.Modal(modalElement);
+                }
                 bsModal.show();
+            } else {
+                console.error("Không tìm thấy #reportModal trong DOM.");
             }
         });
 

@@ -1,43 +1,59 @@
-﻿@model COMICZONE.Models.ProductReviewSummary
+@model COMICZONE.Models.ProductReviewSummary
 
 @{
     var rounded = Math.Round(Model.Averagerating);
-
-    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int>;
+    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int> ?? new Dictionary<int, int>();
     var total = Model.Totalreview == 0 ? 1 : Model.Totalreview;
 }
 
-<div class="review-summary-card">
-    <div class="summary-main">
-        <div class="rating-number">
-            @Model.Averagerating.ToString("0.0")
-            <span>/5</span>
-        </div>
-
-        <div class="rating-stars">
-            @for (int i = 1; i <= 5; i++)
-            {
-                if (i <= rounded)
-                {
-                    <span class="star filled">&#9733;</span>
-                }
-                else
-                {
-                    <span class="star">&#9733;</span>
-                }
-            }
-        </div>
-
-        <div class="review-count">
-            @Model.Totalreview đánh giá
-        </div>
+<div class="review-summary-premium" data-aos="fade-up">
+    <div class="summary-top d-flex justify-content-between align-items-center mb-4">
+        <h4 class="summary-title m-0 fw-bold"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Tổng quan đánh giá</h4>
+        @if (Model.Lastupdated.HasValue)
+        {
+            <div class="summary-update-premium small text-secondary">
+                <i class="bi bi-clock-history me-1"></i>
+                Cập nhật: @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
+            </div>
+        }
     </div>
 
-    @if (Model.Lastupdated.HasValue)
-    {
-        <div class="summary-update">
-            Cập nhật:
-            @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
+    <div class="row align-items-center g-4">
+        <!-- RATING BIG NUMBER -->
+        <div class="col-sm-5 text-center border-end">
+            <div class="rating-display-big">
+                <div class="rating-score display-3 fw-black text-primary mb-2">
+                    @Model.Averagerating.ToString("0.0")
+                </div>
+                <div class="rating-stars-premium mb-2">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi bi-star-fill star-icon @(i <= rounded ? "text-warning" : "text-light-gray") fs-4 mx-1"></i>
+                    }
+                </div>
+                <div class="rating-total-count text-secondary small fw-bold">
+                    (@Model.Totalreview nhận xét)
+                </div>
+            </div>
         </div>
-    }
+
+        <!-- BREAKDOWN BARS -->
+        <div class="col-sm-7 ps-lg-4">
+            <div class="breakdown-list">
+                @for (int i = 5; i >= 1; i--)
+                {
+                    int count = breakdown.ContainsKey(i) ? breakdown[i] : 0;
+                    double percent = (double)count / total * 100;
+
+                    <div class="breakdown-item d-flex align-items-center gap-3 mb-2">
+                        <div class="breakdown-label small fw-bold text-secondary" style="min-width: 45px;">@i sao</div>
+                        <div class="breakdown-bar-container flex-grow-1 bg-light rounded-pill overflow-hidden" style="height: 10px;">
+                            <div class="breakdown-bar-fill h-100 rounded-pill" style="width: @percent.ToString("0")%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <div class="breakdown-count small text-secondary" style="min-width: 30px; text-align: right;">@count</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>

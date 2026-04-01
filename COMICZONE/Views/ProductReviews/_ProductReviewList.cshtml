@@ -161,7 +161,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="review-stars mt-1 mb-2">
+                <div class="review-stars mt-1 mb-3">
                     @if (review.Isdeleted)
                     {
                         <span class="text-muted small italic">Phần đánh giá sao đã bị ẩn</span>
@@ -170,7 +170,7 @@
                     {
                         @for (int i = 1; i <= 5; i++)
                         {
-                            <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
+                            <i class="bi bi-star-fill @(i <= review.Rating ? "text-warning" : "text-light-gray") me-1"></i>
                         }
                     }
                 </div>
@@ -253,6 +253,4 @@
             </ul>
         </nav>
     }
-
-    @await Html.PartialAsync("_ReportReviewForm.cshtml")
 </div>

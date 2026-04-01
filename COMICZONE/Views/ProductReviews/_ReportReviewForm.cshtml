@@ -1,25 +1,35 @@
-﻿@* _Report.cshtml không có @model *@
-<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form id="reportForm" method="post">
+@* _Report.cshtml không có @model *@
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="reportForm" method="post" class="w-100 px-3">
             @Html.AntiForgeryToken()
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reportModalLabel">Báo cáo vi phạm</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            <div class="modal-content report-modal-premium">
+                <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title fw-black h4 m-0" id="reportModalLabel">
+                        <i class="bi bi-shield-exclamation text-danger me-2"></i>Báo cáo vi phạm
+                    </h5>
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Đóng">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body py-4">
+                    <p class="text-secondary small mb-4">Hành động này giúp cộng đồng ComicZone trở nên trong sạch hơn. Hãy cho chúng tôi biết chi tiết lý do bạn báo cáo nội dung này.</p>
+                    
                     <input type="hidden" id="report-review-id" name="ReviewId" />
                     <input type="hidden" id="report-reply-id" name="ReplyId" />
 
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">Lý do báo cáo</label>
-                        <textarea class="form-control" id="reason" name="Reason" rows="3" required></textarea>
+                    <div class="mb-1">
+                        <label for="reason" class="small fw-bold text-secondary text-uppercase mb-2">Lý do báo cáo chi tiết:</label>
+                        <textarea class="form-control premium-textarea no-resize" 
+                                  id="reason" name="Reason" 
+                                  rows="4" 
+                                  placeholder="Mô tả lý do (nội dung nhạy cảm, spam, xúc phạm...)" 
+                                  required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-danger">Gửi báo cáo</button>
+                <div class="modal-footer border-0 pt-0 gap-3">
+                    <button type="button" class="btn btn-outline-light-custom px-4 py-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-report-submit flex-grow-1 py-2">Gửi báo cáo</button>
                 </div>
             </div>
         </form>
