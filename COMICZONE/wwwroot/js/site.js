@@ -1258,12 +1258,15 @@ const ChatbotAI = (() => {
     const restoreHistory = () => {
         const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
         const messagesContainer = document.getElementById('chatbot-messages');
+        if (!messagesContainer) return;
+
         history.forEach(msg => {
             const div = document.createElement('div');
-            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
+            div.className = `msg-bubble ${msg.sender === 'bot' ? 'bot-msg' : 'user-msg'}`;
             div.innerHTML = msg.text;
             messagesContainer.appendChild(div);
         });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
     const chatbot = () => {
@@ -1276,86 +1279,78 @@ const ChatbotAI = (() => {
 
         if (!icon || !windowChat || !input || !messages) return;
 
-        /* open chat */
-        icon.onclick = () => {
-            const isHidden = windowChat.style.display !== "flex";
-            windowChat.style.display = isHidden ? "flex" : "none";
-            input.focus();
+        const appendMessage = (msg) => {
+            const div = document.createElement('div');
+            div.className = `msg-bubble ${msg.sender === 'bot' ? 'bot-msg' : 'user-msg'}`;
+            div.innerHTML = msg.text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        };
 
-            // welcome message chỉ xuất hiện nếu chưa từng mở
-            if (isHidden && !localStorage.getItem('chatOpened')) {
-                const welcome = { sender: 'bot', text: `Xin chào 👋<br>Mình là trợ lý COMICZONE.<br>Bạn đang tìm truyện tranh hay manga nào?` };
-                appendMessage(welcome);
-                saveMessage(welcome);
-                localStorage.setItem('chatOpened', 'true');
+        const saveMessage = (msg) => {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            history.push(msg);
+            if (history.length > 50) history.shift();
+            localStorage.setItem('chatHistory', JSON.stringify(history));
+        };
+
+        /* logic đóng/mở */
+        const toggleChat = (e) => {
+            if (e) e.stopPropagation();
+            const isVisible = window.getComputedStyle(windowChat).display === "flex";
+            if (isVisible) {
+                windowChat.style.display = "none";
+                icon.innerHTML = '<i class="bi bi-chat-dots-fill"></i>';
+            } else {
+                windowChat.style.display = "flex";
+                icon.innerHTML = '<i class="bi bi-x-lg"></i>';
+                input.focus();
+                messages.scrollTop = messages.scrollHeight;
             }
         };
 
-        /* close chat */
-        if (closeBtn) closeBtn.onclick = () => windowChat.style.display = "none";
+        icon.onclick = toggleChat;
 
-        /* send message handler */
+        if (closeBtn) {
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                windowChat.style.display = "none";
+                icon.innerHTML = '<i class="bi bi-chat-dots-fill"></i>';
+            };
+        }
+
         const sendMessage = async () => {
-            const messageText = input.value.trim();
-            if (!messageText) return;
+            const text = input.value.trim();
+            if (!text) return;
 
-            const userMsg = { sender: 'user', text: messageText };
-            appendMessage(userMsg);
-            saveMessage(userMsg);
+            appendMessage({ sender: 'user', text: text });
+            saveMessage({ sender: 'user', text: text });
+            input.value = "";
 
-            input.value = '';
-
-            // typing indicator
             const typing = document.createElement("div");
-            typing.className = "bot-msg typing";
-            typing.innerText = "Đang trả lời...";
+            typing.className = "typing mb-2";
+            typing.innerText = "Trợ lý đang phản hồi...";
             messages.appendChild(typing);
             messages.scrollTop = messages.scrollHeight;
 
             try {
-                const response = await fetch("/Chatbot/SendMessage", {
+                const res = await fetch("/Chatbot/SendMessage", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: messageText })  // gửi object
+                    body: JSON.stringify({ message: text })
                 });
-                const data = await response.json();
-
+                const data = await res.json();
                 typing.remove();
-                const botMsg = { sender: 'bot', text: data.reply };
-                appendMessage(botMsg);
-                saveMessage(botMsg);
-            }
-            catch {
+                appendMessage({ sender: 'bot', text: data.reply });
+                saveMessage({ sender: 'bot', text: data.reply });
+            } catch {
                 typing.remove();
-                const errorMsg = { sender: 'bot', text: 'Chatbot đang bận, thử lại sau.' };
-                appendMessage(errorMsg);
-                saveMessage(errorMsg);
+                appendMessage({ sender: 'bot', text: 'Hệ thống bận, thử lại sau.' });
             }
-
-            messages.scrollTop = messages.scrollHeight;
         };
 
-        /* enter key send */
-        input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
-
-        /* button send */
         if (sendBtn) sendBtn.onclick = sendMessage;
-
-        /* helper: append to DOM */
-        function appendMessage(msg) {
-            const div = document.createElement('div');
-            div.className = msg.sender === 'bot' ? 'bot-msg' : 'user-msg';
-            div.innerHTML = msg.text;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
-        /* helper: save to localStorage */
-        function saveMessage(msg) {
-            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            history.push(msg);
-            localStorage.setItem('chatHistory', JSON.stringify(history));
-        }
+        input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
     };
 
     return { init };

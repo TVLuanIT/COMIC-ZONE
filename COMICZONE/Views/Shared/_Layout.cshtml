@@ -208,26 +208,36 @@
         <div id="chatbot-container">
             <div id="chatbot-window">
                 <div id="chatbot-header">
-                    <div class="chatbot-title">
-                        🤖 Trợ Lý COMICZONE
+                    <div class="bot-info-wrapper">
+                        <div class="bot-avatar-active">
+                            <i class="bi bi-robot"></i>
+                            <div class="status-dot-active"></div>
+                        </div>
+                        <div class="bot-name-status">
+                            <h4>Trợ Lý COMICZONE</h4>
+                            <span>Dẵn sàng trợ giúp</span>
+                        </div>
                     </div>
-
-                    <span id="close-chat">×</span>
+                    <div id="close-chat">
+                        <i class="bi bi-x-lg"></i>
+                    </div>
                 </div>
 
                 <div id="chatbot-messages"></div>
 
                 <div id="chatbot-input-area">
                     <input id="chatbot-input"
-                           placeholder="Nhập câu hỏi..."
+                           placeholder="Bạn muốn hỏi gì về truyện..."
                            type="text" />
 
-                    <button id="chatbot-send">➤</button>
+                    <button id="chatbot-send">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
                 </div>
             </div>
 
             <div id="chatbot-icon">
-                💬
+                <i class="bi bi-chat-dots-fill"></i>
             </div>
         </div>
     </body>
