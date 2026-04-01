@@ -1,36 +1,35 @@
-﻿@{
+@{
     ViewData["Title"] = "Đặt hàng thành công";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height:70vh;">
-    <div class="card shadow-lg border-0 text-center" style="max-width:500px; width:100%;">
-        <div class="card-body p-5">
-            <div class="mb-4">
-                <div style="font-size:70px;">✅</div>
-            </div>
+<div class="status-result-page">
+    <div class="result-card success-glow text-center" data-aos="zoom-in">
+        <div class="icon-box-status icon-box-success pulse-success animate-scale">
+            <i class="bi bi-check2-all"></i>
+        </div>
 
-            <h3 class="text-success mb-3">Đặt hàng thành công!</h3>
+        <h2 class="result-title text-success">Đặt hàng thành công!</h2>
+        
+        <p class="result-msg">
+            Cảm ơn bạn đã tin tưởng lựa chọn <strong>ComicZone</strong>.<br>
+            Đơn hàng của bạn đã được ghi nhận và đang được chuẩn bị để xưởng truyện sớm gửi tới tay bạn.
+        </p>
 
-            <p class="text-muted">
-                Cảm ơn bạn đã mua hàng tại <strong>ComicZone</strong>.<br>
-                Đơn hàng của bạn đang được xử lý.
-            </p>
+        <div class="order-info-badge">
+            <i class="bi bi-box-seam me-2"></i> Trạng thái: Đang chuẩn bị hàng
+        </div>
 
-            <hr class="my-4" />
+        <div class="result-actions">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                TIẾP TỤC MUA SẮM
+            </a>
+            <a asp-controller="UserProfiles" asp-action="MyOrders" class="btn btn-light btn-lg rounded-pill py-3 fw-bold text-muted border">
+                XEM ĐƠN HÀNG CỦA TÔI
+            </a>
+        </div>
 
-            <div class="d-grid gap-2">
-                <a asp-controller="UserProfiles"
-                   asp-action="MyOrders"
-                   class="btn btn-outline-primary">
-                    Xem đơn hàng của tôi
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="btn btn-primary">
-                    Tiếp tục mua sắm
-                </a>
-            </div>
+        <div class="mt-5 pt-4 border-top border-light">
+            <small class="text-muted">Bạn có thắc mắc? <a href="#" class="text-danger text-decoration-none">Liên hệ hỗ trợ</a></small>
         </div>
     </div>
 </div>

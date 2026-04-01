@@ -1,34 +1,42 @@
-﻿@{
+@{
     ViewData["Title"] = "Thanh toán thất bại";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height:70vh;">
-    <div class="card shadow-lg border-0 text-center" style="max-width:500px; width:100%;">
-        <div class="card-body p-5">
-            <div style="font-size:70px;">❌</div>
+<div class="status-result-page">
+    <div class="result-card fail-glow text-center" data-aos="zoom-in">
+        <div class="icon-box-status icon-box-fail animate-scale">
+            <i class="bi bi-x-circle"></i>
+        </div>
 
-            <h3 class="text-danger mb-3">Thanh toán thất bại</h3>
-
+        <h2 class="result-title text-danger">Thanh toán thất bại</h2>
+        
+        <p class="result-msg text-muted">
+            Rất tiếc, đã có lỗi xảy ra trong quá trình thanh toán.<br>
             @if (TempData["Message"] != null)
             {
-                <p class="text-muted">@TempData["Message"]</p>
+                <span class="text-danger fw-bold">Lý do: @TempData["Message"]</span>
             }
+            else
+            {
+                <span>Vui lòng kiểm tra lại số dư hoặc thông tin thẻ của bạn.</span>
+            }
+        </p>
 
-            <hr class="my-4" />
+        <div class="order-info-badge bg-light">
+            <i class="bi bi-shield-exclamation me-2"></i> Trạng thái: Chưa thanh toán
+        </div>
 
-            <div class="d-grid gap-2">
-                <a asp-controller="Carts"
-                   asp-action="Index"
-                   class="btn btn-outline-primary">
-                    Quay lại giỏ hàng
-                </a>
+        <div class="result-actions">
+            <a asp-controller="Carts" asp-action="Index" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                QUAY LẠI GIỎ HÀNG
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg rounded-pill py-3 fw-bold text-muted border">
+                QUAY VỀ TRANG CHỦ
+            </a>
+        </div>
 
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="btn btn-primary">
-                    Về trang chủ
-                </a>
-            </div>
+        <div class="mt-5 pt-4 border-top border-light">
+            <p class="small text-muted mb-0">Bạn cần hỗ trợ thanh toán? <br> Gọi ngay: <span class="text-danger fw-bold">0373-801-713</span></p>
         </div>
     </div>
 </div>
