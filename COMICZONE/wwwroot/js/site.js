@@ -72,15 +72,27 @@ function uploadAvatar(input) {
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Avatar đã được cập nhật',
-                    timer: 1200,
-                    showConfirmButton: false
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'premium-swal-popup',
+                        title: 'premium-swal-title',
+                        htmlContainer: 'premium-swal-html-container'
+                    }
                 }).then(() => location.reload());
 
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
-                    text: data.message
+                    text: data.message,
+                    customClass: {
+                        popup: 'premium-swal-popup',
+                        title: 'premium-swal-title',
+                        htmlContainer: 'premium-swal-html-container',
+                        confirmButton: 'premium-swal-confirm'
+                    },
+                    buttonsStyling: false
                 });
             }
         })
@@ -105,8 +117,14 @@ function showLoginRequired(message) {
         cancelButtonText: 'Hủy',
         showCancelButton: true,
         reverseButtons: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#6c757d'
+        customClass: {
+            popup: 'premium-swal-popup',
+            title: 'premium-swal-title',
+            htmlContainer: 'premium-swal-html-container',
+            confirmButton: 'premium-swal-confirm',
+            cancelButton: 'premium-swal-cancel'
+        },
+        buttonsStyling: false
     }).then((result) => {
         if (result.isConfirmed) {
             const currentUrl = window.location.pathname + window.location.search;
@@ -368,11 +386,17 @@ const ProductReviews = (() => {
                 text: "Bạn có chắc muốn xóa đánh giá này không?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Xóa',
                 cancelButtonText: 'Hủy',
-                reverseButtons: true
+                reverseButtons: true,
+                customClass: {
+                    popup: 'premium-swal-popup',
+                    title: 'premium-swal-title',
+                    htmlContainer: 'premium-swal-html-container',
+                    confirmButton: 'premium-swal-confirm',
+                    cancelButton: 'premium-swal-cancel'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (!result.isConfirmed) return;
 
@@ -402,7 +426,18 @@ const ProductReviews = (() => {
                                 }
                             });
 
-                            Swal.fire('Đã xóa!', 'Đánh giá đã được xóa.', 'success');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Đánh giá đã được xóa.',
+                                timer: 1500,
+                                showConfirmButton: false,
+                                customClass: {
+                                    popup: 'premium-swal-popup',
+                                    title: 'premium-swal-title',
+                                    htmlContainer: 'premium-swal-html-container'
+                                }
+                            });
 
                         } else {
                             Swal.fire('Lỗi', res.message || 'Xóa thất bại', 'error');
@@ -433,11 +468,17 @@ const ProductReviews = (() => {
                 text: "Bạn có chắc muốn xóa phản hồi này không?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',    // màu nút Xóa
-                cancelButtonColor: '#3085d6',  // màu nút Hủy
                 confirmButtonText: 'Xóa',
                 cancelButtonText: 'Hủy',
-                reverseButtons: true           // ← đảo confirm/cancel: Xóa bên phải, Hủy bên trái
+                reverseButtons: true,
+                customClass: {
+                    popup: 'premium-swal-popup',
+                    title: 'premium-swal-title',
+                    htmlContainer: 'premium-swal-html-container',
+                    confirmButton: 'premium-swal-confirm',
+                    cancelButton: 'premium-swal-cancel'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Lấy token CSRF từ form (AntiForgeryToken)
@@ -460,7 +501,18 @@ const ProductReviews = (() => {
                                     ProductReplies.initReplyList();
                                 });
 
-                                Swal.fire('Đã xóa!', 'Phản hồi đã được xóa.', 'success');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã xóa!',
+                                    text: 'Phản hồi đã được xóa.',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        popup: 'premium-swal-popup',
+                                        title: 'premium-swal-title',
+                                        htmlContainer: 'premium-swal-html-container'
+                                    }
+                                });
                             } else {
                                 Swal.fire('Lỗi', response.message || 'Xóa thất bại', 'error');
                             }
@@ -947,7 +999,14 @@ const ProductReport = (() => {
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
-                            text: 'Báo cáo đã được gửi.'
+                            text: 'Báo cáo đã được gửi.',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'premium-swal-popup',
+                                title: 'premium-swal-title',
+                                htmlContainer: 'premium-swal-html-container'
+                            }
                         });
                     }
                     else {

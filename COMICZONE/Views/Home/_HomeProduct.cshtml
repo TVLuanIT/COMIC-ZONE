@@ -34,22 +34,40 @@
                         {
                             <div class="swiper-slide">
                                 <div class="product-card">
-                                    @if(item.Price < 50000) {
-                                        <span class="product-badge product-badge-hot">Hot</span>
-                                    } else if (item.Id % 3 == 0) {
-                                         <span class="product-badge product-badge-new">New</span>
-                                    }
-                                    
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-img">
-                                        <img src="@item.GetImagePath()" alt="@item.Name" loading="lazy" />
-                                    </a>
+                                    <div class="product-img-wrapper">
+                                        @if(item.Price < 50000) {
+                                            <span class="product-badge badge-hot">HOT</span>
+                                        } else if (item.Id % 3 == 0) {
+                                             <span class="product-badge badge-new">NEW</span>
+                                        }
+                                        
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-main-img">
+                                            <img src="@item.GetImagePath()" alt="@item.Name" loading="lazy" />
+                                        </a>
 
-                                    <div class="product-body">
-                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-name">
+                                        <div class="product-actions-overlay">
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="action-btn-premium" title="Xem chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (item.StockQuantity > 0)
+                                            {
+                                                <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
+                                                    <input type="hidden" name="productId" value="@item.Id" />
+                                                    <input type="hidden" name="quantity" value="1" />
+                                                    <button type="submit" class="action-btn-premium" title="Thêm vào giỏ">
+                                                        <i class="bi bi-cart-plus"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="product-content">
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-title-link">
                                             @item.Name
                                         </a>
-                                        <div class="product-price">
-                                            @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
+                                        <div class="product-price-modern">
+                                            @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) <span>₫</span>
                                         </div>
                                     </div>
                                 </div>
