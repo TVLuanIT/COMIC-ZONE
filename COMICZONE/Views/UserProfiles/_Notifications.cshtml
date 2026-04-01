@@ -1,44 +1,64 @@
-﻿@model List<COMICZONE.Models.Notification>
+@model List<COMICZONE.Models.Notification>
 
-<div class="profile-content notification-page">
+<div class="premium-content-card" data-aos="fade-up">
 
-    <h3 class="page-title">🔔 Thông báo của tôi</h3>
+    <div class="card-header-premium mb-4">
+        <h2>Thông báo của tôi</h2>
+        @if (Model.Any(n => n.IsRead != true))
+        {
+            <span class="badge bg-danger rounded-pill px-3 py-2 animate__animated animate__pulse animate__infinite">Có thông báo mới</span>
+        }
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="empty-notification">
-            <p>Bạn chưa có thông báo nào.</p>
+        <div class="text-center py-5">
+            <i class="bi bi-bell-slash text-muted display-1 mb-4"></i>
+            <p class="text-muted fs-5">Hộp thư thông báo của bạn đang trống.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 mt-3">Quay lại trang chủ</a>
         </div>
     }
     else
     {
-        <div class="notification-wrapper">
+        <div class="premium-notification-list">
             @foreach (var item in Model)
             {
                 <a asp-action="ReadNotification"
                    asp-controller="UserProfiles"
                    asp-route-id="@item.NotificationId"
-                   class="notification-card @(item.IsRead == true ? "" : "unread")">
+                   class="notification-item-premium @(item.IsRead == true ? "" : "unread")">
 
-                    <div class="notification-icon">
-                        📦
+                    <div class="notification-icon-wrapper">
+                        <i class="bi @(item.IsRead == true ? "bi-envelope-open" : "bi-envelope-fill")"></i>
                     </div>
 
-                    <div class="notification-body">
-                        <div class="notification-title">
+                    <div class="notification-details-premium">
+                        <div class="notification-title-premium">
                             @item.Title
                         </div>
 
-                        <div class="notification-message">
+                        <div class="notification-msg-premium">
                             @item.Message
                         </div>
 
-                        <div class="notification-time">
-                            @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm"))
+                        <div class="notification-time-premium">
+                            <i class="bi bi-clock-history me-2"></i>
+                            @(item.CreatedAt?.ToString("HH:mm - dd/MM/yyyy"))
                         </div>
                     </div>
+
+                    @if (item.IsRead != true)
+                    {
+                        <div class="unread-dot-premium"></div>
+                    }
                 </a>
             }
         </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex justify-content-center mt-5">
+            @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
+        </div>
     }
+
 </div>

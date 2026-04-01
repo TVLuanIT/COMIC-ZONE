@@ -310,7 +310,7 @@ namespace COMICZONE.Controllers
             if (!int.TryParse(CurrentUserId(), out int userId))
                 return RedirectToAction("Login", "Authentication");
 
-            int pageSize = 6;
+            int pageSize = 4;
 
             // 1. Lấy ID + thời gian xem gần nhất
             var productIds = await _context.UserProductViews

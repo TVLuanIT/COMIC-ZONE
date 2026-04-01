@@ -1,74 +1,62 @@
-﻿@model List<COMICZONE.Models.Order>
+@model List<COMICZONE.Models.Order>
 
-<div class="profile-content orders-page">
+<div class="premium-content-card" data-aos="fade-up">
 
-    <h3 class="mb-4">Đơn hàng của tôi</h3>
+    <div class="card-header-premium">
+        <h2>Đơn hàng của tôi</h2>
+        <span class="badge bg-primary rounded-pill px-3 py-2">Tổng: @Model.Count</span>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="empty-orders">
-            <p>Bạn chưa có đơn hàng nào.</p>
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x text-muted display-1 mb-4"></i>
+            <p class="text-muted fs-5">Bạn chưa có đơn hàng nào.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn-auth-premium py-2 px-4 w-auto">Mua sắm ngay</a>
         </div>
     }
     else
     {
-        foreach (var order in Model)
-        {
-            <div class="order-card">
-
-                <div class="order-header">
-
+        <div class="orders-list">
+            @foreach (var order in Model)
+            {
+                <div class="premium-order-card" data-aos="fade-up" data-aos-delay="50">
                     <div>
-                        <span class="order-id">Đơn hàng #@order.OrderId</span>
-                        <span class="order-date">
-                            @order.OrderDate?.ToString("dd/MM/yyyy")
-                        </span>
-                    </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="fw-800 text-primary fs-5 me-3">#@order.OrderId</span>
+                            @{
+                                var statusText = "Chờ xử lý";
+                                var statusClass = "status-pending";
 
-                    <div class="order-status">
-
-                        @{
-                            var statusText = "Chờ xử lý";
-                            var statusClass = "status-pending";
-
-                            if (order.Status == "Shipping")
-                            {
-                                statusText = "Đang giao";
-                                statusClass = "status-shipping";
+                                if (order.Status == "Shipping") { statusText = "Đang giao"; statusClass = "status-shipping"; }
+                                else if (order.Status == "Completed") { statusText = "Hoàn thiện"; statusClass = "status-completed"; }
+                                else if (order.Status == "Cancelled") { statusText = "Đã hủy"; statusClass = "status-cancelled"; }
                             }
-                            else if (order.Status == "Completed")
-                            {
-                                statusText = "Hoàn thành";
-                                statusClass = "status-completed";
-                            }
-                        }
-
-                        <span class="@statusClass">@statusText</span>
-
+                            <span class="order-status-badge @statusClass">@statusText</span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-calendar3 me-1"></i> @order.OrderDate?.ToString("HH:mm dd/MM/yyyy")
+                        </div>
                     </div>
 
-                </div>
-
-                <div class="order-body">
-
-                    <div class="order-total">
-                        Tổng tiền:
-                        <span>
-                            @order.TotalAmount?.ToString("N0") đ
-                        </span>
+                    <div class="text-end">
+                        <div class="mb-2">
+                            <span class="text-muted small">Tổng tiền:</span>
+                            <span class="fw-800 fs-5 ms-1">@order.TotalAmount?.ToString("N0")<small class="ms-1">đ</small></span>
+                        </div>
+                        <a asp-controller="UserProfiles" asp-action="OrderDetails" asp-route-id="@order.OrderId" 
+                           class="btn btn-sm btn-outline-primary rounded-pill px-4">
+                            Xem chi tiết
+                        </a>
                     </div>
-
-                    <a asp-controller="Orders"
-                       asp-action="OrderDetails"
-                       asp-route-id="@order.OrderId"
-                       class="btn btn-primary btn-sm">
-                        Xem chi tiết
-                    </a>
-
                 </div>
-
-            </div>
-        }
+            }
+        </div>
     }
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-center mt-5">
+        @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
+    </div>
 
 </div>

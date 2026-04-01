@@ -1,70 +1,79 @@
-﻿<!-- MAIN CONTENT -->
-<div class="profile-content">
+<!-- MAIN CONTENT -->
+<div class="premium-content-card" data-aos="fade-up">
 
-    @if (TempData["Success"] != null)
-    {
-        <script>
-            window.successMessage = "@Html.Raw(TempData["Success"])";
-        </script>
-    }
-
-    <h3>Thông tin cá nhân</h3>
-
-    <div class="profile-card">
-
-        <div class="profile-row">
-            <label>Họ tên</label>
-            <span>@Model.Fullname</span>
-        </div>
-
-        <div class="profile-row">
-            <label>Email</label>
-            <span>@Model.User?.Email</span>
-        </div>
-
-        <div class="profile-row">
-            <label>Số điện thoại</label>
-            <span>@Model.Phone</span>
-        </div>
-
-        <div class="profile-row">
-            <label>Địa chỉ</label>
-            <span>@Model.Address</span>
-        </div>
-
-        <div class="profile-row">
-            <label>Ngày tạo</label>
-            <span>@Model.Createdat.ToString("dd/MM/yyyy")</span>
-        </div>
-
+    <div class="card-header-premium">
+        <h2>Thông tin cá nhân</h2>
+        <a asp-action="EditProfile" asp-controller="UserProfiles" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+            <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
+        </a>
     </div>
 
-    <!-- CARD 2: Bảo mật -->
-    <h3 style="margin-top:30px;">Bảo mật tài khoản</h3>
+    <div class="info-grid-premium">
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-person-lines-fill me-2 text-primary"></i>Họ tên
+            </span>
+            <span class="info-value-premium">@Model.Fullname</span>
+        </div>
 
-    <div class="profile-card security-card">
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-envelope-at-fill me-2 text-primary"></i>Email
+            </span>
+            <span class="info-value-premium">@Model.User?.Email</span>
+        </div>
 
-        <a asp-action="EditProfile"
-           asp-controller="UserProfiles"
-           class="security-item">
-            <span>Chỉnh sửa thông tin</span>
-            <span class="arrow">›</span>
-        </a>
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-telephone-fill me-2 text-primary"></i>Số điện thoại
+            </span>
+            <span class="info-value-premium">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</span>
+        </div>
 
-        <a asp-action="ChangePassword"
-           asp-controller="UserProfiles"
-           class="security-item">
-            <span>Đổi mật khẩu</span>
-            <span class="arrow">›</span>
-        </a>
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Địa chỉ
+            </span>
+            <span class="info-value-premium">@(string.IsNullOrEmpty(Model.Address) ? "Chưa cập nhật" : Model.Address)</span>
+        </div>
 
-        <a asp-action="ForgotPassword"
-           asp-controller="UserProfiles"
-           class="security-item">
-            <span>Quên mật khẩu</span>
-            <span class="arrow">›</span>
-        </a>
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-calendar-check-fill me-2 text-primary"></i>Ngày tham gia
+            </span>
+            <span class="info-value-premium">@Model.Createdat.ToString("dd/MM/yyyy")</span>
+        </div>
 
+        <div class="info-item-premium">
+            <span class="info-label-premium">
+                <i class="bi bi-shield-lock-fill me-2 text-primary"></i>Trạng thái
+            </span>
+            <span class="info-value-premium text-success">Đã xác thực</span>
+        </div>
+    </div>
+</div>
+
+<!-- CARD 2: Bảo mật -->
+<div class="premium-content-card mt-4" data-aos="fade-up" data-aos-delay="100">
+    <div class="card-header-premium">
+        <h2>Bảo mật tài khoản</h2>
     </div>
 
+    <div class="info-grid-premium">
+        <a asp-action="ChangePassword" asp-controller="UserProfiles" class="info-item-premium text-decoration-none d-block">
+            <span class="info-label-premium">Thay đổi bí mật</span>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="info-value-premium">Đổi mật khẩu</span>
+                <i class="bi bi-chevron-right text-primary"></i>
+            </div>
+        </a>
+
+        <a asp-action="ForgotPassword" asp-controller="UserProfiles" class="info-item-premium text-decoration-none d-block">
+            <span class="info-label-premium">Khôi phục quyền truy cập</span>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="info-value-premium">Quên mật khẩu</span>
+                <i class="bi bi-chevron-right text-primary"></i>
+            </div>
+        </a>
+    </div>
 </div>

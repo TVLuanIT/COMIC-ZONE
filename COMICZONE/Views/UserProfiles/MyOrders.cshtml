@@ -1,21 +1,23 @@
-﻿@model List<COMICZONE.Models.Order>
+@model List<COMICZONE.Models.Order>
 
 @{
     ViewData["Title"] = "Đơn hàng của tôi";
 }
 
-<div class="profile-container">
+<div class="profile-container-premium">
 
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    @if (ViewBag.Page == "OrderDetails")
-    {
-        @await Html.PartialAsync("_OrderDetails.cshtml", (COMICZONE.Models.Order)ViewBag.Order)
-    }
-    else
-    {
-        @await Html.PartialAsync("_MyOrders.cshtml", Model)
-    }
+    <div class="profile-glass-content">
+        @if (ViewBag.Page == "OrderDetails")
+        {
+            @await Html.PartialAsync("_OrderDetails.cshtml", (COMICZONE.Models.Order)ViewBag.Order)
+        }
+        else
+        {
+            @await Html.PartialAsync("_MyOrders.cshtml", Model)
+        }
+    </div>
 
 </div>
