@@ -1,15 +1,15 @@
-﻿@model List<string>
+@model List<string>
 @using Microsoft.AspNetCore.Routing
 
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
-       data-bs-toggle="dropdown" aria-expanded="false">
-        Danh mục
+<div class="dropdown">
+    <a class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropdown" role="button"
+       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;">
+        <i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i>
+        <span>Vũ trụ Truyện</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+    <ul class="dropdown-menu border-0 shadow-premium glass-dropdown animate slideIn" aria-labelledby="navbarDropdown">
         @foreach (var group in Model)
         {
-            // map group sang paramName
             var paramName = group switch
             {
                 "Tác giả" => "author",
@@ -22,16 +22,31 @@
                 _ => "keyword"
             };
 
+            var icon = group switch
+            {
+                "Tác giả" => "bi-person-fill",
+                "Họa sĩ" => "bi-brush-fill",
+                "Dịch giả" => "bi-translate",
+                "Series" => "bi-collection-play-fill",
+                "Tag" => "bi-tags-fill",
+                "NXB" => "bi-book-half",
+                "Nhà phát hành" => "bi-shop-window",
+                _ => "bi-search"
+            };
+
             var routeValues = new RouteValueDictionary();
-            routeValues["activeGroup"] = paramName; // chỉ gửi nhóm được chọn
+            routeValues["activeGroup"] = paramName;
             routeValues["page"] = 1;
 
             <li>
-                <a class="dropdown-item"
+                <a class="dropdown-item d-flex align-items-center py-2"
                    href="@Url.Action("Index", "Products", routeValues)">
-                    @group
+                    <div class="icon-box me-3">
+                        <i class="bi @icon"></i>
+                    </div>
+                    <span>@group</span>
                 </a>
             </li>
         }
     </ul>
-</li>
+</div>

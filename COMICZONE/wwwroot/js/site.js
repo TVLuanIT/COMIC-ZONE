@@ -1289,6 +1289,40 @@ const ChatbotAI = (() => {
     return { init };
 })();
 
+// XỬ LÝ SẮP XẾP SẢN PHẨM (CUSTOM DROPDOWN)
+const ProductSort = (() => {
+    const init = () => {
+        const sortWrapper = document.getElementById('sortWrapper');
+        const sortTrigger = document.getElementById('sortTrigger');
+        const sortOptions = document.querySelectorAll('.sort-option-item');
+        const sortInput = document.getElementById('currentSortOrder');
+        const sortForm = document.getElementById('sortForm');
+
+        if (!sortTrigger || !sortWrapper) return;
+
+        sortTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortWrapper.classList.toggle('active');
+        });
+
+        sortOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const val = option.getAttribute('data-value');
+                if (sortInput) sortInput.value = val;
+                if (sortForm) sortForm.submit();
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sortWrapper.contains(e.target)) {
+                sortWrapper.classList.remove('active');
+            }
+        });
+    };
+
+    return { init };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     ProductReport.init();
     ProductSummary.init();
@@ -1298,6 +1332,7 @@ document.addEventListener('DOMContentLoaded', () => {
     AutoAlert.init();
     CartQuantity.init();
     ChatbotAI.init();
+    ProductSort.init();
 
     // Truyền productId từ Razor view
     const productIdElement = document.getElementById('product-id');
