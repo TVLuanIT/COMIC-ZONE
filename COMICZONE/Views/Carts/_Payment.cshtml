@@ -50,14 +50,56 @@
                 <textarea name="note" class="form-control bg-light border-0" rows="2" placeholder="Ghi chú cho shop (không bắt buộc)"></textarea>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label class="form-label fw-semi-bold small text-uppercase text-muted">Phương thức thanh toán</label>
-                <select name="paymentMethod" class="form-select bg-light border-0 py-2" id="payment-method">
-                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                    <option value="VnPay">VnPay (Ví điện tử)</option>
-                    <option value="Paypal">Paypal (Thẻ quốc tế)</option>
+                
+                <!-- Hidden original select for backend & paypal.js compatibility -->
+                <select name="paymentMethod" id="payment-method" style="display: none;">
+                    <option value="COD">COD</option>
+                    <option value="VnPay">VnPay</option>
+                    <option value="Paypal">Paypal</option>
                 </select>
+
+                <!-- Premium Payment Cards -->
+                <div class="payment-method-grid">
+                    <div class="payment-card active" data-value="COD">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Tiền mặt</span>
+                    </div>
+                    <div class="payment-card" data-value="VnPay">
+                        <i class="bi bi-wallet2"></i>
+                        <span>VNPAY</span>
+                    </div>
+                    <div class="payment-card" data-value="Paypal">
+                        <i class="bi bi-paypal"></i>
+                        <span>Paypal</span>
+                    </div>
+                </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const cards = document.querySelectorAll('.payment-card');
+                    const hiddenSelect = document.getElementById('payment-method');
+
+                    cards.forEach(card => {
+                        card.addEventListener('click', function() {
+                            // Remove active from all
+                            cards.forEach(c => c.classList.remove('active'));
+                            // Add active to current
+                            this.classList.add('active');
+                            
+                            // Update hidden select
+                            const val = this.getAttribute('data-value');
+                            hiddenSelect.value = val;
+                            
+                            // Trigger 'change' event for paypal.js
+                            const event = new Event('change');
+                            hiddenSelect.dispatchEvent(event);
+                        });
+                    });
+                });
+            </script>
         </div>
 
         <div class="p-3 bg-light rounded-4 mb-4">

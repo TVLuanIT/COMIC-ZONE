@@ -2686,104 +2686,7 @@ input:checked+.slider:before {
     overflow-y: auto;
 }
 
-/* ================================================================================= */
-        opacity: 1;
-    }
-}
-
-/* header */
-#chatbot-header {
-    height: 60px;
-    background:
-        linear-gradient(135deg,
-            #ff4757,
-            #ff6b81);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-#close-chat {
-    font-size: 22px;
-    cursor: pointer;
-}
-
-/* messages */
-#chatbot-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px;
-    background: #fafafa;
-}
-
-/* user bubble */
-.user-msg {
-    max-width: 70%;
-    margin-left: auto;
-    background: #ff4757;
-    color: white;
-    padding: 10px 14px;
-    border-radius: 14px 14px 0 14px;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-/* bot bubble */
-.bot-msg {
-    max-width: 75%;
-    background: white;
-    padding: 10px 14px;
-    border-radius: 14px 14px 14px 0;
-    margin-bottom: 8px;
-    font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
-}
-
-/* typing animation */
-.typing {
-    font-style: italic;
-    opacity: .7;
-}
-
-/* input area */
-#chatbot-input-area {
-    height: 60px;
-    border-top: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-}
-
-#chatbot-input {
-    flex: 1;
-    height: 40px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    padding-left: 12px;
-    outline: none;
-}
-
-#chatbot-send {
-    margin-left: 8px;
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    border: none;
-    background: #ff4757;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    transition: .2s;
-}
-
-#chatbot-send:hover {
-    background: #ff2e43;
-}
-
+/* ================= AI CHATBOT STYLES MOVED ================= */
 /* ========================================================== */
 /* ===================== MODERN HOME UI ===================== */
 /* ========================================================== */
@@ -2795,6 +2698,11 @@ input:checked+.slider:before {
     --glass-bg: rgba(255, 255, 255, 0.85);
     --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Glass Navbar Fix */
+body {
+    padding-top: 80px; /* Offset cho Navbar cố định */
 }
 
 /* Glass Navbar */
@@ -2842,6 +2750,101 @@ input:checked+.slider:before {
 
 .hero-content {
     max-width: 700px;
+}
+
+/* ========================================================== */
+/* ============= PREMIUM PAYMENT METHOD CARDS ============= */
+/* ========================================================== */
+.payment-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.payment-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.payment-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.payment-card.active {
+    background: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #6366f1, 0 10px 25px rgba(99, 102, 241, 0.25);
+}
+
+/* Biểu tượng Checkmark khi active */
+.payment-card.active::after {
+    content: "\f272"; /* bi-check-circle-fill */
+    font-family: "bootstrap-icons";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #6366f1;
+    font-size: 1.1rem;
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.payment-card i {
+    font-size: 1.8rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s ease;
+}
+
+.payment-card:hover i {
+    transform: scale(1.1);
+}
+
+.payment-card img {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(0.2);
+    transition: all 0.3s ease;
+}
+
+.payment-card.active img {
+    filter: none;
+    transform: scale(1.05);
+}
+
+.payment-card span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.payment-card.active span {
+    color: var(--text-primary);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
 }
 
 .hero-badge {

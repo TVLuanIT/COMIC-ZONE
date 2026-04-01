@@ -25,12 +25,26 @@
         <!-- Site CSS -->
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
+
+        <!-- Fixed Navbar Offset Fix -->
+        <style>
+            body { 
+                padding-top: 80px !important; 
+            }
+            .modern-hero { 
+                margin-top: -80px !important; 
+            }
+            @@media (max-width: 768px) {
+                body { padding-top: 70px !important; }
+                .modern-hero { margin-top: -70px !important; }
+            }
+        </style>
     </head>
 
     <body style="font-family: 'Inter', sans-serif;">
         <!-- HEADER / NAVBAR -->
         <header>
-            <nav class="navbar navbar-expand-lg glass-nav">
+            <nav class="navbar navbar-expand-lg glass-nav fixed-top">
                 <div class="container">
                     <!-- Logo -->
                     <div class="d-flex align-items-center">
