@@ -90,76 +90,81 @@
         <!-- MAIN CONTENT -->
         <main role="main">
             @RenderBody()
-        </main>
-
-        <!-- FOOTER -->
-        <footer class="bg-dark text-light mt-5 border-top border-warning">
-            <div class="container py-5">
-                <div class="row text-center text-md-start">
-                    <!-- Brand -->
-                    <div class="col-md-4 mb-3">
-                        <div class="d-flex align-items-center">
-                            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                                <img src="~/images/logo.png"
-                                     asp-append-version="true"
-                                     alt="ComicZone Logo"
-                                     style="height:40px; width:auto; margin-right:10px;" />
-						    </a>
-
-                            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                                <h5 class="fw-bold text-warning mb-0">COMICZONE</h5>
-						    </a>
-                        </div>
-
-                        <p class="small mb-0 mt-2">
-                            Cửa hàng truyện tranh Nhật Bản
+            
+            <!-- FOOTER -->
+        <footer class="modern-footer">
+            <div class="container overflow-hidden">
+                <div class="row g-5">
+                    <!-- Column 1: Brand -->
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <a class="footer-brand-title text-decoration-none text-white" asp-controller="Home" asp-action="Index">
+                            COMIC<span>ZONE</span>
+                        </a>
+                        <p class="footer-desc mb-4">
+                            ComicZone là điểm đến lý tưởng cho những tín đồ yêu thích thế giới truyện tranh bản quyền. Chúng tôi cam kết mang lại những trải nghiệm đọc tuyệt vời nhất với kho truyện khổng lồ và chất lượng phục vụ tận tâm.
                         </p>
-                    </div>
-
-                    <!-- Links -->
-                    <div class="col-md-4 mb-3">
-                        <h6 class="fw-bold">Liên kết</h6>
-
-                        <div class="mt-2">
-                            <!-- Facebook -->
-                            <a href="https://www.facebook.com/@@just.a.gamer.2023" target="_blank" class="text-light me-3">
-                                <i class="bi bi-facebook"></i>
-                            </a>
-
-                            <!-- TikTok -->
-                            <a href="https://www.tiktok.com/@@gbasestorevn?is_from_webapp=1&sender_device=pc" target="_blank" class="text-light me-3">
-                                <i class="bi bi-tiktok"></i>
-                            </a>
-
-                            <!-- YouTube -->
-                            <a href="https://www.youtube.com/channel/UCeOJyLQaRLoWmP_VesgAutQ/" target="_blank" class="text-light">
-                                <i class="bi bi-youtube"></i>
-                            </a>
+                        <div class="social-links">
+                            <a href="https://facebook.com" class="social-btn" target="_blank"><i class="bi bi-facebook"></i></a>
+                            <a href="https://instagram.com" class="social-btn" target="_blank"><i class="bi bi-instagram"></i></a>
+                            <a href="https://tiktok.com" class="social-btn" target="_blank"><i class="bi bi-tiktok"></i></a>
+                            <a href="https://youtube.com" class="social-btn" target="_blank"><i class="bi bi-youtube"></i></a>
                         </div>
                     </div>
 
-                    <!-- Contact -->
-                    <div class="col-md-4 mb-3">
-                        <h6 class="fw-bold">Liên hệ</h6>
+                    <!-- Column 2: Quick Links -->
+                    <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <h4 class="footer-column-title">Khám Phá</h4>
+                        <ul class="footer-links">
+                            <li><a asp-controller="Home" asp-action="Index" class="footer-link">Trang chủ</a></li>
+                            <li><a asp-controller="Products" asp-action="Index" class="footer-link">Cửa hàng</a></li>
+                            <li><a asp-controller="Home" asp-action="About" class="footer-link">Về chúng tôi</a></li>
+                            <li><a href="#" class="footer-link">Blog truyện</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Email -->
-                        <p class="small mb-1">
-                            📧
-                            <a href="mailto:luan31032004@gmail.com" class="text-light text-decoration-none">
-                                luan31032004@gmail.com
-                            </a>
-                        </p>
+                    <!-- Column 3: Support -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                        <h4 class="footer-column-title">Hỗ Trợ</h4>
+                        <ul class="footer-links">
+                            <li><a href="#" class="footer-link">Câu hỏi thường gặp</a></li>
+                            <li><a href="#" class="footer-link">Chính sách bảo mật</a></li>
+                            <li><a href="#" class="footer-link">Điều khoản dịch vụ</a></li>
+                            <li><a href="#" class="footer-link">Chính sách hoàn tiền</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Phone -->
-                        <p class="small mb-0">📞 0373801713</p>
+                    <!-- Column 4: Contact -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                        <h4 class="footer-column-title">Liên Hệ</h4>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>18 Ung Văn Khiêm, Đông Xuyên, TP. Long Xuyên, An Giang</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>0373-801-713</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-envelope-fill"></i>
+                            <span>luan31032004@gmail.com</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <hr class="border-secondary">
-
-                <div class="text-center small">
-                    &copy; 2026 COMICZONE. All rights reserved.
-                </div>
+            <!-- Copyright Bar -->
+            <div class="copyright-bar">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start">
+                            <p class="copyright-text">&copy; 2026 ComicZone. Tất cả quyền được bảo lưu.</p>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                            <img src="https://img.icons8.com/color/48/000000/visa.png" width="30" class="me-2" />
+                            <img src="https://img.icons8.com/color/48/000000/mastercard.png" width="30" class="me-2" />
+                            <img src="https://img.icons8.com/color/48/000000/paypal.png" width="30" />
+                        </div>
+                    </div>
             </div>
         </footer>
 

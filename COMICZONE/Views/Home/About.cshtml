@@ -1,80 +1,123 @@
-﻿@{
-    ViewBag.Title = "Về chúng tôi";
+@{
+    ViewData["Title"] = "Về chúng tôi";
 }
 
-<section class="about-hero d-flex align-items-center justify-content-center text-center text-white">
-    <div class="hero-content">
-        <h1 class="fw-bold display-4">COMICZONE</h1>
-        <p class="lead">Không chỉ là cửa hàng truyện tranh</p>
+<div class="about-modern-hero" data-aos="zoom-out" data-aos-duration="1000">
+    <div class="container hero-content">
+        <h1 class="about-hero-title">ComicZone</h1>
+        <p class="about-hero-subtitle">Nơi kết nối đam mê và những câu chuyện kỳ thú qua từng trang giấy.</p>
+        <div class="mt-4">
+            <i class="bi bi-chevron-down fs-1 animate-bounce"></i>
+        </div>
     </div>
-</section>
+</div>
 
-<section class="py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h2 class="fw-bold mb-3">Câu chuyện của chúng tôi</h2>
-                <p>
-                    COMICZONE được thành lập với mong muốn xây dựng một không gian
-                    dành riêng cho những người yêu thích truyện tranh, manga và light novel.
-                    Chúng tôi tin rằng mỗi cuốn truyện không chỉ là giải trí,
-                    mà còn là nguồn cảm hứng và cảm xúc.
-                </p>
-                <p>
-                    Với kho sản phẩm đa dạng và được chọn lọc kỹ lưỡng,
-                    COMICZONE cam kết mang đến cho khách hàng những ấn phẩm chất lượng nhất.
-                </p>
+<div class="container my-5 py-5">
+    <!-- CÂU CHUYỆN -->
+    <div class="row align-items-center mb-5 pb-5">
+        <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+            <div class="story-image-wrapper">
+                <img src="~/images/about_hero_bg.png" class="img-fluid" alt="Câu chuyện ComicZone">
             </div>
-            <div class="col-md-6">
-                <img src="~/images/logo-nobg.png" class="img-fluid rounded shadow" alt="logo ComicZone" />
+        </div>
+        <div class="col-lg-6 ps-lg-5" data-aos="fade-left">
+            <span class="badge bg-danger mb-3 px-3 py-2 rounded-pill">Our Story</span>
+            <h2 class="display-5 fw-bold mb-4">Câu chuyện của <span class="text-gradient-danger">Chúng tôi</span></h2>
+            <p class="lead text-muted mb-4">COMICZONE được thành lập với mong muốn xây dựng một không gian dành riêng cho những người yêu thích truyện tranh, manga và light novel.</p>
+            <p class="text-secondary mb-4">Chúng tôi bắt đầu từ một nhóm nhỏ những người đam mê văn hóa đọc, tin rằng mỗi cuốn truyện không chỉ là giải trí, mà còn là nguồn cảm hứng và cảm xúc bất tận. Với sứ mệnh kết nối người đọc và những tác phẩm bản quyền chất lượng, ComicZone không ngừng nỗ lực để trở thành điểm đến tin cậy nhất.</p>
+            <div class="d-flex gap-4 mt-5">
+                <div class="text-center">
+                    <h4 class="fw-bold mb-1">1000+</h4>
+                    <small class="text-muted">Đầu truyện</small>
+                </div>
+                <div class="vr"></div>
+                <div class="text-center">
+                    <h4 class="fw-bold mb-1">500+</h4>
+                    <small class="text-muted">Nghệ sĩ</small>
+                </div>
+                <div class="vr"></div>
+                <div class="text-center">
+                    <h4 class="fw-bold mb-1">10k+</h4>
+                    <small class="text-muted">Độc giả</small>
+                </div>
             </div>
         </div>
     </div>
-</section>
 
-<section class="bg-light py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Sứ mệnh & Giá trị</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <i class="bi bi-book display-5 text-dark"></i>
-                <h5 class="fw-bold mt-3">Chất lượng</h5>
-                <p>Cung cấp sản phẩm chính hãng, rõ nguồn gốc.</p>
+    <!-- SỨ MỆNH & GIÁ TRỊ -->
+    <div class="bg-light p-5 rounded-5 my-5" data-aos="fade-up">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Sứ mệnh & <span class="text-gradient-danger">Giá trị</span></h2>
+            <p class="text-muted">Những nguyên tắc vàng tạo nên thương hiệu ComicZone.</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-tile">
+                    <i class="bi bi-shield-check glass-tile-icon"></i>
+                    <h4 class="fw-bold">Chất lượng</h4>
+                    <p class="text-muted">Cam kết 100% sản phẩm chính hãng, bản quyền sắc nét và được bảo quản kỹ lưỡng nhất.</p>
+                </div>
             </div>
-            <div class="col-md-4">
-                <i class="bi bi-people display-5 text-dark"></i>
-                <h5 class="fw-bold mt-3">Cộng đồng</h5>
-                <p>Xây dựng cộng đồng yêu truyện tranh vững mạnh.</p>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-tile">
+                    <i class="bi bi-people glass-tile-icon"></i>
+                    <h4 class="fw-bold">Cộng đồng</h4>
+                    <p class="text-muted">Tạo dựng sân chơi văn minh, nơi kết nối những tâm hồn đồng điệu yêu thích nghệ thuật thứ 9.</p>
+                </div>
             </div>
-            <div class="col-md-4">
-                <i class="bi bi-lightning display-5 text-dark"></i>
-                <h5 class="fw-bold mt-3">Đổi mới</h5>
-                <p>Liên tục cập nhật xu hướng và sản phẩm mới.</p>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="glass-tile">
+                    <i class="bi bi-lightning-charge glass-tile-icon"></i>
+                    <h4 class="fw-bold">Đổi mới</h4>
+                    <p class="text-muted">Không ngừng cập nhật các xu hướng manga/comic mới nhất trên toàn cầu mỗi ngày.</p>
+                </div>
             </div>
         </div>
     </div>
-</section>
 
-<section class="py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Tại sao chọn COMICZONE?</h2>
-        <div class="row">
-            <div class="col-md-3 text-center">
-                <h5 class="fw-bold">Sản phẩm</h5>
-                <p>Đa dạng thể loại</p>
+    <!-- TẠI SAO CHỌN CHÚNG TÔI -->
+    <div class="my-5 py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Tại sao hàng ngàn độc giả <span class="text-gradient-danger">Tin tưởng?</span></h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="100">
+                <div class="why-stats-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Hỗ trợ khách hàng</div>
+                </div>
             </div>
-            <div class="col-md-3">
-                <h5 class="fw-bold">Chất lượng</h5>
-                <p>Được chọn lọc kỹ càng.</p>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="200">
+                <div class="why-stats-card">
+                    <div class="stat-number">2h</div>
+                    <div class="stat-label">Giao hàng nội thành</div>
+                </div>
             </div>
-            <div class="col-md-3">
-                <h4 class="fw-bold">24/7</h4>
-                <p>Hỗ trợ khách hàng</p>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="300">
+                <div class="why-stats-card">
+                    <div class="stat-number">10k+</div>
+                    <div class="stat-label">Thành viên đăng ký</div>
+                </div>
             </div>
-            <div class="col-md-3">
-                <h4 class="fw-bold">100%</h4>
-                <p>Sản phẩm chính hãng</p>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="400">
+                <div class="why-stats-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Bản quyền Nhật/Mỹ</div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<style>
+    .animate-bounce {
+        animation: bounce 2s infinite;
+    }
+
+    @@keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+        40% {transform: translateY(-10px);}
+        60% {transform: translateY(-5px);}
+    }
+</style>
