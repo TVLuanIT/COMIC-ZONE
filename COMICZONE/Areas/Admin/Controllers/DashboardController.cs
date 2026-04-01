@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using COMICZONE.Data;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.ViewModels.Admin.Reports;
+using COMICZONE.Areas.Admin.ViewModels.Reports;
 using COMICZONE.Areas.Admin.ViewModels.Dashboard;
 using System.Linq;
 using System.Threading.Tasks;

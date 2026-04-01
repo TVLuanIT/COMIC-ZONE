@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using COMICZONE.ViewModels.Admin.Reports;
+using COMICZONE.Areas.Admin.ViewModels.Reports;
 using COMICZONE.Models;
 
 namespace COMICZONE.Areas.Admin.ViewModels.Dashboard
