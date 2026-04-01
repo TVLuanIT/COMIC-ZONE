@@ -44,13 +44,16 @@
                         <img src="@Model.GetImagePath()" alt="@Model.Name" id="mainProductImg" />
                     </div>
                     
-                    @if (Model.Pictures != null && Model.Pictures.Count > 0)
+                    @if (Model.Pictures != null && Model.Pictures.Count > 1)
                     {
                         <div class="thumb-gallery">
-                            <img src="@Model.GetImagePath()" class="thumb-item active" alt="thumb" onclick="changeImage(this.src, this)" />
-                            @foreach (var pic in Model.Pictures)
-                            {
-                                <img src="@pic.FileName" class="thumb-item" alt="thumb" onclick="changeImage(this.src, this)" />
+                            @{
+                                var pictures = Model.Pictures.ToList();
+                                for (int i = 0; i < pictures.Count; i++)
+                                {
+                                    var pic = pictures[i];
+                                    <img src="@pic.GetImagePath()" class="thumb-item @(i == 0 ? "active" : "")" alt="thumb" onclick="changeImage(this.src, this)" />
+                                }
                             }
                         </div>
                     }
