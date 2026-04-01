@@ -1,4 +1,4 @@
-﻿// wwwroot/js/site.js
+// wwwroot/js/site.js
 
 function openAvatarUpload() {
     document.getElementById("avatarUpload").click();
@@ -1146,11 +1146,13 @@ const CartQuantity = (() => {
                     .then(data => {
                         if (data.success) {
                             // cập nhật tổng tiền item
-                            const row = input.closest("tr");
-                            const totalCell = row.querySelector(".item-total");
-
-                            if (totalCell) {
-                                totalCell.innerText = data.itemTotal + " ₫";
+                            const itemContainer = input.closest(".cart-item-modern") || input.closest("tr");
+                            
+                            if (itemContainer) {
+                                const totalCell = itemContainer.querySelector(".item-total");
+                                if (totalCell) {
+                                    totalCell.innerText = data.itemTotal + " ₫";
+                                }
                             }
 
                             // cập nhật tổng tiền giỏ hàng
