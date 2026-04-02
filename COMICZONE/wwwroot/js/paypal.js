@@ -1,27 +1,6 @@
 const paypalButtons = () => {
     const init = () => {
-        displayButton();
         button();
-    };
-
-    const displayButton = () => {
-        const paymentSelect = document.getElementById("payment-method");
-        const paypalContainer = document.getElementById("paypal-button-container");
-        const defaultButton = document.getElementById("default-submit-button");
-
-        function togglePaymentButton() {
-            if (paymentSelect.value === "Paypal") {
-                paypalContainer.style.display = "block";
-                defaultButton.style.display = "none";
-            } else {
-                paypalContainer.style.display = "none";
-                defaultButton.style.display = "block";
-            }
-        }
-
-        togglePaymentButton();
-
-        paymentSelect.addEventListener("change", togglePaymentButton);
     };
 
     const button = () => {

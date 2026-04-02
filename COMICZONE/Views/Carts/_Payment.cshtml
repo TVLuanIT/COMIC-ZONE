@@ -76,30 +76,6 @@
                     </div>
                 </div>
             </div>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const cards = document.querySelectorAll('.payment-card');
-                    const hiddenSelect = document.getElementById('payment-method');
-
-                    cards.forEach(card => {
-                        card.addEventListener('click', function() {
-                            // Remove active from all
-                            cards.forEach(c => c.classList.remove('active'));
-                            // Add active to current
-                            this.classList.add('active');
-                            
-                            // Update hidden select
-                            const val = this.getAttribute('data-value');
-                            hiddenSelect.value = val;
-                            
-                            // Trigger 'change' event for paypal.js
-                            const event = new Event('change');
-                            hiddenSelect.dispatchEvent(event);
-                        });
-                    });
-                });
-            </script>
         </div>
 
         <div class="p-3 bg-light rounded-4 mb-4">
