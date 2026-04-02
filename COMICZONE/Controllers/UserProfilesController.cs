@@ -502,6 +502,34 @@ namespace COMICZONE.Controllers
             return View(orders);
         }
 
+        public IActionResult OrderDetails(int id)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            int userId = int.Parse(userIdStr);
+
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                .FirstOrDefault(o => o.OrderId == id && o.UserId == userId && !o.Isdeleted);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Page = "OrderDetails";
+            ViewBag.Order = order;
+
+            return View("MyOrders", new List<Order> { order });
+        }
+
         public IActionResult MyProfile()
         {
             var customer = GetCustomer();

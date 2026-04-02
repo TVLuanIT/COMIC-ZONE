@@ -1250,23 +1250,48 @@ const CartQuantity = (() => {
 // =============================
 const ChatbotAI = (() => {
 
-    const init = () => {
-        chatbot();
-        restoreHistory();
+    // Thêm message vào UI (Modularized based on user request)
+    const addMessage = (text, sender) => {
+        const messagesContainer = document.getElementById('chatbot-messages');
+        if (!messagesContainer) return;
+
+        const line = document.createElement('div');
+        line.className = `message ${sender}-message`;
+
+        const senderName = sender === 'bot' ? 'Trợ lý' : 'Bạn';
+        let avatarHtml = '';
+        let senderNameHtml = '';
+
+        if (sender === 'bot') {
+            avatarHtml = `<div class="bot-avatar-small"><i class="bi bi-robot"></i></div>`;
+            senderNameHtml = `<span class="sender-name">Trợ lý</span>`;
+        }
+
+        // Convert basic Markdown (**bold**, *italic*) to HTML
+        let htmlText = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br/>');
+
+        line.innerHTML = `
+            ${avatarHtml}
+            <div class="msg-wrapper">
+                ${sender === 'bot' ? senderNameHtml : ''}
+                <div class="bubble">
+                    ${htmlText}
+                </div>
+            </div>
+        `;
+
+        messagesContainer.appendChild(line);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
     const restoreHistory = () => {
         const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-        const messagesContainer = document.getElementById('chatbot-messages');
-        if (!messagesContainer) return;
-
         history.forEach(msg => {
-            const div = document.createElement('div');
-            div.className = `msg-bubble ${msg.sender === 'bot' ? 'bot-msg' : 'user-msg'}`;
-            div.innerHTML = msg.text;
-            messagesContainer.appendChild(div);
+            addMessage(msg.text, msg.sender);
         });
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
     const chatbot = () => {
@@ -1279,22 +1304,13 @@ const ChatbotAI = (() => {
 
         if (!icon || !windowChat || !input || !messages) return;
 
-        const appendMessage = (msg) => {
-            const div = document.createElement('div');
-            div.className = `msg-bubble ${msg.sender === 'bot' ? 'bot-msg' : 'user-msg'}`;
-            div.innerHTML = msg.text;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-        };
-
-        const saveMessage = (msg) => {
+        const saveMessage = (text, sender) => {
             const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            history.push(msg);
+            history.push({ text, sender });
             if (history.length > 50) history.shift();
             localStorage.setItem('chatHistory', JSON.stringify(history));
         };
 
-        /* logic đóng/mở */
         const toggleChat = (e) => {
             if (e) e.stopPropagation();
             const isVisible = window.getComputedStyle(windowChat).display === "flex";
@@ -1323,13 +1339,26 @@ const ChatbotAI = (() => {
             const text = input.value.trim();
             if (!text) return;
 
-            appendMessage({ sender: 'user', text: text });
-            saveMessage({ sender: 'user', text: text });
+            addMessage(text, 'user');
+            saveMessage(text, 'user');
             input.value = "";
 
+            // Modern Typing Indicator (3 Dots)
             const typing = document.createElement("div");
-            typing.className = "typing mb-2";
-            typing.innerText = "Trợ lý đang phản hồi...";
+            typing.className = "message bot-message typing-wrapper";
+            typing.innerHTML = `
+                <div class="bot-avatar-small"><i class="bi bi-robot"></i></div>
+                <div class="msg-wrapper">
+                    <span class="sender-name">Trợ lý</span>
+                    <div class="bubble typing-bubble">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
             messages.appendChild(typing);
             messages.scrollTop = messages.scrollHeight;
 
@@ -1341,16 +1370,25 @@ const ChatbotAI = (() => {
                 });
                 const data = await res.json();
                 typing.remove();
-                appendMessage({ sender: 'bot', text: data.reply });
-                saveMessage({ sender: 'bot', text: data.reply });
+                addMessage(data.reply, 'bot');
+                saveMessage(data.reply, 'bot');
             } catch {
                 typing.remove();
-                appendMessage({ sender: 'bot', text: 'Hệ thống bận, thử lại sau.' });
+                addMessage('Hệ thống bận, thử lại sau.', 'bot');
             }
         };
 
         if (sendBtn) sendBtn.onclick = sendMessage;
-        input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+        if (input) {
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') sendMessage();
+            };
+        }
+    };
+
+    const init = () => {
+        chatbot();
+        restoreHistory();
     };
 
     return { init };
