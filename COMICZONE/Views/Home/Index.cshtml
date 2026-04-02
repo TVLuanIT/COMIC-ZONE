@@ -6,6 +6,10 @@
 	var ModelRecommended = ViewBag.ModelRecommended as IEnumerable<COMICZONE.Models.Product>;
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
 <!-- HERO SECTION -->
 <div class="modern-hero">
     <div id="homeBannerCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
@@ -147,14 +151,17 @@
     <div class="stats-section">
         <div class="row g-4">
             <div class="col-md-4 stat-item">
+                <div class="stat-icon-premium"><i class="bi bi-journal-bookmark-fill"></i></div>
                 <h3>@ViewBag.TotalProducts+</h3>
                 <p>Tựa Truyện</p>
             </div>
             <div class="col-md-4 stat-item">
+                <div class="stat-icon-premium"><i class="bi bi-palette-fill"></i></div>
                 <h3>@ViewBag.TotalArtists+</h3>
                 <p>Nghệ Sĩ</p>
             </div>
             <div class="col-md-4 stat-item">
+                <div class="stat-icon-premium"><i class="bi bi-people-fill"></i></div>
                 <h3>@ViewBag.TotalUsers+</h3>
                 <p>Độc Giả</p>
             </div>

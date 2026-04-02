@@ -3,33 +3,34 @@
 }
 
 <div class="status-result-page">
-    <div class="result-card success-glow text-center" data-aos="zoom-in">
-        <div class="icon-box-status icon-box-success pulse-success animate-scale">
-            <i class="bi bi-check2-all"></i>
+    <div class="result-card success-glow" data-aos="zoom-in" data-aos-duration="1000">
+        <!-- Success Icon Orb -->
+        <div class="icon-box-status icon-box-success pulse-success" data-aos="scale-up" data-aos-delay="400">
+            <i class="bi bi-check-lg"></i>
         </div>
 
-        <h2 class="result-title text-success">Đặt hàng thành công!</h2>
+        <h2 class="result-title" data-aos="fade-up" data-aos-delay="600">Đặt hàng thành công!</h2>
         
-        <p class="result-msg">
-            Cảm ơn bạn đã tin tưởng lựa chọn <strong>ComicZone</strong>.<br>
-            Đơn hàng của bạn đã được ghi nhận và đang được chuẩn bị để xưởng truyện sớm gửi tới tay bạn.
+        <p class="result-msg" data-aos="fade-up" data-aos-delay="800">
+            Cảm ơn bạn đã tin tưởng lựa chọn <strong>ComicZone</strong>. 
+            Đơn hàng của bạn đã được ghi nhận và đang được chuẩn bị để sớm gửi tới tay bạn.
         </p>
 
-        <div class="order-info-badge">
-            <i class="bi bi-box-seam me-2"></i> Trạng thái: Đang chuẩn bị hàng
+        <div class="order-info-badge" data-aos="fade-up" data-aos-delay="900">
+            <i class="bi bi-box-seam me-2 text-success"></i> Trạng thái: Đang chuẩn bị hàng
         </div>
 
-        <div class="result-actions">
-            <a asp-controller="Home" asp-action="Index" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm">
-                TIẾP TỤC MUA SẮM
+        <div class="result-actions d-flex flex-column flex-sm-row gap-3 justify-content-center" data-aos="fade-up" data-aos-delay="1000">
+            <a asp-controller="Home" asp-action="Index" class="btn-status-premium bg-dark text-white px-5">
+                <i class="bi bi-cart"></i> TIẾP TỤC MUA SẮM
             </a>
-            <a asp-controller="UserProfiles" asp-action="MyOrders" class="btn btn-light btn-lg rounded-pill py-3 fw-bold text-muted border">
-                XEM ĐƠN HÀNG CỦA TÔI
+            <a asp-controller="UserProfiles" asp-action="MyOrders" class="btn-status-premium bg-white border text-dark">
+                <i class="bi bi-list-ul"></i> XEM ĐƠN HÀNG
             </a>
         </div>
 
-        <div class="mt-5 pt-4 border-top border-light">
-            <small class="text-muted">Bạn có thắc mắc? <a href="#" class="text-danger text-decoration-none">Liên hệ hỗ trợ</a></small>
+        <div class="mt-5 pt-4 border-top border-light opacity-75" data-aos="fade-in" data-aos-delay="1200">
+            <small class="text-muted">Bạn có thắc mắc? <a href="#" class="text-primary fw-700 text-decoration-none">Liên hệ hỗ trợ 24/7</a></small>
         </div>
     </div>
 </div>

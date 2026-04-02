@@ -3,40 +3,41 @@
 }
 
 <div class="status-result-page">
-    <div class="result-card fail-glow text-center" data-aos="zoom-in">
-        <div class="icon-box-status icon-box-fail animate-scale">
-            <i class="bi bi-x-circle"></i>
+    <div class="result-card fail-glow" data-aos="zoom-in" data-aos-duration="1000">
+        <!-- Fail Icon Orb -->
+        <div class="icon-box-status icon-box-fail pulse-fail" data-aos="scale-up" data-aos-delay="400">
+            <i class="bi bi-x-lg"></i>
         </div>
 
-        <h2 class="result-title text-danger">Thanh toán thất bại</h2>
+        <h2 class="result-title" data-aos="fade-up" data-aos-delay="600">Thanh toán thất bại</h2>
         
-        <p class="result-msg text-muted">
-            Rất tiếc, đã có lỗi xảy ra trong quá trình thanh toán.<br>
+        <p class="result-msg text-muted" data-aos="fade-up" data-aos-delay="800">
+            Rất tiếc, đã có lỗi xảy ra trong quá trình xử lý giao dịch của bạn.<br>
             @if (TempData["Message"] != null)
             {
-                <span class="text-danger fw-bold">Lý do: @TempData["Message"]</span>
+                <span class="text-danger fw-bold mt-2 d-block">Lý do: @TempData["Message"]</span>
             }
             else
             {
-                <span>Vui lòng kiểm tra lại số dư hoặc thông tin thẻ của bạn.</span>
+                <span class="mt-2 d-block">Vui lòng kiểm tra lại số dư hoặc thông tin thẻ của bạn.</span>
             }
         </p>
 
-        <div class="order-info-badge bg-light">
-            <i class="bi bi-shield-exclamation me-2"></i> Trạng thái: Chưa thanh toán
+        <div class="order-info-badge" data-aos="fade-up" data-aos-delay="900">
+            <i class="bi bi-shield-exclamation me-2 text-danger"></i> Trạng thái: Chưa hoàn tất
         </div>
 
-        <div class="result-actions">
-            <a asp-controller="Carts" asp-action="Index" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm">
-                QUAY LẠI GIỎ HÀNG
+        <div class="result-actions d-flex flex-column flex-sm-row gap-3 justify-content-center" data-aos="fade-up" data-aos-delay="1000">
+            <a asp-controller="Carts" asp-action="Index" class="btn-status-premium bg-dark text-white px-5">
+                <i class="bi bi-arrow-left"></i> QUAY LẠI GIỎ HÀNG
             </a>
-            <a asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg rounded-pill py-3 fw-bold text-muted border">
-                QUAY VỀ TRANG CHỦ
+            <a asp-controller="Home" asp-action="Index" class="btn-status-premium bg-white border text-dark">
+                <i class="bi bi-house"></i> TRANG CHỦ
             </a>
         </div>
 
-        <div class="mt-5 pt-4 border-top border-light">
-            <p class="small text-muted mb-0">Bạn cần hỗ trợ thanh toán? <br> Gọi ngay: <span class="text-danger fw-bold">0373-801-713</span></p>
+        <div class="mt-5 pt-4 border-top border-light opacity-75" data-aos="fade-in" data-aos-delay="1200">
+            <p class="small text-muted mb-0">Bạn cần hỗ trợ thanh toán? <br> Gọi ngay hotline: <span class="text-danger fw-bold">0373-801-713</span></p>
         </div>
     </div>
 </div>

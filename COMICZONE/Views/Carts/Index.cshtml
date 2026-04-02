@@ -1,6 +1,10 @@
 @using COMICZONE.Extensions;
 @model COMICZONE.Models.Cart
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" />
+}
+
 @{
     ViewData["Title"] = "Giỏ hàng";
 }
@@ -41,9 +45,9 @@
             <!-- DANH SÁCH SẢN PHẨM -->
             <div class="col-lg-8">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold mb-0">Sản phẩm (@Model.CartItems.Count)</h4>
-                    <a asp-controller="Home" asp-action="Index" class="text-danger text-decoration-none fw-semi-bold">
-                        <i class="bi bi-arrow-left me-1"></i> Tiếp tục mua sắm
+                    <h4 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">Giỏ hàng của bạn (@Model.CartItems.Count)</h4>
+                    <a asp-controller="Products" asp-action="Index" class="text-primary text-decoration-none fw-bold small">
+                        <i class="bi bi-arrow-left me-1"></i> TIẾP TỤC MUA SẮM
                     </a>
                 </div>
 
@@ -83,10 +87,10 @@
                                 <div class="d-flex align-items-center gap-4">
                                     <div class="text-end">
                                         <div class="small text-muted">Thành tiền</div>
-                                        <div class="fw-bold text-danger item-total">@((item.Quantity * (item.Product?.Price ?? 0)).ToString("N0")) ₫</div>
+                                        <div class="fw-bold text-danger item-total" style="font-size: 1.1rem;">@((item.Quantity * (item.Product?.Price ?? 0)).ToString("N0")) ₫</div>
                                     </div>
-                                    <a asp-action="Remove" asp-route-cartItemId="@item.CartItemId" class="btn btn-light rounded-circle text-danger p-2 shadow-sm">
-                                        <i class="bi bi-trash fs-5"></i>
+                                    <a asp-action="Remove" asp-route-cartItemId="@item.CartItemId" class="btn-remove-premium" title="Xóa khỏi giỏ">
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
                             </div>

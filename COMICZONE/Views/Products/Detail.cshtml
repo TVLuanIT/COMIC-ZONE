@@ -16,6 +16,11 @@
     ViewBag.RatingBreakdown = breakdown;
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/product-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/product-reviews.css" asp-append-version="true" />
+}
+
 @if (TempData["Success"] != null)
 {
     <script>
@@ -162,6 +167,9 @@
                 }
             </div>
         </div>
+
+        <!-- PHẦN CHIA SECTION MỀM MẠI -->
+        <div class="section-divider-premium" data-aos="fade-up"></div>
 
         <!-- TABS SECTION -->
         <div class="premium-tabs-wrapper" data-aos="fade-up">

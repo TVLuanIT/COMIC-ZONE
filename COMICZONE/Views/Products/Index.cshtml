@@ -24,11 +24,11 @@
     <div class="row g-4">
         
         <!-- SIDEBAR FILTERS -->
-        <aside class="col-md-4 col-lg-3 shadow-sm rounded-4 bg-white p-0" style="height: fit-content;">
-            <div class="glass-sidebar shadow-premium" data-aos="fade-right">
+        <aside class="col-md-4 col-lg-3 p-0" style="height: fit-content;">
+            <div class="glass-sidebar" data-aos="fade-right">
                 <div class="d-flex align-items-center mb-4 text-primary">
                     <i class="bi bi-filter-circle-fill fs-4 me-2"></i>
-                    <h5 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">BỘ LỌC</h5>
+                    <h5 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">KHÁM PHÁ</h5>
                 </div>
                 @await Html.PartialAsync("_ProductSidebarFilters", ViewBag.SidebarFilters as Dictionary<string, List<string>>)
             </div>
@@ -39,15 +39,16 @@
             <!-- Search Results Message -->
             @if (TempData["SearchMessage"] != null && !string.IsNullOrWhiteSpace(ViewBag.Keyword))
             {
-                <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4" data-aos="fade-up">
-                    <i class="bi bi-info-circle-fill me-2"></i>@TempData["SearchMessage"]
+                <div class="premium-glass-alert mb-4" data-aos="fade-up">
+                    <i class="bi bi-info-circle-fill fs-4"></i>
+                    <span>@TempData["SearchMessage"]</span>
                 </div>
             }
 
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3 p-0 product-index-header" data-aos="fade-up">
                 <div>
                     <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Toàn bộ sản phẩm</h4>
-                    <span class="text-secondary small">Tìm thấy <strong>@Model.Count()</strong> sản phẩm trong danh mục này</span>
+                    <span class="text-secondary small search-results-stats">Tìm thấy <strong>@Model.Count()</strong> sản phẩm trong danh mục này</span>
                 </div>
 
                 <!-- Premium Sort Dropdown -->
@@ -107,16 +108,17 @@
             </div>
 
             <!-- PRODUCT GRID -->
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 justify-content-center">
+                @{ int productIndex = 0; }
                 @foreach (var item in Model)
                 {
-                    <div class="col" data-aos="fade-up">
+                    <div class="col" data-aos="fade-up" data-aos-delay="@(productIndex * 50)">
                         <div class="product-card mb-4">
                             <div class="product-img-wrapper">
                                 @if(item.Price < 50000) {
                                     <span class="product-badge badge-hot">HOT</span>
                                 } else if (item.Id % 3 == 0) {
-                                     <span class="product-badge badge-new">NEW</span>
+                                    <span class="product-badge badge-new">NEW</span>
                                 }
                                 
                                 <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-main-img">
@@ -149,6 +151,7 @@
                             </div>
                         </div>
                     </div>
+                    productIndex++;
                 }
             </div>
 
@@ -156,9 +159,10 @@
             @if (ViewBag.TotalPages > 1)
             {
                 <nav class="mt-5 pt-4" data-aos="fade-up">
-                    <ul class="pagination custom-pagination justify-content-center">
-                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index"
+                    <ul class="pagination premium-pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link-premium @(ViewBag.CurrentPage == 1 ? "disabled" : "")" 
+                               asp-action="Index"
                                asp-route-page="@(ViewBag.CurrentPage - 1)"
                                asp-route-sortOrder="@ViewBag.CurrentSort"
                                asp-route-keyword="@ViewBag.Keyword"
@@ -168,16 +172,18 @@
                         </li>
                         @for (int i = 1; i <= ViewBag.TotalPages; i++)
                         {
-                            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                                <a class="page-link" asp-action="Index"
+                            <li class="page-item">
+                                <a class="page-link-premium @(ViewBag.CurrentPage == i ? "active" : "")" 
+                                   asp-action="Index"
                                    asp-route-page="@i"
                                    asp-route-sortOrder="@ViewBag.CurrentSort"
                                    asp-route-keyword="@ViewBag.Keyword"
                                    asp-route-author="@ViewBag.SelectedAuthor">@i</a>
                             </li>
                         }
-                        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index"
+                        <li class="page-item">
+                            <a class="page-link-premium @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")" 
+                               asp-action="Index"
                                asp-route-page="@(ViewBag.CurrentPage + 1)"
                                asp-route-sortOrder="@ViewBag.CurrentSort"
                                asp-route-keyword="@ViewBag.Keyword"

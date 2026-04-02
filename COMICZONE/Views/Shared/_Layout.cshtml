@@ -22,23 +22,14 @@
         <!-- AOS CSS -->
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-        <!-- Site CSS -->
+        <!-- Modern Design System -->
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
 
-        <!-- Fixed Navbar Offset Fix -->
-        <style>
-            body { 
-                padding-top: 80px !important; 
-            }
-            .modern-hero { 
-                margin-top: -80px !important; 
-            }
-            @@media (max-width: 768px) {
-                body { padding-top: 70px !important; }
-                .modern-hero { margin-top: -70px !important; }
-            }
-        </style>
+        @await RenderSectionAsync("Styles", required: false)
     </head>
 
     <body style="font-family: 'Inter', sans-serif;">
@@ -86,7 +77,7 @@
                             </li>
                         </ul>
 
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3 flex-nowrap">
                             <!-- Search Form -->
                             <form class="modern-search-container d-flex align-items-center" asp-controller="Products" asp-action="Search" method="get">
                                 <button type="submit" class="bg-transparent border-0 p-0 d-flex align-items-center">
@@ -104,7 +95,7 @@
         </header>
 
         <!-- MAIN CONTENT -->
-        <main role="main">
+        <main role="main" class="main-content-premium">
             @RenderBody()
         </main>
             
@@ -192,14 +183,17 @@
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         
-        <!-- Swiper JS -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-        
-        <!-- AOS JS -->
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-        <script src="~/js/site.js" asp-append-version="true"></script>
+        <!-- Third Party -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+        <!-- Modularized Site Scripts -->
+        <script src="~/js/ui-ux.js" asp-append-version="true"></script>
+        <script src="~/js/chatbot.js" asp-append-version="true"></script>
+        <script src="~/js/product-reviews.js" asp-append-version="true"></script>
+        <script src="~/js/checkout.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
 
         <script>
             // Initialize AOS
@@ -210,11 +204,17 @@
             });
         </script>
 
+        @if (TempData["Success"] != null)
+        {
+            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
+        }
         @if (TempData["LoginRequired"] != null)
         {
-            <script>
-                window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";
-            </script>
+            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
         }
 
         @await RenderSectionAsync("Scripts", required: false)

@@ -1,15 +1,21 @@
-﻿@model COMICZONE.Models.Customer
+@model COMICZONE.Models.Customer
 
 @{
     ViewData["Title"] = "Cài đặt";
 }
 
-<div class="profile-container">
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" asp-append-version="true" />
+}
+
+<div class="profile-container-premium">
 
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    <!-- SETTINGS CONTENT -->
-    @await Html.PartialAsync("_Settings.cshtml", Model)
+    <div class="profile-glass-content">
+        <!-- SETTINGS CONTENT -->
+        @await Html.PartialAsync("_Settings.cshtml", Model)
+    </div>
 
 </div>
