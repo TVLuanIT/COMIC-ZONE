@@ -1,5 +1,17 @@
 const paypalButtons = () => {
     const init = () => {
+        // Kiểm tra thư viện PayPal SDK đã tải xong chưa
+        if (typeof paypal === 'undefined') {
+            console.error("PayPal SDK chưa được tải. Vui lòng kiểm tra Client ID hoặc kết nối mạng.");
+            return;
+        }
+
+        const container = document.getElementById('paypal-button-container');
+        if (!container) {
+            console.warn("Không tìm thấy #paypal-button-container. Bỏ qua khởi tạo PayPal.");
+            return;
+        }
+
         button();
     };
 
@@ -19,11 +31,16 @@ const paypalButtons = () => {
                 let address = document.querySelector('textarea[name="address"]')?.value.trim();
 
                 if (!name || !phone || !address) {
-                    alert("Vui lòng nhập đầy đủ Họ tên, SĐT và Địa chỉ ở phần Thông tin thanh toán trước khi quẹt thẻ.");
-                    return actions.reject(); // chặn popup PayPal mở
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Thiếu thông tin',
+                        text: 'Vui lòng nhập đầy đủ Họ tên, SĐT và Địa chỉ nhận hàng.',
+                        confirmButtonText: 'Đã hiểu'
+                    });
+                    return actions.reject();
                 }
 
-                return actions.resolve(); // cho phép mở popup
+                return actions.resolve();
             },
 
             createOrder: (data, actions) => {
@@ -34,9 +51,7 @@ const paypalButtons = () => {
 
                 return fetch("/Orders/create-paypal-order", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         Fullname: name,
                         Phone: phone,
@@ -45,38 +60,39 @@ const paypalButtons = () => {
                         PaymentMethod: 3
                     })
                 })
-                    .then((response) => {
-                        if (!response.ok) {
-                            return response.text().then((err) => {
-                                throw new Error(err);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then((order) => order.id)
-                    .catch(err => {
-                        alert("Lỗi tạo PayPal Order: " + err.message);
-                        console.error(err);
-                    });
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || "Lỗi tạo đơn hàng"); });
+                    }
+                    return response.json();
+                })
+                .then((order) => order.id)
+                .catch(err => {
+                    console.error("Create Paypal Order Failed:", err);
+                    Swal.fire('Lỗi', err.message, 'error');
+                });
             },
 
             onApprove: (data, actions) => {
                 return fetch(`/Orders/capture-paypal-order?orderId=${data.orderID}`, {
                     method: "POST",
                 })
-                    .then((response) => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw error; });
-                        }
-                        window.location.href = "/Orders/Success";
-                    })
-                    .catch(error => { alert(error.message); });
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || "Lỗi xác nhận thanh toán"); });
+                    }
+                    window.location.href = "/Orders/Success";
+                })
+                .catch(error => {
+                    console.error("Capture Paypal Order Failed:", error);
+                    Swal.fire('Lỗi', error.message, 'error');
+                });
             },
 
             onError: function (err) {
-                console.error("Lỗi PayPal:", err);
-
-                alert("Đã xảy ra lỗi khi kết nối PayPal.");
+                console.error("PayPal SDK Error:", err);
+                // Đôi khi SDK báo lỗi nếu container bị ẩn trong lúc render
+                // Chúng ta sẽ log chi tiết để kỹ thuật kiểm tra
             }
         }).render('#paypal-button-container');
     };

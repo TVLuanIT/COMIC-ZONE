@@ -17,7 +17,7 @@ namespace COMICZONE.Services
         {
             var vnpay = new VnPayLibrary();
             var timeNow = DateTime.UtcNow.AddHours(7);
-            var tick = timeNow.Ticks.ToString();
+            var tick = DateTime.Now.ToString("yyyyMMddHHmmss");
 
             vnpay.AddRequestData("vnp_Version", _config["VnPay:Version"]);
             vnpay.AddRequestData("vnp_Command", _config["VnPay:Command"]);
@@ -28,7 +28,7 @@ namespace COMICZONE.Services
             vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);
 
             var ipAddr = Utils.GetIpAddress(context);
-            if (string.IsNullOrEmpty(ipAddr) || ipAddr == "::1" || ipAddr == "127.0.0.1")
+            if (string.IsNullOrEmpty(ipAddr) || ipAddr == "::1" || ipAddr == "127.0.0.1" || ipAddr.StartsWith("Invalid IP"))
             {
                 ipAddr = "14.226.2.164"; // Dummy public IP for sandbox
             }
@@ -42,6 +42,8 @@ namespace COMICZONE.Services
 
 
             var paymentUrl = vnpay.CreateRequestUrl(_config["VnPay:BaseUrl"], _config["VnPay:HashSecret"]);
+
+            Console.WriteLine(model.Amount);
 
             return paymentUrl;
         }

@@ -87,8 +87,8 @@
 
         <!-- Xem thêm -->
         <div class="text-center mt-4">
-            <a href="@viewMoreLink" class="btn-auth-premium px-5 py-3 d-inline-flex align-items-center">
-                Xem Tất Cả <i class="bi bi-arrow-right ms-2 fs-5"></i>
+            <a href="@viewMoreLink" class="btn-premium-pill">
+                Xem Tất Cả <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -99,6 +99,7 @@
         new Swiper('#@swiperId', {
             slidesPerView: 1,
             spaceBetween: 20,
+            centerInsufficientSlides: true,
             loop: false,
             pagination: {
                 el: '.swiper-pagination',

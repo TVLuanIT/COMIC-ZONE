@@ -18,7 +18,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/product-details.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/product-reviews.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/product-review.css" asp-append-version="true" />
 }
 
 @if (TempData["Success"] != null)
@@ -39,13 +39,23 @@
     <div class="container mt-5 pt-5">
         
         <!-- BREADCRUMBS -->
-        <nav class="breadcrumb-premium" data-aos="fade-right">
-            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-            <i class="bi bi-chevron-right"></i>
-            <a asp-controller="Products" asp-action="Index">Cửa hàng</a>
-            <i class="bi bi-chevron-right"></i>
-            <span class="text-primary truncate-1">@Model.Name</span>
-        </nav>
+        <div class="breadcrumb-premium mb-5" data-aos="fade-right">
+            <div class="breadcrumb-item-premium">
+                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            </div>
+            <div class="breadcrumb-separator">
+                <i class="bi bi-chevron-right small text-white"></i>
+            </div>
+            <div class="breadcrumb-item-premium">
+                <a asp-controller="Products" asp-action="Index">Cửa hàng</a>
+            </div>
+            <div class="breadcrumb-separator">
+                <i class="bi bi-chevron-right small text-white"></i>
+            </div>
+            <div class="breadcrumb-item-premium active">
+                <span class="truncate-1">@Model.Name</span>
+            </div>
+        </div>
 
         <div class="row g-5">
             <!-- LEFT: GALLERY -->
@@ -220,12 +230,15 @@
                 <!-- TAB: REVIEWS / COMMENTS -->
                 <div class="tab-pane fade @(ViewBag.ActiveTab == "comment" ? "show active" : "")" id="comment" role="tabpanel" aria-labelledby="comment-tab">
                     <input type="hidden" id="product-id" value="@Model.Id" />
-                    <div class="row g-4">
-                        <div class="col-lg-4">
+                    <div class="reviews-wrapper-premium mx-auto" style="max-width: 1100px;">
+                        <!-- TOP: SUMMARY -->
+                        <div class="mb-5">
                             @await Html.PartialAsync("~/Views/ProductReviewSummaries/_ProductReviewSummaries.cshtml", Model.ProductReviewSummary)
                         </div>
-                        <div class="col-lg-8">
-                            <div class="mb-4">
+
+                        <!-- BOTTOM: FORM & LIST -->
+                        <div class="review-content-lower">
+                            <div class="mb-5">
                                 @await Html.PartialAsync("~/Views/ProductReviews/_ProductReviewForm.cshtml", new COMICZONE.Models.ProductReview { Productid = Model.Id })
                             </div>
                             <div id="review-container"></div>
@@ -235,21 +248,23 @@
             </div>
         </div>
 
-        <!-- RELATED PRODUCTS -->
-        @if (RelatedByAuthor != null && RelatedByAuthor.Any())
-        {
-            ViewBag.SectionTitle = "Cùng Tác Giả";
-            ViewBag.SectionIcon = "bi-person text-info";
-            ViewBag.CarouselId = "sameAuthorCarousel";
-            ViewBag.ViewMoreLink = Url.Action("Index", "Products", new { author = Model.Author });
-            ViewBag.SectionDescription = "Khám phá các tác phẩm khác của cùng tác giả.";
-            
-            <div class="mt-5 pt-5" data-aos="fade-up">
-                @await Html.PartialAsync("~/Views/Home/_HomeProduct.cshtml", RelatedByAuthor)
-            </div>
-        }
-    </div>
-</div>
+    </div> @* clsoe inner container *@
+
+    <!-- RELATED PRODUCTS (Same Author) -->
+    @if (RelatedByAuthor != null && RelatedByAuthor.Any())
+    {
+        ViewBag.SectionTitle = "Cùng Tác Giả";
+        ViewBag.SectionIcon = "bi-person-badge";
+        ViewBag.CarouselId = "sameAuthorCarousel";
+        ViewBag.ViewMoreLink = Url.Action("Index", "Products", new { author = Model.Author });
+        ViewBag.SectionDescription = "Khám phá các tác phẩm khác của cùng tác giả.";
+        ViewBag.BackgroundClass = "bg-light";
+
+        <div class="mt-5" data-aos="fade-up">
+            @await Html.PartialAsync("~/Views/Home/_HomeProduct.cshtml", RelatedByAuthor)
+        </div>
+    }
+</div> @* close product-detail-container *@
 
 <script>
     function changeImage(src, thumb) {

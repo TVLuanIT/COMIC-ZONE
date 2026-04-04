@@ -265,37 +265,28 @@
     color: white;
 }
 
-/* Modern Section Titles */
-.section-title-modern {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.section-title-modern h2 {
-    font-size: 2.4rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    display: inline-flex;
-    align-items: center;
-    position: relative;
-    padding-bottom: 15px;
-}
-
-.section-title-modern h2::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 4px;
-    background: var(--primary-gradient);
-    border-radius: 2px;
-}
-
 .section-title-modern p {
     color: var(--text-secondary);
     font-size: 1.1rem;
     max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Swiper Centering & Layout Improvements */
+.product-swiper {
+    padding: 20px 5px 60px 5px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+}
+
+.swiper-slide {
+    height: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.product-card {
+    width: 100%;
+    max-width: 320px;
     margin: 0 auto;
 }

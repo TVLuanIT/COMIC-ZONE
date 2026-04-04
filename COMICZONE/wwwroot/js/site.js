@@ -41,7 +41,7 @@ function uploadAvatar(input) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                if (PremiumSwal) PremiumSwal.fire({ 
+                if (PremiumSwal) PremiumSwal.fire({
                     icon: 'success', title: 'Thành công', timer: 1500, showConfirmButton: false
                 }).then(() => location.reload());
             } else {
@@ -61,16 +61,28 @@ const PremiumSwal = typeof Swal !== 'undefined' ? Swal.mixin({
         cancelButton: 'premium-swal-cancel'
     },
     buttonsStyling: false,
+    reverseButtons: true,
     showClass: { popup: 'animate__animated animate__fadeInDown animate__faster' },
     hideClass: { popup: 'animate__animated animate__fadeOutUp animate__faster' }
 }) : null;
 
 function showLoginRequired(message) {
-    if (!PremiumSwal) return;
+    if (window.isShowingLoginAlert) return;
+    window.isShowingLoginAlert = true;
+
     PremiumSwal.fire({
-        icon: 'warning', title: 'Yêu cầu đăng nhập', text: message, confirmButtonText: 'Đăng nhập',
-        showCancelButton: true, reverseButtons: true
+        icon: 'warning',
+        title: 'Yêu cầu đăng nhập',
+        text: message,
+        confirmButtonText: 'Đăng nhập',
+        cancelButtonText: 'Hủy',
+        showCancelButton: true,
+        reverseButtons: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false
     }).then((result) => {
+        window.isShowingLoginAlert = false;
+        console.log("Alert result:", result);
         if (result.isConfirmed) {
             const currentUrl = window.location.pathname + window.location.search;
             window.location.href = `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
@@ -91,9 +103,9 @@ const AutoAlert = (() => {
         toast.innerText = message;
         document.body.appendChild(toast);
         setTimeout(() => toast.classList.add("toast-show"), 100);
-        setTimeout(() => { 
+        setTimeout(() => {
             toast.classList.remove("toast-show");
-            setTimeout(() => toast.remove(), 500); 
+            setTimeout(() => toast.remove(), 500);
         }, 3500);
     };
 
@@ -126,24 +138,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof AutoAlert !== 'undefined') AutoAlert.init();
     if (typeof ReviewMenu_UserProfile !== 'undefined') ReviewMenu_UserProfile.init();
     if (typeof ReplyMenu_UserProfile !== 'undefined') ReplyMenu_UserProfile.init();
-    
+
     // Checkout
     if (typeof CartQuantity !== 'undefined') CartQuantity.init();
     if (typeof CheckoutPayment !== 'undefined') CheckoutPayment.init();
-    
+
     // Chatbot
     if (typeof ChatbotAI !== 'undefined') ChatbotAI.init();
-    
+
     // Product Reviews (Details Page Only)
     const productIdElement = document.getElementById('product-id');
     if (productIdElement && typeof ProductReviews !== 'undefined') {
         const id = parseInt(productIdElement.value);
         if (!isNaN(id)) ProductReviews.init(id);
     }
-    
+
     // Global Report Init
     if (typeof ProductReport !== 'undefined') ProductReport.init();
 
-    // Unified Notification Initializer
-    if (typeof AutoAlert !== 'undefined') AutoAlert.init();
+    // Refresh AOS on tab change
+    var tabEls = document.querySelectorAll('button[data-bs-toggle="tab"], a[data-bs-toggle="tab"]');
+    tabEls.forEach(function (tabEl) {
+        tabEl.addEventListener('shown.bs.tab', function (event) {
+            if (typeof AOS !== 'undefined') {
+                AOS.refresh();
+            }
+        });
+    });
 });

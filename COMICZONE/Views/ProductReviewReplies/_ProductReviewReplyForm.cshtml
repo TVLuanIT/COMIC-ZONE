@@ -1,28 +1,39 @@
-﻿@model COMICZONE.Models.ProductReview
+@model COMICZONE.Models.ProductReview
 @{
     var reviewId = Model.Reviewid;
     var currentAvatar = Context.Session.GetString("Avatar");
-    // var currentAvatar = ViewBag.CurrentUserAvatar as string;
-    var username = Model.User?.Username ?? "Người dùng ẩn danh";
+    var userIdStr = Context.Session.GetString("UserId");
+    bool isLoggedIn = !string.IsNullOrEmpty(userIdStr);
 }
 
-<div class="reply-form-container mt-2"
-    id="reply-form-@reviewId"
-    data-review-id="@Model.Reviewid"
-    style="display:none;">
-    <form class="reply-form d-flex gap-2" data-review-id="@reviewId">
+<div class="reply-form-premium-container mt-3 p-3 rounded-4 bg-white border border-light shadow-sm"
+     id="reply-form-@reviewId"
+     data-review-id="@Model.Reviewid"
+     data-loggedin="@isLoggedIn.ToString().ToLower()"
+     style="display:none;">
+    
+    <div class="reply-form-header mb-2 small fw-bold text-secondary text-uppercase">
+        <i class="bi bi-reply-fill text-primary"></i> Phản hồi đánh giá
+    </div>
+
+    <form class="reply-form d-flex gap-3" data-review-id="@reviewId">
         <!-- Avatar người dùng -->
-        @await Component.InvokeAsync("UserAvatar", new { avatarUrl = currentAvatar, size = 32 })
+        <div class="flex-shrink-0">
+            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = currentAvatar, size = 30 })
+        </div>
 
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Textarea -->
-            <textarea class="form-control form-control-sm mb-1"
-                      placeholder="Viết phản hồi..."></textarea>
+            <textarea class="form-control premium-textarea mb-3"
+                      placeholder="Viết phản hồi mẫu mực..."
+                      rows="2" required></textarea>
 
             <!-- Nút gửi / hủy -->
             <div class="d-flex justify-content-end gap-2">
-                <button type="submit" class="btn btn-sm btn-primary">Gửi</button>
-                <button type="button" class="btn btn-sm btn-secondary cancel-reply">Hủy</button>
+                <button type="button" class="btn-premium-cancel cancel-reply px-3 py-2 rounded-pill small">Hủy</button>
+                <button type="submit" class="btn-premium-save px-4 py-2 rounded-pill glass-hover-effect">
+                    <i class="bi bi-send-fill me-1"></i> Gửi
+                </button>
             </div>
         </div>
     </form>

@@ -1,56 +1,84 @@
 @model COMICZONE.Models.ProductReviewSummary
 
 @{
-    var rounded = Math.Round(Model.Averagerating);
+    double avg = Convert.ToDouble(Model.Averagerating);
     var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int> ?? new Dictionary<int, int>();
     var total = Model.Totalreview == 0 ? 1 : Model.Totalreview;
 }
 
-<div class="review-summary-premium" data-aos="fade-up">
-    <div class="summary-top d-flex justify-content-between align-items-center mb-4">
-        <h4 class="summary-title m-0 fw-bold"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Tổng quan đánh giá</h4>
+<div class="review-summary-premium mb-5" data-aos="fade-up">
+    <!-- Header Section -->
+    <div class="summary-top d-flex justify-content-between align-items-center mb-5">
+        <div class="summary-title-wrapper">
+            <h4 class="summary-title m-0 fw-bold">
+                <i class="bi bi-bar-chart-fill text-primary me-2"></i>Chỉ số đánh giá
+            </h4>
+            <p class="text-secondary small mt-1 mb-0">Dựa trên trải nghiệm thực tế từ người sỡ hữu.</p>
+        </div>
+        
         @if (Model.Lastupdated.HasValue)
         {
-            <div class="summary-update-premium small text-secondary">
+            <div class="summary-update-premium small px-3 py-2 bg-light rounded-pill text-secondary">
                 <i class="bi bi-clock-history me-1"></i>
-                Cập nhật: @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
+                <span class="d-none d-sm-inline">Cập nhật:</span> @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
             </div>
         }
     </div>
 
-    <div class="row align-items-center g-4">
-        <!-- RATING BIG NUMBER -->
-        <div class="col-sm-5 text-center border-end">
-            <div class="rating-display-big">
-                <div class="rating-score display-3 fw-black text-primary mb-2">
-                    @Model.Averagerating.ToString("0.0")
-                </div>
-                <div class="rating-stars-premium mb-2">
-                    @for (int i = 1; i <= 5; i++)
+    <!-- Layout: Top (Score) & Bottom (Bars) -->
+    <div class="summary-stacked-layout">
+        <!-- TOP: RATING BIG NUMBER DISPLAY -->
+        <div class="rating-display-centered text-center mb-5">
+            <div class="rating-score">
+                @avg.ToString("0.0")
+            </div>
+            
+            <div class="rating-stars-premium my-2">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= avg)
                     {
-                        <i class="bi bi-star-fill star-icon @(i <= rounded ? "text-warning" : "text-light-gray") fs-4 mx-1"></i>
+                        <i class="bi bi-star-fill text-warning mx-1 fs-3"></i>
                     }
-                </div>
-                <div class="rating-total-count text-secondary small fw-bold">
-                    (@Model.Totalreview nhận xét)
-                </div>
+                    else if (i - 0.5 <= avg)
+                    {
+                        <i class="bi bi-star-half text-warning mx-1 fs-3"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star-fill text-light mx-1 fs-3"></i>
+                    }
+                }
+            </div>
+            
+            <div class="rating-total-count fw-bold">
+                <span class="text-primary fs-5">@Model.Totalreview</span>
+                <span class="ms-1">Lượt nhận xét</span>
             </div>
         </div>
 
-        <!-- BREAKDOWN BARS -->
-        <div class="col-sm-7 ps-lg-4">
-            <div class="breakdown-list">
+        <div class="summary-separator my-5"></div>
+
+        <!-- BOTTOM: BREAKDOWN BARS PROGRESS -->
+        <div class="breakdown-container-centered mx-auto" style="max-width: 600px;">
+            <div class="breakdown-list d-flex flex-column gap-3">
                 @for (int i = 5; i >= 1; i--)
                 {
                     int count = breakdown.ContainsKey(i) ? breakdown[i] : 0;
                     double percent = (double)count / total * 100;
 
-                    <div class="breakdown-item d-flex align-items-center gap-3 mb-2">
-                        <div class="breakdown-label small fw-bold text-secondary" style="min-width: 45px;">@i sao</div>
-                        <div class="breakdown-bar-container flex-grow-1 bg-light rounded-pill overflow-hidden" style="height: 10px;">
-                            <div class="breakdown-bar-fill h-100 rounded-pill" style="width: @percent.ToString("0")%; background: var(--primary-gradient);"></div>
+                    <div class="breakdown-item d-flex align-items-center gap-4">
+                        <div class="breakdown-label" style="min-width: 50px;">
+                            <span class="fw-bold">@i</span> <i class="bi bi-star-fill text-warning ms-1"></i>
                         </div>
-                        <div class="breakdown-count small text-secondary" style="min-width: 30px; text-align: right;">@count</div>
+                        
+                        <div class="breakdown-bar-container flex-grow-1">
+                            <div class="breakdown-bar-fill" style="width: @percent.ToString("0")%;"></div>
+                        </div>
+                        
+                        <div class="breakdown-count" style="min-width: 40px; text-align: right;">
+                            @count
+                        </div>
                     </div>
                 }
             </div>

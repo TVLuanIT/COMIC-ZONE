@@ -101,3 +101,9 @@ a {
     opacity: 1;
     visibility: visible;
 }
+
+/* Global Avatar Fix */
+.avatar-img {
+    border-radius: 50% !important;
+    object-fit: cover;
+}

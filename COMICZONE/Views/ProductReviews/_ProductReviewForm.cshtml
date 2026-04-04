@@ -1,24 +1,33 @@
 @model COMICZONE.Models.ProductReview
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<div class="review-form-premium" data-aos="fade-up">
+@{
+    var userIdStr = Context.Session.GetString("UserId");
+    bool isLoggedIn = !string.IsNullOrEmpty(userIdStr);
+}
+
+<div class="review-form-premium" data-aos="fade-up" data-loggedin="@isLoggedIn.ToString().ToLower()">
     <div class="summary-top mb-4">
         <h4 class="summary-title m-0 fw-bold"><i class="bi bi-pencil-square text-primary me-2"></i>Viết đánh giá</h4>
         <p class="text-secondary small mt-1">Hỗ trợ cộng đồng bằng cách chia sẻ trải nghiệm thực tế của bạn.</p>
     </div>
 
-    <form asp-action="AddReview" asp-controller="ProductReviews" method="post" id="reviewForm" class="premium-form">
+    <form asp-action="AddReview" asp-controller="ProductReviews" method="post" id="add-review-form" class="premium-form">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Productid" />
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
         <!-- RATING SELECTION -->
         <div class="rating-picker-premium mb-4 text-center">
             <span class="rating-label d-block small fw-bold text-secondary text-uppercase mb-3">Sản phẩm này tuyệt vời như thế nào?</span>
-            <div class="star-rating-v2 d-flex justify-content-center flex-row-reverse gap-2">
+            <div class="star-rating-v2">
                 @for (int i = 5; i >= 1; i--)
                 {
                     <input type="radio" asp-for="Rating" value="@i" id="star-@i" class="rating-input-hide d-none" />
                     <label for="star-@i" class="rating-label-icon fs-2 cursor-pointer transition-smooth"><i class="bi bi-star-fill"></i></label>
                 }
             </div>
+            <span asp-validation-for="Rating" class="text-danger small d-block mt-2"></span>
         </div>
 
         <!-- CONTENT AREA -->
@@ -28,6 +37,7 @@
                       class="form-control premium-textarea no-resize" 
                       placeholder="Chia sẻ kỷ niệm hoặc điểm yêu thích của bạn về ấn phẩm này..." 
                       rows="4" required></textarea>
+            <span asp-validation-for="Reviewcontent" class="text-danger small"></span>
         </div>
 
         <div class="text-center">

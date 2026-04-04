@@ -24,6 +24,15 @@ const ProductReviews = (() => {
                 const container = document.getElementById("review-container");
                 if (container) {
                     container.innerHTML = html;
+                    
+                    // Tắt AOS cho các phần tử tải động để tránh lỗi tàng hình
+                    container.querySelectorAll('[data-aos]').forEach(el => {
+                        el.removeAttribute('data-aos');
+                        el.classList.remove('aos-init', 'aos-animate');
+                        el.style.opacity = '1';
+                        el.style.transform = 'none';
+                    });
+
                     initReactionButtons(); // gắn lại nút like
                     ProductReplies.initReplyList();
                 }
@@ -34,8 +43,16 @@ const ProductReviews = (() => {
         $(document).on('click', '.review-page-link', function (e) {
             e.preventDefault();
             const page = $(this).data('page');
-            $('#review-list-container')
+            $('#review-container')
                 .load(`/ProductReviews/Reviews?productId=${productId}&page=${page}`, () => {
+                    
+                    // Tắt AOS cho các phần tử tải động
+                    $('#review-container').find('[data-aos]').each(function() {
+                        $(this).removeAttr('data-aos')
+                               .removeClass('aos-init aos-animate')
+                               .css({ opacity: '1', transform: 'none' });
+                    });
+
                     initReactionButtons();
                     initDeleteReview();
                     initDeleteReply();
@@ -97,8 +114,9 @@ const ProductReviews = (() => {
     const initEditReview = () => {
         $(document).on('submit', '#add-review-form', function (e) {
             const container_login = $(this).closest('[data-loggedin]');
+            console.log("Review Form Submit - Login Check:", container_login.attr('data-loggedin')); // Debug log
             if (!checkLoginStatus(container_login)) {
-                showLoginRequired('Bạn cần đăng nhập để gửi báo cáo.');
+                showLoginRequired('Bạn cần đăng nhập để gửi bài đánh giá.');
                 return false;
             }
         });
@@ -111,11 +129,31 @@ const ProductReviews = (() => {
             $('.edit-review-form[data-review-id="' + reviewId + '"]').removeClass('d-none');
         });
 
+        // Unified Cancel Edit Handler (Reviews & Replies)
         $(document).off('click', '.cancel-edit');
-        $(document).on('click', '.cancel-edit', function () {
-            const form = $(this).closest('.edit-review-form');
-            form.addClass('d-none');
-            form.siblings('.review-text').show();
+        $(document).on('click', '.cancel-edit', function (e) {
+            e.preventDefault();
+            const btn = $(this);
+            console.log("Cancel Clicked:", btn.attr('class'));
+
+            // 1. Check if it's a review edit
+            const reviewForm = btn.closest('.edit-review-form');
+            if (reviewForm.length) {
+                const reviewId = reviewForm.data('review-id');
+                reviewForm.attr('style', 'display: none !important'); // Force hide
+                reviewForm.addClass('d-none');
+                $('#review-text-' + reviewId).fadeIn(200);
+                return;
+            }
+
+            // 2. Check if it's a reply edit
+            const replyEdit = btn.closest('.reply-edit-container');
+            if (replyEdit.length) {
+                const replyItem = btn.closest('.reply-item');
+                replyEdit.attr('style', 'display: none !important'); // Force hide
+                replyItem.find('.reply-content').fadeIn(200);
+                return;
+            }
         });
 
         $(document).off('submit', '.edit-review-form');
@@ -152,22 +190,14 @@ const ProductReviews = (() => {
             const reviewId = $(this).data('id');
             if (!reviewId) return;
 
-            Swal.fire({
+            PremiumSwal.fire({
                 title: 'Xác nhận xóa',
                 text: "Bạn có chắc muốn xóa đánh giá này không?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Xóa',
                 cancelButtonText: 'Hủy',
-                reverseButtons: true,
-                customClass: {
-                    popup: 'premium-swal-popup',
-                    title: 'premium-swal-title',
-                    htmlContainer: 'premium-swal-html-container',
-                    confirmButton: 'premium-swal-confirm',
-                    cancelButton: 'premium-swal-cancel'
-                },
-                buttonsStyling: false
+                reverseButtons: true
             }).then((result) => {
                 if (!result.isConfirmed) return;
                 const token = $('input[name="__RequestVerificationToken"]').first().val();
@@ -199,11 +229,14 @@ const ProductReviews = (() => {
             const replyId = $(this).data('id');
             if (!replyId) return;
 
-            Swal.fire({
-                title: 'Xác nhận xóa', text: "Bạn có chắc muốn xóa phản hồi này không?", icon: 'warning',
-                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', reverseButtons: true,
-                customClass: { popup: 'premium-swal-popup', confirmButton: 'premium-swal-confirm', cancelButton: 'premium-swal-cancel' },
-                buttonsStyling: false
+            PremiumSwal.fire({
+                title: 'Xác nhận xóa',
+                text: "Bạn có chắc muốn xóa phản hồi này không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     const token = $('input[name="__RequestVerificationToken"]').first().val();
@@ -252,18 +285,21 @@ const ProductReplies = (() => {
             else textarea.val('');
 
             container.find('form').attr('data-reply-to-user-id', replyToUserId || '').attr('data-reply-to-username', replyToUsername || '').attr('data-parent-reply-id', '');
-            if (!container.is(':visible')) container.stop(true, true).slideDown();
+            if (!container.is(':visible')) {
+                container.stop(true, true).addClass('show-form').slideDown(400);
+            }
         });
 
         $(document).off('click', '.cancel-reply');
         $(document).on('click', '.cancel-reply', function (e) {
             e.preventDefault();
-            const formContainer = $(this).closest('.reply-form-container');
+            const formContainer = $(this).closest('.reply-form-premium-container');
+            formContainer.removeClass('show-form');
             if (formContainer.hasClass('clone-form')) {
-                formContainer.slideUp(function () { $(this).remove(); });
+                formContainer.slideUp(400, function () { $(this).remove(); });
                 return;
             }
-            formContainer.slideUp();
+            formContainer.slideUp(400);
         });
 
         $(document).off('submit', '.reply-form');
@@ -280,7 +316,16 @@ const ProductReplies = (() => {
                 url: '/ProductReviews/AddReply', method: 'POST', contentType: 'application/json',
                 data: JSON.stringify({ ReviewId: reviewId, Content: content, ReplyToUserId: replyToUserId ? parseInt(replyToUserId) : null, ParentReplyId: parentReplyId ? parseInt(parentReplyId) : null }),
                 success: function (res) {
-                    if (res.success) { form.find('textarea').val(''); form.closest('.reply-form-container').slideUp(); }
+                    if (res.success) {
+                        form.find('textarea').val('');
+                        const formContainer = form.closest('.reply-form-premium-container');
+                        formContainer.removeClass('show-form');
+                        if (formContainer.hasClass('clone-form')) {
+                            formContainer.slideUp(400, function () { $(this).remove(); });
+                        } else {
+                            formContainer.slideUp(400);
+                        }
+                    }
                 }
             });
         });
@@ -323,19 +368,41 @@ const ProductReplies = (() => {
             const batch = parseInt(showBtn.dataset.batchSize) || batchSize;
             let shownCount = 0; let expanded = false;
             replies.forEach(r => r.style.display = 'none');
-            showBtn.innerText = `${total} phản hồi`;
+            
             const newBtn = showBtn.cloneNode(true);
+            const btnText = newBtn.querySelector('.btn-text');
+            if (btnText) btnText.innerText = `${total} phản hồi`;
+            
             showBtn.parentNode.replaceChild(newBtn, showBtn);
             newBtn.addEventListener('click', () => {
                 const currentReplies = Array.from(container.querySelectorAll('.reply-item'));
                 const currentTotal = currentReplies.length;
                 if (currentTotal === 0) { newBtn.remove(); return; }
-                if (expanded) { currentReplies.forEach(r => r.style.display = 'none'); shownCount = 0; expanded = false; newBtn.innerText = `${currentTotal} phản hồi`; container.appendChild(newBtn); return; }
-                const remaining = currentTotal - shownCount; const toShow = Math.min(batch, remaining);
+                
+                if (expanded) { 
+                    currentReplies.forEach(r => r.style.display = 'none'); 
+                    shownCount = 0; expanded = false; 
+                    if (btnText) btnText.innerText = `${currentTotal} phản hồi`; 
+                    newBtn.classList.remove('expanded');
+                    container.appendChild(newBtn); return; 
+                }
+                
+                const remaining = currentTotal - shownCount; 
+                const toShow = Math.min(batch, remaining);
                 for (let i = shownCount; i < shownCount + toShow; i++) if (currentReplies[i]) currentReplies[i].style.display = 'block';
-                container.appendChild(newBtn); shownCount += toShow; const left = currentTotal - shownCount;
-                if (left > 0) newBtn.innerText = `${left} phản hồi còn lại`;
-                else { newBtn.innerText = 'Ẩn phản hồi'; expanded = true; }
+                
+                container.appendChild(newBtn); 
+                shownCount += toShow; 
+                const left = currentTotal - shownCount;
+                
+                if (left > 0) {
+                    if (btnText) btnText.innerText = `${left} phản hồi còn lại`;
+                }
+                else { 
+                    if (btnText) btnText.innerText = 'Ẩn phản hồi'; 
+                    expanded = true; 
+                    newBtn.classList.add('expanded');
+                }
             });
         });
     };
@@ -352,12 +419,13 @@ const ProductReplies = (() => {
             const container_login = $(this).closest('[data-loggedin]');
             if (!checkLoginStatus(container_login)) { showLoginRequired('Bạn cần đăng nhập nếu muốn gửi phản hồi.'); return; }
             const currentReplyItem = $(this).closest('.reply-item');
-            if (currentReplyItem.find('.reply-form-container.clone-form').length > 0) return;
+            if (currentReplyItem.find('.reply-form-premium-container.clone-form').length > 0) return;
             const clonedForm = originalForm.clone(true);
             clonedForm.removeAttr('id').addClass('clone-form');
             clonedForm.find('textarea').val(replyToUsername ? `@${replyToUsername} ` : '');
             clonedForm.find('form').attr('data-reply-to-user-id', replyToUserId || '').attr('data-parent-reply-id', replyId || '').attr('data-reply-to-username', replyToUsername || '');
-            currentReplyItem.append(clonedForm); clonedForm.hide().slideDown();
+            currentReplyItem.append(clonedForm);
+            clonedForm.hide().addClass('show-form').slideDown(400);
             const textareaEl = clonedForm.find('textarea').get(0);
             if (textareaEl) { textareaEl.focus(); textareaEl.setSelectionRange(textareaEl.value.length, textareaEl.value.length); }
         });
@@ -374,26 +442,31 @@ const ProductReplies = (() => {
             contentDiv.hide(); editBox.show();
         });
 
-        $(document).on("click", ".cancel-edit", function () {
-            const replyItem = $(this).closest(".reply-item");
-            replyItem.find(".reply-edit-container").hide(); replyItem.find(".reply-content").show();
-        });
+        // Note: Cancel-edit is now handled by the unified listener in ProductReviews.init()
 
-        $(document).on("click", ".save-edit", function () {
+        $(document).off('click', '.reply-edit-container .save-edit');
+        $(document).on("click", ".reply-edit-container .save-edit", function () {
             const replyItem = $(this).closest(".reply-item");
             const replyId = replyItem.data("reply-id");
-            const newContent = replyItem.find(".edit-reply-text").val();
-            const token = $('input[name="__RequestVerificationToken"]').val();
+            const newContent = replyItem.find(".edit-reply-text").val().trim();
+            if (!newContent) return;
+
+            const token = $('input[name="__RequestVerificationToken"]').first().val();
             $.ajax({
-                url: '/ProductReviews/EditReply', type: 'POST',
+                url: '/ProductReviews/EditReply',
+                type: 'POST',
                 data: { __RequestVerificationToken: token, replyId: replyId, content: newContent },
                 success: function (res) {
                     if (res.success) {
                         replyItem.find(".reply-content").text(newContent).show();
                         replyItem.find(".reply-edit-container").hide();
-                        if (replyItem.find(".edited-label").length === 0) replyItem.find(".reply-username strong").append(' <span class="edited-label text-muted ms-1">(đã chỉnh sửa)</span>');
-                        replyItem.find(".reply-date").text(res.updatedAt);
-                    } else alert(res.message);
+                        if (replyItem.find(".edited-label").length === 0) {
+                            replyItem.find(".review-date").before('<span class="edited-label me-1">đã chỉnh sửa</span>');
+                        }
+                        replyItem.find(".review-date").text(res.updatedAt);
+                    } else {
+                        alert(res.message);
+                    }
                 }
             });
         });

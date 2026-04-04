@@ -1,5 +1,40 @@
 /* components.css - Shared UI components and animations */
 
+/* Shared Premium Section Title */
+.section-title-modern {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title-modern h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title-modern h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: 2px;
+}
+
+.section-title-modern p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
 /* Animations */
 .animate {
     animation-duration: 0.3s;
@@ -384,6 +419,10 @@
 }
 
 /* Premium SweetAlert2 Skin */
+.swal2-container {
+    z-index: 99999 !important;
+}
+
 .premium-swal-popup {
     background: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(25px) !important;
@@ -418,18 +457,31 @@
     letter-spacing: 1px !important;
     box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2) !important;
     transition: var(--transition-smooth) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 .premium-swal-cancel {
-    background: #f1f5f9 !important;
-    color: #64748b !important;
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
     padding: 12px 30px !important;
     border-radius: 999px !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
     text-transform: uppercase !important;
     letter-spacing: 1px !important;
-    margin-right: 10px !important;
+    margin-right: 15px !important;
+    transition: var(--transition-smooth) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+.premium-swal-cancel:hover {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: var(--text-primary) !important;
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05) !important;
 }
 
 .premium-swal-confirm:hover {
@@ -574,18 +626,92 @@
 
 .about-modern-hero {
     height: 60vh;
-    min-height: 500px;
+    min-height: 550px; /* Slight increase for better content safety */
     background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), 
                 url('../images/about_banner.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     display: flex;
-    align-items: center;
+    /* Remove center alignment to allow top padding to work correctly with negative margin */
+    align-items: flex-start; 
+    padding-top: 130px; /* Offset for fixed glass navbar */
     justify-content: center;
     text-align: center;
     position: relative;
     overflow: hidden;
     margin-top: -90px;
     border-bottom: 1px solid var(--glass-border);
+}
+
+/* Premium Global Button - Pill Style */
+.btn-premium-pill {
+    padding: 14px 35px;
+    border-radius: 999px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    transition: var(--transition-smooth);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none !important;
+}
+
+.btn-premium-pill:hover {
+    transform: translateY(-5px) scale(1.05);
+    color: white;
+    box-shadow: 0 15px 35px rgba(168, 85, 247, 0.4);
+}
+
+.btn-premium-pill:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn-premium-pill i {
+    font-size: 1.15rem;
+    transition: transform 0.4s ease;
+}
+
+.btn-premium-pill:hover i {
+    transform: translateX(5px);
+}
+
+.btn-premium-pill-outline {
+    padding: 14px 35px;
+    border-radius: 999px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none !important;
+}
+
+.btn-premium-pill-outline:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    border-color: white;
+    color: white;
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+
+.btn-premium-pill-outline:active {
+    transform: translateY(0) scale(0.98);
 }

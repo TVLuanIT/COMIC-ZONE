@@ -1,0 +1,507 @@
+/* order.css - Checkout flow, payment methods, and status pages */
+
+/* 1. Cinematic Checkout Progress */
+.checkout-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+    padding: 25px 40px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    box-shadow: var(--shadow-premium);
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+    font-weight: 700;
+    transition: all 0.4s ease;
+    gap: 8px;
+    position: relative;
+    min-width: 100px;
+}
+
+.step-item.active {
+    color: #6366f1;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid transparent;
+}
+
+.step-item.active .step-number {
+    background: var(--primary-gradient);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
+}
+
+.step-line {
+    flex-grow: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 20px;
+    max-width: 80px;
+    border-radius: 2px;
+}
+
+/* 2. Floating Summary Sidebar */
+.sidebar-summary-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 32px;
+    padding: 35px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-premium);
+    position: sticky;
+    top: 110px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.summary-total {
+    border-top: 2px dashed #e2e8f0;
+    margin-top: 20px;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 3. Payment Method Tiles */
+.payment-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.payment-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.payment-card.active {
+    background: white;
+    border-color: #6366f1;
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15);
+}
+
+.payment-card i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.payment-card.active i {
+    color: #6366f1;
+    transform: scale(1.1);
+}
+
+/* 4. Premium Form Controls */
+.modern-checkout-control {
+    background: rgba(15, 23, 42, 0.03) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-radius: 16px !important;
+    padding: 14px 20px !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+    transition: var(--transition-smooth) !important;
+}
+
+.modern-checkout-control:focus {
+    background: #fff !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1) !important;
+    transform: translateY(-2px);
+}
+
+.checkout-form-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* 4.1 Premium Icon Integrated Input & Floating Labels */
+.premium-icon-field {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
+    transition: var(--transition-smooth);
+    overflow: hidden;
+    margin-bottom: 5px;
+    min-height: 68px;
+    /* Increased for floating labels */
+}
+
+.premium-icon-field:focus-within {
+    background: #fff;
+    border-color: #6366f1;
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
+    transform: translateY(-2px);
+}
+
+.premium-icon-box {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.02);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    transition: var(--transition-smooth);
+}
+
+.premium-icon-field:focus-within .premium-icon-box {
+    background: rgba(99, 102, 241, 0.08);
+    border-right-color: rgba(99, 102, 241, 0.15);
+}
+
+.premium-icon-box i {
+    font-size: 1.2rem;
+    color: #94a3b8;
+    transition: var(--transition-smooth);
+}
+
+.premium-icon-field:focus-within .premium-icon-box i {
+    color: #6366f1;
+    transform: scale(1.15);
+}
+
+.premium-icon-field .modern-checkout-control {
+    flex: 1;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 28px 20px 10px 5px !important;
+    /* Top padding for label space */
+    box-shadow: none !important;
+    margin: 0 !important;
+    font-size: 1.05rem;
+}
+
+.premium-icon-field .modern-checkout-control::placeholder {
+    color: transparent !important;
+    /* Use labels instead */
+}
+
+.premium-icon-field .floating-label {
+    position: absolute;
+    left: 65px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-weight: 500;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.8;
+}
+
+.premium-icon-field:focus-within .floating-label,
+.premium-icon-field .modern-checkout-control:not(:placeholder-shown)~.floating-label {
+    top: 14px;
+    transform: translateY(0);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #6366f1;
+    opacity: 1;
+}
+
+.premium-icon-field .modern-checkout-control:focus {
+    transform: none !important;
+}
+
+/* For Textareas */
+.premium-icon-field.align-items-start {
+    min-height: 100px;
+}
+
+.premium-icon-field.align-items-start .premium-icon-box {
+    align-items: flex-start;
+    padding-top: 24px;
+}
+
+.premium-icon-field.align-items-start .modern-checkout-control {
+    padding-top: 50px !important;
+    /* Increased from 28px to leave room for the label */
+}
+
+.premium-icon-field.align-items-start .floating-label {
+    top: 24px;
+    transform: none;
+}
+
+.premium-icon-field.align-items-start:focus-within .floating-label,
+.premium-icon-field.align-items-start .modern-checkout-control:not(:placeholder-shown)~.floating-label {
+    top: 8px;
+    /* Moved slightly higher to ensure clearance */
+}
+
+
+/* 5. Status Page Refinement (Success/Fail) */
+.result-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 60px 40px;
+    box-shadow: var(--shadow-premium);
+    max-width: 650px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.result-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--primary-gradient);
+}
+
+.status-result-page {
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent),
+        radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.08), transparent);
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.btn-status-premium {
+    padding: 18px 40px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-status-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 6. Cinematic Checkout Button */
+.btn-checkout-premium {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 20px 30px;
+    width: 100%;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-checkout-premium::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+    z-index: -1;
+}
+
+.btn-checkout-premium:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 45px rgba(99, 102, 241, 0.45);
+    color: white;
+}
+
+.btn-checkout-premium:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* 7. Enhanced Status Results (Success/Fail) */
+.icon-box-status {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.icon-box-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 0 50px rgba(16, 185, 129, 0.4);
+}
+
+.icon-box-fail {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+}
+
+.pulse-success::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    z-index: -1;
+    animation: status-pulse 2s infinite;
+}
+
+.pulse-fail::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    z-index: -1;
+    animation: status-pulse-fail 2s infinite;
+}
+
+@keyframes status-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+@keyframes status-pulse-fail {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+.result-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+
+.result-msg {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto 30px;
+}
+
+.order-info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 40px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.success-glow {
+    position: relative;
+}
+
+.success-glow::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.fail-glow::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: -1;
+}

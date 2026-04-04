@@ -81,31 +81,76 @@
     background: var(--dark-bg);
     background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.2), transparent 40%),
                       radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.15), transparent 40%);
-    padding: 100px 0 80px;
+    padding: 130px 0 90px;
     color: white;
     margin-bottom: 50px;
     border-radius: 0 0 60px 60px;
     position: relative;
     overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background-size: cover;
+    background-position: center;
 }
 
-.page-header h1 {
+.page-header::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.75); /* Dark cinematic overlay */
+    z-index: 1;
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+.page-header-title {
     font-size: 3.5rem;
     font-weight: 900;
     letter-spacing: -1.5px;
-    margin-bottom: 15px;
-    background: linear-gradient(to right, #fff, rgba(255,255,255,0.7));
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #fff 20%, rgba(255,255,255,0.7) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.breadcrumb-item a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
+.breadcrumb-premium {
+    display: inline-flex;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
 }
 
-.breadcrumb-item.active { color: #fff; }
+.breadcrumb-item-premium {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.breadcrumb-item-premium a {
+    color: inherit;
+    transition: var(--transition-smooth);
+}
+
+.breadcrumb-item-premium a:hover {
+    color: #fff;
+}
+
+.breadcrumb-item-premium.active {
+    color: #fff;
+}
+
+.breadcrumb-separator {
+    margin: 0 12px;
+    opacity: 0.3;
+}
 
 /* Premium Footer */
 .modern-footer {
