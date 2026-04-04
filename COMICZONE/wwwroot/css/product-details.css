@@ -211,6 +211,27 @@
     box-shadow: 0 15px 40px rgba(168, 85, 247, 0.4);
 }
 
+.btn-buy-now-premium {
+    background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 18px 45px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: var(--transition-smooth);
+    box-shadow: 0 10px 30px rgba(244, 63, 94, 0.3);
+    cursor: pointer;
+}
+
+.btn-buy-now-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(251, 146, 60, 0.4);
+}
+
 .btn-out-stock-premium {
     background: #f1f5f9;
     color: #94a3b8;

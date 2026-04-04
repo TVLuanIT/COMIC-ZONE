@@ -130,6 +130,7 @@
 
 .product-img-wrapper:hover .product-actions-overlay { opacity: 1; }
 
+/* 1. View Details (Neutral) */
 .action-btn-premium {
     width: 44px;
     height: 44px;
@@ -151,7 +152,28 @@
 .action-btn-premium:hover {
     background: var(--primary-gradient);
     color: #fff;
-    transform: scale(1.1);
+    transform: translateY(0) scale(1.1) !important;
+}
+
+/* 2. Add to Cart (Brand Color - Purple/Indigo) */
+.add-cart-overlay {
+    background: var(--primary-gradient) !important;
+    color: #fff !important;
+}
+
+.add-cart-overlay:hover {
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4) !important;
+}
+
+/* 3. Buy Now (Urgent - Red/Orange) */
+.buy-now-overlay {
+    background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%) !important;
+    color: #fff !important;
+}
+
+.buy-now-overlay:hover {
+    transform: translateY(0) scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(244, 63, 94, 0.4) !important;
 }
 
 .product-badge {

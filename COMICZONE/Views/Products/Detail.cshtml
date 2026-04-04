@@ -145,11 +145,15 @@
                 <div class="mt-5 d-flex align-items-center gap-3">
                     @if (Model.StockQuantity > 0)
                     {
-                        <form asp-controller="Carts" asp-action="AddToCart" method="post">
+                        <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-flex align-items-center gap-3 w-100">
                             <input type="hidden" name="productId" value="@Model.Id" />
-                            <button type="submit" class="btn-premium-cart">
+                            <button type="submit" class="btn-premium-cart flex-grow-1 justify-content-center">
                                 <i class="bi bi-bag-plus-fill"></i>
                                 <span>Thêm vào giỏ hàng</span>
+                            </button>
+                            <button type="submit" name="buyNow" value="true" class="btn-buy-now-premium flex-grow-1 justify-content-center">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                                <span>Mua ngay</span>
                             </button>
                         </form>
                     }

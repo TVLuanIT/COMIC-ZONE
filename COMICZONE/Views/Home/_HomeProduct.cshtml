@@ -51,11 +51,14 @@
                                             </a>
                                             @if (item.StockQuantity > 0)
                                             {
-                                                <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
+                                                <form asp-controller="Carts" asp-action="AddToCart" method="post" style="display: contents;">
                                                     <input type="hidden" name="productId" value="@item.Id" />
                                                     <input type="hidden" name="quantity" value="1" />
-                                                    <button type="submit" class="action-btn-premium" title="Thêm vào giỏ">
+                                                    <button type="submit" class="action-btn-premium add-cart-overlay" title="Thêm vào giỏ">
                                                         <i class="bi bi-cart-plus"></i>
+                                                    </button>
+                                                    <button type="submit" name="buyNow" value="true" class="action-btn-premium buy-now-overlay" title="Mua ngay">
+                                                        <i class="bi bi-lightning-charge"></i>
                                                     </button>
                                                 </form>
                                             }

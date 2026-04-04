@@ -117,7 +117,7 @@ namespace COMICZONE.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddToCart(int productId)
+        public IActionResult AddToCart(int productId, bool buyNow = false)
         {
             var referer = Request.Headers["Referer"].ToString();
 
@@ -130,7 +130,7 @@ namespace COMICZONE.Controllers
 
             if (string.IsNullOrEmpty(userIdStr))
             {
-                TempData["LoginRequired"] = "Vui lòng đăng nhập để thêm vào giỏ hàng.";
+                TempData["LoginRequired"] = "Vui lòng đăng nhập để mua hàng.";
                 return Redirect(referer);
             }
 
@@ -187,6 +187,11 @@ namespace COMICZONE.Controllers
             }
 
             _context.SaveChanges();
+
+            if (buyNow)
+            {
+                return RedirectToAction("Index");
+            }
 
             return Redirect(referer);
         }
