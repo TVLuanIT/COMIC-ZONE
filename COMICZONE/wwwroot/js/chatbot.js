@@ -39,10 +39,35 @@ const ChatbotAI = (() => {
     };
 
     const restoreHistory = () => {
-        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-        history.forEach(msg => {
-            addMessage(msg.text, msg.sender);
-        });
+        const dataStr = localStorage.getItem('chatHistoryData');
+        if (!dataStr) {
+            localStorage.removeItem('chatHistory');
+            return;
+        }
+
+        try {
+            const data = JSON.parse(dataStr);
+            if (!data.timestamp) return;
+
+            const now = new Date();
+            const storedDate = new Date(data.timestamp);
+
+            // AUTO-DELETE AT MIDNIGHT (NEW DAY RESET)
+            // If the current date is different from the stored message date, clear it.
+            if (now.toDateString() !== storedDate.toDateString()) {
+                localStorage.removeItem('chatHistoryData');
+                return;
+            }
+
+            if (data.messages) {
+                data.messages.forEach(msg => {
+                    addMessage(msg.text, msg.sender);
+                });
+            }
+        } catch (e) {
+            console.error("Error restoring chat history:", e);
+            localStorage.removeItem('chatHistoryData');
+        }
     };
 
     const chatbot = () => {
@@ -56,10 +81,16 @@ const ChatbotAI = (() => {
         if (!icon || !windowChat || !input || !messages) return;
 
         const saveMessage = (text, sender) => {
-            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            history.push({ text, sender });
-            if (history.length > 50) history.shift();
-            localStorage.setItem('chatHistory', JSON.stringify(history));
+            let data = JSON.parse(localStorage.getItem('chatHistoryData') || '{"timestamp": null, "messages": []}');
+            
+            // Set timestamp only if it's the first message of a new session
+            if (!data.timestamp || data.messages.length === 0) {
+                data.timestamp = new Date().getTime();
+            }
+
+            data.messages.push({ text, sender });
+            if (data.messages.length > 50) data.messages.shift();
+            localStorage.setItem('chatHistoryData', JSON.stringify(data));
         };
 
         const toggleChat = (e) => {
