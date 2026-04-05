@@ -312,4 +312,70 @@ thead th a:hover {
 thead th a i {
     font-size: 1.1rem;
 }
+
+/* ================= USER PROFILE TOPBAR ================= */
+.user-profile-topbar .user-dropdown {
+    padding: 6px 12px;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+    color: #4b5563;
+}
+
+.user-profile-topbar .user-dropdown:hover {
+    background-color: #f3f4f6;
+}
+
+.user-profile-topbar .username-text {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.user-profile-topbar .dropdown-toggle::after {
+    margin-left: 0.5em;
+    vertical-align: 0.255em;
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+    opacity: 0.5;
+}
+
+.user-profile-topbar .dropdown-menu {
+    min-width: 200px;
+    padding: 8px;
+    border-radius: 12px !important;
+}
+
+.user-profile-topbar .dropdown-item {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.user-profile-topbar .dropdown-item i {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin-right: 8px;
+}
+
+.user-profile-topbar .dropdown-item:hover {
+    background-color: #f9fafb;
+    transform: translateX(3px);
+}
+
+.user-profile-topbar .dropdown-item:active {
+    background-color: #f3f4f6;
+}
+
+.user-profile-topbar .dropdown-item.text-danger:hover {
+    background-color: #fef2f2;
+    color: #dc2626 !important;
+}
+
+.user-profile-topbar .dropdown-item.text-danger i {
+    color: #ef4444;
+}
 
