@@ -6,43 +6,84 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 
     ViewData["Title"] = "Quản lý sản phẩm";
+
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fs-3">Quản lý sản phẩm</h1>
 
-        <a asp-action="Create" class="btn btn-primary">
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
             <i class="ti ti-plus"></i>
             Thêm sản phẩm
         </a>
     </div>
 
+    @* Reusable search form *@
+    <partial name="_AdminSearchForm" model="searchModel" />
+
     <div class="card shadow-sm border-0">
         <div class="table-wrapper">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-uppercase small text-secondary">
-                        <th>Sản phẩm</th>
-                        <th>Trạng thái</th>
-                        <th>Giá</th>
-                        <th>Nhà phát hành</th>
-                        <th>Tác giả</th>
-                        <th>Dịch giả</th>
-                        <th>Họa sĩ</th>
+                <thead class="table-light border-bottom">
+                    <tr class="align-middle">
+                        <th>
+                            @Html.SortHeader("Sản phẩm", "Name", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Giá", "Price", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Nhà phát hành", "Distributor", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Tác giả", "Author", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Dịch giả", "Translator", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Họa sĩ", "Artists", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
                         <th>Thẻ</th>
-                        <th>Đánh giá</th>
-                        <th>Series</th>
+                        <th>
+                            @Html.SortHeader("Đánh giá", "ProductReviewSummary.Averagerating", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Series", "Series", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
                         <th>Mô tả</th>
-                        <th>Tồn kho</th>
-                        <th>Định dạng</th>
-                        <th>Kích thước</th>
-                        <th>Trọng lượng</th>
-                        <th>Số trang</th>
-                        <th>Minh họa</th>
-                        <th>Ngày phát hành</th>
-                        <th>Nhà xuất bản</th>
-                        <th>Độ tuổi</th>
+                        <th>
+                            @Html.SortHeader("Tồn kho", "StockQuantity", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Định dạng", "Format", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Kích thước", "Size", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Trọng lượng", "Weight", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Số trang", "Pages", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Minh họa", "IllustrationType", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Ngày phát hành", "ReleaseDate", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Nhà xuất bản", "Publisher", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Độ tuổi", "AgeGroup", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
 
                         <th class="text-end table-actions">
                             Hành động
@@ -187,6 +228,10 @@
                     }
                 </tbody>
             </table>
+        </div>
+        
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
         </div>
     </div>
 </div>

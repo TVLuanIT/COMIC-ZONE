@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,12 +23,50 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Invoices
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.Invoices
+            const int pageSize = 12;
+
+            var query = _context.Invoices
                 .Include(i => i.Order)
-                    .ThenInclude(o => o.User);
-            return View(await comiczoneContext.ToListAsync());
+                    .ThenInclude(o => o.User)
+                .AsQueryable();
+
+            // 1. Search (OrderId, CustomerName, Id)
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(i => i.OrderId.ToString().Contains(keyword) || 
+                                         i.CustomerName.Contains(keyword) ||
+                                         i.Id.ToString().Contains(keyword));
+            }
+
+            // 2. Sort
+            if (string.IsNullOrEmpty(sortColumn))
+            {
+                sortColumn = "IssueDate";
+                isAscending = false;
+            }
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 3. Total count
+            var totalCount = await query.CountAsync();
+
+            // 4. Pagination
+            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page, // Fixed: Using PageNumber property
+                PageSize = pageSize,
+                TotalItems = totalCount // Fixed: Using TotalItems property
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            return View(pagedResults);
         }
 
         // GET: Admin/Invoices/Details/5

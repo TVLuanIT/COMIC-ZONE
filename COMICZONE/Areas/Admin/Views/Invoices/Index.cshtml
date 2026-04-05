@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý hóa đơn";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 }
 
 <div class="container-fluid py-4">
@@ -22,6 +23,9 @@
             </nav>
         </div>
     </div>
+    
+    @* Reusable search form *@
+    <partial name="_AdminSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
@@ -32,22 +36,34 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-nowrap">
-                    <thead class="table-light text-uppercase small fw-bold">
-                        <tr>
-                            <th class="ps-4">Mã hóa đơn</th>
-                            <th>Đơn hàng</th>
-                            <th>Khách hàng</th>
-                            <th class="text-center">Ngày xuất</th>
-                            <th class="text-end">Tổng tiền</th>
-                            <th class="text-center">Hiển thị</th>
-                            <th class="text-end pe-4">Thao tác</th>
+                    <thead class="table-light border-bottom fw-bold text-uppercase small">
+                        <tr class="align-middle">
+                            <th class="ps-4">
+                                @Html.SortHeader("Mã hóa đơn", "Id", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Đơn hàng", "OrderId", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Khách hàng", "CustomerName", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Ngày xuất", "IssueDate", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-end">
+                                @Html.SortHeader("Tổng tiền", "TotalAmount", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Hiển thị", "Isdeleted", searchModel.SortColumn ?? "IssueDate", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr id="invoice-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                            <tr id="invoice-row-@item.Id" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                                 <td class="ps-4 fw-bold text-dark">#@item.Id</td>
 
                                 <td>
@@ -76,15 +92,15 @@
                                     </div>
                                 </td>
                                 
-                                <td class="text-center text-muted small">
+                                <td class="text-muted small">
                                     @(item.IssueDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                 </td>
                                 
-                                <td class="text-end fw-bold text-dark">
+                                <td class="fw-bold text-dark">
                                     @string.Format("{0:N0}", item.TotalAmount) <span class="small opacity-75">₫</span>
                                 </td>
 
-                                <td class="text-center" id="soft-delete-status-cell-@item.Id">
+                                <td id="soft-delete-status-cell-@item.Id">
                                     @if (item.Isdeleted)
                                     {
                                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">
@@ -99,7 +115,7 @@
                                     }
                                 </td>
 
-                                <td class="text-end pe-4">
+                                <td class="text-center pe-4">
                                     <div class="btn-group shadow-sm">
                                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm text-success" title="In hóa đơn">
                                             <i class="ti ti-printer fs-5"></i>
@@ -144,4 +160,11 @@
             }
         </div>
     </div>
+    
+    @if (Model.Any())
+    {
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
+        </div>
+    }
 </div>

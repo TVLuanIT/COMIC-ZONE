@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,45 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Notifications
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.Notifications.Include(n => n.CreatedByNavigation).Include(n => n.User);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.Notifications
+                .Include(n => n.User)
+                .Include(n => n.CreatedByNavigation)
+                .AsQueryable();
+
+            // 1. Search (Title, Username, Message)
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(n => n.Title.Contains(keyword) || 
+                                         n.User.Username.Contains(keyword) ||
+                                         n.CreatedByNavigation.Username.Contains(keyword) ||
+                                         n.Message.Contains(keyword));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "CreatedAt";
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 3. Paging
+            const int pageSize = 10;
+            query = query.ApplyPagination(page, pageSize);
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                StatusFilter = statusFilter,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+            ViewBag.SearchModel = searchModel;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Admin/Notifications/Details/5

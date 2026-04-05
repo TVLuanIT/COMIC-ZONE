@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using COMICZONE.Data;
-using COMICZONE.Extensions;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,14 +23,56 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? typeFilter, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var reports = await _context.ViolationReports
-                .Include(v => v.User)
-                //.Where(v => !v.Isdeleted)
-                .ToListAsync();
+            const int pageSize = 12;
 
-            var userIds = reports
+            var query = _context.ViolationReports
+                .Include(v => v.User)
+                .AsQueryable();
+
+            // 1. Filter by Status
+            if (!string.IsNullOrEmpty(statusFilter))
+            {
+                if (Enum.TryParse<ReportStatus>(statusFilter, out var status))
+                {
+                    query = query.Where(v => v.Status == (int)status);
+                }
+            }
+
+            // 2. Filter by Type
+            if (!string.IsNullOrEmpty(typeFilter))
+            {
+                if (Enum.TryParse<ReportType>(typeFilter, out var type))
+                {
+                    query = query.Where(v => v.Reporttype == (int)type);
+                }
+            }
+
+            // 3. Search
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(v => v.Reason.Contains(keyword) || 
+                                         v.Targetid.ToString().Contains(keyword) ||
+                                         (v.User != null && v.User.Username.Contains(keyword)));
+            }
+
+            // Sort
+            if (string.IsNullOrEmpty(sortColumn))
+            {
+                sortColumn = "Createdat";
+                isAscending = false;
+            }
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // Total count
+            var totalCount = await query.CountAsync();
+
+            // Pagination
+            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+
+            // Custom mapping logic (preserved from original)
+            var userIds = pagedResults
                 .Select(r => r.Userid)
                 .Distinct()
                 .ToList();
@@ -50,7 +93,21 @@ namespace COMICZONE.Areas.Admin.Controllers
             ViewBag.ReplyContents = replyList
                 .ToDictionary(r => r.Replyid, r => r.Replycontent);
 
-            return View(reports);
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                StatusFilter = statusFilter,
+                TypeFilter = typeFilter,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalCount
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            return View(pagedResults);
         }
 
         public async Task<IActionResult> Details(int? id)

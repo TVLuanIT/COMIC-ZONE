@@ -5,34 +5,54 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý đánh giá";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 }
 
 <div class="container-fluid">
     <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">
-                <i class="ti ti-star"></i>
-                Đánh giá sản phẩm
-            </h4>
-            <span class="text-muted">
-                Quản lý đánh giá của khách hàng
-            </span>
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor fw-bold">
+                <i class="ti ti-star me-2 text-primary"></i>Quản lý đánh giá
+            </h3>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Đánh giá</li>
+                </ol>
+            </nav>
         </div>
     </div>
+
+    @* Reusable search form *@
+    <partial name="_AdminSearchForm" model="searchModel" />
 
     <!-- TABLE -->
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
-                    <tr>
-                        <th>⭐ Rating</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th>Nội dung</th>
-                        <th>Sản phẩm</th>
-                        <th>Người dùng</th>
-                        <th>Ngày tạo</th>
+                    <tr class="align-middle">
+                        <th>
+                            @Html.SortHeader("Rating", "Rating", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Nội dung", "Reviewcontent", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Sản phẩm", "Product.Name", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Người dùng", "User.Username", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
+                        </th>
                         <th class="text-center">Hành động</th>
                     </tr>
                 </thead>
@@ -40,7 +60,7 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr id="review-row-@item.Reviewid" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                        <tr id="review-row-@item.Reviewid" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                             <!-- RATING -->
                             <td>
                                 <span class="badge bg-warning text-dark">
@@ -49,7 +69,7 @@
                             </td>
 
                             <!-- STATUS -->
-                            <td class="text-center">
+                            <td>
                                 <span id="status-cell-@item.Reviewid">
                                     @if (item.Isdeleted)
                                     {
@@ -127,6 +147,13 @@
                     }
                 </tbody>
             </table>
-        </div>
-    </div>
-</div>
+        </div> <!-- card-body closed -->
+
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
+    </div> <!-- card closed -->
+</div> <!-- container-fluid closed -->

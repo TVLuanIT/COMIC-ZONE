@@ -276,4 +276,40 @@ thead .table-actions {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
+}
+
+/* ================= GENERIC SEARCH & SORT ================= */
+.content {
+    padding-top: 72px !important; /* Đảm bảo nội dung không bị che bới fixed-top navbar */
+    min-height: 100vh;
+}
+.admin-search-form {
+    border-radius: 12px;
+}
+.admin-search-form .input-group-text {
+    border-right: none;
+}
+.admin-search-form .form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+.admin-search-form .btn {
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.admin-search-form .btn:hover {
+    transform: translateY(-1px);
+}
+
+thead th a {
+    transition: all 0.2s ease;
+    padding: 10px 0;
+    display: block;
+}
+thead th a:hover {
+    color: #4f46e5 !important;
+}
+thead th a i {
+    font-size: 1.1rem;
+}
+

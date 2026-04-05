@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,52 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/InventoryLogs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? typeFilter, string? sortColumn = "CreatedAt", bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.InventoryLogs.Include(i => i.Product);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.InventoryLogs
+                .Include(i => i.Product)
+                .AsQueryable();
+
+            // 1. Filter by Type
+            if (!string.IsNullOrEmpty(typeFilter))
+            {
+                query = query.Where(i => i.Type == typeFilter);
+            }
+
+            // 3. Search (Product Name, Type, Id, ProductId)
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(i => i.Product.Name.Contains(keyword) || 
+                                         i.Type.Contains(keyword) ||
+                                         i.Id.ToString().Contains(keyword) ||
+                                         i.ProductId.ToString().Contains(keyword) ||
+                                         i.ChangeAmount.ToString().Contains(keyword));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            // 4. Sort
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 5. Paging
+            int pageSize = 15;
+            query = query.ApplyPagination(page, pageSize);
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                TypeFilter = typeFilter,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+            ViewBag.SearchModel = searchModel;
+
+            var logs = await query.ToListAsync();
+
+            return View(logs);
         }
 
         // GET: Admin/InventoryLogs/Details/5

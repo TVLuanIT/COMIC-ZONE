@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,50 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Payments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.Payments.Include(p => p.Order);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.Payments
+                .Include(p => p.Order)
+                .AsQueryable();
+
+            // 1. Filter by Status
+            if (!string.IsNullOrEmpty(statusFilter))
+            {
+                query = query.Where(p => p.Paymentstatus == statusFilter);
+            }
+
+            // 2. Search (Paymentid, Orderid, Transactionid)
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(p => p.Paymentid.ToString().Contains(keyword) || 
+                                         p.Orderid.ToString().Contains(keyword) || 
+                                         p.Transactionid.Contains(keyword));
+            }
+
+            // 3. Total count
+            var totalCount = await query.CountAsync();
+
+            // 4. Sort
+            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "Createdat";
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 5. Paging
+            const int pageSize = 12;
+            query = query.ApplyPagination(page, pageSize);
+
+            var searchModel = new AdminSearchModel 
+            { 
+                Keyword = keyword, 
+                StatusFilter = statusFilter,
+                SortColumn = sortColumn, 
+                IsAscending = isAscending, 
+                PageNumber = page, 
+                PageSize = pageSize, 
+                TotalItems = totalCount 
+            };
+            ViewBag.SearchModel = searchModel;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Admin/Payments/Details/5

@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Nhật ký kho hàng";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 }
 
 <div class="container-fluid">
@@ -20,22 +21,33 @@
         </div>
     </div>
 
+    @* Reusable search form *@
+    <partial name="_AdminSearchForm" model="searchModel" />
+
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
             <h5 class="card-title mb-0 fw-bold"><i class="ti ti-history me-2"></i>Danh sách nhật ký</h5>
-            <a asp-action="Create" class="btn btn-primary btn-sm rounded-pill px-3">
+            <a asp-action="Create" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
                 <i class="ti ti-plus me-1"></i> Thêm mới
             </a>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Sản phẩm</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-center">Loại giao dịch</th>
-                            <th class="text-center">Ngày tạo</th>
+                    <thead class="table-light border-bottom">
+                        <tr class="align-middle">
+                            <th class="ps-4">
+                                @Html.SortHeader("Sản phẩm", "Product.Name", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Số lượng", "ChangeAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Loại giao dịch", "Type", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, searchModel.TypeFilter)
+                            </th>
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>
                     </thead>
@@ -58,7 +70,7 @@
                                     }
                                     <span class="fw-bold @colorClass">@prefix@item.ChangeAmount</span>
                                 </td>
-                                <td class="text-center">
+                                <td>
                                     @if (item.Type?.ToLower() == "import" || item.Type?.Contains("Nhập") == true) {
                                         <span class="badge bg-success-subtle text-success px-2 py-1 rounded">
                                             <i class="ti ti-arrow-up-right me-1"></i>Nhập kho
@@ -69,7 +81,7 @@
                                         </span>
                                     }
                                 </td>
-                                <td class="text-center text-muted">
+                                <td class="text-muted">
                                     @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                 </td>
                                 <td class="text-end pe-4">
@@ -98,5 +110,12 @@
                 </div>
             }
         </div>
+        
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
     </div>
 </div>

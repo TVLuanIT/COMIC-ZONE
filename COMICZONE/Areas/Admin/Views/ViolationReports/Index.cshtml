@@ -5,6 +5,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Báo cáo vi phạm";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 
     string? content = null;
 
@@ -17,19 +18,38 @@
         <div class="card-header bg-gradient bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">📋 Báo cáo vi phạm</h4>
         </div>
+        
+        @* Reusable search form *@
+        <div class="px-4 pt-4">
+            <partial name="_AdminSearchForm" model="searchModel" />
+        </div>
 
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table align-middle table-hover custom-table">
                     <thead>
-                        <tr>
-                            <th class="fw-bold text-center">Loại</th>
-                            <th class="fw-bold">Nội dung bị báo cáo</th>
-                            <th class="fw-bold">Lý do</th>
-                            <th class="fw-bold text-center">Trạng thái</th>
-                            <th class="fw-bold">Ngày gửi</th>
-                            <th class="fw-bold text-center">Đã xóa</th>
-                            <th class="fw-bold">Người gửi</th>
+                        <tr class="align-middle">
+                            <th class="fw-bold text-center">
+                                @Html.SortHeader("Loại", "Reporttype", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold">
+                                @Html.SortHeader("Nội dung bị báo cáo", "Targetid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold">
+                                @Html.SortHeader("Lý do", "Reason", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold text-center">
+                                @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold">
+                                @Html.SortHeader("Ngày gửi", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold text-center">
+                                @Html.SortHeader("Đã xóa", "Isdeleted", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
+                            <th class="fw-bold">
+                                @Html.SortHeader("Người gửi", "User.Username", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, searchModel.TypeFilter)
+                            </th>
                             <th class="fw-bold text-center">Hành động</th>
                         </tr>
                     </thead>
@@ -39,9 +59,9 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr id="report-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
+                                <tr id="report-row-@item.Id" class="align-middle @(item.Isdeleted ? "bg-light text-muted" : "")">
                                     <!-- Loại -->
-                                    <td class="text-center">
+                                    <td>
                                         <span class="badge rounded-pill px-3 py-2 fw-semibold
                                             @(item.ReportTypeEnum == ReportType.Review
                                                 ? "bg-primary-subtle text-primary"
@@ -72,7 +92,7 @@
                                     <td class="text-muted">@item.Reason</td>
 
                                     <!-- Trạng thái -->
-                                    <td class="text-center">
+                                    <td>
                                         <span class="badge rounded-pill px-3 py-2 fw-semibold
                                             @(item.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
                                                 item.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
@@ -87,7 +107,7 @@
                                     </td>
 
                                     <!-- Đã xóa -->
-                                    <td class="text-center" id="status-cell-@item.Id">
+                                    <td id="status-cell-@item.Id">
                                         @if (item.Isdeleted)
                                         {
                                             <span class="badge bg-danger text-white rounded-pill px-3 py-2">Đã xóa</span>
@@ -135,6 +155,13 @@
                     }
                 </table>
             </div>
-        </div>
-    </div>
-</div>
+        </div> <!-- card-body closed -->
+        
+        @if (Model != null && Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
+    </div> <!-- card closed -->
+</div> <!-- container-fluid closed -->

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class RefundsController : Controller
+    public class RefundsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 
@@ -21,10 +23,42 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Refunds
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.Refunds.Include(r => r.Payment);
-            return View(await comiczoneContext.ToListAsync());
+            const int pageSize = 12;
+
+            var query = _context.Refunds.Include(r => r.Payment).AsQueryable();
+
+            // Search
+            query = query.ApplySearch(keyword, "Paymentid", "Status", "Reason");
+
+            // Sort
+            if (string.IsNullOrEmpty(sortColumn))
+            {
+                sortColumn = "CreatedAt";
+                isAscending = false;
+            }
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // Total count
+            var totalCount = await query.CountAsync();
+
+            // Pagination
+            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalCount
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            return View(pagedResults);
         }
 
         // GET: Admin/Refunds/Details/5

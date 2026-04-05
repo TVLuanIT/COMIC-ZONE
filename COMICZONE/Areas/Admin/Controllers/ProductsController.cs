@@ -7,6 +7,8 @@ using COMICZONE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,14 +23,40 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? sortColumn = "Id", bool isAscending = false, int page = 1)
         {
-            var products = await _context.Products
+            var query = _context.Products
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
                 .Include(p => p.ProductReviewSummary)
-                .ToListAsync();
+                .AsQueryable();
+
+            // 1. Search (Name, Author, Distributor, Series)
+            query = query.ApplySearch(keyword, "Name", "Author", "Distributor", "Series", "Description");
+            
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 3. Paging
+            int pageSize = 10;
+            query = query.ApplyPagination(page, pageSize);
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            var products = await query.ToListAsync();
 
             return View(products);
         }

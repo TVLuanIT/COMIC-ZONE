@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý thông báo";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
 }
 
 <div class="container-fluid">
@@ -20,6 +21,9 @@
             </div>
         </div>
     </div>
+    
+    @* Reusable search form *@
+    <partial name="_AdminSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0">
@@ -37,15 +41,29 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-nowrap">
                     <thead class="table-light text-uppercase small fw-bold">
-                        <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Thông báo</th>
-                            <th>Người nhận</th>
-                            <th>Người gửi</th>
-                            <th class="text-center">Hiển thị</th>
-                            <th class="text-center">Đã đọc</th>
-                            <th class="text-center">Ngày tạo</th>
-                            <th class="text-end pe-4">Thao tác</th>
+                        <tr class="align-middle">
+                            <th class="ps-4">
+                                @Html.SortHeader("ID", "NotificationId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Thông báo", "Title", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Người nhận", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Người gửi", "CreatedByNavigation.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Hiển thị", "Isdeleted", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Đã đọc", "IsRead", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
+                            </th>
+                            <th class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
 
@@ -168,4 +186,11 @@
             }
         </div>
     </div>
+    
+    @if (Model.Any())
+    {
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
+        </div>
+    }
 </div>

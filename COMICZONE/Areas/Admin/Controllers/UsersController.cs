@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Models.Enums;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +24,59 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? roleFilter, string? sortColumn, bool isAscending = false, int page = 1)
         {
             ViewBag.CurrentUserId = HttpContext.Session.GetString("UserId");
-            return View(await _context.Users.ToListAsync());
+
+            var query = _context.Users.AsQueryable();
+
+            // 1. Filter by Status (Isactive)
+            if (!string.IsNullOrEmpty(statusFilter))
+            {
+                bool isActive = statusFilter == "Active";
+                query = query.Where(u => u.Isactive == isActive);
+            }
+
+            // 2. Filter by Role
+            if (!string.IsNullOrEmpty(roleFilter))
+            {
+                query = query.Where(u => u.Role == roleFilter);
+            }
+
+            // 3. Search (Username, Email, Id)
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(u => u.Username.Contains(keyword) || 
+                                         u.Email.Contains(keyword) || 
+                                         u.Id.ToString().Contains(keyword));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            // 4. Sort
+            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "Id";
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // 5. Paging
+            const int pageSize = 10;
+            query = query.ApplyPagination(page, pageSize);
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                StatusFilter = statusFilter,
+                RoleFilter = roleFilter,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+            ViewBag.SearchModel = searchModel;
+
+            var users = await query.ToListAsync();
+
+            return View(users);
         }
 
         // GET: Admin/Users/Details/5

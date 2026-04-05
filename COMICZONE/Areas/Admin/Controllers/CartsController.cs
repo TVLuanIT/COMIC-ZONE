@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,13 +23,51 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Carts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.Carts
+            const int pageSize = 12;
+
+            var query = _context.Carts
                 .Include(c => c.User)
                 .Include(c => c.CartItems)
-                    .ThenInclude(ci => ci.Product);
-            return View(await comiczoneContext.ToListAsync());
+                    .ThenInclude(ci => ci.Product)
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(c => c.CartId.ToString().Contains(keyword) || 
+                                         (c.User != null && c.User.Username.Contains(keyword)) ||
+                                         c.CartItems.Any(ci => ci.Product.Name.Contains(keyword)));
+            }
+
+            // Sort
+            if (string.IsNullOrEmpty(sortColumn))
+            {
+                sortColumn = "CreatedAt";
+                isAscending = false;
+            }
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // Total count
+            var totalCount = await query.CountAsync();
+
+            // Pagination
+            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalCount
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            return View(pagedResults);
         }
 
         // GET: Admin/Carts/Details/5

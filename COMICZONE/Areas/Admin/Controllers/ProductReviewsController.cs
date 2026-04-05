@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +25,65 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/ProductReviews
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
         {
-            var comiczoneContext = _context.ProductReviews
+            const int pageSize = 12;
+
+            var query = _context.ProductReviews
                 .Include(r => r.Product)
                     .ThenInclude(p => p.Pictures)
-                .Include(r => r.User);
+                .Include(r => r.User)
+                .AsQueryable();
 
-            return View(await comiczoneContext.ToListAsync());
+            // Status Filter
+            if (!string.IsNullOrEmpty(statusFilter))
+            {
+                if (statusFilter == "Visible")
+                {
+                    query = query.Where(r => !r.Isdeleted);
+                }
+                else if (statusFilter == "Hidden")
+                {
+                    query = query.Where(r => r.Isdeleted);
+                }
+            }
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(r => r.Reviewcontent.Contains(keyword) || 
+                                         (r.Product != null && r.Product.Name.Contains(keyword)) ||
+                                         (r.User != null && r.User.Username.Contains(keyword)));
+            }
+
+            // Sort
+            if (string.IsNullOrEmpty(sortColumn))
+            {
+                sortColumn = "CreatedAt";
+                isAscending = false;
+            }
+            query = query.ApplySort(sortColumn, isAscending);
+
+            // Total count
+            var totalCount = await query.CountAsync();
+
+            // Pagination
+            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+
+            var searchModel = new AdminSearchModel
+            {
+                Keyword = keyword,
+                StatusFilter = statusFilter,
+                SortColumn = sortColumn,
+                IsAscending = isAscending,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalCount
+            };
+
+            ViewBag.SearchModel = searchModel;
+
+            return View(pagedResults);
         }
 
         // GET: Admin/ProductReviews/Details/5
