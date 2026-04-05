@@ -3,7 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý thẻ";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.TagSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.TagSearchModel();
 }
 
 <div class="container-fluid">
@@ -18,7 +18,7 @@
     </div>
 
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_TagSearchForm" model="searchModel" />
 
     <!-- TABLE -->
     <div class="card shadow-sm border-0">

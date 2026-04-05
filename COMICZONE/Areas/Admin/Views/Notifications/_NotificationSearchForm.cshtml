@@ -1,0 +1,132 @@
+@model COMICZONE.Areas.Admin.ViewModels.NotificationSearchRequest
+
+<div class="card shadow-sm border-0 mb-4 bg-light-subtle">
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <!-- Hidden Fields for Sort and Page -->
+            <input type="hidden" asp-for="SortColumn" />
+            <input type="hidden" asp-for="IsAscending" />
+
+            <div class="row g-3">
+                <!-- 1. Row: Basic Search -->
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Từ khóa chung</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ti ti-search"></i></span>
+                        <input asp-for="Keyword" class="form-control border-start-0" placeholder="Tiêu đề, nội dung, user..." />
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">ID Thông báo</label>
+                    <input asp-for="NotificationId" class="form-control form-control-sm" placeholder="Nhập ID..." />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Trạng thái đọc</label>
+                    <select asp-for="IsRead" class="form-select form-select-sm">
+                        <option value="">-- Tất cả --</option>
+                        <option value="false">Chưa đọc</option>
+                        <option value="true">Đã đọc</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end justify-content-end gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="collapse" data-bs-target="#notifAdvancedSearch" aria-expanded="false">
+                        <i class="ti ti-adjustments-horizontal me-1"></i>Nâng cao
+                    </button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary px-3 shadow-sm">
+                        <i class="ti ti-refresh me-1"></i>Reset
+                    </a>
+                    <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm">
+                        <i class="ti ti-filter me-1"></i>Lọc dữ liệu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Search (Collapsible) -->
+            <div class="collapse @(CheckIfAdvancedFiltersUsed() ? "show" : "") mt-3 pt-3 border-top" id="notifAdvancedSearch">
+                <div class="row g-3">
+                    <!-- Section: Recipient & Sender -->
+                    <div class="col-12 mt-0">
+                        <span class="badge bg-primary-subtle text-primary mb-2">Người nhận & Người gửi</span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Username người nhận</label>
+                        <input asp-for="Username" class="form-control form-control-sm" placeholder="Username..." />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Email người nhận</label>
+                        <input asp-for="UserEmail" class="form-control form-control-sm" placeholder="Email..." />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">SĐT khách hàng</label>
+                        <input asp-for="CustomerPhoneNumber" class="form-control form-control-sm" placeholder="Số điện thoại..." />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Username người gửi</label>
+                        <input asp-for="CreatedByUsername" class="form-control form-control-sm" placeholder="Admin username..." />
+                    </div>
+
+                    <!-- Section: Content Specifics -->
+                    <div class="col-12">
+                        <span class="badge bg-success-subtle text-success mb-2">Nội dung chi tiết</span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Từ khóa tiêu đề</label>
+                        <input asp-for="TitleKeyword" class="form-control form-control-sm" placeholder="Tìm trong tiêu đề..." />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Từ khóa nội dung</label>
+                        <input asp-for="MessageKeyword" class="form-control form-control-sm" placeholder="Tìm trong nội dung..." />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Từ khóa liên kết (Link)</label>
+                        <input asp-for="LinkKeyword" class="form-control form-control-sm" placeholder="Tìm trong link..." />
+                    </div>
+
+                    <!-- Section: Dates & More -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Ngày tạo từ</label>
+                        <input asp-for="CreatedFrom" type="date" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Đến ngày</label>
+                        <input asp-for="CreatedTo" type="date" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-6">
+                         <div class="d-flex flex-wrap gap-4 mt-4">
+                            <div class="form-check">
+                                <input asp-for="SystemOnly" class="form-check-input" type="checkbox">
+                                <label asp-for="SystemOnly" class="form-check-label small fw-bold">Hệ thống</label>
+                            </div>
+                            <div class="form-check">
+                                <input asp-for="ManualOnly" class="form-check-input" type="checkbox">
+                                <label asp-for="ManualOnly" class="form-check-label small fw-bold">Admin gửi</label>
+                            </div>
+                            <div class="form-check">
+                                <input asp-for="UnreadByUserOnly" class="form-check-input" type="checkbox">
+                                <label asp-for="UnreadByUserOnly" class="form-check-label small fw-bold text-danger">Chưa đọc (User)</label>
+                            </div>
+                            <div class="form-check">
+                                <input asp-for="IsDeleted" class="form-check-input" type="checkbox">
+                                <label asp-for="IsDeleted" class="form-check-label small fw-bold">Đã ẩn</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Username) || !string.IsNullOrWhiteSpace(Model.UserEmail) ||
+               !string.IsNullOrWhiteSpace(Model.CustomerPhoneNumber) || !string.IsNullOrWhiteSpace(Model.CreatedByUsername) ||
+               !string.IsNullOrWhiteSpace(Model.TitleKeyword) || !string.IsNullOrWhiteSpace(Model.MessageKeyword) ||
+               !string.IsNullOrWhiteSpace(Model.LinkKeyword) || Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue ||
+               Model.SystemOnly || Model.ManualOnly || Model.UnreadByUserOnly || Model.IsDeleted == true;
+    }
+}

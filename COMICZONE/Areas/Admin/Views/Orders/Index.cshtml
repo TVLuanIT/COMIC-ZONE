@@ -5,7 +5,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý đơn hàng";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.OrderSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.OrderSearchModel();
 }
 
 <div class="container-fluid py-4">
@@ -86,7 +86,7 @@
     </div>
 
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_OrderSearchForm" model="searchModel" />
 
     <!-- Main Table Card -->
     <div class="card shadow-sm border-0 overflow-hidden">
@@ -101,19 +101,19 @@
                 <thead class="table-light border-bottom fw-bold text-uppercase small">
                     <tr class="align-middle">
                         <th class="ps-4">
-                            @Html.SortHeader("Mã đơn", "OrderId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                            @Html.SortHeader("Mã đơn", "OrderId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                         </th>
                         <th>
-                            @Html.SortHeader("Khách hàng", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                            @Html.SortHeader("Khách hàng", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                         </th>
                         <th class="text-center">
-                            @Html.SortHeader("Ngày đặt", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                            @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                         </th>
                         <th class="text-center">
-                            @Html.SortHeader("Tổng tiền", "TotalAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                            @Html.SortHeader("Tổng tiền", "TotalAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                         </th>
                         <th class="text-center">
-                            @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                            @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                         </th>
                         <th class="text-center">Đã xóa</th>
                         <th class="text-center pe-4">Thao tác</th>

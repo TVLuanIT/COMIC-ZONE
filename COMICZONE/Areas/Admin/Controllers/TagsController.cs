@@ -22,33 +22,32 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? keyword, string? sortColumn = "Name", bool isAscending = true, int page = 1)
+        // GET: Admin/Tags
+        public async Task<IActionResult> Index(TagSearchModel search)
         {
             var query = _context.Tags
                 .Include(t => t.Products)
                 .AsQueryable();
 
-            // 1. Search (Name)
-            query = query.ApplySearch(keyword, "Name");
+            // 1. Search & Filter
+            query = query.ApplyTagFilters(search);
+            
             var totalItems = await query.CountAsync();
 
             // 2. Sort
-            query = query.ApplySort(sortColumn, isAscending);
+            query = query.ApplySort(search.SortColumn ?? "Name", search.IsAscending);
 
             // 3. Paging
-            int pageSize = 20;
-            query = query.ApplyPagination(page, pageSize);
+            int pageSize = search.PageSize > 0 ? search.PageSize : 20;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            var searchModel = new AdminSearchModel 
-            { 
-                Keyword = keyword, 
-                SortColumn = sortColumn, 
-                IsAscending = isAscending, 
-                PageNumber = page, 
-                PageSize = pageSize, 
-                TotalItems = totalItems 
-            };
-            ViewBag.SearchModel = searchModel;
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
 
             var tags = await query.ToListAsync();
 

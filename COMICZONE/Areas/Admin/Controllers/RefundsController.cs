@@ -23,42 +23,37 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Refunds
-        public async Task<IActionResult> Index(string? keyword, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(RefundSearchModel search)
         {
-            const int pageSize = 12;
+            var query = _context.Refunds
+                .Include(r => r.Payment)
+                    .ThenInclude(p => p.Order)
+                        .ThenInclude(o => o.User)
+                .AsQueryable();
 
-            var query = _context.Refunds.Include(r => r.Payment).AsQueryable();
+            // 1. Search & Filter
+            query = query.ApplyRefundFilters(search);
 
-            // Search
-            query = query.ApplySearch(keyword, "Paymentid", "Status", "Reason");
-
-            // Sort
-            if (string.IsNullOrEmpty(sortColumn))
-            {
-                sortColumn = "CreatedAt";
-                isAscending = false;
-            }
-            query = query.ApplySort(sortColumn, isAscending);
-
-            // Total count
             var totalCount = await query.CountAsync();
 
-            // Pagination
-            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
 
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalCount
-            };
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            ViewBag.SearchModel = searchModel;
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
 
-            return View(pagedResults);
+            ViewBag.SearchModel = search;
+
+            var refunds = await query.ToListAsync();
+
+            return View(refunds);
         }
 
         // GET: Admin/Refunds/Details/5

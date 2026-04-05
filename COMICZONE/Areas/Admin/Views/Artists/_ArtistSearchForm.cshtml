@@ -1,0 +1,97 @@
+@model COMICZONE.Areas.Admin.ViewModels.ArtistSearchModel
+
+<form method="get" class="artist-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Tên hoặc mã họa sĩ...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Hoạt động</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="UnusedArtistsOnly" value="true" @(Model.UnusedArtistsOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary">Chưa có SP</label>
+            </div>
+        </div>
+
+        <div class="col-md-4 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#artistAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="artistAdvancedSearch">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">ID</label>
+                <input type="number" name="Id" value="@Model.Id" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên họa sĩ (Exact)</label>
+                <input type="text" name="Name" value="@Model.Name" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên sản phẩm liên quan</label>
+                <input type="text" name="ProductNames" value="@Model.ProductNames" class="form-control" placeholder="Tên sản phẩm (cách nhau bằng dấu phẩy)...">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số SP từ</label>
+                <input type="number" name="ProductCountMin" value="@Model.ProductCountMin" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số SP đến</label>
+                <input type="number" name="ProductCountMax" value="@Model.ProductCountMax" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Có sản phẩm?</label>
+                <select name="HasProducts" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="true" selected="@(Model.HasProducts == true)">Có</option>
+                    <option value="false" selected="@(Model.HasProducts == false)">Không</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.Id.HasValue || !string.IsNullOrWhiteSpace(Model.Name) ||
+               !string.IsNullOrWhiteSpace(Model.ProductNames) ||
+               Model.ProductCountMin.HasValue || Model.ProductCountMax.HasValue ||
+               Model.HasProducts.HasValue;
+    }
+}

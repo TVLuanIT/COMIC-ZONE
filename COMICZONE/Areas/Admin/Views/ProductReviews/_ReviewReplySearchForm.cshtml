@@ -1,0 +1,126 @@
+@model COMICZONE.Areas.Admin.ViewModels.ReviewReplySearchModel
+
+<form method="get" class="reply-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <input type="hidden" name="activeTab" value="Replies" />
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="replySearch.Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã PH, ĐG, Username, Nội dung...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Phân cấp</label>
+            <select name="replySearch.TopLevelOnly" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="true" selected="@(Model.TopLevelOnly == true)">Cấp 1 (Gốc)</option>
+                <option value="false" selected="@(Model.TopLevelOnly == false)">Cấp 2+ (Phản hồi con)</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="replySearch.IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang hiển thị</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" asp-route-activeTab="Replies" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="replyAdvancedSearch">
+        <div class="row g-3">
+            @* User Info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Người gửi & Đối tượng</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username người gửi</label>
+                <input type="text" name="replySearch.Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email người gửi</label>
+                <input type="text" name="replySearch.UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Gửi tới Username</label>
+                <input type="text" name="replySearch.ReplyToUsername" value="@Model.ReplyToUsername" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã phản hồi cha (ParentID)</label>
+                <input type="number" name="replySearch.ParentReplyId" value="@Model.ParentReplyId" class="form-control">
+            </div>
+
+            @* Product & Context Info *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Sản phẩm & Chi tiết phản hồi</h6></div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã sản phẩm</label>
+                <input type="number" name="replySearch.ProductId" value="@Model.ProductId" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên sản phẩm</label>
+                <input type="text" name="replySearch.ProductName" value="@Model.ProductName" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Lượt thích Min</label>
+                <input type="number" name="replySearch.LikeCountMin" value="@Model.LikeCountMin" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex flex-wrap gap-3 pt-3 mt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="replySearch.NoChildReplyOnly" value="true" @(Model.NoChildReplyOnly == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary text-warning">Chưa có PH con</label>
+                    </div>
+                </div>
+            </div>
+
+            @* Timeline & Status *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thời gian & Trạng thái</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày gửi từ</label>
+                <input type="date" name="replySearch.CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày gửi đến</label>
+                <input type="date" name="replySearch.CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+             <div class="col-md-3">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="replySearch.ChildReplyOnly" value="true" @(Model.ChildReplyOnly == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Chỉ hiện PH con</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="replySearch.SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="replySearch.IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Username) || !string.IsNullOrWhiteSpace(Model.UserEmail) ||
+               !string.IsNullOrWhiteSpace(Model.ReplyToUsername) || Model.ParentReplyId.HasValue ||
+               Model.ProductId.HasValue || !string.IsNullOrWhiteSpace(Model.ProductName) ||
+               Model.LikeCountMin.HasValue || Model.NoChildReplyOnly == true ||
+               Model.CreatedFrom.HasValue || Model.ChildReplyOnly == true;
+    }
+}

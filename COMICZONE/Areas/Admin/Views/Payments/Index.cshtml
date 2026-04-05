@@ -3,7 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý thanh toán";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.PaymentSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.PaymentSearchModel();
 }
 
 <div class="container-fluid">
@@ -22,7 +22,7 @@
     </div>
     
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_PaymentSearchForm" model="searchModel" />
 
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
@@ -34,22 +34,22 @@
                     <thead class="table-light">
                         <tr class="align-middle">
                             <th class="ps-4">
-                                @Html.SortHeader("Mã GD", "Paymentid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Mã GD", "Paymentid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th>
-                                @Html.SortHeader("Mã Đơn", "Orderid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Mã Đơn", "Orderid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Trạng thái", "Paymentstatus", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Trạng thái", "Paymentstatus", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Phương thức", "Paymentmethod", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Phương thức", "Paymentmethod", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter, null, null)
+                                @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>

@@ -1,0 +1,168 @@
+@model COMICZONE.Areas.Admin.ViewModels.ViolationReportSearchRequest
+
+<div class="card shadow-sm border-0 mb-4 overflow-hidden">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get" id="violationReportSearchForm">
+            <!-- Hidden inputs for sorting to preserve them during search -->
+            <input type="hidden" asp-for="SortColumn" />
+            <input type="hidden" asp-for="IsAscending" />
+
+            <div class="row g-3">
+                <!-- Basic Search Box -->
+                <div class="col-md-6 col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="ti ti-search text-muted"></i>
+                        </span>
+                        <input asp-for="Keyword" class="form-control border-start-0 ps-0" placeholder="Tìm theo lý do, ID, ID mục tiêu, Người báo cáo..." />
+                    </div>
+                </div>
+
+                <!-- Type Filter -->
+                <div class="col-6 col-md-3 col-lg-3">
+                    <select asp-for="ReportType" class="form-select" asp-items="Html.GetEnumSelectList<COMICZONE.Models.Enums.ReportType>()">
+                        <option value="">-- Tất cả loại --</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-6 col-md-3 col-lg-2">
+                    <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<COMICZONE.Models.Enums.ReportStatus>()">
+                        <option value="">-- Tất cả trạng thái --</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-12 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                        <i class="ti ti-filter me-1"></i> Lọc
+                    </button>
+                    <button type="button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-expanded="false">
+                        <i class="ti ti-adjustments-horizontal"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Search Section (Collapsible) -->
+            <div class="collapse @(Model.UserId.HasValue || !string.IsNullOrEmpty(Model.Username) || Model.CreatedFrom.HasValue || Model.HighPriorityOnly || Model.DuplicateTargetOnly ? "show" : "")" id="advancedSearch">
+                <hr class="my-4 opacity-25">
+                
+                <div class="row g-4">
+                    <!-- Reporter Cluster -->
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-3 text-dark small text-uppercase ls-wide">
+                            <i class="ti ti-user-search me-2 text-primary"></i>Thông tin Người báo cáo
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label asp-for="Username" class="form-label small fw-semibold">Tên đăng nhập</label>
+                                <input asp-for="Username" class="form-control form-control-sm" placeholder="Username..." />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="UserEmail" class="form-label small fw-semibold">Email</label>
+                                <input asp-for="UserEmail" class="form-control form-control-sm" placeholder="Email..." />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="CustomerPhoneNumber" class="form-label small fw-semibold">Số điện thoại</label>
+                                <input asp-for="CustomerPhoneNumber" class="form-control form-control-sm" placeholder="SĐT..." />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="UserId" class="form-label small fw-semibold">User ID</label>
+                                <input asp-for="UserId" class="form-control form-control-sm" placeholder="ID..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content & Date Cluster -->
+                    <div class="col-md-7">
+                        <h6 class="fw-bold mb-3 text-dark small text-uppercase ls-wide">
+                            <i class="ti ti-file-description me-2 text-primary"></i>Nội dung & Thời gian
+                        </h6>
+                        <div class="row g-3">
+                             <div class="col-md-4">
+                                <label asp-for="TargetId" class="form-label small fw-semibold">Target ID (Review/Reply ID)</label>
+                                <input asp-for="TargetId" class="form-control form-control-sm" placeholder="ID mục tiêu..." />
+                            </div>
+                             <div class="col-md-4">
+                                <label asp-for="CreatedFrom" class="form-label small fw-semibold">Từ ngày</label>
+                                <input asp-for="CreatedFrom" type="date" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="CreatedTo" class="form-label small fw-semibold">Đến ngày</label>
+                                <input asp-for="CreatedTo" type="date" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flags & Quick Options -->
+                    <div class="col-md-5">
+                        <h6 class="fw-bold mb-3 text-dark small text-uppercase ls-wide">
+                            <i class="ti ti-settings-automation me-2 text-primary"></i>Điều kiện đặc biệt
+                        </h6>
+                        <div class="bg-light p-3 rounded-3 border border-light-subtle">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="form-check form-switch custom-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="UnresolvedOnly">
+                                        <label class="form-check-label small" asp-for="UnresolvedOnly">Chưa xử lý</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check form-switch custom-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="HighPriorityOnly">
+                                        <label class="form-check-label small" asp-for="HighPriorityOnly">Ưu tiên cao</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check form-switch custom-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="DuplicateTargetOnly">
+                                        <label class="form-check-label small" asp-for="DuplicateTargetOnly">Bị báo cáo nhiều lần</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check form-switch custom-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="IsDeleted">
+                                        <label class="form-check-label small" asp-for="IsDeleted">Đã ẩn (Xóa mềm)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4 pt-3 border-top border-light">
+                    <a asp-action="Index" class="btn btn-link btn-sm text-decoration-none text-muted me-2">
+                        <i class="ti ti-refresh me-1"></i> Đặt lại
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 shadow-sm">
+                        Áp dụng bộ lọc
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .custom-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+        cursor: pointer;
+    }
+    
+    .ls-wide {
+        letter-spacing: 0.05em;
+    }
+    
+    .input-group-text {
+        color: #64748b;
+    }
+
+    #advancedSearch {
+        transition: all 0.3s ease;
+    }
+    
+    .form-label {
+        color: #475569;
+    }
+</style>

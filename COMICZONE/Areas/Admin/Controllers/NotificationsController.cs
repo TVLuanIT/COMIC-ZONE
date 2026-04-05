@@ -23,45 +23,34 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Notifications
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(NotificationSearchRequest request)
         {
             var query = _context.Notifications
                 .Include(n => n.User)
+                    .ThenInclude(u => u.Customer)
                 .Include(n => n.CreatedByNavigation)
                 .AsQueryable();
 
-            // 1. Search (Title, Username, Message)
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(n => n.Title.Contains(keyword) || 
-                                         n.User.Username.Contains(keyword) ||
-                                         n.CreatedByNavigation.Username.Contains(keyword) ||
-                                         n.Message.Contains(keyword));
-            }
+            // 1. Apply Search/Filter
+            query = query.ApplySearch(request);
 
             var totalItems = await query.CountAsync();
 
             // 2. Sort
-            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "CreatedAt";
-            query = query.ApplySort(sortColumn, isAscending);
+            query = query.ApplySort(request.SortColumn, request.IsAscending);
 
             // 3. Paging
-            const int pageSize = 10;
-            query = query.ApplyPagination(page, pageSize);
+            query = query.ApplyPagination(request.Page, request.PageSize);
 
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                StatusFilter = statusFilter,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalItems
-            };
-            ViewBag.SearchModel = searchModel;
+            // 4. Update request metadata for pagination
+            request.TotalItems = totalItems;
+            request.Page = request.Page; // Sync
+            
+            ViewBag.SearchModel = request;
 
-            return View(await query.ToListAsync());
+            var notifications = await query.ToListAsync();
+
+            return View(notifications);
         }
 
         // GET: Admin/Notifications/Details/5

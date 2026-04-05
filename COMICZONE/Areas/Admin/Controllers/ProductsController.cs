@@ -23,7 +23,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Products
-        public async Task<IActionResult> Index(string? keyword, string? sortColumn = "Id", bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(ProductSearchModel search)
         {
             var query = _context.Products
                 .Include(p => p.Pictures)
@@ -32,29 +32,27 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.ProductReviewSummary)
                 .AsQueryable();
 
-            // 1. Search (Name, Author, Distributor, Series)
-            query = query.ApplySearch(keyword, "Name", "Author", "Distributor", "Series", "Description");
+            // 1. Search & Filter
+            query = query.ApplyProductFilters(search);
             
             var totalItems = await query.CountAsync();
 
             // 2. Sort
-            query = query.ApplySort(sortColumn, isAscending);
+            query = query.ApplySort(search.SortColumn ?? "Id", search.IsAscending);
 
             // 3. Paging
-            int pageSize = 10;
-            query = query.ApplyPagination(page, pageSize);
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalItems
-            };
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
 
-            ViewBag.SearchModel = searchModel;
+            ViewBag.SearchModel = search;
+            ViewBag.Artists = await _context.Artists.Where(a => !a.Isdeleted).ToListAsync();
+            ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
 
             var products = await query.ToListAsync();
 

@@ -23,89 +23,32 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? typeFilter, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(ViolationReportSearchRequest request)
         {
-            const int pageSize = 12;
-
             var query = _context.ViolationReports
                 .Include(v => v.User)
+                    .ThenInclude(u => u.Customer)
                 .AsQueryable();
 
-            // 1. Filter by Status
-            if (!string.IsNullOrEmpty(statusFilter))
-            {
-                if (Enum.TryParse<ReportStatus>(statusFilter, out var status))
-                {
-                    query = query.Where(v => v.Status == (int)status);
-                }
-            }
+            // 1. Apply Filtering
+            query = query.ApplyViolationReportSearch(request);
 
-            // 2. Filter by Type
-            if (!string.IsNullOrEmpty(typeFilter))
-            {
-                if (Enum.TryParse<ReportType>(typeFilter, out var type))
-                {
-                    query = query.Where(v => v.Reporttype == (int)type);
-                }
-            }
+            // 2. Count Total (for pagination)
+            request.TotalItems = await query.CountAsync();
 
-            // 3. Search
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                query = query.Where(v => v.Reason.Contains(keyword) || 
-                                         v.Targetid.ToString().Contains(keyword) ||
-                                         (v.User != null && v.User.Username.Contains(keyword)));
-            }
+            // 3. Sorting
+            query = query.ApplyViolationReportSort(request.SortColumn, request.IsAscending);
 
-            // Sort
-            if (string.IsNullOrEmpty(sortColumn))
-            {
-                sortColumn = "Createdat";
-                isAscending = false;
-            }
-            query = query.ApplySort(sortColumn, isAscending);
+            // 4. Pagination
+            var pagedResults = await query.ApplyPagination(request.Page, request.PageSize).ToListAsync();
 
-            // Total count
-            var totalCount = await query.CountAsync();
-
-            // Pagination
-            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
-
-            // Custom mapping logic (preserved from original)
-            var userIds = pagedResults
-                .Select(r => r.Userid)
-                .Distinct()
-                .ToList();
-
-            var users = (await _context.Users
-                .AsNoTracking()
-                .ToListAsync())
-                .ToDictionary(u => u.Id);
-
-            ViewBag.Users = users;
-
+            // Custom mapping logic (preserved context for the view)
             var reviewList = await _context.ProductReviews.ToListAsync();
             var replyList = await _context.ProductReviewReplies.ToListAsync();
 
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
-
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                StatusFilter = statusFilter,
-                TypeFilter = typeFilter,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalCount
-            };
-
-            ViewBag.SearchModel = searchModel;
+            ViewBag.ReviewContents = reviewList.ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
+            ViewBag.ReplyContents = replyList.ToDictionary(r => r.Replyid, r => r.Replycontent);
+            ViewBag.SearchModel = request;
 
             return View(pagedResults);
         }

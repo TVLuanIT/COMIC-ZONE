@@ -1,0 +1,144 @@
+@model COMICZONE.Areas.Admin.ViewModels.ReviewSearchModel
+
+<form method="get" class="review-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <input type="hidden" name="activeTab" value="Reviews" />
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="reviewSearch.Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã ĐG, Username, SP, Nội dung...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Số sao</label>
+            <select name="reviewSearch.Rating" class="form-select">
+                <option value="">-- Tất cả --</option>
+                @for(int i=5; i>=1; i--) {
+                    <option value="@i" selected="@(Model.Rating == i)">@i Sao</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="reviewSearch.IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang hiển thị</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#reviewAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" asp-route-activeTab="Reviews" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="reviewAdvancedSearch">
+        <div class="row g-3">
+            @* User & Product info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Người dùng & Sản phẩm</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username</label>
+                <input type="text" name="reviewSearch.Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="reviewSearch.UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên sản phẩm</label>
+                <input type="text" name="reviewSearch.ProductName" value="@Model.ProductName" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">SĐT (Hồ sơ)</label>
+                <input type="text" name="reviewSearch.CustomerPhoneNumber" value="@Model.CustomerPhoneNumber" class="form-control">
+            </div>
+
+            @* Quantitative & Flags *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Định lượng & Trạng thái phản hồi</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số sao (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="reviewSearch.RatingMin" value="@Model.RatingMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="reviewSearch.RatingMax" value="@Model.RatingMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số phản hồi (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="reviewSearch.ReplyCountMin" value="@Model.ReplyCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="reviewSearch.ReplyCountMax" value="@Model.ReplyCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-wrap gap-3 pt-3 mt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="reviewSearch.NoReplyOnly" value="true" @(Model.NoReplyOnly == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary text-warning">Chưa có PH</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="reviewSearch.HasAdminReply" value="true" @(Model.HasAdminReply == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary text-info">Admin đã PH</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Lượt thích (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="reviewSearch.LikeCountMin" value="@Model.LikeCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="reviewSearch.LikeCountMax" value="@Model.LikeCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+
+            @* Timeline *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thời gian</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày đánh giá từ</label>
+                <input type="date" name="reviewSearch.CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày đánh giá đến</label>
+                <input type="date" name="reviewSearch.CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật từ</label>
+                <input type="date" name="reviewSearch.UpdatedFrom" value="@(Model.UpdatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật đến</label>
+                <input type="date" name="reviewSearch.UpdatedTo" value="@(Model.UpdatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="reviewSearch.SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="reviewSearch.IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Username) || !string.IsNullOrWhiteSpace(Model.UserEmail) ||
+               !string.IsNullOrWhiteSpace(Model.ProductName) || !string.IsNullOrWhiteSpace(Model.CustomerPhoneNumber) ||
+               Model.RatingMin.HasValue || Model.RatingMax.HasValue ||
+               Model.ReplyCountMin.HasValue || Model.ReplyCountMax.HasValue ||
+               Model.NoReplyOnly == true || Model.HasAdminReply == true ||
+               Model.LikeCountMin.HasValue || Model.CreatedFrom.HasValue ||
+               Model.UpdatedFrom.HasValue;
+    }
+}

@@ -4,25 +4,45 @@
 {
     var startPage = Math.Max(1, Model.PageNumber - 2);
     var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
-    var queryParams = $"keyword={Model.Keyword}&statusFilter={Model.StatusFilter}&roleFilter={Model.RoleFilter}&typeFilter={Model.TypeFilter}" +
-                       $"&sortColumn={Model.SortColumn}&isAscending={Model.IsAscending.ToString().ToLower()}";
 
-    <div class="d-flex justify-content-between align-items-center mt-4 px-3">
-        <div class="text-secondary small">
-            Hiển thị trang <strong>@Model.PageNumber</strong> / <strong>@Model.TotalPages</strong> 
-            (Tổng <strong>@Model.TotalItems</strong> mục)
+    // Dynamic Query Building
+    var query = Context.Request.Query;
+    var routeValues = new Dictionary<string, string>();
+    foreach (var key in query.Keys)
+    {
+        routeValues[key] = query[key]!;
+    }
+
+    // Determine the page parameter name (handle prefix if present in Model.Prefix or similar, 
+    // but usually we can just use "page" or "search.Page")
+    // For this project's convention, if using DTOs, it's often "[prefix].Page"
+    string pageParam = "page";
+    if (ViewData["PagePrefix"] != null)
+    {
+        pageParam = ViewData["PagePrefix"] + ".Page";
+    }
+
+    Func<int, string> getUrl = (p) => {
+        routeValues[pageParam] = p.ToString();
+        return "?" + string.Join("&", routeValues.Select(r => $"{r.Key}={Uri.EscapeDataString(r.Value)}"));
+    };
+
+    <div class="d-flex justify-content-between align-items-center mt-4 px-3 py-2 bg-light rounded-3 border border-light-subtle">
+        <div class="text-secondary small fw-medium">
+            Hiển thị trang <span class="text-dark fw-bold">@Model.PageNumber</span> / <strong>@Model.TotalPages</strong> 
+            (Tổng <span class="text-primary fw-bold">@Model.TotalItems</span> mục)
         </div>
 
         <nav aria-label="Admin Page navigation">
-            <ul class="pagination pagination-sm mb-0 shadow-sm">
+            <ul class="pagination pagination-sm mb-0 shadow-sm border-0">
                 @* First & Previous *@
                 <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                    <a class="page-link" href="?@queryParams&page=1">
+                    <a class="page-link border-0 rounded-start" href="@getUrl(1)">
                         <i class="ti ti-chevrons-left"></i>
                     </a>
                 </li>
                 <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                    <a class="page-link" href="?@queryParams&page=@(Model.PageNumber - 1)">
+                    <a class="page-link border-0" href="@getUrl(Model.PageNumber - 1)">
                         <i class="ti ti-chevron-left"></i>
                     </a>
                 </li>
@@ -31,18 +51,18 @@
                 @for (int i = startPage; i <= endPage; i++)
                 {
                     <li class="page-item @(Model.PageNumber == i ? "active" : "")">
-                        <a class="page-link" href="?@queryParams&page=@i">@i</a>
+                        <a class="page-link border-0 mx-1 rounded-circle" href="@getUrl(i)" style="width: 32px; height:32px; display: flex; align-items: center; justify-content: center;">@i</a>
                     </li>
                 }
 
                 @* Next & Last *@
                 <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="?@queryParams&page=@(Model.PageNumber + 1)">
+                    <a class="page-link border-0" href="@getUrl(Model.PageNumber + 1)">
                         <i class="ti ti-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="?@queryParams&page=@Model.TotalPages">
+                    <a class="page-link border-0 rounded-end" href="@getUrl(Model.TotalPages)">
                         <i class="ti ti-chevrons-right"></i>
                     </a>
                 </li>

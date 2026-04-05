@@ -1,0 +1,132 @@
+@model COMICZONE.Areas.Admin.ViewModels.PaymentSearchModel
+
+<form method="get" class="payment-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã GD, Đơn, TXID, User...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="Paymentstatuses" class="form-select" multiple size="1" style="min-height: 38px;">
+                <option value="SUCCESS" selected="@(Model.Paymentstatuses?.Contains("SUCCESS") == true)">Thành công</option>
+                <option value="PENDING" selected="@(Model.Paymentstatuses?.Contains("PENDING") == true)">Chờ XL</option>
+                <option value="FAILED" selected="@(Model.Paymentstatuses?.Contains("FAILED") == true)">Thất bại</option>
+                <option value="REFUNDED" selected="@(Model.Paymentstatuses?.Contains("REFUNDED") == true)">Hoàn tiền</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="PaidOnly" value="true" @(Model.PaidOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary text-success">Thành công</label>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#paymentAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="paymentAdvancedSearch">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã thanh toán</label>
+                <input type="number" name="Paymentid" value="@Model.Paymentid" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã đơn hàng</label>
+                <input type="number" name="Orderid" value="@Model.Orderid" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên khách hàng (User)</label>
+                <input type="text" name="OrderUsername" value="@Model.OrderUsername" class="form-control">
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã giao dịch (TXID)</label>
+                <input type="text" name="Transactionid" value="@Model.Transactionid" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền từ</label>
+                <input type="number" name="AmountMin" value="@Model.AmountMin" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền đến</label>
+                <input type="number" name="AmountMax" value="@Model.AmountMax" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Từ ngày</label>
+                <input type="date" name="PaidFrom" value="@(Model.PaidFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Đến ngày</label>
+                <input type="date" name="PaidTo" value="@(Model.PaidTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">PT Thanh toán</label>
+                <div class="d-flex gap-3 pt-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Paymentmethods" value="VNPAY" @(Model.Paymentmethods?.Contains("VNPAY") == true ? "checked" : "")>
+                        <label class="form-check-label small">VNPay</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Paymentmethods" value="PayPal" @(Model.Paymentmethods?.Contains("PayPal") == true ? "checked" : "")>
+                        <label class="form-check-label small">PayPal</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Paymentmethods" value="COD" @(Model.Paymentmethods?.Contains("COD") == true ? "checked" : "")>
+                        <label class="form-check-label small">COD</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="HasRefund" value="true" @(Model.HasRefund == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Đã hoàn tiền</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.Paymentid.HasValue || Model.Orderid.HasValue || 
+               !string.IsNullOrWhiteSpace(Model.Transactionid) ||
+               !string.IsNullOrWhiteSpace(Model.OrderUsername) ||
+               Model.AmountMin.HasValue || Model.AmountMax.HasValue ||
+               Model.PaidFrom.HasValue || Model.PaidTo.HasValue ||
+               (Model.Paymentmethods != null && Model.Paymentmethods.Any()) ||
+               Model.HasRefund == true;
+    }
+}

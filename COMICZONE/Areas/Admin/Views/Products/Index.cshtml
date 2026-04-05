@@ -7,7 +7,7 @@
 
     ViewData["Title"] = "Quản lý sản phẩm";
 
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.ProductSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.ProductSearchModel();
 }
 
 <div class="container-fluid">
@@ -21,7 +21,7 @@
     </div>
 
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_ProductSearchForm" model="searchModel" />
 
     <div class="card shadow-sm border-0">
         <div class="table-wrapper">

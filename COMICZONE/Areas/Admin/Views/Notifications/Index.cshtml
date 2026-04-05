@@ -3,194 +3,207 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý thông báo";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.NotificationSearchRequest ?? new COMICZONE.Areas.Admin.ViewModels.NotificationSearchRequest();
 }
 
-<div class="container-fluid">
-    <!-- Breadcrumb & Title -->
+<div class="container-fluid py-4">
+    <!-- Header Section -->
     <div class="row page-titles mb-4">
         <div class="col-md-5 align-self-center">
-            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+            <h3 class="text-themecolor fw-bold">
+                <i class="ti ti-bell me-2 text-primary"></i>Quản lý thông báo
+            </h3>
         </div>
         <div class="col-md-7 align-self-center text-end">
-            <div class="d-flex justify-content-end align-items-center">
-                <ol class="breadcrumb justify-content-end mb-0">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-end mb-0 bg-transparent">
                     <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
                     <li class="breadcrumb-item active">Thông báo</li>
                 </ol>
-            </div>
+            </nav>
         </div>
     </div>
-    
+
+    <!-- Actions Bar -->
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="Create" class="btn btn-primary shadow-sm px-4">
+            <i class="ti ti-plus me-1"></i> Tạo thông báo mới
+        </a>
+    </div>
+
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_NotificationSearchForm" model="searchModel" />
 
-    <!-- Main Content Card -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
-            <h5 class="card-title mb-0 fw-bold">
-                <i class="ti ti-bell me-2 text-primary"></i>Danh sách thông báo
-            </h5>
-
-            <a asp-action="Create" class="btn btn-primary btn-sm px-3 rounded-pill shadow-sm">
-                <i class="ti ti-plus me-1"></i> Tạo thông báo mới
-            </a>
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <h5 class="mb-0 fw-bold">Danh sách thông báo</h5>
+            </div>
         </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-nowrap">
-                    <thead class="table-light text-uppercase small fw-bold">
-                        <tr class="align-middle">
-                            <th class="ps-4">
-                                @Html.SortHeader("ID", "NotificationId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th>
-                                @Html.SortHeader("Thông báo", "Title", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th>
-                                @Html.SortHeader("Người nhận", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th>
-                                @Html.SortHeader("Người gửi", "CreatedByNavigation.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th class="text-center">
-                                @Html.SortHeader("Hiển thị", "Isdeleted", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th class="text-center">
-                                @Html.SortHeader("Đã đọc", "IsRead", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th class="text-center">
-                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword, null, null, null)
-                            </th>
-                            <th class="text-center pe-4">Thao tác</th>
-                        </tr>
-                    </thead>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="table-light border-bottom fw-bold text-uppercase small">
+                    <tr class="align-middle">
+                        <th class="ps-4">
+                            @Html.SortHeader("ID", "NotificationId", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Tiêu đề", "Title", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Người nhận", "User.Username", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Người gửi", "CreatedByNavigation.Username", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                             @Html.SortHeader("Trạng thái", "IsRead", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th class="text-center">Hiển thị</th>
+                        <th class="text-center pe-4">Thao tác</th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr id="notification-row-@item.NotificationId" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
-                                <td class="ps-4 fw-bold text-dark">#@item.NotificationId</td>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="notification-row-@item.NotificationId" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                            <td class="ps-4 fw-bold text-dark">#@item.NotificationId</td>
 
-                                <td>
-                                    <div class="d-flex flex-column" style="max-width: 300px;">
-                                        <div class="text-dark fw-bold text-truncate" title="@item.Title">@item.Title</div>
-                                        <div class="text-muted small text-truncate" title="@item.Message">@item.Message</div>
-                                    </div>
-                                </td>
+                            <td>
+                                <div class="text-dark fw-bold text-truncate" style="max-width: 250px;" title="@item.Title">@item.Title</div>
+                                <div class="text-muted small text-truncate" style="max-width: 250px;" title="@item.Message">@item.Message</div>
+                            </td>
 
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="@item.User?.GetDisplayAvatar()" 
-                                             alt="Avatar" 
-                                             class="rounded-circle border" 
-                                             style="width: 32px; height: 32px; object-fit: cover;">
-                                        <div class="text-dark fw-semibold small">@item.User?.Username</div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        @if (item.CreatedByNavigation != null)
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-30px me-2">
+                                        @if (item.User != null)
                                         {
-                                            <img src="@item.CreatedByNavigation.GetDisplayAvatar()" 
-                                                 alt="Admin" 
-                                                 class="rounded-circle border" 
-                                                 style="width: 32px; height: 32px; object-fit: cover;">
-                                            <div class="text-dark fw-semibold small">@item.CreatedByNavigation.Username</div>
+                                            <img src="@item.User.GetDisplayAvatar()" alt="User" class="rounded-circle" style="width:30px; height:30px; object-fit:cover;">
                                         }
                                         else
                                         {
-                                            <div class="bg-secondary-subtle text-secondary rounded-circle border border-secondary-subtle d-flex align-items-center justify-content-center" 
-                                                 style="width: 32px; height: 32px;"
-                                                 title="Hệ thống">
-                                                <i class="ti ti-settings small"></i>
+                                            <div class="symbol-label bg-light-secondary text-secondary rounded-circle" style="width:30px; height:30px; display:flex; align-items:center; justify-content:center;">
+                                                <i class="ti ti-user fs-6"></i>
                                             </div>
-                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 small">
-                                                Hệ thống
-                                            </span>
                                         }
                                     </div>
-                                </td>
-                                
-                                <td id="soft-delete-status-cell-@item.NotificationId" class="text-center">
-                                    @if (item.Isdeleted)
-                                    {
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">
-                                            <i class="ti ti-eye-off me-1 small"></i> Ẩn
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">
-                                            <i class="ti ti-eye me-1 small"></i> Hiện
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="text-center">
-                                    @if (item.IsRead == true)
-                                    {
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2">
-                                            <i class="ti ti-check me-1 small"></i> Rồi
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2">
-                                            <i class="ti ti-mail-opened me-1 small"></i> Chưa
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="text-center text-muted small">
-                                    @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
-                                </td>
-                                
-                                <td class="text-end pe-4">
-                                    <div class="btn-group shadow-sm">
-                                        <a asp-action="Details" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-info" title="Xem chi tiết">
-                                            <i class="ti ti-eye fs-5"></i>
-                                        </a>
-
-                                        <a asp-action="Edit" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
-                                            <i class="ti ti-edit fs-5"></i>
-                                        </a>
-
-                                        <a asp-action="Delete" asp-route-id="@item.NotificationId" class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
-                                            <i class="ti ti-trash fs-5"></i>
-                                        </a>
-
-                                        <button type="button" 
-                                                class="btn btn-light btn-sm ajax-toggle-notification-status @(item.Isdeleted ? "text-success" : "text-danger")" 
-                                                data-id="@item.NotificationId" 
-                                                data-url="@Url.Action("ToggleDeleted", "Notifications")"
-                                                title="@(item.Isdeleted ? "Khôi phục" : "Xóa mềm")">
-                                            <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
-                                        </button>
+                                    <div>
+                                        <div class="text-dark fw-bold small">@(item.User?.Username ?? "Hệ thống")</div>
+                                        <div class="text-muted small" style="font-size: 0.7rem;">@item.User?.Email</div>
                                     </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
 
-            @if (!Model.Any())
-            {
-                <div class="text-center py-5">
-                    <i class="ti ti-bell-off fs-1 text-muted mb-2"></i>
-                    <p class="text-muted">Không tìm thấy thông báo nào.</p>
-                </div>
-            }
+                            <td>
+                                @if (item.CreatedByNavigation != null)
+                                {
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-circle symbol-30px me-2">
+                                            <img src="@item.CreatedByNavigation.GetDisplayAvatar()" alt="Admin" class="rounded-circle" style="width:30px; height:30px; object-fit:cover;">
+                                        </div>
+                                        <div>
+                                            <div class="text-primary fw-bold small">@item.CreatedByNavigation.Username</div>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Admin</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol-label bg-light-info text-info rounded-circle me-2" style="width:30px; height:30px; display:flex; align-items:center; justify-content:center;">
+                                            <i class="ti ti-settings fs-6"></i>
+                                        </div>
+                                        <span class="text-info fw-semibold small">Hệ thống</span>
+                                    </div>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.IsRead == true)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2">
+                                        <i class="ti ti-mail-opened me-1 small"></i> Đã đọc
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2">
+                                        <i class="ti ti-mail me-1 small"></i> Chưa đọc
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-center text-muted small">
+                                @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                            </td>
+
+                            <td id="status-cell-@item.NotificationId" class="text-center">
+                                @if (item.Isdeleted)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">
+                                        Đã ẩn
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2">
+                                        Hiện
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-center pe-4">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Details" asp-route-id="@item.NotificationId" 
+                                       class="btn btn-light btn-sm text-info" title="Xem chi tiết">
+                                        <i class="ti ti-eye fs-5"></i>
+                                    </a>
+
+                                    <a asp-action="Edit" asp-route-id="@item.NotificationId" 
+                                       class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
+                                        <i class="ti ti-edit fs-5"></i>
+                                    </a>
+
+                                    <a asp-action="Delete" asp-route-id="@item.NotificationId" 
+                                       class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
+                                        <i class="ti ti-trash fs-5"></i>
+                                    </a>
+
+                                    <button type="button"
+                                            class="btn btn-light btn-sm ajax-toggle-notification-status @(item.Isdeleted ? "text-success" : "text-danger")"
+                                            data-id="@item.NotificationId"
+                                            data-url="@Url.Action("ToggleDeleted", "Notifications", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Hiện lại" : "Ẩn đi")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="ti ti-bell-off fs-1 text-muted mb-2"></i>
+                <h5 class="text-muted">Không tìm thấy thông báo nào.</h5>
+            </div>
+        }
+
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
     </div>
-    
-    @if (Model.Any())
-    {
-        <div class="card-footer bg-white border-top-0 pb-4">
-            <partial name="_AdminPagination" model="searchModel" />
-        </div>
-    }
 </div>

@@ -3,7 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý giỏ hàng";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.CartSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.CartSearchModel();
 }
 
 <div class="container-fluid">
@@ -23,7 +23,7 @@
     </div>
     
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_CartSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0">

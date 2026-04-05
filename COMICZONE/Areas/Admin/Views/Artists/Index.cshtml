@@ -3,7 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý họa sĩ";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.ArtistSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.ArtistSearchModel();
 }
 
 <div class="container-fluid">
@@ -18,7 +18,7 @@
     </div>
 
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_ArtistSearchForm" model="searchModel" />
 
     <!-- TABLE -->
     <div class="card shadow-sm border-0">

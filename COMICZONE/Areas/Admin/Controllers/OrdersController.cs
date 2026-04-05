@@ -28,48 +28,32 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Orders
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn = "CreatedAt", bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(OrderSearchModel search)
         {
             var query = _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.Invoices)
                 .AsQueryable();
 
-            // 1. Filter by Status
-            if (!string.IsNullOrEmpty(statusFilter))
-            {
-                query = query.Where(o => o.Status == statusFilter);
-            }
-
-            // 2. Search (OrderId, PhoneNumber, Username, ShippingAddress)
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(o => o.OrderId.ToString().Contains(keyword) || 
-                                         o.PhoneNumber.Contains(keyword) || 
-                                         o.User.Username.Contains(keyword) || 
-                                         o.ShippingAddress.Contains(keyword));
-            }
+            // 1. Search & Filter
+            query = query.ApplyOrderFilters(search);
             
             var totalItems = await query.CountAsync();
 
-            // 3. Sort
-            query = query.ApplySort(sortColumn, isAscending);
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
 
-            // 4. Paging
-            int pageSize = 10;
-            query = query.ApplyPagination(page, pageSize);
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            var searchModel = new AdminSearchModel 
-            { 
-                Keyword = keyword, 
-                StatusFilter = statusFilter,
-                SortColumn = sortColumn, 
-                IsAscending = isAscending, 
-                PageNumber = page, 
-                PageSize = pageSize, 
-                TotalItems = totalItems 
-            };
-            ViewBag.SearchModel = searchModel;
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
 
             var orders = await query.ToListAsync();
 

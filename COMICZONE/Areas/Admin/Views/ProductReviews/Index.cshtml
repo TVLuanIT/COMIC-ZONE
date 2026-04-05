@@ -1,159 +1,276 @@
-@using COMICZONE.Helpers;
-
-@model IEnumerable<COMICZONE.Models.ProductReview>
+@model COMICZONE.Areas.Admin.ViewModels.ReviewManagementViewModel
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Quản lý đánh giá";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    ViewData["Title"] = "Quản lý Đánh giá & Phản hồi";
+    var activeTab = Model.ActiveTab;
 }
 
 <div class="container-fluid">
-    <!-- HEADER -->
+    <!-- Breadcrumb & Title -->
     <div class="row page-titles mb-4">
-        <div class="col-md-5 align-self-center">
-            <h3 class="text-themecolor fw-bold">
-                <i class="ti ti-star me-2 text-primary"></i>Quản lý đánh giá
-            </h3>
+        <div class="col-md-7 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
         </div>
-        <div class="col-md-7 align-self-center text-end">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb justify-content-end mb-0">
+        <div class="col-md-5 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0 px-0 bg-transparent">
                     <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
                     <li class="breadcrumb-item active">Đánh giá</li>
                 </ol>
-            </nav>
+            </div>
         </div>
     </div>
 
-    @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs nav-tabs-line nav-stretch fs-6 border-bottom border-light-subtle mb-4" id="reviewManagementTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link text-active-primary py-3 @(activeTab == "Reviews" ? "active fw-bold border-bottom border-primary" : "text-muted")" 
+               href="?activeTab=Reviews" role="tab">
+                <i class="ti ti-message-report me-2"></i>Đánh giá sản phẩm
+                @if(activeTab == "Reviews" && Model.ReviewSearch.TotalItems > 0) {
+                    <span class="badge bg-light-primary text-primary ms-1">@Model.ReviewSearch.TotalItems</span>
+                }
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link text-active-primary py-3 @(activeTab == "Replies" ? "active fw-bold border-bottom border-primary" : "text-muted")" 
+               href="?activeTab=Replies" role="tab">
+                <i class="ti ti-message-dots me-2"></i>Phản hồi đánh giá
+                @if(activeTab == "Replies" && Model.ReplySearch.TotalItems > 0) {
+                    <span class="badge bg-light-info text-info ms-1">@Model.ReplySearch.TotalItems</span>
+                }
+            </a>
+        </li>
+    </ul>
 
-    <!-- TABLE -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="align-middle">
-                        <th>
-                            @Html.SortHeader("Rating", "Rating", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th class="text-center">
-                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th>
-                            @Html.SortHeader("Nội dung", "Reviewcontent", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th>
-                            @Html.SortHeader("Sản phẩm", "Product.Name", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th>
-                            @Html.SortHeader("Người dùng", "User.Username", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th>
-                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword, searchModel.StatusFilter)
-                        </th>
-                        <th class="text-center">Hành động</th>
-                    </tr>
-                </thead>
+    <div class="tab-content" id="reviewManagementTabsContent">
+        @* --- TAB: REVIEWS --- *@
+        <div class="tab-pane fade @(activeTab == "Reviews" ? "show active" : "")" id="reviewsTab" role="tabpanel">
+            <partial name="_ReviewSearchForm" model="Model.ReviewSearch" />
 
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr id="review-row-@item.Reviewid" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
-                            <!-- RATING -->
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    @item.Rating ★
-                                </span>
-                            </td>
-
-                            <!-- STATUS -->
-                            <td>
-                                <span id="status-cell-@item.Reviewid">
-                                    @if (item.Isdeleted)
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small fw-bold">
+                                <tr class="align-middle">
+                                    <th class="ps-4">@Html.SortHeader("ID", "Reviewid", Model.ReviewSearch.SortColumn, Model.ReviewSearch.IsAscending, "reviewSearch")</th>
+                                    <th>@Html.SortHeader("Sản phẩm", "Product.Name", Model.ReviewSearch.SortColumn, Model.ReviewSearch.IsAscending, "reviewSearch")</th>
+                                    <th>@Html.SortHeader("Người dùng", "User.Username", Model.ReviewSearch.SortColumn, Model.ReviewSearch.IsAscending, "reviewSearch")</th>
+                                    <th class="text-center">@Html.SortHeader("Đánh giá", "Rating", Model.ReviewSearch.SortColumn, Model.ReviewSearch.IsAscending, "reviewSearch")</th>
+                                    <th>Nội dung</th>
+                                    <th class="text-center">@Html.SortHeader("Ngày", "Createdat", Model.ReviewSearch.SortColumn, Model.ReviewSearch.IsAscending, "reviewSearch")</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center pe-4">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Reviews != null && Model.Reviews.Any())
+                                {
+                                    @foreach (var item in Model.Reviews)
                                     {
-                                        <span class="badge bg-danger">Đã ẩn</span>
+                                        <tr id="review-row-@item.Reviewid" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "") align-middle">
+                                            <td class="ps-4 fw-bold">#@item.Reviewid</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="@(item.Product?.Pictures?.FirstOrDefault()?.GetImagePath() ?? "/images/products/default.png")" 
+                                                         class="rounded-1 me-2" width="30" height="30" style="object-fit: cover;" />
+                                                    <span class="text-truncate" style="max-width: 150px;" title="@item.Product?.Name">@item.Product?.Name</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">@item.User?.Username</div>
+                                                <div class="small text-muted">@item.User?.Email</div>
+                                            </td>
+                                            <td>
+                                                <div class="text-warning">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="ti @(i <= item.Rating ? "ti-star-filled" : "ti-star")"></i>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted text-truncate-2" style="max-width: 250px;">@item.Reviewcontent</div>
+                                                @if (item.ProductReviewReplies.Any(r => r.User.Role == "ADMIN"))
+                                                {
+                                                    <span class="badge bg-light-info text-info border border-info-subtle mt-1" style="font-size: 10px;">Đã trả lời</span>
+                                                }
+                                            </td>
+                                            <td class="small">@item.Createdat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td id="status-cell-@item.Reviewid" class="text-center">
+                                                @if (item.Isdeleted)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2">Đã ẩn</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success rounded-pill px-3 py-2">Hiển thị</span>
+                                                }
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <a asp-action="Details" asp-route-id="@item.Reviewid" 
+                                                       class="btn btn-sm btn-icon btn-outline-info" title="Chi tiết">
+                                                       <i class="ti ti-eye"></i>
+                                                    </a>
+                                                    
+                                                    <a asp-action="Edit" asp-route-id="@item.Reviewid" 
+                                                       class="btn btn-sm btn-icon btn-outline-warning" title="Chỉnh sửa">
+                                                       <i class="ti ti-edit"></i>
+                                                    </a>
+
+                                                    <a asp-action="Delete" asp-route-id="@item.Reviewid" 
+                                                       class="btn btn-sm btn-icon btn-outline-danger shadow-sm" title="Xóa vĩnh viễn">
+                                                        <i class="ti ti-trash"></i>
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-icon ajax-toggle-review-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                                            data-id="@item.Reviewid"
+                                                            data-url="@Url.Action("ToggleDelete", "ProductReviews", new { area = "Admin" })"
+                                                            title="@(item.Isdeleted ? "Hiện đánh giá" : "Ẩn đánh giá")">
+                                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     }
-                                    else
-                                    {
-                                        <span class="badge bg-success">Hiển thị</span>
-                                    }
-                                </span>
-                            </td>
-
-                            <!-- CONTENT -->
-                            <td style="max-width: 300px;">
-                                <span class="text-truncate d-inline-block" style="max-width: 280px;">
-                                    @item.Reviewcontent
-                                </span>
-                            </td>
-
-                            <!-- PRODUCT -->
-                            <td>
-                                @Html.Raw(item.Product != null
-                                    ? OrderHelper.GetProductCell(item.Product)
-                                    : "<span class='text-muted'>N/A</span>")
-                            </td>
-
-                            <!-- USER -->
-                            <td>
-                                <span class="badge bg-light text-dark border">
-                                    @item.User?.Username
-                                </span>
-                            </td>
-
-                            <!-- DATE -->
-                            <td>
-                                <small class="text-muted">
-                                    @item.Createdat?.ToString("dd/MM/yyyy")
-                                </small>
-                            </td>
-
-                            <!-- ACTION -->
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a asp-action="Details"
-                                       asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-light"
-                                       title="Xem chi tiết">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-
-                                    <a asp-action="Edit"
-                                       asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-primary"
-                                       title="Chỉnh sửa">
-                                        <i class="ti ti-edit"></i>
-                                    </a>
-
-                                    <a asp-action="Delete"
-                                       asp-route-id="@item.Reviewid"
-                                       class="btn btn-sm btn-danger"
-                                       title="Xóa vĩnh viễn">
-                                        <i class="ti ti-trash"></i>
-                                    </a>
-
-                                    <button type="button"
-                                            class="btn btn-sm ajax-toggle-review-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
-                                            data-id="@item.Reviewid"
-                                            data-url="@Url.Action("ToggleDelete", "ProductReviews", new { area = "Admin" })"
-                                            title="@(item.Isdeleted ? "Hiện đánh giá" : "Ẩn đánh giá")">
-                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div> <!-- card-body closed -->
-
-        @if (Model.Any())
-        {
-            <div class="card-footer bg-white border-top-0 pb-4">
-                <partial name="_AdminPagination" model="searchModel" />
+                                }
+                                else
+                                {
+                                    <tr><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy đánh giá nào.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if (Model.Reviews != null && Model.Reviews.Any())
+                {
+                    <div class="card-footer bg-white border-top-0">
+                        @{ ViewData["PagePrefix"] = "reviewSearch"; }
+                        <partial name="_AdminPagination" model="Model.ReviewSearch" />
+                    </div>
+                }
             </div>
-        }
-    </div> <!-- card closed -->
-</div> <!-- container-fluid closed -->
+        </div>
+
+        @* --- TAB: REPLIES --- *@
+        <div class="tab-pane fade @(activeTab == "Replies" ? "show active" : "")" id="repliesTab" role="tabpanel">
+            <partial name="_ReviewReplySearchForm" model="Model.ReplySearch" />
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small fw-bold">
+                                <tr class="align-middle">
+                                    <th class="ps-4">@Html.SortHeader("ID", "Replyid", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>@Html.SortHeader("Đối tượng", "Review.Product.Name", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>@Html.SortHeader("Người gửi", "User.Username", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>Nội dung</th>
+                                    <th class="text-center">@Html.SortHeader("Ngày", "Createdat", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th class="text-center">@Html.SortHeader("Likes", "ProductReviewReplyLikes.Count", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center pe-4">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Replies != null && Model.Replies.Any())
+                                {
+                                    @foreach (var item in Model.Replies)
+                                    {
+                                        <tr id="reply-row-@item.Replyid" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "") align-middle">
+                                            <td class="ps-4 fw-bold">#@item.Replyid</td>
+                                            <td>
+                                                <div class="small">SP: <span class="fw-bold">@item.Review?.Product?.Name</span></div>
+                                                <div class="small text-muted">ID ĐG: #@item.Reviewid</div>
+                                                @if(item.Replytouser != null) {
+                                                    <div class="small text-info">@("@")@item.Replytouser.Username</div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold @(item.User.Role == "ADMIN" ? "text-primary" : "")">
+                                                    @item.User.Username
+                                                    @if(item.User.Role == "ADMIN") { <i class="ti ti-discount-check-filled ms-1" title="Admin"></i> }
+                                                </div>
+                                                <div class="small text-muted">@item.User.Email</div>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted text-truncate-2" style="max-width: 300px;">@item.Replycontent</div>
+                                                @if(item.Parentreplyid.HasValue) {
+                                                    <span class="badge bg-light-secondary text-secondary mt-1" style="font-size: 10px;">Replying to #@item.Parentreplyid</span>
+                                                }
+                                            </td>
+                                            <td class="small">@item.Createdat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-up me-1"></i>@item.ProductReviewReplyLikes.Count</span>
+                                            </td>
+                                            <td id="status-cell-@item.Replyid" class="text-center">
+                                                @if (item.Isdeleted)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2">Đã ẩn</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success rounded-pill px-3 py-2">Hiển thị</span>
+                                                }
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <a asp-controller="ProductReviews" asp-action="Details" asp-route-id="@item.Reviewid" 
+                                                       class="btn btn-sm btn-icon btn-outline-secondary" title="Xem Review nguồn">
+                                                       <i class="ti ti-external-link"></i>
+                                                    </a>
+
+                                                    <a asp-controller="ProductReviewReplies" asp-action="Details" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-info" title="Chi tiết">
+                                                       <i class="ti ti-eye"></i>
+                                                    </a>
+                                                    
+                                                    <a asp-controller="ProductReviewReplies" asp-action="Edit" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-warning" title="Chỉnh sửa">
+                                                       <i class="ti ti-edit"></i>
+                                                    </a>
+
+                                                    <a asp-controller="ProductReviewReplies" asp-action="Delete" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-danger shadow-sm" title="Xóa vĩnh viễn">
+                                                        <i class="ti ti-trash"></i>
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-icon ajax-toggle-reply-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                                            data-id="@item.Replyid"
+                                                            data-url="@Url.Action("ToggleSoftDelete", "ProductReviewReplies", new { area = "Admin" })"
+                                                            title="@(item.Isdeleted ? "Hiện phản hồi" : "Ẩn phản hồi")">
+                                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy phản hồi nào.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if (Model.Replies != null && Model.Replies.Any())
+                {
+                    <div class="card-footer bg-white border-top-0">
+                        @{ ViewData["PagePrefix"] = "replySearch"; }
+                        <partial name="_AdminPagination" model="Model.ReplySearch" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Scripts handle by admin.js with ajax-toggle-review-status and ajax-toggle-reply-status classes *@
+}

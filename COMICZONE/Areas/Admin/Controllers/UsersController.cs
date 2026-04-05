@@ -24,55 +24,33 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Users
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? roleFilter, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(UserSearchModel search)
         {
             ViewBag.CurrentUserId = HttpContext.Session.GetString("UserId");
 
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users
+                .Include(u => u.Customer)
+                .AsQueryable();
 
-            // 1. Filter by Status (Isactive)
-            if (!string.IsNullOrEmpty(statusFilter))
-            {
-                bool isActive = statusFilter == "Active";
-                query = query.Where(u => u.Isactive == isActive);
-            }
+            // 1. Search & Filter
+            query = query.ApplyUserFilters(search);
 
-            // 2. Filter by Role
-            if (!string.IsNullOrEmpty(roleFilter))
-            {
-                query = query.Where(u => u.Role == roleFilter);
-            }
+            var totalCount = await query.CountAsync();
 
-            // 3. Search (Username, Email, Id)
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(u => u.Username.Contains(keyword) || 
-                                         u.Email.Contains(keyword) || 
-                                         u.Id.ToString().Contains(keyword));
-            }
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Id", search.IsAscending);
 
-            var totalItems = await query.CountAsync();
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            // 4. Sort
-            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "Id";
-            query = query.ApplySort(sortColumn, isAscending);
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
 
-            // 5. Paging
-            const int pageSize = 10;
-            query = query.ApplyPagination(page, pageSize);
-
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                StatusFilter = statusFilter,
-                RoleFilter = roleFilter,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalItems
-            };
-            ViewBag.SearchModel = searchModel;
+            ViewBag.SearchModel = search;
 
             var users = await query.ToListAsync();
 

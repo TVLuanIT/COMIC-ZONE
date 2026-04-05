@@ -3,7 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý hoàn tiền";
-    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.AdminSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.AdminSearchModel();
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.RefundSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.RefundSearchModel();
 }
 
 <div class="container-fluid">
@@ -23,7 +23,7 @@
     </div>
     
     @* Reusable search form *@
-    <partial name="_AdminSearchForm" model="searchModel" />
+    <partial name="_RefundSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0">
@@ -41,7 +41,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">
-                                @Html.SortHeader("Mã thanh toán", "Paymentid", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Mã đơn gốc", "Payment.Orderid", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                             </th>
                             <th>
                                 @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)

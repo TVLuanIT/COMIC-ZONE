@@ -25,65 +25,61 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/ProductReviews
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(ReviewSearchModel reviewSearch, ReviewReplySearchModel replySearch, string activeTab = "Reviews")
         {
-            const int pageSize = 12;
-
-            var query = _context.ProductReviews
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pictures)
-                .Include(r => r.User)
-                .AsQueryable();
-
-            // Status Filter
-            if (!string.IsNullOrEmpty(statusFilter))
+            var viewModel = new ReviewManagementViewModel
             {
-                if (statusFilter == "Visible")
-                {
-                    query = query.Where(r => !r.Isdeleted);
-                }
-                else if (statusFilter == "Hidden")
-                {
-                    query = query.Where(r => r.Isdeleted);
-                }
-            }
-
-            // Search
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                query = query.Where(r => r.Reviewcontent.Contains(keyword) || 
-                                         (r.Product != null && r.Product.Name.Contains(keyword)) ||
-                                         (r.User != null && r.User.Username.Contains(keyword)));
-            }
-
-            // Sort
-            if (string.IsNullOrEmpty(sortColumn))
-            {
-                sortColumn = "CreatedAt";
-                isAscending = false;
-            }
-            query = query.ApplySort(sortColumn, isAscending);
-
-            // Total count
-            var totalCount = await query.CountAsync();
-
-            // Pagination
-            var pagedResults = await query.ApplyPagination(page, pageSize).ToListAsync();
-
-            var searchModel = new AdminSearchModel
-            {
-                Keyword = keyword,
-                StatusFilter = statusFilter,
-                SortColumn = sortColumn,
-                IsAscending = isAscending,
-                PageNumber = page,
-                PageSize = pageSize,
-                TotalItems = totalCount
+                ReviewSearch = reviewSearch,
+                ReplySearch = replySearch,
+                ActiveTab = activeTab
             };
 
-            ViewBag.SearchModel = searchModel;
+            if (activeTab == "Reviews")
+            {
+                var query = _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(p => p.Pictures)
+                    .Include(r => r.User)
+                    .Include(r => r.ProductReviewReplies)
+                    .AsQueryable();
 
-            return View(pagedResults);
+                query = query.ApplyReviewFilters(reviewSearch);
+                reviewSearch.TotalCount = await query.CountAsync();
+
+                query = query.ApplySort(reviewSearch.SortColumn ?? "Createdat", reviewSearch.IsAscending);
+                
+                int pageSize = reviewSearch.PageSize > 0 ? reviewSearch.PageSize : 10;
+                int pageNumber = reviewSearch.Page > 0 ? reviewSearch.Page : 1;
+                
+                viewModel.Reviews = await query.ApplyPagination(pageNumber, pageSize).ToListAsync();
+                
+                reviewSearch.Page = pageNumber;
+                reviewSearch.PageSize = pageSize;
+            }
+            else // Replies
+            {
+                var query = _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review)
+                        .ThenInclude(rev => rev.Product)
+                    .Include(r => r.Replytouser)
+                    .AsQueryable();
+
+                query = query.ApplyReplyFilters(replySearch);
+                replySearch.TotalCount = await query.CountAsync();
+
+                query = query.ApplySort(replySearch.SortColumn ?? "Createdat", replySearch.IsAscending);
+
+                int pageSize = replySearch.PageSize > 0 ? replySearch.PageSize : 10;
+                int pageNumber = replySearch.Page > 0 ? replySearch.Page : 1;
+
+                viewModel.Replies = await query.ApplyPagination(pageNumber, pageSize).ToListAsync();
+
+                replySearch.Page = pageNumber;
+                replySearch.PageSize = pageSize;
+            }
+
+            return View(viewModel);
         }
 
         // GET: Admin/ProductReviews/Details/5

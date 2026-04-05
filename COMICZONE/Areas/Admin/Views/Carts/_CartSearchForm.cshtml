@@ -1,0 +1,118 @@
+@model COMICZONE.Areas.Admin.ViewModels.CartSearchModel
+
+<form method="get" class="cart-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã giỏ, User, Tên SP...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="AbandonedOnly" value="true" @(Model.AbandonedOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary text-danger">Bỏ quên (>24h)</label>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="EmptyCartOnly" value="true" @(Model.EmptyCartOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary">Giỏ trống</label>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#cartAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="cartAdvancedSearch">
+        <div class="row g-3">
+            @* User & Customer info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Người dùng</h6></div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">ID Người dùng</label>
+                <input type="number" name="UserId" value="@Model.UserId" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username</label>
+                <input type="text" name="Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số điện thoại</label>
+                <input type="text" name="CustomerPhoneNumber" value="@Model.CustomerPhoneNumber" class="form-control">
+            </div>
+
+            @* Product Filters *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Sản phẩm trong giỏ</h6></div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã sản phẩm</label>
+                <input type="number" name="ProductId" value="@Model.ProductId" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên sản phẩm</label>
+                <input type="text" name="ProductName" value="@Model.ProductName" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số lượng SP (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="ItemCountMin" value="@Model.ItemCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="ItemCountMax" value="@Model.ItemCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tổng giá trị (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="TotalValueMin" value="@Model.TotalValueMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="TotalValueMax" value="@Model.TotalValueMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+
+            @* Timeline *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thời gian tạo</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tạo từ ngày</label>
+                <input type="date" name="CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tạo đến ngày</label>
+                <input type="date" name="CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.UserId.HasValue || !string.IsNullOrWhiteSpace(Model.Username) ||
+               !string.IsNullOrWhiteSpace(Model.UserEmail) || !string.IsNullOrWhiteSpace(Model.CustomerPhoneNumber) ||
+               Model.ProductId.HasValue || !string.IsNullOrWhiteSpace(Model.ProductName) ||
+               Model.ItemCountMin.HasValue || Model.ItemCountMax.HasValue ||
+               Model.TotalValueMin.HasValue || Model.TotalValueMax.HasValue ||
+               Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue;
+    }
+}

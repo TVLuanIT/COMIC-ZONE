@@ -23,50 +23,37 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Payments
-        public async Task<IActionResult> Index(string? keyword, string? statusFilter, string? sortColumn, bool isAscending = false, int page = 1)
+        public async Task<IActionResult> Index(PaymentSearchModel search)
         {
             var query = _context.Payments
                 .Include(p => p.Order)
+                    .ThenInclude(o => o.User)
+                .Include(p => p.Refunds)
                 .AsQueryable();
 
-            // 1. Filter by Status
-            if (!string.IsNullOrEmpty(statusFilter))
-            {
-                query = query.Where(p => p.Paymentstatus == statusFilter);
-            }
+            // 1. Search & Filter
+            query = query.ApplyPaymentFilters(search);
 
-            // 2. Search (Paymentid, Orderid, Transactionid)
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(p => p.Paymentid.ToString().Contains(keyword) || 
-                                         p.Orderid.ToString().Contains(keyword) || 
-                                         p.Transactionid.Contains(keyword));
-            }
-
-            // 3. Total count
             var totalCount = await query.CountAsync();
 
-            // 4. Sort
-            if (string.IsNullOrEmpty(sortColumn)) sortColumn = "Createdat";
-            query = query.ApplySort(sortColumn, isAscending);
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Createdat", search.IsAscending);
 
-            // 5. Paging
-            const int pageSize = 12;
-            query = query.ApplyPagination(page, pageSize);
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
 
-            var searchModel = new AdminSearchModel 
-            { 
-                Keyword = keyword, 
-                StatusFilter = statusFilter,
-                SortColumn = sortColumn, 
-                IsAscending = isAscending, 
-                PageNumber = page, 
-                PageSize = pageSize, 
-                TotalItems = totalCount 
-            };
-            ViewBag.SearchModel = searchModel;
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
 
-            return View(await query.ToListAsync());
+            ViewBag.SearchModel = search;
+
+            var payments = await query.ToListAsync();
+
+            return View(payments);
         }
 
         // GET: Admin/Payments/Details/5
