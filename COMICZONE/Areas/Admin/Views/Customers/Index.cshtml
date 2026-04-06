@@ -1,0 +1,158 @@
+@using COMICZONE.Helpers;
+@model IEnumerable<COMICZONE.Models.Customer>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý khách hàng";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.CustomerSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.CustomerSearchModel();
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor fw-bold">
+                <i class="ti ti-users me-2 text-primary"></i>Quản lý khách hàng
+            </h3>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-end mb-0">
+                        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                        <li class="breadcrumb-item active">Khách hàng</li>
+                    </ol>
+                </nav>
+                <a class="btn btn-primary shadow-sm ms-3" asp-action="Create">
+                    <i class="ti ti-plus me-1"></i>Thêm khách hàng
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* Reusable search form *@
+    <partial name="_CustomerSearchForm" model="searchModel" />
+
+    <!-- TABLE -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light border-bottom fw-bold text-uppercase small">
+                    <tr class="align-middle">
+                        <th class="ps-3">
+                            @Html.SortHeader("Họ tên", "Fullname", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Số điện thoại", "Phone", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Email", "Email", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Địa chỉ", "Address", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            Trạng thái
+                        </th>
+                        <th>
+                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center pe-3">Hành động</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="customer-row-@item.Customerid" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                            <td class="ps-3 fw-medium">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <img src="@item.User.Avatar.AvatarOrDefault()" 
+                                             alt="@item.Fullname" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@item.Fullname</div>
+                                        <div class="text-muted small">ID: #@item.Customerid</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Phone))
+                                {
+                                    <span class="text-dark"><i class="ti ti-phone me-1 text-muted"></i>@item.Phone</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Chưa có</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-dark"><i class="ti ti-mail me-1 text-muted"></i>@item.User.Email</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Address))
+                                {
+                                    <span class="text-muted small d-inline-block text-truncate" style="max-width: 200px;" title="@item.Address">
+                                        @item.Address
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Chưa có</span>
+                                }
+                            </td>
+                            <td>
+                                <span id="status-cell-@item.Customerid">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger">Đã vô hiệu hóa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">@item.Createdat.ToString("dd/MM/yyyy")</div>
+                                <div class="text-muted smaller">@item.Createdat.ToString("HH:mm")</div>
+                            </td>
+                            <td class="text-center pe-3">
+                                <a class="btn btn-sm btn-icon btn-outline-info me-1" 
+                                   asp-action="Details" asp-route-id="@item.Customerid" 
+                                   title="Chi tiết khách hàng">
+                                   <i class="ti ti-eye"></i>
+                                </a>
+
+                                <a class="btn btn-sm btn-icon btn-outline-warning me-1" 
+                                   asp-action="Edit" asp-route-id="@item.Customerid" 
+                                   title="Chỉnh sửa">
+                                   <i class="ti ti-edit"></i>
+                                </a>
+
+                                <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm"
+                                   asp-action="Delete" asp-route-id="@item.Customerid"
+                                   title="Xóa vĩnh viễn">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-icon ajax-toggle-customer-status me-1 @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                        data-id="@item.Customerid"
+                                        data-url="@Url.Action("ToggleDelete", "Customers", new { area = "Admin" })"
+                                        title="@(item.Isdeleted ? "Khôi phục hồ sơ" : "Vô hiệu hóa hồ sơ")">
+                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
+        </div>
+    </div>
+</div>

@@ -5,7 +5,7 @@
     var userIdStr = Context.Session.GetString("UserId");
     var userRoleStr = Context.Session.GetString("UserRole");
     int currentUserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
-    string currentUserRole = string.IsNullOrEmpty(userRoleStr) ? "User" : userRoleStr;
+    string currentUserRole = string.IsNullOrEmpty(userRoleStr) ? "Customer" : userRoleStr;
 
     int batchSize = 5;
     int totalReplies = Model.Count();

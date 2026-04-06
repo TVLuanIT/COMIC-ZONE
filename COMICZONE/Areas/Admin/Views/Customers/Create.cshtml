@@ -1,0 +1,91 @@
+@model COMICZONE.Models.Customer
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm khách hàng";
+}
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                <i class="ti ti-user-plus me-2"></i> Thêm khách hàng
+            </h4>
+            <small class="text-muted">
+                Tạo hồ sơ khách hàng mới liên kết với tài khoản người dùng
+            </small>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-light border shadow-sm">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- CARD -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-4">
+                    <!-- USER SELECTION -->
+                    <div class="col-md-6">
+                        <label asp-for="Userid" class="form-label fw-semibold">Tài khoản người dùng</label>
+                        <select asp-for="Userid" class ="form-select" asp-items="ViewBag.Userid">
+                            <option value="">-- Chọn tài khoản --</option>
+                        </select>
+                        <span asp-validation-for="Userid" class="text-danger"></span>
+                        <div class="form-text">Mỗi khách hàng phải liên kết với một tài khoản duy nhất.</div>
+                    </div>
+
+                    <!-- FULLNAME -->
+                    <div class="col-md-6">
+                        <label asp-for="Fullname" class="form-label fw-semibold">Họ và tên</label>
+                        <input asp-for="Fullname" class="form-control" placeholder="Nhập họ tên đầy đủ" />
+                        <span asp-validation-for="Fullname" class="text-danger"></span>
+                    </div>
+
+                    <!-- PHONE -->
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label fw-semibold">Số điện thoại</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="ti ti-phone"></i></span>
+                            <input asp-for="Phone" class="form-control" placeholder="0xxx xxx xxx" />
+                        </div>
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <!-- CREATED AT -->
+                    <div class="col-md-6">
+                        <label asp-for="Createdat" class="form-label fw-semibold">Ngày tạo</label>
+                        <input asp-for="Createdat" class="form-control" type="datetime-local" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="Createdat" class="text-danger"></span>
+                    </div>
+
+                    <!-- ADDRESS -->
+                    <div class="col-md-12">
+                        <label asp-for="Address" class="form-label fw-semibold">Địa chỉ</label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="Nhập địa chỉ nhận hàng..."></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm me-2">
+                        <i class="ti ti-device-floppy me-1"></i> Lưu khách hàng
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

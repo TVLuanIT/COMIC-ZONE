@@ -504,7 +504,7 @@ namespace COMICZONE.Controllers
         public async Task<IActionResult> DeleteReply(int replyId)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "Customer";
             int currentUserId = string.IsNullOrEmpty(userIdStr) ? 0 : int.Parse(userIdStr);
 
             var reply = await _context.ProductReviewReplies
@@ -688,7 +688,7 @@ namespace COMICZONE.Controllers
             }
 
             int userId = int.Parse(userIdStr);
-            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "Customer";
 
             // Kiểm tra sản phẩm có tồn tại và không bị xóa mềm
             var product = await _context.Products

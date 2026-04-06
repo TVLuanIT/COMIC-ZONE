@@ -32,6 +32,9 @@ public partial class Customer
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime Createdat { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("Userid")]
     [InverseProperty("Customer")]
     public virtual User User { get; set; } = null!;
