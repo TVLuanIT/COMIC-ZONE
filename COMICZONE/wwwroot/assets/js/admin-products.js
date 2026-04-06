@@ -167,7 +167,7 @@ const ProductIndex = () => {
     };
 
     const isDeleteButton = () => {
-        jQuery(document).on('click', '.ajax-toggle-status', function () {
+        jQuery(document).on('click', '.ajax-toggle-product-status', function () {
             const btn = jQuery(this);
             const id = btn.data('id');
             const url = btn.data('url');

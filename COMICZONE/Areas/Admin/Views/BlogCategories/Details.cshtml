@@ -1,0 +1,141 @@
+@model COMICZONE.Models.BlogCategory
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết danh mục blog";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="mb-5 d-flex justify-content-between align-items-end">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">Chi tiết danh mục</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Danh mục blog</a></li>
+                    <li class="breadcrumb-item active fw-medium text-primary" aria-current="page">Chi tiết</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4 rounded-pill shadow-sm transition-all hover:scale-105">
+                <i class="ti ti-edit me-1"></i> Chỉnh sửa
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg h-100" style="border-radius: 12px; transition: transform 0.3s ease;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary-subtle d-inline-flex p-4 rounded-circle mb-3">
+                            <i class="ti ti-category fs-1 text-primary"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">@Model.Name</h4>
+                        <span class="badge bg-blue-subtle text-blue px-3 py-2 rounded-pill fw-bold">ID: #@Model.Id</span>
+                    </div>
+
+                    <hr class="my-4 opacity-50">
+                    
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-bold ls-wide d-block mb-2">Đường dẫn thân thiện</label>
+                        <div class="p-3 bg-light rounded-3 border-start border-4 border-primary">
+                            <span class="text-primary font-monospace fw-medium">@Model.Slug</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="small text-muted text-uppercase fw-bold ls-wide d-block mb-2">Thống kê nội dung</label>
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-secondary fw-medium">Tổng bài viết:</span>
+                                <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-6">@Model.Blogs.Count(b => !b.Isdeleted) bài viết</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg overflow-hidden h-100" style="border-radius: 12px;">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h5 class="fw-bold mb-0 text-dark d-flex align-items-center">
+                        <i class="ti ti-list-details me-2 text-primary"></i>
+                        Bài viết gần đây trong danh mục
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light-subtle text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4 py-3 border-0">Bài viết</th>
+                                    <th class="py-3 border-0">Tác giả</th>
+                                    <th class="py-3 border-0">Ngày tạo</th>
+                                    <th class="text-end pe-4 py-3 border-0">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Blogs.Any(b => !b.Isdeleted))
+                                {
+                                    @foreach (var blog in Model.Blogs.Where(b => !b.Isdeleted).OrderByDescending(b => b.Createdat).Take(10))
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 300px;">
+                                                    @blog.Title
+                                                </div>
+                                                <div class="small text-muted text-truncate" style="max-width: 300px;">
+                                                    #@blog.Id - @blog.Slug
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="bg-secondary-subtle rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                        <i class="ti ti-user fs-6 text-secondary"></i>
+                                                    </div>
+                                                    <span class="small fw-medium">@blog.Author?.Username</span>
+                                                </div>
+                                            </td>
+                                            <td class="small text-muted fw-medium">
+                                                <i class="ti ti-calendar me-1"></i>
+                                                @blog.Createdat.ToString("dd/MM/yyyy")
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <a asp-controller="Blogs" asp-action="Details" asp-route-id="@blog.Id" class="btn btn-sm btn-outline-info rounded-pill px-3 shadow-sm transition-all hover:bg-info hover:text-white border-info-subtle">
+                                                    <i class="ti ti-eye"></i> Xem
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5">
+                                            <div class="text-muted opacity-50 mb-2">
+                                                <i class="ti ti-clipboard-off fs-1"></i>
+                                            </div>
+                                            <p class="text-muted fw-medium">Chưa có bài viết nào trong danh mục này.</p>
+                                            <a asp-controller="Blogs" asp-action="Create" asp-route-categoryId="@Model.Id" class="btn btn-sm btn-primary rounded-pill px-4">
+                                                Viết bài đầu tiên <i class="ti ti-arrow-right ms-1"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 pt-3 border-top d-flex gap-3">
+        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-medium transition-all hover:bg-light">
+            <i class="ti ti-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>

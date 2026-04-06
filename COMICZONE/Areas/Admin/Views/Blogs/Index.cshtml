@@ -1,0 +1,230 @@
+@using COMICZONE.Helpers
+@model IEnumerable<COMICZONE.Models.Blog>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý bài viết blog";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.BlogSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.BlogSearchModel();
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">Quản lý bài viết blog</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item active fw-medium text-primary" aria-current="page">Blog</li>
+                </ol>
+            </nav>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4 py-2 fw-bold transition-all hover:scale-105">
+            <i class="ti ti-plus me-1"></i> Viết bài mới
+        </a>
+    </div>
+
+    @* Reuseable Search Form *@
+    <partial name="_BlogSearchForm" model="searchModel" />
+
+    <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 12px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light border-bottom text-uppercase small ls-wide fw-bold text-muted bg-light-subtle">
+                    <tr class="align-middle">
+                        <th class="ps-4" style="width: 25%">
+                            @Html.SortHeader("Bài viết", "Title", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th style="width: 15%">
+                            @Html.SortHeader("Danh mục", "Categories.FirstOrDefault().Name", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th style="width: 15%">
+                            @Html.SortHeader("Tác giả", "Author.Username", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th class="text-center" style="width: 12%">
+                            @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th class="text-center" style="width: 12%">
+                            @Html.SortHeader("Hiển thị", "Isdeleted", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th style="width: 10%">
+                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
+                        </th>
+                        <th class="text-center pe-4" style="width: 11%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr id="blog-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (!string.IsNullOrEmpty(item.Thumbnail))
+                                        {
+                                            <img src="/images/blogs/@item.Thumbnail" alt="@item.Title" class="rounded shadow-sm border" style="width: 70px; height: 45px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center shadow-sm border" style="width: 70px; height: 45px;">
+                                                <i class="ti ti-photo text-muted opacity-50"></i>
+                                            </div>
+                                        }
+                                        <div style="max-width: 350px;">
+                                            <div class="fw-bold text-dark text-truncate" title="@item.Title">@item.Title</div>
+                                            <div class="small text-muted font-monospace text-truncate">@item.Slug</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1" style="max-width: 250px;">
+                                        @if (item.Categories != null && item.Categories.Any())
+                                        {
+                                            var displayedCats = item.Categories.Take(1).ToList();
+                                            var moreCount = item.Categories.Count - 1;
+ 
+                                            @foreach (var cat in displayedCats)
+                                            {
+                                                <span class="badge @(cat.Isdeleted ? "bg-secondary-subtle text-secondary" : "bg-primary text-white") px-3 py-1 rounded-pill fw-semibold shadow-sm" 
+                                                      style="font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.05);"
+                                                      title="@(cat.Isdeleted ? "Danh mục đã bị ẩn" : "Danh mục hoạt động")">
+                                                    @cat.Name
+                                                </span>
+                                            }
+                                            
+                                            @if (moreCount > 0)
+                                            {
+                                                <span class="badge bg-light text-muted border px-2 py-1 rounded-pill fw-bold" 
+                                                      style="font-size: 0.75rem;" 
+                                                      title="@string.Join(", ", item.Categories.Skip(1).Select(c => c.Name))">
+                                                    +@moreCount
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small fst-italic">Chưa phân loại</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center overflow-hidden border border-2 border-white shadow-sm" style="width: 38px; height: 38px;">
+                                            @if (!string.IsNullOrEmpty(item.Author?.Avatar))
+                                            {
+                                                <img src="@item.Author.Avatar" alt="@item.Author.Username" class="w-100 h-100 object-fit-cover shadow-sm" 
+                                                     onerror="this.src='/uploads/avatar/default-avatar.png'">
+                                            }
+                                            else
+                                            {
+                                                <i class="ti ti-user fs-4 text-primary"></i>
+                                            }
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="small fw-bold text-dark">@item.Author?.Username</span>
+                                            <span class="text-muted opacity-75" style="font-size: 0.7rem;">@(item.Author?.Role ?? "Tác giả")</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="status-cell-@item.Id">
+                                    @if (item.Status == COMICZONE.Models.Enums.BlogStatus.Approved)
+                                    {
+                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-circle-check me-1"></i> Công khai
+                                        </span>
+                                    }
+                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Draft)
+                                    {
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-file-pencil me-1"></i> Bản nháp
+                                        </span>
+                                    }
+                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Pending)
+                                    {
+                                        <span class="badge bg-info text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-clock me-1"></i> Chờ duyệt
+                                        </span>
+                                    }
+                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Rejected)
+                                    {
+                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-ban me-1"></i> Từ chối
+                                        </span>
+                                    }
+                                </td>
+                                <td id="visibility-cell-@item.Id">
+                                    @if (item.Isdeleted)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold">
+                                            <i class="ti ti-eye-off me-1"></i> Tạm ẩn
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                                            <i class="ti ti-eye me-1"></i> Hiển thị
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small fw-medium text-muted">
+                                        <i class="ti ti-calendar-event me-1"></i> @item.Createdat.ToString("dd/MM/yyyy")
+                                    </div>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" 
+                                           class="btn btn-sm btn-icon btn-outline-primary border-0 rounded-circle shadow-sm @(item.Isdeleted ? "disabled" : "")" title="Chỉnh sửa">
+                                            <i class="ti ti-edit fs-5"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" 
+                                           class="btn btn-sm btn-icon btn-outline-info border-0 rounded-circle shadow-sm" title="Chi tiết">
+                                            <i class="ti ti-info-circle fs-5"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" 
+                                           class="btn btn-sm btn-icon btn-outline-danger border-0 rounded-circle shadow-sm" title="Xóa hẳn">
+                                            <i class="ti ti-trash fs-5"></i>
+                                        </a>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-icon ajax-toggle-blog-status border-0 rounded-circle shadow-sm @(item.Isdeleted ? "btn-outline-success" : "btn-outline-warning")"
+                                                title="@(item.Isdeleted ? "Khôi phục" : "Tạm ẩn")"
+                                                data-id="@item.Id"
+                                                data-url="@Url.Action("ToggleDelete", "Blogs")">
+                                            <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted opacity-25 mb-3">
+                                    <i class="ti ti-clipboard-off" style="font-size: 4rem;"></i>
+                                </div>
+                                <h5 class="fw-bold text-muted mb-1">Không tìm thấy bài viết nào</h5>
+                                <p class="text-muted small mb-3">Hãy thử thay đổi tiêu chí lọc hoặc làm mới danh sách.</p>
+                                <a asp-action="Index" class="btn btn-sm btn-light border px-4 rounded-pill">
+                                    <i class="ti ti-refresh me-1"></i> Xem tất cả bài viết
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (searchModel.TotalPages > 1)
+        {
+            <div class="card-footer bg-white border-top-0 pt-3 pb-4">
+                <div class="d-flex justify-content-center mt-3">
+                    <partial name="_AdminPagination" model="searchModel" />
+                </div>
+            </div>
+        }
+    </div>
+</div>

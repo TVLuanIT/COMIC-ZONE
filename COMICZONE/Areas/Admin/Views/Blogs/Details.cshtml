@@ -1,0 +1,205 @@
+@model COMICZONE.Models.Blog
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết bài viết";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="mb-5 d-flex justify-content-between align-items-end flex-wrap gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">Chi tiết bài viết</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Blog</a></li>
+                    <li class="breadcrumb-item active fw-medium text-primary" aria-current="page">Chi tiết</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4 rounded-pill shadow-sm transition-all hover:scale-105">
+                <i class="ti ti-edit me-1"></i> Chỉnh sửa
+            </a>
+            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill">
+                <i class="ti ti-arrow-left me-1"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Content Column -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg mb-4" style="border-radius: 16px; overflow: hidden;">
+                @if (!string.IsNullOrEmpty(Model.Thumbnail))
+                {
+                    <div class="position-relative">
+                        <img src="/images/blogs/@Model.Thumbnail" class="card-img-top" alt="@Model.Title" style="height: 450px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 bg-gradient-to-t from-dark text-white d-md-none">
+                            <h2 class="fs-4 fw-bold mb-0">@Model.Title</h2>
+                        </div>
+                    </div>
+                }
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+                        @if (Model.Categories != null && Model.Categories.Any())
+                        {
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <span class="badge @(cat.Isdeleted ? "bg-secondary-subtle text-secondary border" : "bg-primary-subtle text-primary border border-primary-subtle") px-3 py-2 rounded-pill fw-bold" title="@(cat.Isdeleted ? "Danh mục đã bị ẩn" : "Danh mục hoạt động")">
+                                    <i class="ti ti-tag me-1"></i> @cat.Name
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-muted px-3 py-2 rounded-pill fw-bold border">
+                                <i class="ti ti-help me-1"></i> Chưa phân loại
+                            </span>
+                        }
+                        @if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Approved)
+                        {
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-check me-1"></i> Công khai
+                            </span>
+                        }
+                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Draft)
+                        {
+                            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-file-pencil me-1"></i> Bản nháp
+                            </span>
+                        }
+                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Pending)
+                        {
+                            <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-clock me-1"></i> Chờ duyệt
+                            </span>
+                        }
+                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Rejected)
+                        {
+                            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-ban me-1"></i> Từ chối
+                            </span>
+                        }
+
+                        @if (Model.Isdeleted)
+                        {
+                            <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-eye-off me-1"></i> Tạm ẩn
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                                <i class="ti ti-eye me-1"></i> Hiển thị
+                            </span>
+                        }
+                    </div>
+                    
+                    <h1 class="display-6 fw-extrabold text-dark mb-4">@Model.Title</h1>
+                    
+                    <div class="d-flex align-items-center hstack gap-3 mb-5 py-4 border-top border-bottom">
+                        <div class="bg-secondary-subtle rounded-circle d-flex align-items-center justify-content-center border shadow-sm overflow-hidden" style="width: 50px; height: 50px;">
+                            @if (!string.IsNullOrEmpty(Model.Author?.Avatar))
+                            {
+                                <img src="@Model.Author.Avatar" alt="@Model.Author.Username" class="w-100 h-100 object-fit-cover" 
+                                     onerror="this.src='/uploads/avatar/default-avatar.png'">
+                            }
+                            else
+                            {
+                                <i class="ti ti-user fs-3 text-secondary"></i>
+                            }
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark fs-5">@Model.Author?.Username</div>
+                            <div class="small text-muted d-flex align-items-center gap-1">
+                                <i class="ti ti-calendar-event"></i>
+                                Đăng lúc @Model.Createdat.ToString("HH:mm, dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <div class="ms-auto d-none d-sm-block">
+                            <div class="small text-muted text-uppercase ls-wide fw-bold">ID Hệ thống</div>
+                            <div class="text-dark fw-medium text-end">#@Model.Id</div>
+                        </div>
+                    </div>
+
+                    <div class="blog-short-desc mb-5 p-4 rounded-4 bg-light border-start border-primary border-5 italic-font">
+                        <p class="lead mb-0 text-dark fw-medium opacity-75">
+                            <i class="ti ti-quote text-primary opacity-50 me-2 fs-2 align-middle"></i>
+                            @Model.Shortdescription
+                        </p>
+                    </div>
+
+                    <div class="blog-content text-dark lh-lg fs-5" style="white-space: pre-line; word-break: break-word;">
+                        @Model.Content
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
+                        <i class="ti ti-info-circle me-2 text-primary"></i> Thông tin bài viết
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-bold ls-wide d-block mb-2">Đường dẫn thân thiện (Slug)</label>
+                        <div class="p-2 px-3 bg-light rounded-3 border">
+                            <code class="text-primary fw-medium text-break">@Model.Slug</code>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-bold ls-wide d-block mb-2">Cập nhật cuối</label>
+                        <div class="d-flex align-items-center gap-2 text-dark fw-medium">
+                            <div class="bg-light p-2 rounded-circle">
+                                <i class="ti ti-refresh text-primary"></i>
+                            </div>
+                            @Model.Updatedat?.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-50">
+
+                    <div class="d-grid gap-3">
+                        <a href="/Blog/Details/@Model.Id" target="_blank" class="btn btn-outline-primary rounded-pill py-2 fw-bold">
+                            <i class="ti ti-world me-1"></i> Xem trên Live Website
+                        </a>
+                        <button class="btn btn-light border rounded-pill py-2 text-muted fw-medium" onclick="window.print()">
+                            <i class="ti ti-printer me-1"></i> Tải bản in (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-lg" style="border-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body p-4 text-center text-white">
+                    <div class="bg-white bg-opacity-25 d-inline-flex p-3 rounded-circle mb-3">
+                        <i class="ti ti-share fs-2 text-white"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Phân phối nội dung</h6>
+                    <p class="small text-white text-opacity-75 mb-4 px-2">Chia sẻ bài viết này trên các nền tảng mạng xã hội để tăng lượt tiếp cận.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-light rounded-circle shadow-none" style="width: 36px; height: 36px;"><i class="ti ti-brand-facebook text-primary"></i></button>
+                        <button class="btn btn-sm btn-light rounded-circle shadow-none" style="width: 36px; height: 36px;"><i class="ti ti-brand-twitter text-info"></i></button>
+                        <button class="btn btn-sm btn-light rounded-circle shadow-none" style="width: 36px; height: 36px;"><i class="ti ti-link text-dark"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .fw-extrabold { font-weight: 800; }
+        .italic-font { font-style: italic; }
+        .ls-wide { letter-spacing: 0.05em; }
+        .bg-gradient-to-t { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        .blog-content { color: #2d3748; }
+    </style>
+}

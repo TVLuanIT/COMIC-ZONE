@@ -1,0 +1,50 @@
+@model COMICZONE.Areas.Admin.ViewModels.BlogSearchModel
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-light-subtle rounded">
+        <form asp-action="Index" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-muted ls-wide">Tìm kiếm</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="ti ti-search text-muted"></i></span>
+                    <input type="text" asp-for="Keyword" class="form-control border-start-0 ps-0 shadow-none" placeholder="Tiêu đề, slug, nội dung...">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-muted ls-wide">Danh mục</label>
+                <select asp-for="CategoryId" class="form-select shadow-none" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                    <option value="">-- Tất cả danh mục --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-muted ls-wide">Trạng thái</label>
+                <select asp-for="StatusFilter" class="form-select shadow-none">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var status in Enum.GetValues(typeof(COMICZONE.Models.Enums.BlogStatus)).Cast<COMICZONE.Models.Enums.BlogStatus>())
+                    {
+                        var displayName = status switch
+                        {
+                            COMICZONE.Models.Enums.BlogStatus.Approved => "Công khai",
+                            COMICZONE.Models.Enums.BlogStatus.Draft => "Bản nháp",
+                            COMICZONE.Models.Enums.BlogStatus.Pending => "Chờ duyệt",
+                            COMICZONE.Models.Enums.BlogStatus.Rejected => "Từ chối",
+                            _ => status.ToString()
+                        };
+                        <option value="@status">@displayName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1 shadow-sm">
+                    <i class="ti ti-adjustments-horizontal me-1"></i> Tìm bài viết
+                </button>
+                <a asp-action="Index" class="btn btn-light border shadow-sm" title="Làm mới">
+                    <i class="ti ti-refresh text-secondary"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

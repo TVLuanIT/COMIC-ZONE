@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Models.Enums;
 
 namespace COMICZONE.Models;
 
@@ -34,14 +35,10 @@ public partial class Blog
     public string? Thumbnail { get; set; }
 
     [Column("STATUS")]
-    [StringLength(20)]
-    public string Status { get; set; } = null!;
+    public BlogStatus Status { get; set; }
 
     [Column("AUTHORID")]
     public int Authorid { get; set; }
-
-    [Column("CATEGORYID")]
-    public int Categoryid { get; set; }
 
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime Createdat { get; set; }
@@ -49,18 +46,17 @@ public partial class Blog
     [Column("UPDATEDAT", TypeName = "datetime")]
     public DateTime? Updatedat { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("Authorid")]
     [InverseProperty("Blogs")]
     public virtual User Author { get; set; } = null!;
 
     [InverseProperty("Blog")]
-    public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
-
-    [ForeignKey("Categoryid")]
-    [InverseProperty("Blogs")]
-    public virtual Blogcategory Category { get; set; } = null!;
+    public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
 
     [ForeignKey("Blogid")]
-    [InverseProperty("BlogsNavigation")]
-    public virtual ICollection<Blogcategory> Categories { get; set; } = new List<Blogcategory>();
+    [InverseProperty("Blogs")]
+    public virtual ICollection<BlogCategory> Categories { get; set; } = new List<BlogCategory>();
 }

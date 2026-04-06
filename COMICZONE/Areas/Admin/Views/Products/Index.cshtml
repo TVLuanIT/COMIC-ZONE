@@ -218,7 +218,7 @@
                                         title="Xóa mềm"
                                         data-id="@item.Id"
                                         data-url="@Url.Action("ToggleDelete", "Products", new { area = "Admin" })"
-                                        class="btn btn-sm btn-icon ajax-toggle-status
+                                        class="btn btn-sm btn-icon ajax-toggle-product-status
                                             @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
 
                                     <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>

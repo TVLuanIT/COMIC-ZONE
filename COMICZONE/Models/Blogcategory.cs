@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("BLOGCATEGORY")]
-[Index("Slug", Name = "UQ__BLOGCATE__A43AD45C2F2F6D68", IsUnique = true)]
-public partial class Blogcategory
+[Table("BLOG_CATEGORY")]
+[Index("Slug", Name = "UQ_BLOG_CATEGORY_SLUG", IsUnique = true)]
+public partial class BlogCategory
 {
     [Key]
     [Column("ID")]
@@ -22,10 +22,10 @@ public partial class Blogcategory
     [StringLength(100)]
     public string Slug { get; set; } = null!;
 
-    [InverseProperty("Category")]
-    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
 
     [ForeignKey("Categoryid")]
     [InverseProperty("Categories")]
-    public virtual ICollection<Blog> BlogsNavigation { get; set; } = new List<Blog>();
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 }
