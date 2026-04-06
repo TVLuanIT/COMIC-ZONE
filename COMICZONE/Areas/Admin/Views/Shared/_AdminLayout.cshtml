@@ -34,9 +34,16 @@
 
         <!-- THANH TRÊN -->
         <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3 d-flex align-items-center justify-content-between">
-            <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm">
-                <i class="ti ti-layout-sidebar-left-expand"></i>
-            </button>
+            <div class="d-flex align-items-center">
+                <!-- Nút cho Desktop -->
+                <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm me-2">
+                    <i class="ti ti-layout-sidebar-left-expand"></i>
+                </button>
+                <!-- Nút cho Mobile -->
+                <button id="mobileBtn" class="d-inline-flex d-lg-none btn btn-light btn-icon btn-sm">
+                    <i class="ti ti-menu-2"></i>
+                </button>
+            </div>
 
             <div class="user-profile-topbar ms-auto d-flex align-items-center">
                 <div class="dropdown">
@@ -91,7 +98,7 @@
                         <i class="ti ti-package"></i>
                         <span class="nav-text">Sản phẩm</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Products" || controller == "Artists" || controller == "Tags" || controller == "InventoryLogs" ? "show" : "")"
@@ -133,7 +140,7 @@
                         <i class="ti ti-shopping-cart"></i>
                         <span class="nav-text">Bán hàng</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Orders" || controller == "Payments" || controller == "Refunds" || controller == "Invoices" ? "show" : "")"
@@ -175,7 +182,7 @@
                         <i class="ti ti-users"></i>
                         <span class="nav-text">Người dùng</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Users" || controller == "Carts" ? "show" : "")"
@@ -203,7 +210,7 @@
                         <i class="ti ti-article"></i>
                         <span class="nav-text">Nội dung</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "show" : "")"
@@ -238,7 +245,7 @@
                         <i class="ti ti-settings"></i>
                         <span class="nav-text">Hệ thống</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Notifications" || controller == "ViolationReports" || controller == "Reports" ? "show" : "")"
@@ -276,6 +283,9 @@
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
+        <!-- Bootstrap Bundle (Popper included) -->
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
         <!-- Select2 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
@@ -295,7 +305,7 @@
         <script src="~/assets/js/admin-reports.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-common.js" asp-append-version="true"></script>
         <!-- main -->
-        <script src="~/assets/js/main.js"></script>
+        <script src="~/assets/js/main.js" asp-append-version="true"></script>
 
         <!-- script từ view -->
         @RenderSection("Scripts", required: false)

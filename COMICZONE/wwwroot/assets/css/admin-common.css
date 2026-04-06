@@ -72,28 +72,14 @@
     transition: all 0.3s ease;
 }
 
-/* Mặc định: chỉ hiện dấu + */
-.icon-plus,
-.icon-minus {
-    transition: all 0.2s ease;
+/* Chevron mở rộng menu */
+.icon-plus {
+    transition: all 0.3s ease;
 }
 
-/* mặc định */
-.icon-minus {
-    opacity: 0;
-    transform: rotate(-90deg);
-    position: absolute;
-}
-
-/* khi mở */
+/* Khi menu đang mở: Xoay mũi tên ngược lên */
 .nav-item:has(.collapse.show) .icon-plus {
-    opacity: 0;
-    transform: rotate(90deg);
-}
-
-.nav-item:has(.collapse.show) .icon-minus {
-    opacity: 1;
-    transform: rotate(0);
+    transform: rotate(180deg);
 }
 
 /* ================= GENERIC SEARCH & SORT ================= */
@@ -191,4 +177,86 @@ thead th a i {
 
 .user-profile-topbar .dropdown-item.text-danger i {
     color: #ef4444;
+}
+
+/* ================= COLLAPSED SIDEBAR FIXES ================= */
+.sidebar.collapsed {
+    width: 60px !important;
+}
+
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .icon-plus,
+.sidebar.collapsed .icon-minus,
+.sidebar.collapsed ul.collapse {
+    display: none !important;
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.sidebar.collapsed .nav-link i {
+    margin-right: 0 !important;
+    font-size: 1.25rem;
+}
+
+.sidebar.collapsed .logo-area {
+    padding: 0;
+    justify-content: center;
+}
+
+/* Fix for sub-menu items if padding/margin causes overflow */
+.sidebar.collapsed .nav-item {
+    width: 100%;
+}
+
+/* ================= MOBILE RESPONSIVENESS ================= */
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        z-index: 1060;
+        transition: left 0.3s ease;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        width: 260px !important;
+    }
+
+    .sidebar.mobile-show {
+        left: 0;
+    }
+
+    /* Đảm bảo content và topbar full width trên mobile */
+    .content,
+    .topbar {
+        left: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Overlay che phủ khi mở menu mobile */
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        z-index: 1050;
+    }
+
+    .overlay.show {
+        display: block;
+    }
+
+    /* Ẩn bớt các padding thừa trên mobile nếu cần */
+    .content {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 }
