@@ -1,74 +1,56 @@
-﻿@model List<COMICZONE.Models.ProductReview>
+@model List<COMICZONE.Models.ProductReview>
 
-<div class="profile-content">
+@Html.AntiForgeryToken()
 
-    @Html.AntiForgeryToken()
-
-    @if (Model == null || !Model.Any())
-    {
-        <div class="empty-review">
-            Bạn chưa có đánh giá nào.
-        </div>
-    }
-    else
-    {
-
-        foreach (var review in Model)
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-chat-dots text-muted display-1 mb-4"></i>
+        <p class="text-muted fs-5">Bạn chưa có đánh giá nào.</p>
+    </div>
+}
+else
+{
+    <div class="reviews-list">
+        @foreach (var review in Model)
         {
-            <div class="review-card">
-
-                <div class="review-header">
-
-                    <div class="product-name">
-                        <a asp-controller="Products"
-                           asp-action="Detail"
-                           asp-route-id="@review.Productid">
+            <div class="profile-review-card" data-aos="fade-up">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@review.Productid" 
+                           class="fw-800 text-dark text-decoration-none hover-primary fs-5 d-block mb-1">
                             @review.Product?.Name
                         </a>
-                    </div>
-
-                    <div class="review-actions">
-
-                        <div class="review-date">
-                            @review.Createdat?.ToString("dd/MM/yyyy")
+                        <div class="text-warning mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star") me-1"></i>
+                            }
                         </div>
-
-                        <div class="menu-wrapper">
-
-                            <button class="menu-btn">⋯</button>
-
-                            <div class="menu-dropdown">
-                                <a href="#"
-                                   class="delete-review"
-                                   data-id="@review.Reviewid">
-                                    Xóa
-                                </a>
-                            </div>
-
-                        </div>
-
                     </div>
-
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted small me-3">
+                            <i class="bi bi-calendar3 me-1"></i> @review.Createdat?.ToString("dd/MM/yyyy")
+                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                <li>
+                                    <a href="javascript:void(0)" class="dropdown-item text-danger delete-review" data-id="@review.Reviewid">
+                                        <i class="bi bi-trash3 me-2"></i>Xóa đánh giá
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="review-rating">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        if (i <= review.Rating)
-                        {
-                            <span class="star filled">★</span>
-                        }
-                        else
-                        {
-                            <span class="star">★</span>
-                        }
-                    }
+                <div class="bg-light p-3 rounded-4 position-relative">
+                    <i class="bi bi-quote position-absolute top-0 start-0 translate-middle-y ms-3 text-primary opacity-25 fs-1"></i>
+                    <p class="mb-0 text-secondary" style="line-height: 1.6;">@review.Reviewcontent</p>
                 </div>
-
-                <div class="review-comment">
-                    @review.Reviewcontent
-                </div>
-
             </div>
         }
 
@@ -86,41 +68,5 @@
                 { "tab", "reviews" }
             }
         })
-    }
-
-</div>
-
-@* FORM XÁC NHẬN XÓA ĐÁNH GIÁ *@
-<div id="deleteConfirmModal" class="confirm-modal">
-
-    <div class="confirm-box">
-
-        <div class="confirm-icon">
-            🗑️
-        </div>
-
-        <div class="confirm-title">
-            Xóa đánh giá
-        </div>
-
-        <div class="confirm-text">
-            Hành động này không thể hoàn tác.
-            <br>
-            Bạn có chắc muốn xóa đánh giá này?
-        </div>
-
-        <div class="confirm-actions">
-
-            <button class="btn-cancel">
-                Hủy
-            </button>
-
-            <button class="btn-delete">
-                Xóa đánh giá
-            </button>
-
-        </div>
-
     </div>
-
-</div>
+}

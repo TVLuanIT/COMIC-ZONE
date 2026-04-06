@@ -1,116 +1,103 @@
-﻿@using COMICZONE.Extensions;
+@using COMICZONE.Extensions;
 @model COMICZONE.Models.Order
 
-<div class="profile-content">
+<div class="premium-content-card" data-aos="fade-up">
 
-    <div class="invoice-box">
-
-        <div class="invoice-header">
-
-            <h3>COMICZONE</h3>
-            <div class="invoice-title">HÓA ĐƠN ĐƠN HÀNG</div>
-
-        </div>
-
-        <div class="invoice-info">
-
-            <div class="invoice-customer">
-
-                <h5>Thông tin đơn hàng</h5>
-
-                @if (!string.IsNullOrEmpty(Model.User?.Customer?.Fullname))
-                {
-                    <div><strong>Họ tên:</strong> @Model.User.Customer.Fullname</div>
-                }
-
-                <div><strong>Mã đơn:</strong> #@Model.OrderId</div>
-
-                @if (Model.OrderDate != null)
-                {
-                    <div><strong>Ngày đặt:</strong> @Model.OrderDate?.ToString("dd/MM/yyyy")</div>
-                }
-
-                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
-                {
-                    <div><strong>SĐT:</strong> @Model.PhoneNumber</div>
-                }
-
-                @if (!string.IsNullOrEmpty(Model.ShippingAddress))
-                {
-                    <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
-                }
-
-            </div>
-
-        </div>
-
-        <div class="invoice-products">
-
-            <table class="invoice-table">
-
-                <thead>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>SL</th>
-                        <th>Giá</th>
-                        <th>Tổng</th>
-                    </tr>
-                </thead>
-
-            </table>
-
-            <div class="invoice-products-scroll">
-
-                <table class="invoice-table">
-
-                    <tbody>
-                        @foreach (var item in Model.OrderItems)
-                        {
-                            <tr>
-                                <td class="product-cell">
-                                    <img src="@item.Product?.GetImagePath()" />
-                                    <span>@item.Product?.Name</span>
-                                </td>
-
-                                <td>@item.Quantity</td>
-
-                                <td>@item.Price?.ToString("N0") đ</td>
-
-                                <td>
-                                    @((item.Price * item.Quantity)?.ToString("N0")) đ
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-        <div class="invoice-total">
-
-            Tổng tiền:
-            <span>
-                @Model.TotalAmount?.ToString("N0") đ
+    <div class="card-header-premium">
+        <div>
+            <h2 class="mb-1">Chi tiết đơn hàng #@Model.OrderId</h2>
+            <span class="text-muted small">
+                <i class="bi bi-calendar-event me-1"></i> Ngày đặt: @Model.OrderDate?.ToString("HH:mm - dd/MM/yyyy")
             </span>
+        </div>
+        <a asp-action="MyOrders" asp-controller="UserProfiles" class="btn btn-sm btn-outline-primary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </a>
+    </div>
 
+    <!-- Order Metadata Grid -->
+    <div class="info-grid-premium mb-4">
+        <div class="info-item-premium">
+            <span class="info-label-premium">Trạng thái hiện tại</span>
+            @{
+                var statusText = "Chờ xử lý";
+                var statusClass = "status-pending";
+                if (Model.Status == "Shipping") { statusText = "Đang giao hàng"; statusClass = "status-shipping"; }
+                else if (Model.Status == "Completed") { statusText = "Đã hoàn thành"; statusClass = "status-completed"; }
+                else if (Model.Status == "Cancelled") { statusText = "Đã hủy"; statusClass = "status-cancelled"; }
+            }
+            <span class="order-status-badge @statusClass">@statusText</span>
         </div>
 
+        <div class="info-item-premium">
+            <span class="info-label-premium">Thông tin liên hệ</span>
+            <span class="info-value-premium">@Model.PhoneNumber</span>
+        </div>
+
+        <div class="info-item-premium">
+            <span class="info-label-premium">Phương thức thanh toán</span>
+            <span class="info-value-premium text-primary">COD (Thanh toán khi nhận hàng)</span>
+        </div>
+    </div>
+
+    <div class="info-item-premium mb-4">
+        <span class="info-label-premium">Địa chỉ giao hàng</span>
+        <span class="info-value-premium">@Model.ShippingAddress</span>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>
+                            <div class="product-info-premium">
+                                <img src="@item.Product?.GetImagePath()" alt="@item.Product?.Name" />
+                                <span>@item.Product?.Name</span>
+                            </div>
+                        </td>
+                        <td class="text-center fw-800">x @item.Quantity</td>
+                        <td class="text-end text-muted">@item.Price?.ToString("N0") <small>đ</small></td>
+                        <td class="text-end fw-800 text-primary">@((item.Price * item.Quantity)?.ToString("N0")) <small>đ</small></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="summary-box-premium">
+        <div class="summary-row-premium">
+            <span class="summary-label-premium">Tạm tính:</span>
+            <span class="summary-value-premium">@Model.TotalAmount?.ToString("N0") đ</span>
+        </div>
+        <div class="summary-row-premium">
+            <span class="summary-label-premium">Phí vận chuyển:</span>
+            <span class="summary-value-premium text-success">Miễn phí</span>
+        </div>
+        
         @if (!string.IsNullOrEmpty(Model.Note))
         {
-            <div class="invoice-note">
-                Ghi chú: @Model.Note
+            <div class="summary-row-premium border-top border-light pt-3 mt-3">
+                <span class="summary-label-premium">Ghi chú:</span>
+                <span class="text-muted small italic">"@Model.Note"</span>
             </div>
         }
 
-        <a asp-controller="UserProfiles"
-           asp-action="MyOrders"
-           class="invoice-back">
-            ← Quay lại đơn hàng
-        </a>
-
+        <div class="grand-total-premium">
+            <span class="total-label-premium">TỔNG CỘNG</span>
+            <span class="total-value-premium">@Model.TotalAmount?.ToString("N0") <small>đ</small></span>
+        </div>
     </div>
 
 </div>

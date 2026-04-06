@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,37 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Payments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(PaymentSearchModel search)
         {
-            var comiczoneContext = _context.Payments.Include(p => p.Order);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.Payments
+                .Include(p => p.Order)
+                    .ThenInclude(o => o.User)
+                .Include(p => p.Refunds)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyPaymentFilters(search);
+
+            var totalCount = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Createdat", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var payments = await query.ToListAsync();
+
+            return View(payments);
         }
 
         // GET: Admin/Payments/Details/5

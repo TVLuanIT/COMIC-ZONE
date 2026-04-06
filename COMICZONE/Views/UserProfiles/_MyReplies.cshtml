@@ -1,60 +1,51 @@
-﻿@model List<COMICZONE.Models.ProductReviewReply>
+@model List<COMICZONE.Models.ProductReviewReply>
 
-<div class="profile-content">
+@Html.AntiForgeryToken()
 
-    @Html.AntiForgeryToken()
-
-    @if (!Model.Any())
-    {
-        <div class="empty-review">
-            Bạn chưa có phản hồi nào.
-        </div>
-    }
-    else
-    {
-
-        foreach (var reply in Model)
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-reply-all text-muted display-1 mb-4"></i>
+        <p class="text-muted fs-5">Bạn chưa có phản hồi nào.</p>
+    </div>
+}
+else
+{
+    <div class="replies-list">
+        @foreach (var reply in Model)
         {
-            <div class="review-card">
-
-                <div class="review-header">
-
-                    <div class="product-name">
-                        <a asp-controller="Products"
-                           asp-action="Detail"
-                           asp-route-id="@reply.Review.Productid">
-                            @reply.Review?.Product?.Name
+            <div class="profile-review-card" data-aos="fade-up">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@(reply.Review?.Productid ?? 0)" 
+                           class="fw-800 text-dark text-decoration-none hover-primary fs-6 d-block mb-1">
+                            <span class="text-muted small fw-normal">Phản hồi trên truyện:</span><br>
+                            @(reply.Review?.Product?.Name ?? "Sản phẩm")
                         </a>
                     </div>
-
-                    <div class="review-actions">
-
-                        <div class="review-date">
-                            @reply.Createdat?.ToString("dd/MM/yyyy")
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted small me-3">
+                            <i class="bi bi-calendar3 me-1"></i> @reply.Createdat?.ToString("dd/MM/yyyy")
+                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                <li>
+                                    <a href="javascript:void(0)" class="dropdown-item text-danger delete-reply" data-id="@reply.Replyid">
+                                        <i class="bi bi-trash3 me-2"></i>Xóa phản hồi
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
-
-                        <div class="menu-wrapper">
-
-                            <button class="menu-btn">⋯</button>
-
-                            <div class="menu-dropdown">
-                                <a href="#"
-                                   class="delete-reply"
-                                   data-id="@reply.Replyid">
-                                    Xóa
-                                </a>
-                            </div>
-
-                        </div>
-
                     </div>
-
                 </div>
 
-                <div class="review-comment">
-                    @reply.Replycontent
+                <div class="bg-indigo-light p-3 rounded-4 position-relative" style="background: rgba(99, 102, 241, 0.05);">
+                    <i class="bi bi-chat-quote position-absolute top-0 start-0 translate-middle-y ms-3 text-indigo opacity-25 fs-1"></i>
+                    <p class="mb-0 text-secondary" style="line-height: 1.6;">@reply.Replycontent</p>
                 </div>
-
             </div>
         }
 
@@ -72,42 +63,5 @@
                 { "tab", "replies" }
             }
         })
-    }
-
-</div>
-
-
-@* FORM XÁC NHẬN XÓA PHẢN HỒI *@
-<div id="deleteReplyConfirmModal" class="confirm-modal">
-
-    <div class="confirm-box">
-
-        <div class="confirm-icon">
-            🗑️
-        </div>
-
-        <div class="confirm-title">
-            Xóa phản hồi
-        </div>
-
-        <div class="confirm-text">
-            Hành động này không thể hoàn tác.
-            <br>
-            Bạn có chắc muốn xóa phản hồi này?
-        </div>
-
-        <div class="confirm-actions">
-
-            <button class="btn-cancel">
-                Hủy
-            </button>
-
-            <button class="btn-delete">
-                Xóa phản hồi
-            </button>
-
-        </div>
-
     </div>
-
-</div>
+}

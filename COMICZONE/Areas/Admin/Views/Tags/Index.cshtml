@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý thẻ";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.TagSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.TagSearchModel();
 }
 
 <div class="container-fluid">
@@ -10,22 +11,33 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fs-3">Quản lý thẻ</h1>
 
-        <a asp-action="Create" class="btn btn-primary">
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
             <i class="ti ti-plus"></i>
             Thêm thẻ
         </a>
     </div>
 
+    @* Reusable search form *@
+    <partial name="_TagSearchForm" model="searchModel" />
+
     <!-- TABLE -->
     <div class="card shadow-sm border-0">
         <div class="table-wrapper">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-uppercase small text-secondary">
-                        <th>#</th>
-                        <th>Tên thẻ</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th class="text-center">Số sản phẩm</th>
+                <thead class="table-light border-bottom">
+                    <tr class="align-middle">
+                        <th>
+                            @Html.SortHeader("#", "Id", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Tên thẻ", "Name", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Số sản phẩm", "Products.Count", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
 
                         <th class="text-end table-actions">
                             Hành động
@@ -45,7 +57,7 @@
                                 <span class="fw-medium">@item.Name</span>
                             </td>
 
-                            <td class="text-center">
+                            <td>
                                 <span id="status-cell-@item.Id">
                                     @if (item.Isdeleted)
                                     {
@@ -97,6 +109,10 @@
                     }
                 </tbody>
             </table>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 using System;
 
-namespace COMICZONE.ViewModels.Admin.Reports
+namespace COMICZONE.Areas.Admin.ViewModels.Reports
 {
     public class SalesReportViewModel
     {

@@ -1,14 +1,20 @@
-﻿@model List<COMICZONE.Models.Notification>
+@model List<COMICZONE.Models.Notification>
 
 @{
-    ViewData["Title"] = "Đơn hàng của tôi";
+    ViewData["Title"] = "Thông báo của tôi";
 }
 
-<div class="profile-container">
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" asp-append-version="true" />
+}
+
+<div class="profile-container-premium">
 
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    @await Html.PartialAsync("_Notifications.cshtml", Model)
+    <div class="profile-glass-content">
+        @await Html.PartialAsync("_Notifications.cshtml", Model)
+    </div>
 
 </div>

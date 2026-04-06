@@ -1,0 +1,19 @@
+/* ================================================================================= */
+/* ================= Admin/Views/Dashboard/Index.cshtml ================= */
+/* ================================================================================= */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.smaller { font-size: 0.75rem; }
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,19 +1,28 @@
 @using COMICZONE.Helpers
+@using COMICZONE.Models.Enums
 @model IEnumerable<COMICZONE.Models.Order>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý đơn hàng";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.OrderSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.OrderSearchModel();
 }
 
 <div class="container-fluid py-4">
     <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800 fw-bold">
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor fw-bold">
                 <i class="ti ti-shopping-cart me-2 text-primary"></i>Quản lý đơn hàng
-            </h1>
-            <p class="text-muted small mb-0">Theo dõi và quản lý các đơn hàng của khách hàng.</p>
+            </h3>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-end mb-0">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Đơn hàng</li>
+                </ol>
+            </nav>
         </div>
     </div>
 
@@ -76,9 +85,12 @@
         </div>
     </div>
 
+    @* Reusable search form *@
+    <partial name="_OrderSearchForm" model="searchModel" />
+
     <!-- Main Table Card -->
     <div class="card shadow-sm border-0 overflow-hidden">
-        <div class="card-header bg-white py-3">
+        <div class="card-header bg-white py-3 border-bottom">
             <div class="d-flex align-items-center">
                 <h5 class="mb-0 fw-bold">Danh sách đơn hàng</h5>
             </div>
@@ -86,22 +98,32 @@
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 text-nowrap">
-                <thead class="table-light text-uppercase small fw-bold">
-                    <tr>
-                        <th class="ps-4">Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th class="text-center">Ngày đặt</th>
-                        <th class="text-center">Tổng tiền</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th class="text-center">Hiển thị</th>
-                        <th class="text-end pe-4">Thao tác</th>
+                <thead class="table-light border-bottom fw-bold text-uppercase small">
+                    <tr class="align-middle">
+                        <th class="ps-4">
+                            @Html.SortHeader("Mã đơn", "OrderId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Khách hàng", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Tổng tiền", "TotalAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                        </th>
+                        <th class="text-center">Đã xóa</th>
+                        <th class="text-center pe-4">Thao tác</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr id="order-row-@item.OrderId" class="@(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                        <tr id="order-row-@item.OrderId" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
                             <td class="ps-4 fw-bold text-dark">#@item.OrderId</td>
 
                             <td>
@@ -126,15 +148,15 @@
                                 </div>
                             </td>
 
-                            <td class="text-center text-muted small">
+                            <td class="text-muted small">
                                 @(item.OrderDate?.ToString("dd/MM/yyyy") ?? "N/A")
                             </td>
-
-                            <td class="text-center fw-bold text-dark">
+                            
+                            <td class="fw-bold text-dark">
                                 @item.TotalAmount?.ToString("N0") ₫
                             </td>
-
-                            <td class="text-center">
+                            
+                            <td>
                                 @{
                                     var (bgClass, textClass, icon) = item.OrderStatusEnum switch
                                     {
@@ -164,7 +186,7 @@
                                 }
                             </td>
 
-                            <td class="text-end pe-4">
+                            <td class="text-center pe-4">
                                 <div class="btn-group shadow-sm">
                                     @if (item.Invoices != null && item.Invoices.Any())
                                     {
@@ -202,7 +224,7 @@
                     }
                 </tbody>
             </table>
-        </div>
+        </div> <!-- table-responsive closed -->
 
         @if (!Model.Any())
         {
@@ -211,10 +233,12 @@
                 <h5 class="text-muted">Không tìm thấy đơn hàng nào.</h5>
             </div>
         }
-    </div>
-</div>
-dy>
-            </table>
-        </div>
-    </div>
-</div>
+
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
+    </div> <!-- card closed -->
+</div> <!-- container-fluid closed -->

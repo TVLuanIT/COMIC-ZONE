@@ -1,0 +1,177 @@
+@model COMICZONE.Areas.Admin.ViewModels.ProductSearchModel
+
+@{
+    var artists = ViewBag.Artists as List<COMICZONE.Models.Artist> ?? new List<COMICZONE.Models.Artist>();
+    var tags = ViewBag.Tags as List<COMICZONE.Models.Tag> ?? new List<COMICZONE.Models.Tag>();
+}
+
+<form method="get" class="product-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Tên, tác giả, series...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">ID</label>
+            <input type="number" name="Id" value="@Model.Id" class="form-control" placeholder="ID sản phẩm">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Tình trạng kho</label>
+            <select name="StockStatus" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="Available" selected="@(Model.StockStatus == "Available")">Còn hàng</option>
+                <option value="OutOfStock" selected="@(Model.StockStatus == "OutOfStock")">Hết hàng</option>
+                <option value="LowStock" selected="@(Model.StockStatus == "LowStock")">Sắp hết hàng</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang bán</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã xóa/Ngừng bán</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="advancedSearch">
+        <div class="row g-3">
+            @* Artist & Tag IDs *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Họa sĩ</label>
+                <select name="ArtistIds" class="form-select select2" multiple>
+                    @foreach (var artist in artists)
+                    {
+                        <option value="@artist.Id" selected="@(Model.ArtistIds?.Contains(artist.Id) ?? false)">@artist.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Thẻ (Tags)</label>
+                <select name="TagIds" class="form-select select2" multiple>
+                    @foreach (var tag in tags)
+                    {
+                        <option value="@tag.Id" selected="@(Model.TagIds?.Contains(tag.Id) ?? false)">@tag.Name</option>
+                    }
+                </select>
+            </div>
+
+            @* Names search *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên Họa sĩ (Keywords)</label>
+                <input type="text" name="ArtistNames" value="@Model.ArtistNames" class="form-control" placeholder="Tên họa sĩ...">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên Thẻ (Keywords)</label>
+                <input type="text" name="TagNames" value="@Model.TagNames" class="form-control" placeholder="Tên thẻ...">
+            </div>
+
+            @* Price range *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Giá từ</label>
+                <div class="input-group">
+                    <input type="number" name="PriceMin" value="@Model.PriceMin" class="form-control" placeholder="Min">
+                    <span class="input-group-text">₫</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Giá đến</label>
+                <div class="input-group">
+                    <input type="number" name="PriceMax" value="@Model.PriceMax" class="form-control" placeholder="Max">
+                    <span class="input-group-text">₫</span>
+                </div>
+            </div>
+
+            @* Stock Range *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tồn kho từ</label>
+                <input type="number" name="StockQuantityMin" value="@Model.StockQuantityMin" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tồn kho đến</label>
+                <input type="number" name="StockQuantityMax" value="@Model.StockQuantityMax" class="form-control">
+            </div>
+
+            @* Dates *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày phát hành từ</label>
+                <input type="date" name="ReleaseDateFrom" value="@(Model.ReleaseDateFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày phát hành đến</label>
+                <input type="date" name="ReleaseDateTo" value="@(Model.ReleaseDateTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+
+            @* Specific Fields *@
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Định dạng</label>
+                <input type="text" name="Format" value="@Model.Format" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Độ tuổi</label>
+                <input type="text" name="AgeGroup" value="@Model.AgeGroup" class="form-control">
+            </div>
+
+            @* Existence flags *@
+            <div class="col-md-2">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="HasReviews" value="true" @(Model.HasReviews == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Có đánh giá</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="HasPictures" value="true" @(Model.HasPictures == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Có ảnh</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="HasOrders" value="true" @(Model.HasOrders == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Đã có đơn hàng</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.PriceMin.HasValue || Model.PriceMax.HasValue ||
+               Model.StockQuantityMin.HasValue || Model.StockQuantityMax.HasValue ||
+               Model.ReleaseDateFrom.HasValue || Model.ReleaseDateTo.HasValue ||
+               Model.HasReviews.HasValue || Model.HasPictures.HasValue || Model.HasOrders.HasValue ||
+               !string.IsNullOrWhiteSpace(Model.Format) || !string.IsNullOrWhiteSpace(Model.AgeGroup) ||
+               (Model.TagIds != null && Model.TagIds.Any()) || (Model.ArtistIds != null && Model.ArtistIds.Any()) ||
+               !string.IsNullOrWhiteSpace(Model.TagNames) || !string.IsNullOrWhiteSpace(Model.ArtistNames);
+    }
+}

@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Http
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var username = Context.Session.GetString("Username");
+    var avatar = Context.Session.GetString("Avatar");
 }
 
 <!DOCTYPE html>
@@ -11,7 +14,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="~/assets/css/main.css">
-        <link rel="stylesheet" href="~/assets/css/admin.css">
+        <link rel="stylesheet" href="~/assets/css/admin-common.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-products.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-reviews.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-violations.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-users.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-reports.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/assets/css/admin-dashboard.css" asp-append-version="true">
 
         <link href="https://unpkg.com/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
 
@@ -24,10 +33,42 @@
         <div id="overlay" class="overlay"></div>
 
         <!-- THANH TRÊN -->
-        <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3">
-            <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm">
-                <i class="ti ti-layout-sidebar-left-expand"></i>
-            </button>
+        <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <!-- Nút cho Desktop -->
+                <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm me-2">
+                    <i class="ti ti-layout-sidebar-left-expand"></i>
+                </button>
+                <!-- Nút cho Mobile -->
+                <button id="mobileBtn" class="d-inline-flex d-lg-none btn btn-light btn-icon btn-sm">
+                    <i class="ti ti-menu-2"></i>
+                </button>
+            </div>
+
+            <div class="user-profile-topbar ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle user-dropdown" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar-wrapper me-2">
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = avatar, size = 32 })
+                        </div>
+                        <span class="username-text d-none d-sm-inline-block">@username</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
+                        <li>
+                            <div class="dropdown-header d-sm-none">
+                                <strong>@username</strong>
+                            </div>
+                        </li>
+                        <li>
+                            <form asp-area="" asp-controller="Authentication" asp-action="Logout" method="post" id="logoutForm">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="ti ti-logout me-2"></i> Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
 
         <!-- THANH BÊN -->
@@ -57,7 +98,7 @@
                         <i class="ti ti-package"></i>
                         <span class="nav-text">Sản phẩm</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Products" || controller == "Artists" || controller == "Tags" || controller == "InventoryLogs" ? "show" : "")"
@@ -99,7 +140,7 @@
                         <i class="ti ti-shopping-cart"></i>
                         <span class="nav-text">Bán hàng</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Orders" || controller == "Payments" || controller == "Refunds" || controller == "Invoices" ? "show" : "")"
@@ -141,7 +182,7 @@
                         <i class="ti ti-users"></i>
                         <span class="nav-text">Người dùng</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Users" || controller == "Carts" ? "show" : "")"
@@ -169,7 +210,7 @@
                         <i class="ti ti-article"></i>
                         <span class="nav-text">Nội dung</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "show" : "")"
@@ -204,7 +245,7 @@
                         <i class="ti ti-settings"></i>
                         <span class="nav-text">Hệ thống</span>
 
-                        <i class="ti ti-plus ms-auto icon-plus"></i>
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
                     <ul class="collapse ps-3 @(controller == "Notifications" || controller == "ViolationReports" || controller == "Reports" ? "show" : "")"
@@ -235,23 +276,36 @@
         </aside>
 
         <!-- NỘI DUNG CHÍNH -->
-        <main id="content" class="content py-10">
+        <main id="content" class="content py-5">
             @RenderBody()
         </main>
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
+        <!-- Bootstrap Bundle (Popper included) -->
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
         <!-- Select2 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
         <!-- SweetAlert2 -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <!-- admin -->
-        <script src="~/assets/js/admin.js"></script>
+        <!-- Modular Admin Scripts -->
+        <script src="~/assets/js/admin-products.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-reviews.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-violations.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-orders.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-users.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-tags.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-artists.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-invoices.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-notifications.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-reports.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-common.js" asp-append-version="true"></script>
         <!-- main -->
-        <script src="~/assets/js/main.js"></script>
+        <script src="~/assets/js/main.js" asp-append-version="true"></script>
 
         <!-- script từ view -->
         @RenderSection("Scripts", required: false)

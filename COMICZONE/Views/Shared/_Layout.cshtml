@@ -14,41 +14,53 @@
         <!-- Google Font -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+        
+        <!-- Swiper CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        
+        <!-- Animate.css -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+        
+        <!-- AOS CSS -->
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-        <!-- Site CSS -->
+        <!-- Modern Design System -->
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
+
+        @await RenderSectionAsync("Styles", required: false)
     </head>
 
-    <body style="font-family: 'Poppins', sans-serif;">
+    <body style="font-family: 'Inter', sans-serif;">
         <!-- HEADER / NAVBAR -->
         <header>
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm fixed-top">
+            <nav class="navbar navbar-expand-lg glass-nav fixed-top">
                 <div class="container">
                     <!-- Logo -->
                     <div class="d-flex align-items-center">
-                        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                        <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
                             <img src="~/images/logo-nobg.png"
                                  asp-append-version="true"
                                  alt="ComicZone Logo"
-                                 style="height:40px; width:auto; margin-right:10px;" />
-                        </a>
-                        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                            COMIC<span class="text-danger">ZONE</span>
+                                 style="height:45px; width:auto; margin-right:12px;" />
+                            <span>COMIC<span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">ZONE</span></span>
                         </a>
                     </div>
 
                     <!-- Mobile toggle -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
                             data-bs-target="#mainNavbar" aria-controls="mainNavbar"
                             aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
+                        <i class="bi bi-list fs-2"></i>
                     </button>
 
                     <!-- Menu -->
                     <div class="collapse navbar-collapse" id="mainNavbar">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
                             </li>
@@ -58,101 +70,114 @@
                             </li>
                         
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="About" >Về chúng tôi</a>
+                                <a class="nav-link" asp-controller="Home" asp-action="About">Về chúng tôi</a>
                             </li>
                         
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Carts" asp-action="Index">
-                                    <i class="bi bi-cart"></i> Giỏ hàng
+                                    <i class="bi bi-bag-heart me-1"></i>Giỏ hàng
                                 </a>
                             </li>
                         </ul>
 
-					    <!-- Search Form -->
-                        <form class="d-flex my-3" asp-controller="Products" asp-action="Search" method="get">
-                            <input class="form-control me-2" type="search" name="keyword"
-                                   placeholder="Tìm truyện...">
-                            <button class="btn" type="submit">🔍</button>
-                        </form>
-                        <!-- Login / Register -->
-                        <partial name="_LoginPartial" />
+                        <div class="d-flex align-items-center gap-3 flex-nowrap">
+                            <!-- Search Form -->
+                            <form class="modern-search-container d-flex align-items-center" asp-controller="Products" asp-action="Search" method="get">
+                                <button type="submit" class="bg-transparent border-0 p-0 d-flex align-items-center">
+                                    <i class="bi bi-search text-secondary me-2"></i>
+                                </button>
+                                <input class="modern-search-input" type="search" name="keyword" placeholder="Khám phá vũ trụ truyện...">
+                            </form>
+                            
+                            <!-- Login / Register -->
+                            <partial name="_LoginPartial" />
+                        </div>
                     </div>
                 </div>
             </nav>
         </header>
 
         <!-- MAIN CONTENT -->
-        <main role="main">
+        <main role="main" class="main-content-premium">
             @RenderBody()
         </main>
-
+            
         <!-- FOOTER -->
-        <footer class="bg-dark text-light mt-5 border-top border-warning">
-            <div class="container py-5">
-                <div class="row text-center text-md-start">
-                    <!-- Brand -->
-                    <div class="col-md-4 mb-3">
-                        <div class="d-flex align-items-center">
-                            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                                <img src="~/images/logo.png"
-                                     asp-append-version="true"
-                                     alt="ComicZone Logo"
-                                     style="height:40px; width:auto; margin-right:10px;" />
-						    </a>
-
-                            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                                <h5 class="fw-bold text-warning mb-0">COMICZONE</h5>
-						    </a>
-                        </div>
-
-                        <p class="small mb-0 mt-2">
-                            Cửa hàng truyện tranh Nhật Bản
+        <footer class="modern-footer">
+            <div class="container">
+                <div class="row g-4 mb-5">
+                    <!-- Column 1: Brand -->
+                    <div class="col-lg-4 col-md-12 mb-4 mb-lg-0" data-aos="fade-up">
+                        <a class="footer-brand-title" asp-controller="Home" asp-action="Index">
+                            COMIC<span>ZONE</span>
+                        </a>
+                        <p class="footer-desc">
+                            Điểm đến lý tưởng cho những tín đồ yêu thích truyện tranh bản quyền. Trải nghiệm đọc tuyệt vời với kho truyện khổng lồ và chất lượng phục vụ tận tâm.
                         </p>
-                    </div>
-
-                    <!-- Links -->
-                    <div class="col-md-4 mb-3">
-                        <h6 class="fw-bold">Liên kết</h6>
-
-                        <div class="mt-2">
-                            <!-- Facebook -->
-                            <a href="https://www.facebook.com/@@just.a.gamer.2023" target="_blank" class="text-light me-3">
-                                <i class="bi bi-facebook"></i>
-                            </a>
-
-                            <!-- TikTok -->
-                            <a href="https://www.tiktok.com/@@gbasestorevn?is_from_webapp=1&sender_device=pc" target="_blank" class="text-light me-3">
-                                <i class="bi bi-tiktok"></i>
-                            </a>
-
-                            <!-- YouTube -->
-                            <a href="https://www.youtube.com/channel/UCeOJyLQaRLoWmP_VesgAutQ/" target="_blank" class="text-light">
-                                <i class="bi bi-youtube"></i>
-                            </a>
+                        <div class="social-links">
+                            <a href="https://m.me/0373801713" target="_blank" class="social-btn"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="social-btn"><i class="bi bi-tiktok"></i></a>
+                            <a href="#" class="social-btn"><i class="bi bi-youtube"></i></a>
                         </div>
                     </div>
 
-                    <!-- Contact -->
-                    <div class="col-md-4 mb-3">
-                        <h6 class="fw-bold">Liên hệ</h6>
+                    <!-- Column 2: Quick Links -->
+                    <div class="col-lg-2 col-6" data-aos="fade-up" data-aos-delay="100">
+                        <h4 class="footer-column-title">Khám Phá</h4>
+                        <ul class="footer-links">
+                            <li><a asp-controller="Home" asp-action="Index" class="footer-link">Trang chủ</a></li>
+                            <li><a asp-controller="Products" asp-action="Index" class="footer-link">Cửa hàng</a></li>
+                            <li><a asp-controller="Home" asp-action="About" class="footer-link">Về chúng tôi</a></li>
+                            <li><a href="#" class="footer-link">Blog truyện</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Email -->
-                        <p class="small mb-1">
-                            📧
-                            <a href="mailto:luan31032004@gmail.com" class="text-light text-decoration-none">
-                                luan31032004@gmail.com
-                            </a>
-                        </p>
+                    <!-- Column 3: Support -->
+                    <div class="col-lg-3 col-6" data-aos="fade-up" data-aos-delay="200">
+                        <h4 class="footer-column-title">Hỗ Trợ</h4>
+                        <ul class="footer-links">
+                            <li><a href="#" class="footer-link">Câu hỏi thường gặp</a></li>
+                            <li><a href="#" class="footer-link">Chính sách bảo mật</a></li>
+                            <li><a href="#" class="footer-link">Điều khoản dịch vụ</a></li>
+                            <li><a href="#" class="footer-link">Chính sách hoàn tiền</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Phone -->
-                        <p class="small mb-0">📞 0373801713</p>
+                    <!-- Column 4: Contact -->
+                    <div class="col-lg-3 col-md-12" data-aos="fade-up" data-aos-delay="300">
+                        <h4 class="footer-column-title">Liên Hệ</h4>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>18 Ung Văn Khiêm, TP. Long Xuyên, An Giang</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>0373-801-713</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="bi bi-envelope-fill"></i>
+                            <span>support@comiczone.vn</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <hr class="border-secondary">
-
-                <div class="text-center small">
-                    &copy; 2026 COMICZONE. All rights reserved.
+            <!-- Copyright Bar -->
+            <div class="copyright-bar">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start">
+                            <p class="copyright-text">&copy; 2026 ComicZone. All rights reserved.</p>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                            <div class="payment-icons">
+                                <img src="https://img.icons8.com/color/48/000000/visa.png" class="me-3" />
+                                <img src="https://img.icons8.com/color/48/000000/mastercard.png" class="me-3" />
+                                <img src="https://img.icons8.com/color/48/000000/paypal.png" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </footer>
@@ -160,14 +185,38 @@
         <!-- Scripts -->
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
+        
+        <!-- Third Party -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
+        <!-- Modularized Site Scripts -->
+        <script src="~/js/ui-ux.js" asp-append-version="true"></script>
+        <script src="~/js/chatbot.js" asp-append-version="true"></script>
+        <script src="~/js/product-review.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+        <script>
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                once: true,
+                offset: 50
+            });
+        </script>
+
+        @if (TempData["Success"] != null)
+        {
+            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
+        }
         @if (TempData["LoginRequired"] != null)
         {
-            <script>
-                window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";
-            </script>
+            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
         }
 
         @await RenderSectionAsync("Scripts", required: false)
@@ -175,26 +224,44 @@
         <div id="chatbot-container">
             <div id="chatbot-window">
                 <div id="chatbot-header">
-                    <div class="chatbot-title">
-                        🤖 Trợ Lý COMICZONE
+                    <div class="bot-info-wrapper">
+                        <div class="bot-avatar-active">
+                            <i class="bi bi-robot"></i>
+                            <div class="status-dot-active"></div>
+                        </div>
+                        <div class="bot-name-status">
+                            <h4>Trợ Lý COMICZONE</h4>
+                            <span>Sẵn sàng trợ giúp</span>
+                        </div>
                     </div>
-
-                    <span id="close-chat">×</span>
+                    <div id="close-chat">
+                        <i class="bi bi-x-lg"></i>
+                    </div>
                 </div>
 
                 <div id="chatbot-messages"></div>
 
                 <div id="chatbot-input-area">
                     <input id="chatbot-input"
-                           placeholder="Nhập câu hỏi..."
+                           placeholder="Bạn muốn hỏi gì về truyện..."
                            type="text" />
 
-                    <button id="chatbot-send">➤</button>
+                    <button id="chatbot-send">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
                 </div>
             </div>
 
-            <div id="chatbot-icon">
-                💬
+            <div id="floating-contact-wrap">
+                <a href="https://m.me/0373801713" target="_blank" class="contact-icon fb-icon" title="Chat qua Messenger">
+                    <i class="bi bi-messenger"></i>
+                </a>
+                <a href="https://zalo.me/0373801713" target="_blank" class="contact-icon zalo-icon" title="Chat qua Zalo">
+                    <i class="bi bi-chat-text-fill"></i>
+                </a>
+                <div id="chatbot-icon" class="contact-icon bot-icon" title="Chat với AI Trợ lý">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
             </div>
         </div>
     </body>

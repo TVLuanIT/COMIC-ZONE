@@ -1,4 +1,4 @@
-﻿@model List<COMICZONE.Models.ProductReview>
+@model List<COMICZONE.Models.ProductReview>
 
 @{
     ViewData["Title"] = "Đánh giá của tôi";
@@ -7,48 +7,53 @@
     bool isReplies = tab == "replies";
 }
 
-<div class="profile-container">
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" asp-append-version="true" />
+}
+
+<div class="profile-container-premium">
 
     <!-- SIDEBAR -->
     @await Html.PartialAsync("_MyProfileSidebar.cshtml")
 
-    <div class="profile-content">
-
-        <ul class="nav nav-tabs" id="reviewTab">
-
-            <li class="nav-item">
-                <button class="nav-link @(isReplies ? "" : "active")"
-                        data-bs-toggle="tab"
-                        data-bs-target="#reviews"
-                        type="button">
-                    Đánh giá của tôi
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link @(isReplies ? "active" : "")"
-                        data-bs-toggle="tab"
-                        data-bs-target="#replies"
-                        type="button">
-                    Phản hồi của tôi
-                </button>
-            </li>
-
-        </ul>
-
-        <div class="tab-content border border-top-0 p-4">
-
-            <!-- TAB REVIEWS -->
-            <div class="tab-pane fade @(isReplies ? "" : "show active")" id="reviews">
-                @await Html.PartialAsync("_MyReviews.cshtml", Model)
+    <div class="profile-glass-content">
+        
+        <div class="premium-content-card" data-aos="fade-up">
+            <div class="card-header-premium mb-4">
+                <h2>Hoạt động cộng đồng</h2>
             </div>
 
-            <!-- TAB REPLIES -->
-            <div class="tab-pane fade @(isReplies ? "show active" : "")" id="replies">
-                @await Html.PartialAsync("_MyReplies.cshtml",
-                ViewData["MyReplies"] as List<COMICZONE.Models.ProductReviewReply>)
-            </div>
+            <ul class="nav nav-pills profile-tabs mb-4 px-0 border-0" id="reviewTab">
+                <li class="nav-item">
+                    <button class="nav-link @(isReplies ? "" : "active")"
+                            data-bs-toggle="tab"
+                            data-bs-target="#reviews"
+                            type="button">
+                        <i class="bi bi-chat-left-text me-2"></i>Đánh giá của tôi
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(isReplies ? "active" : "")"
+                            data-bs-toggle="tab"
+                            data-bs-target="#replies"
+                            type="button">
+                        <i class="bi bi-reply-all me-2"></i>Phản hồi của tôi
+                    </button>
+                </li>
+            </ul>
 
+            <div class="tab-content">
+                <!-- TAB REVIEWS -->
+                <div class="tab-pane fade @(isReplies ? "" : "show active")" id="reviews">
+                    @await Html.PartialAsync("_MyReviews.cshtml", Model)
+                </div>
+
+                <!-- TAB REPLIES -->
+                <div class="tab-pane fade @(isReplies ? "show active" : "")" id="replies">
+                    @await Html.PartialAsync("_MyReplies.cshtml",
+                    ViewData["MyReplies"] as List<COMICZONE.Models.ProductReviewReply>)
+                </div>
+            </div>
         </div>
 
     </div>

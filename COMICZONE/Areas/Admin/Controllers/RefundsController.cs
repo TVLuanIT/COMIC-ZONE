@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class RefundsController : Controller
+    public class RefundsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
 
@@ -21,10 +23,37 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Refunds
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(RefundSearchModel search)
         {
-            var comiczoneContext = _context.Refunds.Include(r => r.Payment);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.Refunds
+                .Include(r => r.Payment)
+                    .ThenInclude(p => p.Order)
+                        .ThenInclude(o => o.User)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyRefundFilters(search);
+
+            var totalCount = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var refunds = await query.ToListAsync();
+
+            return View(refunds);
         }
 
         // GET: Admin/Refunds/Details/5

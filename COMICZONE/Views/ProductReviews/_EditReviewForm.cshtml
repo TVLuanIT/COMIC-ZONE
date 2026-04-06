@@ -1,17 +1,29 @@
-﻿@model COMICZONE.Models.ProductReview
+@model COMICZONE.Models.ProductReview
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<form class="edit-review-form d-none" data-review-id="@Model.Reviewid">
+<form class="edit-review-form d-none mt-3" data-review-id="@Model.Reviewid">
     @Html.AntiForgeryToken()
     <input type="hidden" name="Productid" value="@Model.Productid" />
     <input type="hidden" name="Reviewid" value="@Model.Reviewid" />
 
-    <textarea class="form-control edit-textarea mb-2"
-              name="Reviewcontent"
-              rows="3"
-              placeholder="Chỉnh sửa đánh giá...">@Model.Reviewcontent</textarea>
+    <div class="edit-form-premium-inner mt-2 pt-3 border-top">
+        <label class="small fw-bold text-secondary text-uppercase mb-2 d-block">
+            <i class="bi bi-pencil-square text-primary me-1"></i> Chỉnh sửa nhận xét
+        </label>
+        
+        <textarea class="form-control premium-textarea mb-3"
+                  name="Reviewcontent"
+                  rows="3"
+                  placeholder="Nhập nội dung mới..."
+                  required>@Model.Reviewcontent</textarea>
 
-    <div class="d-flex gap-2 justify-content-end">
-        <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary cancel-edit">Hủy</button>
+        <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn-premium-cancel cancel-edit px-4 py-2 rounded-pill">
+                Hủy bỏ
+            </button>
+            <button type="submit" class="btn-premium-save px-4 py-2 rounded-pill glass-hover-effect">
+                <i class="bi bi-check-lg me-1"></i> Cập nhật
+            </button>
+        </div>
     </div>
 </form>

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,13 +23,38 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Carts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CartSearchModel search)
         {
-            var comiczoneContext = _context.Carts
+            var query = _context.Carts
                 .Include(c => c.User)
+                    .ThenInclude(u => u.Customer)
                 .Include(c => c.CartItems)
-                    .ThenInclude(ci => ci.Product);
-            return View(await comiczoneContext.ToListAsync());
+                    .ThenInclude(ci => ci.Product)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyCartFilters(search);
+
+            var totalCount = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var carts = await query.ToListAsync();
+
+            return View(carts);
         }
 
         // GET: Admin/Carts/Details/5

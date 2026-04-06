@@ -1,8 +1,10 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace COMICZONE.Helpers
 {
@@ -35,26 +37,32 @@ namespace COMICZONE.Helpers
         #region Request
         public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
         {
-            var data = new StringBuilder();
+            var signData = new StringBuilder();
+            var query = new StringBuilder();
 
-            foreach (var (key, value) in _requestData.Where(kv => !string.IsNullOrEmpty(kv.Value)))
+            // thêm dòng này trước khi build hash
+            _requestData.Add("vnp_SecureHashType", "HmacSHA512");
+
+            foreach (var (key, value) in _requestData)
             {
-                data.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value) + "&");
+                if (!string.IsNullOrEmpty(value))
+                {
+                    signData.Append(key + "=" + value + "&");
+
+                    query.Append(System.Net.WebUtility.UrlEncode(key) + "=" +
+                                 System.Net.WebUtility.UrlEncode(value) + "&");
+                }
             }
 
-            var querystring = data.ToString();
-
-            baseUrl += "?" + querystring;
-            var signData = querystring;
             if (signData.Length > 0)
-            {
-                signData = signData.Remove(data.Length - 1, 1);
-            }
+                signData.Remove(signData.Length - 1, 1);
 
-            var vnpSecureHash = Utils.HmacSHA512(vnpHashSecret, signData);
-            baseUrl += "vnp_SecureHash=" + vnpSecureHash;
+            if (query.Length > 0)
+                query.Remove(query.Length - 1, 1);
 
-            return baseUrl;
+            var secureHash = Utils.HmacSHA512(vnpHashSecret, signData.ToString());
+
+            return baseUrl + "?" + query + "&vnp_SecureHash=" + secureHash;
         }
         #endregion
 
@@ -81,7 +89,7 @@ namespace COMICZONE.Helpers
 
             foreach (var (key, value) in _responseData.Where(kv => !string.IsNullOrEmpty(kv.Value)))
             {
-                data.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value) + "&");
+                data.Append(key + "=" + value + "&");
             }
 
             //remove last '&'
@@ -148,7 +156,7 @@ namespace COMICZONE.Helpers
 
     public class VnPayCompare : IComparer<string>
     {
-        public int Compare(string? x, string? y)
+        public int Compare(string x, string y)
         {
             if (x == y) return 0;
             if (x == null) return -1;

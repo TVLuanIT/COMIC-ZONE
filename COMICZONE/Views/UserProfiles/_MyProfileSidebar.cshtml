@@ -1,4 +1,4 @@
-﻿@{
+@{
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var avatar = Context.Session.GetString("Avatar");
     var username = Context.Session.GetString("Username");
@@ -8,12 +8,11 @@
         : "U";
 }
 
-<div class="profile-left">
+<div class="profile-glass-sidebar" data-aos="fade-right">
 
-    <div class="profile-user">
-
-        <div class="profile-avatar" onclick="openAvatarUpload()">
-
+    <!-- USER INFO CARD -->
+    <div class="user-card-premium">
+        <div class="avatar-wrapper-premium" onclick="openAvatarUpload()" title="Thay đổi ảnh đại diện">
             <input type="file"
                    id="avatarUpload"
                    accept="image/*"
@@ -22,82 +21,67 @@
 
             @if (!string.IsNullOrEmpty(avatar))
             {
-                @await Component.InvokeAsync("UserAvatar",
-                new { avatarUrl = avatar, size = 80 })
-                        }
+                <img src="@avatar" alt="@username" class="avatar-img" />
+            }
             else
             {
-                <div class="default-avatar">
+                <div class="default-avatar-premium">
                     @firstChar
                 </div>
             }
-
-            <div class="change-avatar-text">
-                Thay đổi avatar
+            <div class="avatar-badge-premium">
+                <i class="bi bi-camera-fill"></i>
             </div>
-
         </div>
 
-        <div class="username">
-            @username
-        </div>
-
+        <h3 class="profile-username-premium">@username</h3>
+        <p class="text-white-50 small mt-1">Thành viên mạn bạc</p>
     </div>
 
-    <div class="profile-sidebar">
-
-        <ul class="profile-menu">
-
-            <li class="@(action == "MyProfile" ? "active" : "")">
-                <a asp-controller="UserProfiles"
-                   asp-action="MyProfile"
-                   class="menu-link">
-                    Thông tin cá nhân
-                </a>
-            </li>
-
-            <li class="@(action == "MyOrders" ? "active" : "")">
-                <a asp-controller="UserProfiles"
-                   asp-action="MyOrders"
-                   class="menu-link">
-                    Đơn hàng của tôi
-                </a>
-            </li>
-
-            <li class="@(action == "MyReviews" ? "active" : "")">
-                <a asp-controller="UserProfiles"
-                   asp-action="MyReviews"
-                   class="menu-link">
-                    Đánh giá của tôi
-                </a>
-            </li>
-
-            <li class="@(action == "MyHistory" ? "active" : "")">
-                <a asp-controller="Products"
-                   asp-action="ViewedHistory"
-                   class="menu-link">
-					Lịch sử xem truyện
-                </a>
-            </li>
-
-            <li class="@(action == "Notifications" ? "active" : "")">
-                <a asp-controller="UserProfiles"
-                   asp-action="Notifications"
-                   class="menu-link">
-                    Thông báo
-                </a>
-            </li>
-
-            <li class="@(action == "Settings" ? "active" : "")">
-                <a asp-controller="UserProfiles"
-                   asp-action="Settings"
-                   class="menu-link">
-                    Cài đặt
-                </a>
-            </li>
-
-        </ul>
-
-    </div>
+    <!-- SIDEBAR MENU -->
+    <ul class="sidebar-menu-premium">
+        <li>
+            <a asp-controller="UserProfiles" asp-action="MyProfile" 
+               class="sidebar-menu-link @(action == "MyProfile" ? "active" : "")">
+                <i class="bi bi-person-vcard"></i>
+                <span>Thông tin cá nhân</span>
+            </a>
+        </li>
+        <li>
+            <a asp-controller="UserProfiles" asp-action="MyOrders" 
+               class="sidebar-menu-link @(action == "MyOrders" ? "active" : "")">
+                <i class="bi bi-bag-check"></i>
+                <span>Đơn hàng của tôi</span>
+            </a>
+        </li>
+        <li>
+            <a asp-controller="UserProfiles" asp-action="MyReviews" 
+               class="sidebar-menu-link @(action == "MyReviews" ? "active" : "")">
+                <i class="bi bi-chat-heart"></i>
+                <span>Đánh giá của tôi</span>
+            </a>
+        </li>
+        <li>
+            <a asp-controller="Products" asp-action="ViewedHistory" 
+               class="sidebar-menu-link @(action == "ViewedHistory" ? "active" : "")">
+                <i class="bi bi-clock-history"></i>
+                <span>Lịch sử xem</span>
+            </a>
+        </li>
+        <li>
+            <a asp-controller="UserProfiles" asp-action="Notifications" 
+               class="sidebar-menu-link @(action == "Notifications" ? "active" : "")">
+                <i class="bi bi-bell"></i>
+                <span>Thông báo</span>
+            </a>
+        </li>
+        <li>
+            <a asp-controller="UserProfiles" asp-action="Settings" 
+               class="sidebar-menu-link @(action == "Settings" ? "active" : "")">
+                <i class="bi bi-gear"></i>
+                <span>Cài đặt</span>
+            </a>
+        </li>
+    </ul>
 
 </div>

@@ -1,0 +1,152 @@
+@model COMICZONE.Areas.Admin.ViewModels.InvoiceSearchModel
+@using COMICZONE.Models.Enums
+
+<form method="get" class="invoice-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã HĐ, Đơn, Khách, User...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Thanh toán</label>
+            <select name="PaymentStatus" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="SUCCESS" selected="@(Model.PaymentStatus == "SUCCESS")">Thành công</option>
+                <option value="PENDING" selected="@(Model.PaymentStatus == "PENDING")">Chờ xử lý</option>
+                <option value="FAILED" selected="@(Model.PaymentStatus == "FAILED")">Thất bại</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="PaidOnly" value="true" @(Model.PaidOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary text-success">Đã TT</label>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#invoiceAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="invoiceAdvancedSearch">
+        <div class="row g-3">
+            @* User & Customer info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Khách hàng / Tài khoản</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên khách hàng (HĐ)</label>
+                <input type="text" name="CustomerName" value="@Model.CustomerName" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username</label>
+                <input type="text" name="Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số điện thoại</label>
+                <input type="text" name="OrderPhoneNumber" value="@Model.OrderPhoneNumber" class="form-control">
+            </div>
+
+            @* Order & Payment Info *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thông tin Đơn hàng & Thanh toán</h6></div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã đơn hàng</label>
+                <input type="number" name="OrderId" value="@Model.OrderId" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái ĐH</label>
+                <select name="OrderStatus" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        <option value="@status.ToString()" selected="@(Model.OrderStatus == status.ToString())">@status.GetDisplayName()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">PT Thanh toán</label>
+                <select name="PaymentMethod" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="VNPAY" selected="@(Model.PaymentMethod == "VNPAY")">VNPay</option>
+                    <option value="PayPal" selected="@(Model.PaymentMethod == "PayPal")">PayPal</option>
+                    <option value="COD" selected="@(Model.PaymentMethod == "COD")">COD</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã giao dịch (TXID)</label>
+                <input type="text" name="Transactionid" value="@Model.Transactionid" class="form-control">
+            </div>
+
+            @* Invoice Details *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Chi tiết Hóa đơn & Thời gian</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền từ</label>
+                <input type="number" name="TotalAmountMin" value="@Model.TotalAmountMin" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền đến</label>
+                <input type="number" name="TotalAmountMax" value="@Model.TotalAmountMax" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày đặt ĐH từ</label>
+                <input type="date" name="OrderDateFrom" value="@(Model.OrderDateFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày đặt ĐH đến</label>
+                <input type="date" name="OrderDateTo" value="@(Model.OrderDateTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày xuất HĐ từ</label>
+                <input type="date" name="IssueDateFrom" value="@(Model.IssueDateFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày xuất HĐ đến</label>
+                <input type="date" name="IssueDateTo" value="@(Model.IssueDateTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="IsDeleted" value="true" @(Model.IsDeleted == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary text-danger">Hóa đơn đã ẩn</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.CustomerName) || !string.IsNullOrWhiteSpace(Model.Username) ||
+               !string.IsNullOrWhiteSpace(Model.UserEmail) || !string.IsNullOrWhiteSpace(Model.OrderPhoneNumber) ||
+               Model.OrderId.HasValue || !string.IsNullOrWhiteSpace(Model.OrderStatus) ||
+               !string.IsNullOrWhiteSpace(Model.PaymentMethod) || !string.IsNullOrWhiteSpace(Model.Transactionid) ||
+               Model.TotalAmountMin.HasValue || Model.TotalAmountMax.HasValue ||
+               Model.OrderDateFrom.HasValue || Model.OrderDateTo.HasValue ||
+               Model.IssueDateFrom.HasValue || Model.IssueDateTo.HasValue ||
+               Model.IsDeleted == true || Model.UnpaidOnly == true;
+    }
+}

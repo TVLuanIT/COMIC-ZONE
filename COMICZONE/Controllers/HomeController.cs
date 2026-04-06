@@ -50,15 +50,6 @@ namespace COMICZONE.Controllers
                     .ToListAsync();
             }
 
-            // Nổi bật trong tuần (Featured) → ví dụ dựa vào view count hoặc tiêu chí khác
-            var ModelFeatured = await _context.Products
-                .Include(p => p.Pictures)
-                .Include(p => p.Artists)
-                .Include(p => p.Tags)
-                .Where(p => !p.Isdeleted)
-                .OrderByDescending(p => p.Id) // giả sử ID càng cao → sản phẩm mới/được quan tâm
-                .Take(8)
-                .ToListAsync();
 
             // Mới nhất trong tuần (Latest) – ví dụ lấy 8 sản phẩm mới cập nhật
             var ModelLatest = await _context.Products
@@ -70,6 +61,18 @@ namespace COMICZONE.Controllers
                 .Take(8)
                 .ToListAsync();
 
+            // Lấy danh sách thể loại (biểu tượng/tên)
+            ViewBag.PopularTags = await _context.Tags
+                .Where(t => !t.Isdeleted && t.Products.Any())
+                .OrderByDescending(t => t.Products.Count)
+                .Take(8)
+                .ToListAsync();
+
+            // Thống kê cơ bản
+            ViewBag.TotalProducts = await _context.Products.CountAsync(p => !p.Isdeleted);
+            ViewBag.TotalArtists = await _context.Artists.CountAsync();
+            ViewBag.TotalUsers = await _context.Users.CountAsync(u => (bool)u.Isactive);
+
             // Gán ViewBag cho carousel Blog
             ViewBag.Blogs = await _context.Blogs
                 .OrderByDescending(b => b.Createdat) // mới nhất trước
@@ -77,7 +80,6 @@ namespace COMICZONE.Controllers
                 .ToListAsync();
 
             // Gửi dữ liệu vào ViewBag để Index.cshtml sử dụng
-            ViewBag.ModelFeatured = ModelFeatured;
             ViewBag.ModelLatest = ModelLatest;
 
             return View();

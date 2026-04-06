@@ -1,8 +1,6 @@
-﻿@model PaginationModel
-
 @if (Model.TotalPages > 1 && Model != null)
 {
-    <div class="pagination">
+    <nav class="premium-pagination" aria-label="Page navigation" data-aos="fade-up">
         @{
             var routeValues = new Dictionary<string, string>();
 
@@ -16,18 +14,18 @@
         }
 
         @* PREVIOUS *@
-        @if (Model.CurrentPage > 1)
-        {
+        @{
             routeValues[Model.PageParam] = (Model.CurrentPage - 1).ToString();
-
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
                asp-all-route-data="routeValues"
-               class="page-btn">
-                «
+               class="page-link-premium @(Model.CurrentPage <= 1 ? "disabled" : "")"
+               title="Trang trước">
+                <i class="bi bi-chevron-left"></i>
             </a>
         }
 
+        @* PAGE NUMBERS *@
         @for (int i = 1; i <= Model.TotalPages; i++)
         {
             routeValues[Model.PageParam] = i.ToString();
@@ -35,22 +33,21 @@
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
                asp-all-route-data="routeValues"
-               class="page-btn @(i == Model.CurrentPage ? "active" : "")">
+               class="page-link-premium @(i == Model.CurrentPage ? "active" : "")">
                 @i
             </a>
         }
 
         @* NEXT *@
-        @if (Model.CurrentPage < Model.TotalPages)
-        {
+        @{
             routeValues[Model.PageParam] = (Model.CurrentPage + 1).ToString();
-
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
                asp-all-route-data="routeValues"
-               class="page-btn">
-                »
+               class="page-link-premium @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")"
+               title="Trang tiếp">
+                <i class="bi bi-chevron-right"></i>
             </a>
         }
-    </div>
+    </nav>
 }

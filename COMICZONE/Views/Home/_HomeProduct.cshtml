@@ -1,83 +1,132 @@
-﻿@using COMICZONE.Extensions;
+@using COMICZONE.Extensions;
 @using System.Globalization;
 @model IEnumerable<COMICZONE.Models.Product>
 
 @{
     var sectionTitle = ViewBag.SectionTitle ?? "Sản phẩm";
     var sectionIcon = ViewBag.SectionIcon ?? "bi-box-seam";
-    var carouselId = ViewBag.CarouselId ?? "productCarousel";
+    var swiperId = ViewBag.CarouselId ?? "productSwiper";
     var viewMoreLink = ViewBag.ViewMoreLink ?? "#";
     var bgClass = ViewBag.BackgroundClass ?? "";
+    var sectionDesc = ViewBag.SectionDescription;
 }
 
-<section class="py-5 @bgClass">
+<section class="py-5 @bgClass overflow-hidden">
     <div class="container">
-        <!-- Tiêu đề + mô tả -->
-        <div class="section-header-bold mb-4">
-            <h2>
-                <i class="bi @sectionIcon me-2"></i>
-                @sectionTitle
+        <!-- Tiêu đề hiện đại -->
+        <div class="section-title-modern">
+            <h2 data-aos="fade-up">
+                <i class="bi @sectionIcon me-2"></i>@sectionTitle
             </h2>
-
-            @if (ViewBag.SectionDescription != null)
+            @if (sectionDesc != null)
             {
-                <span>@ViewBag.SectionDescription</span>
+                <p data-aos="fade-up" data-aos-delay="100">@sectionDesc</p>
             }
         </div>
 
-        <!-- Carousel -->
-        <div id="@carouselId" class="carousel slide product-carousel" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                @if (Model != null && Model.Any())
-                {
-                    @for (int i = 0; i < Model.Count(); i += 4)
+        <!-- Swiper Container -->
+        <div class="position-relative" data-aos="fade-up" data-aos-delay="200">
+            <div id="@swiperId" class="swiper product-swiper">
+                <div class="swiper-wrapper">
+                    @if (Model != null)
                     {
-                        <div class="carousel-item @(i == 0 ? "active" : "")">
-                            <div class="row row-cols-1 row-cols-md-4 g-4">
-                                @foreach (var item in Model.Skip(i).Take(4))
-                                {
-                                    <div class="col">
-                                        <div class="product-card">
-                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-img">
-                                                <img src="@item.GetImagePath()" alt="@item.Name" />
+                        @foreach (var item in Model)
+                        {
+                            <div class="swiper-slide">
+                                <div class="product-card">
+                                    <div class="product-img-wrapper">
+                                        @if(item.Price < 50000) {
+                                            <span class="product-badge badge-hot">HOT</span>
+                                        } else if (item.Id % 3 == 0) {
+                                             <span class="product-badge badge-new">NEW</span>
+                                        }
+                                        
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-main-img">
+                                            <img src="@item.GetImagePath()" alt="@item.Name" loading="lazy" />
+                                        </a>
+
+                                        <div class="product-actions-overlay">
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="action-btn-premium" title="Xem chi tiết">
+                                                <i class="bi bi-eye"></i>
                                             </a>
-
-                                            <div class="product-body">
-                                                <div class="product-price">
-                                                    @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
-                                                </div>
-
-                                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-name">
-                                                    @item.Name
-                                                </a>
-                                            </div>
+                                            @if (item.StockQuantity > 0)
+                                            {
+                                                <form asp-controller="Carts" asp-action="AddToCart" method="post" style="display: contents;">
+                                                    <input type="hidden" name="productId" value="@item.Id" />
+                                                    <input type="hidden" name="quantity" value="1" />
+                                                    <button type="submit" class="action-btn-premium add-cart-overlay" title="Thêm vào giỏ">
+                                                        <i class="bi bi-cart-plus"></i>
+                                                    </button>
+                                                    <button type="submit" name="buyNow" value="true" class="action-btn-premium buy-now-overlay" title="Mua ngay">
+                                                        <i class="bi bi-lightning-charge"></i>
+                                                    </button>
+                                                </form>
+                                            }
                                         </div>
                                     </div>
-                                }
+
+                                    <div class="product-content">
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-title-link">
+                                            @item.Name
+                                        </a>
+                                        <div class="product-price-modern">
+                                            @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) <span>₫</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        }
                     }
-
-                }
+                </div>
+                
+                <!-- Swiper Pagination & Navigation -->
+                <div class="swiper-pagination"></div>
             </div>
-
-            <!-- Nút điều hướng -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-
-            <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            
+            <!-- Custom Navigation Buttons (Outside container for better look) -->
+            <div class="swiper-button-next @(swiperId)-next"></div>
+            <div class="swiper-button-prev @(swiperId)-prev"></div>
         </div>
 
         <!-- Xem thêm -->
         <div class="text-center mt-4">
-            <a href="@viewMoreLink" class="btn btn-outline-primary">
-                XEM THÊM <i class="bi bi-arrow-right ms-1"></i>
+            <a href="@viewMoreLink" class="btn-premium-pill">
+                Xem Tất Cả <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new Swiper('#@swiperId', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            centerInsufficientSlides: true,
+            loop: false,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.@(swiperId)-next',
+                prevEl: '.@(swiperId)-prev',
+            },
+            breakpoints: {
+                576: {
+                    slidesPerView: 2,
+                },
+                768: {
+                    slidesPerView: 3,
+                },
+                1024: {
+                    slidesPerView: 4,
+                },
+            },
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+        });
+    });
+</script>

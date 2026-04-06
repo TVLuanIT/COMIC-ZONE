@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using COMICZONE.Helpers;
 using COMICZONE.Models.Enums;
 
@@ -9,7 +9,20 @@ namespace COMICZONE.Models
         [NotMapped]
         public OrderStatus OrderStatusEnum
         {
-            get => EnumHelper.ParseOrThrow<OrderStatus>(Status);
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Status))
+                    return OrderStatus.Pending;
+
+                try
+                {
+                    return EnumHelper.ParseOrThrow<OrderStatus>(Status);
+                }
+                catch
+                {
+                    return OrderStatus.Pending;
+                }
+            }
 
             set => Status = value.ToString();
         }

@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http.Extensions;
+@using Microsoft.AspNetCore.Http.Extensions;
 
 @{
     var username = Context.Session.GetString("Username");
@@ -21,29 +21,29 @@
             @username
         </a>
 
-        <ul class="dropdown-menu dropdown-menu-end">
-
+        <ul class="dropdown-menu dropdown-menu-end premium-dropdown shadow-lg animate slideIn">
             <li>
-                <a class="dropdown-item"
+                <a class="premium-dropdown-item"
                    asp-controller="UserProfiles"
                    asp-action="MyProfile">
-                    Trang cá nhân
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span>Trang cá nhân</span>
                 </a>
             </li>
 
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider opacity-10"></li>
 
             <li>
                 <form asp-controller="Authentication"
                       asp-action="Logout"
                       method="post">
                     <button type="submit"
-                            class="dropdown-item text-danger">
-                        Đăng xuất
+                            class="premium-dropdown-item logout-btn-premium">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        <span>Đăng xuất</span>
                     </button>
                 </form>
             </li>
-
         </ul>
     </li>
         }

@@ -1,7 +1,6 @@
 @model COMICZONE.Models.Cart
 
 @{
-    // Lấy dữ liệu từ TempData nếu có (sau khi submit lỗi)
     var customer = TempData["CustomerFullname"] != null
         ? new COMICZONE.Models.Customer
         {
@@ -9,105 +8,120 @@
             Phone = (TempData["CustomerPhone"] as string) ?? "",
             Address = (TempData["CustomerAddress"] as string) ?? ""
         }
-        // Nếu TempData null, lấy từ ViewBag.Customer (đã load từ database)
         : (ViewBag.Customer as COMICZONE.Models.Customer ?? new COMICZONE.Models.Customer());
 
     var errors = TempData["CheckoutErrors"] as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
-<div class="col-lg-4">
-    <div class="card shadow-sm sticky-top" style="top:100px">
-        <div class="card-body">
-            <form asp-controller="Orders" asp-action="Checkout" method="post">
-                <h5 class="mb-3">Thông tin thanh toán</h5>
-
-                <div class="mb-3">
-                    <label class="form-label">Họ và tên</label>
-                    <input type="text"
-                           id="FullName"
-                           name="fullname"
-                           class="form-control"
-                           placeholder="Nguyễn Văn A"
-                           value="@customer?.Fullname">
-
-                    @if (errors != null && errors.ContainsKey("Fullname"))
-                    {
-                        <span class="text-danger">@errors["Fullname"]</span>
-                    }
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="text"
-                           id="Phone"
-                           name="phone"
-                           class="form-control"
-                           placeholder="09xxxxxxxx"
-                           value="@customer?.Phone">
-
-                    @if (errors != null && errors.ContainsKey("Phone"))
-                    {
-                        <span class="text-danger">@errors["Phone"]</span>
-                    }
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
-                    <textarea name="address"
-                              id="Address"
-                              class="form-control"
-                              rows="2">@customer?.Address</textarea>
-
-                    @if (errors != null && errors.ContainsKey("Address"))
-                    {
-                        <span class="text-danger">@errors["Address"]</span>
-                    }
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea name="note"
-                              class="form-control"
-                              rows="2"
-                              placeholder="Ghi chú cho shop (không bắt buộc)"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Phương thức thanh toán</label>
-
-                    <select name="paymentMethod" class="form-select" id="payment-method">
-                        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                        <option value="VnPay">VnPay</option>
-                        <option value="Paypal">Paypal</option>
-                    </select>
-
-                    @if (errors != null && errors.ContainsKey("PaymentMethod"))
-                    {
-                        <span class="text-danger">@errors["PaymentMethod"]</span>
-                    }
-                </div>
-
-                <hr />
-
-                <div class="d-flex justify-content-between">
-                    <strong>Tổng tiền</strong>
-
-                    <strong id="cart-total" class="text-danger">
-                        @(Model.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0)).ToString("N0")) ₫
-                    </strong>
-                </div>
-
-                <!-- Nút PayPal -->
-                <div id="paypal-button-container" style="display:none;"></div>
-
-                <!-- Nút thanh toán mặc định -->
-                <button id="default-submit-button" class="btn btn-success w-100 mt-3">
-                    Thanh toán
-                </button>
-
-                <!-- Input ẩn để lưu Transaction ID -->
-                <input type="hidden" id="paypalTransactionId" name="PaypalTransactionId" />
-            </form>
-        </div>
+<div class="sidebar-summary-card h-100" data-aos="fade-left">
+    <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-light">
+        <i class="bi bi-shield-check fs-4 text-primary"></i>
+        <h4 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">Xác nhận đặt hàng</h4>
     </div>
+    
+    <form asp-controller="Orders" asp-action="Checkout" method="post" id="checkout-form">
+        <div class="checkout-form-body mb-4">
+            <!-- Recipient Full Name -->
+            <div class="mb-4">
+                <div class="premium-icon-field">
+                    <div class="premium-icon-box">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <input type="text" name="fullname" class="form-control modern-checkout-control" placeholder=" " value="@customer?.Fullname">
+                    <label class="floating-label">Họ và tên người nhận</label>
+                </div>
+                @if (errors.ContainsKey("Fullname")) { <small class="text-danger ms-1 fw-bold">@errors["Fullname"]</small> }
+            </div>
+
+            <!-- Recipient Phone -->
+            <div class="mb-4">
+                <div class="premium-icon-field">
+                    <div class="premium-icon-box">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <input type="text" name="phone" class="form-control modern-checkout-control" placeholder=" " value="@customer?.Phone">
+                    <label class="floating-label">Số điện thoại</label>
+                </div>
+                @if (errors.ContainsKey("Phone")) { <small class="text-danger ms-1 fw-bold">@errors["Phone"]</small> }
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="mb-4">
+                <div class="premium-icon-field align-items-start">
+                    <div class="premium-icon-box">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <textarea name="address" class="form-control modern-checkout-control" placeholder=" ">@customer?.Address</textarea>
+                    <label class="floating-label">Địa chỉ nhận hàng (Số nhà, tên đường...)</label>
+                </div>
+                @if (errors.ContainsKey("Address")) { <small class="text-danger ms-1 fw-bold">@errors["Address"]</small> }
+            </div>
+
+            <!-- Order Note -->
+            <div class="mb-4">
+                <div class="premium-icon-field align-items-start">
+                    <div class="premium-icon-box">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <textarea name="note" class="form-control modern-checkout-control" placeholder=" " rows="2"></textarea>
+                    <label class="floating-label">Ghi chú đơn hàng (VD: Giao giờ hành chính...)</label>
+                </div>
+            </div>
+
+            <div class="mb-4 pt-2">
+                <label class="checkout-form-label">Phương thức thanh toán</label>
+                
+                <select name="PaymentMethod" id="payment-method" style="display: none;">
+                    <option value="1">COD</option>
+                    <option value="2">VNPAY</option>
+                    <option value="3">PAYPAL</option>
+                </select>
+
+                <div class="payment-method-grid">
+                    <div class="payment-card active" data-value="1">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Tiền mặt (COD)</span>
+                    </div>
+                    <div class="payment-card" data-value="2">
+                        <i class="bi bi-wallet2"></i>
+                        <span>VNPAY</span>
+                    </div>
+                    <div class="payment-card" data-value="3">
+                        <i class="bi bi-paypal"></i>
+                        <span>Paypal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-summary-card p-4 rounded-4 mb-4 shadow-sm" style="background: rgba(248, 250, 252, 0.6); border: 1px dashed #cbd5e1;">
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary fw-600">Tạm tính:</span>
+                <span class="fw-bold text-dark">@(Model.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0)).ToString("N0")) ₫</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-600">Phí vận chuyển:</span>
+                <span class="text-success fw-800">MIỄN PHÍ</span>
+            </div>
+            <!-- <div class="receipt-divider my-3" style="height: 1px; border-top: 2px dashed #cbd5e1;"></div> -->
+            <div class="summary-total d-flex justify-content-between align-items-center flex-nowrap gap-2">
+                <span class="fw-900 mb-0 text-secondary text-nowrap" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px; font-size: 0.85rem;">TỔNG THANH TOÁN</span>
+                <span id="cart-total" class="h3 fw-bold text-danger mb-0 text-nowrap" style="font-family: 'Outfit', sans-serif;">
+                    @(Model.CartItems.Sum(i => i.Quantity * (i.Product?.Price ?? 0)).ToString("N0")) ₫
+                </span>
+            </div>
+        </div>
+
+        <!-- PayPal Buttons -->
+        <div id="paypal-button-wrapper" style="display: none;">
+            <div id="paypal-button-container" class="mb-3"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="default-submit-button" class="btn-checkout-premium d-flex align-items-center justify-content-center gap-2">
+            XÁC NHẬN ĐẶT HÀNG <i class="bi bi-arrow-right fs-5"></i>
+        </button>
+
+        <input type="hidden" id="paypalTransactionId" name="PaypalTransactionId" />
+    </form>
 </div>

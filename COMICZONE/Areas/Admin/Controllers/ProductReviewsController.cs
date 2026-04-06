@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using COMICZONE.Data;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +25,61 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/ProductReviews
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ReviewSearchModel reviewSearch, ReviewReplySearchModel replySearch, string activeTab = "Reviews")
         {
-            var comiczoneContext = _context.ProductReviews
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pictures)
-                .Include(r => r.User);
+            var viewModel = new ReviewManagementViewModel
+            {
+                ReviewSearch = reviewSearch,
+                ReplySearch = replySearch,
+                ActiveTab = activeTab
+            };
 
-            return View(await comiczoneContext.ToListAsync());
+            if (activeTab == "Reviews")
+            {
+                var query = _context.ProductReviews
+                    .Include(r => r.Product)
+                        .ThenInclude(p => p.Pictures)
+                    .Include(r => r.User)
+                    .Include(r => r.ProductReviewReplies)
+                    .AsQueryable();
+
+                query = query.ApplyReviewFilters(reviewSearch);
+                reviewSearch.TotalCount = await query.CountAsync();
+
+                query = query.ApplySort(reviewSearch.SortColumn ?? "Createdat", reviewSearch.IsAscending);
+                
+                int pageSize = reviewSearch.PageSize > 0 ? reviewSearch.PageSize : 10;
+                int pageNumber = reviewSearch.Page > 0 ? reviewSearch.Page : 1;
+                
+                viewModel.Reviews = await query.ApplyPagination(pageNumber, pageSize).ToListAsync();
+                
+                reviewSearch.Page = pageNumber;
+                reviewSearch.PageSize = pageSize;
+            }
+            else // Replies
+            {
+                var query = _context.ProductReviewReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Review)
+                        .ThenInclude(rev => rev.Product)
+                    .Include(r => r.Replytouser)
+                    .AsQueryable();
+
+                query = query.ApplyReplyFilters(replySearch);
+                replySearch.TotalCount = await query.CountAsync();
+
+                query = query.ApplySort(replySearch.SortColumn ?? "Createdat", replySearch.IsAscending);
+
+                int pageSize = replySearch.PageSize > 0 ? replySearch.PageSize : 10;
+                int pageNumber = replySearch.Page > 0 ? replySearch.Page : 1;
+
+                viewModel.Replies = await query.ApplyPagination(pageNumber, pageSize).ToListAsync();
+
+                replySearch.Page = pageNumber;
+                replySearch.PageSize = pageSize;
+            }
+
+            return View(viewModel);
         }
 
         // GET: Admin/ProductReviews/Details/5

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,35 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/InventoryLogs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(InventoryLogSearchModel search)
         {
-            var comiczoneContext = _context.InventoryLogs.Include(i => i.Product);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.InventoryLogs
+                .Include(i => i.Product)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyInventoryLogFilters(search);
+
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 15;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var logs = await query.ToListAsync();
+
+            return View(logs);
         }
 
         // GET: Admin/InventoryLogs/Details/5

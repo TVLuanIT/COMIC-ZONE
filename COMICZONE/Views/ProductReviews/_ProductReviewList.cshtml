@@ -32,33 +32,32 @@
     {
         @foreach (var review in Model)
         {
-            <div class="review-card mb-3">
-                <div class="review-header d-flex justify-content-between">
-                    <div class="d-flex">
-                        <div class="review-avatar me-2">
-                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User.GetDisplayAvatar(), size = 32 })
+            <div class="review-card mb-4">
+                <div class="review-header">
+                    <div class="review-user-info">
+
+                        <div class="review-avatar">
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = review.User.GetDisplayAvatar(), size = 48 })
                         </div>
                         <div>
-                            <div class="review-username">
-                                <span class="username-text">@review.User.GetDisplayUsername()</span>
-                                <span class="edit-label text-muted small ms-1 @(review.Updatedat.HasValue ? "" : "d-none")">
-                                    (đã chỉnh sửa)
-                                </span>
-                            </div>
+                            <span class="username-text">
+                                @review.User.GetDisplayUsername()
+                                @if (review.Updatedat.HasValue)
+                                {
+                                    <span class="edit-label">đã chỉnh sửa</span>
+                                }
+                            </span>
                             <div class="review-date">
                                 @{
                                     string timeAgo = "-";
                                     if (review.Createdat.HasValue)
                                     {
                                         var diff = DateTime.Now - review.Createdat.Value;
-                                        if (diff.TotalMinutes < 1)
-                                            timeAgo = "Vừa xong";
-                                        else if (diff.TotalHours < 1)
-                                            timeAgo = $"{(int)diff.TotalMinutes} phút trước";
-                                        else if (diff.TotalDays < 1)
-                                            timeAgo = $"{(int)diff.TotalHours} giờ trước";
-                                        else
-                                            timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
+                                        if (diff.TotalMinutes < 1) timeAgo = "Vừa xong";
+                                        else if (diff.TotalHours < 1) timeAgo = $"{(int)diff.TotalMinutes} phút trước";
+                                        else if (diff.TotalDays < 1) timeAgo = $"{(int)diff.TotalHours} giờ trước";
+                                        else if (diff.TotalDays < 7) timeAgo = $"{(int)diff.TotalDays} ngày trước";
+                                        else timeAgo = review.Createdat.Value.ToString("dd/MM/yyyy");
                                     }
                                 }
                                 @timeAgo
@@ -161,7 +160,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="review-stars mt-1 mb-2">
+                <div class="review-stars mt-1 mb-3">
                     @if (review.Isdeleted)
                     {
                         <span class="text-muted small italic">Phần đánh giá sao đã bị ẩn</span>
@@ -170,7 +169,7 @@
                     {
                         @for (int i = 1; i <= 5; i++)
                         {
-                            <span class="star @(i <= review.Rating ? "filled" : "")">&#9733;</span>
+                            <i class="bi bi-star-fill @(i <= review.Rating ? "text-warning" : "text-light-gray") me-1"></i>
                         }
                     }
                 </div>
@@ -239,20 +238,17 @@
         }
     }
 
-    @* PHÂN TRANG *@
+    @* PHÂN TRANG PREMIUM *@
     @if (totalPages > 1)
     {
-        <nav aria-label="Review pagination">
-            <ul class="pagination justify-content-center mt-3">
-                @for (int i = 1; i <= totalPages; i++)
-                {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
-                        <a class="page-link review-page-link" href="#" data-page="@i">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
+        <div class="review-pagination-container mt-5">
+            @for (int i = 1; i <= totalPages; i++)
 
-    @await Html.PartialAsync("_ReportReviewForm.cshtml")
+            {
+                <a class="review-page-link @(i == currentPage ? "active" : "")" 
+                   href="#" 
+                   data-page="@i">@i</a>
+            }
+        </div>
+    }
 </div>

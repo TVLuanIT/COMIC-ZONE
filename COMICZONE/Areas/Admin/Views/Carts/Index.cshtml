@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý giỏ hàng";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.CartSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.CartSearchModel();
 }
 
 <div class="container-fluid">
@@ -20,6 +21,9 @@
             </div>
         </div>
     </div>
+    
+    @* Reusable search form *@
+    <partial name="_CartSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0">
@@ -32,13 +36,23 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-nowrap">
                     <thead class="table-light text-uppercase small fw-bold">
-                        <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Khách hàng</th>
-                            <th class="text-center">Số lượng món</th>
-                            <th class="text-end">Tổng giá trị</th>
-                            <th class="text-center">Ngày cập nhật</th>
-                            <th class="text-end pe-4">Thao tác</th>
+                        <tr class="align-middle">
+                            <th class="ps-4">
+                                @Html.SortHeader("ID", "CartId", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Khách hàng", "User.Username", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Số lượng món", "CartItems.Count", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Tổng giá trị", "TotalValue", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
 
@@ -76,18 +90,18 @@
                                     </span>
                                 </td>
                                 
-                                <td class="text-end fw-bold text-dark">
+                                <td class="fw-bold text-dark">
                                     @{
                                         var total = item.CartItems.Sum(ci => ci.Quantity * (ci.Product?.Price ?? 0));
                                     }
                                     @total.ToString("N0") VNĐ
                                 </td>
                                 
-                                <td class="text-center text-muted small">
+                                <td class="text-muted small">
                                     @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                 </td>
                                 
-                                <td class="text-end pe-4">
+                                <td class="text-center pe-4">
                                     <div class="btn-group">
                                         <a asp-action="Details" asp-route-id="@item.CartId" class="btn btn-light btn-sm text-info" title="Xem chi tiết">
                                             <i class="ti ti-eye fs-5"></i>
@@ -116,4 +130,11 @@
             }
         </div>
     </div>
+    
+    @if (Model.Any())
+    {
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
+        </div>
+    }
 </div>

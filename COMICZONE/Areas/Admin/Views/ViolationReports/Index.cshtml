@@ -1,140 +1,244 @@
-@using COMICZONE.Models.Enums
 @model IEnumerable<COMICZONE.Models.ViolationReport>
-
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Báo cáo vi phạm";
-
-    string? content = null;
-
-    var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
-    var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
+    ViewData["Title"] = "Quản lý báo cáo vi phạm";
+    
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.ViolationReportSearchRequest ?? new COMICZONE.Areas.Admin.ViewModels.ViolationReportSearchRequest();
+    var reviewContents = ViewBag.ReviewContents as Dictionary<int, string> ?? new Dictionary<int, string>();
+    var replyContents = ViewBag.ReplyContents as Dictionary<int, string> ?? new Dictionary<int, string>();
 }
 
-<div class="container-fluid">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-gradient bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">📋 Báo cáo vi phạm</h4>
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor fw-bold">
+                <i class="ti ti-alert-triangle me-2 text-warning"></i>@ViewData["Title"]
+            </h3>
+        </div>
+        <div class="col-md-7 align-self-center text-end">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-end mb-0 bg-transparent">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Báo cáo vi phạm</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    @* Standardized search form *@
+    <partial name="_ViolationReportSearchForm" model="searchModel" />
+
+    <!-- Main List Card -->
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Danh sách báo cáo</h5>
+            <span class="badge bg-light-primary text-primary px-3 rounded-pill fw-medium">
+                Tổng cộng: @searchModel.TotalItems
+            </span>
         </div>
 
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle table-hover custom-table">
-                    <thead>
-                        <tr>
-                            <th class="fw-bold text-center">Loại</th>
-                            <th class="fw-bold">Nội dung bị báo cáo</th>
-                            <th class="fw-bold">Lý do</th>
-                            <th class="fw-bold text-center">Trạng thái</th>
-                            <th class="fw-bold">Ngày gửi</th>
-                            <th class="fw-bold text-center">Đã xóa</th>
-                            <th class="fw-bold">Người gửi</th>
-                            <th class="fw-bold text-center">Hành động</th>
-                        </tr>
-                    </thead>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="table-light border-bottom fw-bold text-uppercase small">
+                    <tr class="align-middle">
+                        <th class="ps-4">
+                            @Html.SortHeader("ID", "Id", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Người báo cáo", "Username", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>
+                            @Html.SortHeader("Loại", "Reporttype", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th>Nội dung vi phạm / Lý do</th>
+                        <th class="text-center">
+                            @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th class="text-center">
+                            @Html.SortHeader("Ngày báo", "Createdat", searchModel.SortColumn, searchModel.IsAscending)
+                        </th>
+                        <th class="text-center pe-4">Thao tác</th>
+                    </tr>
+                </thead>
 
-                    @if (Model != null && Model.Any())
+                <tbody>
+                    @foreach (var item in Model)
                     {
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr id="report-row-@item.Id" class="@(item.Isdeleted ? "bg-light text-muted" : "")">
-                                    <!-- Loại -->
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill px-3 py-2 fw-semibold
-                                            @(item.ReportTypeEnum == ReportType.Review
-                                                ? "bg-primary-subtle text-primary"
-                                                : "bg-success-subtle text-success")">
+                        <tr id="report-row-@item.Id" class="align-middle @(item.Isdeleted ? "bg-light text-muted opacity-75" : "")">
+                            <td class="ps-4 fw-bold text-dark">#@item.Id</td>
 
-                                            @item.ReportTypeEnum.GetDisplayName()
-                                        </span>
-                                    </td>
-
-                                    <!-- Nội dung bị báo cáo -->
-                                    <td>
-                                        @if (item.ReportTypeEnum == ReportType.Review)
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-35px me-3">
+                                        @if (item.User != null)
                                         {
-                                            content = reviewDict != null && reviewDict.ContainsKey(item.Targetid)
-                                            ? reviewDict[item.Targetid]
-                                            : "[Review đã bị xóa]";
+                                            <img src="@item.User.GetDisplayAvatar()" alt="User" class="rounded-circle" style="width:35px; height:35px; object-fit:cover;">
                                         }
                                         else
                                         {
-                                            content = replyDict != null && replyDict.ContainsKey(item.Targetid)
-                                            ? replyDict[item.Targetid]
-                                            : "[Reply đã bị xóa]";
+                                            <div class="symbol-label bg-light-secondary text-secondary rounded-circle" style="width:35px; height:35px; display:flex; align-items:center; justify-content:center;">
+                                                <i class="ti ti-user fs-5"></i>
+                                            </div>
                                         }
-                                        @content
-                                    </td>
+                                    </div>
+                                    <div>
+                                        <div class="text-dark fw-bold small">@item.User?.Username</div>
+                                        <div class="text-muted small" style="font-size: 0.7rem;">@item.User?.Email</div>
+                                    </div>
+                                </div>
+                            </td>
 
-                                    <!-- Lý do -->
-                                    <td class="text-muted">@item.Reason</td>
+                            <td>
+                                @if (item.ReportTypeEnum == COMICZONE.Models.Enums.ReportType.Review)
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-2">
+                                        Đánh giá
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2">
+                                        Phản hồi
+                                    </span>
+                                }
+                            </td>
 
-                                    <!-- Trạng thái -->
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill px-3 py-2 fw-semibold
-                                            @(item.StatusEnum == ReportStatus.Pending ? "bg-warning-subtle text-warning" :
-                                                item.StatusEnum == ReportStatus.Approved ? "bg-success-subtle text-success" :
-                                                "bg-danger-subtle text-danger")">
-									        @item.StatusEnum.GetDisplayName()
+                            <td>
+                                <div class="d-flex flex-column" style="max-width: 300px;">
+                                    @{
+                                        string contextContent = "";
+                                        if (item.ReportTypeEnum == COMICZONE.Models.Enums.ReportType.Review) 
+                                            reviewContents.TryGetValue(item.Targetid, out contextContent);
+                                        else 
+                                            replyContents.TryGetValue(item.Targetid, out contextContent);
+                                    }
+                                    <div class="text-muted small mb-1">
+                                        <i class="ti ti-quote me-1"></i>
+                                        <span class="fst-italic text-truncate d-inline-block align-middle" style="max-width: 280px;" title="@contextContent">
+                                            @(string.IsNullOrEmpty(contextContent) ? "Không tìm thấy nội dung" : contextContent)
                                         </span>
-                                    </td>
+                                    </div>
+                                    <div class="text-dark fw-semibold small text-wrap">
+                                        <span class="text-danger">Lý do:</span> @item.Reason
+                                    </div>
+                                </div>
+                            </td>
 
-                                    <!-- Ngày -->
-                                    <td class="text-nowrap">
-                                        @item.Createdat.ToString("dd/MM/yyyy HH:mm")
-                                    </td>
+                            <td>
+                                @switch (item.StatusEnum)
+                                {
+                                    case COMICZONE.Models.Enums.ReportStatus.Pending:
+                                        <span class="badge bg-warning rounded-pill px-3 py-2">Chờ xử lý</span>
+                                        break;
+                                    case COMICZONE.Models.Enums.ReportStatus.Approved:
+                                        <span class="badge bg-success rounded-pill px-3 py-2">Đã duyệt</span>
+                                        break;
+                                    case COMICZONE.Models.Enums.ReportStatus.Rejected:
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">Từ chối</span>
+                                        break;
+                                }
+                            </td>
 
-                                    <!-- Đã xóa -->
-                                    <td class="text-center" id="status-cell-@item.Id">
-                                        @if (item.Isdeleted)
-                                        {
-                                            <span class="badge bg-danger text-white rounded-pill px-3 py-2">Đã xóa</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success text-white rounded-pill px-3 py-2">Còn</span>
-                                        }
-                                    </td>
+                            <td class="text-muted small">
+                                @item.Createdat.ToString("dd/MM/yyyy HH:mm")
+                            </td>
 
-                                    <!-- Người gửi -->
-                                    <td>
-                                        @(item.User != null ? item.User.Username : "[User đã bị xóa]")
-                                    </td>
+                            <td class="text-center pe-4">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Details" asp-route-id="@item.Id" 
+                                       class="btn btn-light btn-sm text-info" title="Chi tiết">
+                                        <i class="ti ti-eye fs-5"></i>
+                                    </a>
 
-                                    <!-- Hành động -->
-                                    <td class="text-center">
-                                        <div class="btn-group">
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">✏️</a>
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết">🔍</a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa cứng">🗑</a>
-                                            
-                                            <!-- Nút Xóa mềm (Toggle) -->
-                                            <button type="button"
-                                                    title="Xóa mềm / Khôi phục"
-                                                    data-id="@item.Id"
-                                                    data-url="@Url.Action("ToggleDelete", "ViolationReports", new { area = "Admin" })"
-                                                    class="btn btn-sm ajax-toggle-report-status
-                                                        @(item.Isdeleted ? "btn-success" : "btn-outline-danger")">
-                                                <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                📭 Không có báo cáo nào
+                                    <a asp-action="Edit" asp-route-id="@item.Id" 
+                                       class="btn btn-light btn-sm text-primary" title="Xử lý">
+                                        <i class="ti ti-edit fs-5"></i>
+                                    </a>
+
+                                    <a asp-action="Delete" asp-route-id="@item.Id" 
+                                       class="btn btn-light btn-sm text-danger" title="Xóa vĩnh viễn">
+                                        <i class="ti ti-trash fs-5"></i>
+                                    </a>
+
+                                    <button type="button"
+                                            class="btn btn-light btn-sm ajax-toggle-report-delete @(item.Isdeleted ? "text-success" : "text-danger")"
+                                            data-id="@item.Id"
+                                            data-url="@Url.Action("ToggleDelete", "ViolationReports", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Khôi phục" : "Ẩn báo cáo")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban") fs-5"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     }
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="ti ti-mood-empty fs-1 text-muted mb-2 d-block"></i>
+                <h5 class="text-muted">Không tìm thấy báo cáo vi phạm nào khớp với bộ lọc.</h5>
+            </div>
+        }
+
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white border-top-0 pb-4">
+                <partial name="_AdminPagination" model="searchModel" />
+            </div>
+        }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Ajax toggle delete status
+            $(document).on('click', '.ajax-toggle-report-delete', function() {
+                var btn = $(this);
+                var id = btn.data('id');
+                var url = btn.data('url');
+                var row = $('#report-row-' + id);
+
+                Swal.fire({
+                    title: 'Xác nhận thay đổi?',
+                    text: "Bạn muốn thay đổi trạng thái hiển thị của báo cáo này?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: { id: id },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire('Thành công!', 'Trạng thái đã được cập nhật.', 'success')
+                                    .then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Lỗi!', 'Không thể cập nhật trạng thái.', 'error');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .bg-purple-subtle { background-color: rgba(139, 92, 246, 0.1) !important; }
+    .text-purple { color: #8b5cf6 !important; }
+    .border-purple-subtle { border-color: rgba(139, 92, 246, 0.2) !important; }
+</style>

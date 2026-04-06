@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,12 +23,38 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Invoices
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(InvoiceSearchModel search)
         {
-            var comiczoneContext = _context.Invoices
+            var query = _context.Invoices
                 .Include(i => i.Order)
-                    .ThenInclude(o => o.User);
-            return View(await comiczoneContext.ToListAsync());
+                    .ThenInclude(o => o.User)
+                .Include(i => i.Order)
+                    .ThenInclude(o => o.Payments)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyInvoiceFilters(search);
+
+            var totalCount = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "IssueDate", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 12;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var invoices = await query.ToListAsync();
+
+            return View(invoices);
         }
 
         // GET: Admin/Invoices/Details/5

@@ -688,6 +688,41 @@ namespace COMICZONE.Controllers
             }
 
             int userId = int.Parse(userIdStr);
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+
+            // Kiểm tra sản phẩm có tồn tại và không bị xóa mềm
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == review.Productid && !p.Isdeleted);
+
+            if (product == null)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Sản phẩm không còn khả dụng để đánh giá." });
+                }
+                return NotFound();
+            }
+            
+            // Kiểm tra quyền review (phải có đơn hàng Hoàn thành, Admin được bỏ qua)
+            if (userRole != "Admin")
+            {
+                bool canReview = await _context.OrderItems
+                    .AnyAsync(oi => oi.ProductId == review.Productid &&
+                                   oi.Order.UserId == userId &&
+                                   oi.Order.Status == OrderStatus.Completed.ToString() &&
+                                   !oi.Order.Isdeleted);
+                                   
+                if (!canReview)
+                {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = false, message = "Bạn chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã hoàn thành." });
+                    }
+
+                    TempData["ReviewError"] = "Bạn chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã hoàn thành.";
+                    return RedirectToAction("Detail", "Products", new { id = review.Productid, tab = "comment" });
+                }
+            }
 
             // Trim nội dung trước
             if (review.Reviewcontent != null)

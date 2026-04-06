@@ -1,111 +1,243 @@
-﻿@using COMICZONE.Extensions;
+@using COMICZONE.Extensions;
 @using System.Globalization;
 
 @model IEnumerable<COMICZONE.Models.Product>
 @{
-    ViewBag.Title = "Danh sách sản phẩm";
+    ViewBag.Title = "Danh mục truyện";
     var currentSort = ViewBag.CurrentSort as string ?? "";
 }
 
-@if (TempData["SearchMessage"] != null && !string.IsNullOrWhiteSpace(ViewBag.Keyword))
-{
-    <div class="search-alert">
-        @TempData["SearchMessage"]
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/product-listing.css" asp-append-version="true" />
 }
 
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <!-- COLUMN LEFT -->
-            <div class="col-md-3">
-                @await Html.PartialAsync("_ProductSidebarFilters", ViewBag.SidebarFilters as Dictionary<string, List<string>>)
+<!-- PAGE HEADER -->
+<div class="page-header" data-aos="fade-down" style="background-image: url('/images/store_header_bg.png');">
+    <div class="container text-center text-md-start">
+        <h1 class="page-header-title">@ViewBag.SectionTitle</h1>
+        <div class="breadcrumb-premium">
+            <div class="breadcrumb-item-premium">
+                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
             </div>
-            <div class="col-md-9">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold">@ViewBag.SectionTitle</h2>
-                    <!-- Dropdown sắp xếp -->
-                    <form method="get" class="sort-form">
-                        <input type="hidden" name="keyword" value="@ViewBag.Keyword" />
-                        <div class="sort-wrapper">
-                            <i class="bi bi-filter"></i>
-                            <select class="form-select sort-select" name="sortOrder" onchange="this.form.submit()">
-                                <option value="" selected="@(currentSort == "" ? "selected" : null)">Tên A → Z</option>
-                                <option value="name_desc" selected="@(currentSort == "name_desc" ? "selected" : null)">Tên Z → A</option>
-                                <option value="price_asc" selected="@(currentSort == "price_asc" ? "selected" : null)">Giá thấp → cao</option>
-                                <option value="price_desc" selected="@(currentSort == "price_desc" ? "selected" : null)">Giá cao → thấp</option>
-                                <option value="newest" selected="@(currentSort == "newest" ? "selected" : null)">Mới nhất</option>
-                                <option value="oldest" selected="@(currentSort == "oldest" ? "selected" : null)">Cũ nhất</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <!-- COLUMN SẢN PHẨM -->
-                <!-- Grid sản phẩm -->
-                <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
-                    @foreach (var item in Model)
-                    {
-                        <div class="col">
-                            <div class="product-card">
-                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-img">
-                                    <img src="@item.GetImagePath()" alt="@item.Name" />
-                                </a>
-                                <div class="product-body">
-                                    <div class="product-price">
-                                        @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) ₫
-                                    </div>
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-name">
-                                        @item.Name
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-                <!-- Pagination -->
-                @if (ViewBag.TotalPages > 1)
-                {
-                    <nav class="mt-5">
-                        <ul class="pagination justify-content-center custom-pagination">
-                            <!-- Previous -->
-                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                                <a class="page-link"
-                                   asp-action="Index"
-                                   asp-route-page="@(ViewBag.CurrentPage - 1)"
-                                   asp-route-sortOrder="@ViewBag.CurrentSort"
-                                   asp-route-keyword="@ViewBag.Keyword"
-                                   asp-route-author="@ViewBag.SelectedAuthor">
-                                    <i class="bi bi-chevron-left"></i>
-                                </a>
-                            </li>
-                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                            {
-                                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                                    <a class="page-link"
-                                       asp-action="Index"
-                                       asp-route-page="@i"
-                                       asp-route-sortOrder="@ViewBag.CurrentSort"
-                                       asp-route-keyword="@ViewBag.Keyword"
-                                       asp-route-author="@ViewBag.SelectedAuthor">
-                                        @i
-                                    </a>
-                                </li>
-                            }
-                            <!-- Next -->
-                            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                                <a class="page-link"
-                                   asp-action="Index"
-                                   asp-route-page="@(ViewBag.CurrentPage + 1)"
-                                   asp-route-sortOrder="@ViewBag.CurrentSort"
-                                   asp-route-keyword="@ViewBag.Keyword"
-                                   asp-route-author="@ViewBag.SelectedAuthor">
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                }
+            <div class="breadcrumb-separator">
+                <i class="bi bi-chevron-right small text-white"></i>
+            </div>
+            <div class="breadcrumb-item-premium active">
+                @ViewBag.SectionTitle
             </div>
         </div>
     </div>
-</section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortWrapper = document.getElementById('sortWrapper');
+            const sortTrigger = document.getElementById('sortTrigger');
+            const sortOptions = document.querySelectorAll('.sort-option-item');
+            const sortForm = document.getElementById('sortForm');
+            const currentSortOrder = document.getElementById('currentSortOrder');
+
+            // Toggle dropdown
+            sortTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sortWrapper.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                sortWrapper.classList.remove('active');
+            });
+
+            // Handle option selection
+            sortOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const val = this.getAttribute('data-value');
+                    currentSortOrder.value = val;
+                    sortForm.submit();
+                });
+            });
+        });
+    </script>
+}
+
+<div class="container py-4">
+    <div class="row g-4">
+        
+        <!-- SIDEBAR FILTERS -->
+        <aside class="col-md-4 col-lg-3 p-0" style="height: fit-content;">
+            <div class="glass-sidebar" data-aos="fade-right">
+                <div class="d-flex align-items-center mb-4 text-primary">
+                    <i class="bi bi-filter-circle-fill fs-4 me-2"></i>
+                    <h5 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">KHÁM PHÁ</h5>
+                </div>
+                @await Html.PartialAsync("_ProductSidebarFilters", ViewBag.SidebarFilters as Dictionary<string, List<string>>)
+            </div>
+        </aside>
+
+        <!-- MAIN PRODUCTS GRID -->
+        <div class="col-md-8 col-lg-9">
+            <!-- Search Results Message -->
+            @if (TempData["SearchMessage"] != null && !string.IsNullOrWhiteSpace(ViewBag.Keyword))
+            {
+                <div class="premium-glass-alert mb-4" data-aos="fade-up">
+                    <i class="bi bi-info-circle-fill fs-4"></i>
+                    <span>@TempData["SearchMessage"]</span>
+                </div>
+            }
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3 p-0 product-index-header" data-aos="fade-up">
+                <div>
+                    <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Toàn bộ sản phẩm</h4>
+                    <span class="text-secondary small search-results-stats">Tìm thấy <strong>@Model.Count()</strong> sản phẩm trong danh mục này</span>
+                </div>
+
+                <!-- Premium Sort Dropdown -->
+                <form method="get" id="sortForm">
+                    <input type="hidden" name="keyword" value="@ViewBag.Keyword" />
+                    <input type="hidden" name="author" value="@ViewBag.SelectedAuthor" />
+                    <input type="hidden" name="artist" value="@ViewBag.SelectedArtist" />
+                    <input type="hidden" name="translator" value="@ViewBag.SelectedTranslator" />
+                    <input type="hidden" name="series" value="@ViewBag.SelectedSeries" />
+                    <input type="hidden" name="tag" value="@ViewBag.SelectedTag" />
+                    <input type="hidden" name="publisher" value="@ViewBag.SelectedPublisher" />
+                    <input type="hidden" name="distributor" value="@ViewBag.SelectedDistributor" />
+
+                    <div class="modern-sort-wrapper" id="sortWrapper">
+                        <div class="sort-trigger" id="sortTrigger">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-sliders text-primary me-2"></i>
+                                <span class="text-secondary small fw-bold me-2 text-nowrap">Sắp xếp:</span>
+                                <span class="fw-bold text-dark small selected-sort-text">
+                                    @switch (currentSort)
+                                    {
+                                        case "name_desc": <text>Tên Z → A</text>; break;
+                                        case "price_asc": <text>Giá thấp → cao</text>; break;
+                                        case "price_desc": <text>Giá cao → thấp</text>; break;
+                                        case "newest": <text>Mới nhất</text>; break;
+                                        case "oldest": <text>Cũ nhất</text>; break;
+                                        default: <text>Tên A → Z</text>; break;
+                                    }
+                                </span>
+                            </div>
+                            <i class="bi bi-chevron-down text-primary small transition-icon ms-3"></i>
+                        </div>
+                        <input type="hidden" name="sortOrder" id="currentSortOrder" value="@currentSort" />
+
+                        <ul class="sort-options-list">
+                            <li class="sort-option-item @(currentSort == "" ? "active" : "")" data-value="">
+                                <i class="bi bi-sort-alpha-down"></i>Tên A → Z
+                            </li>
+                            <li class="sort-option-item @(currentSort == "name_desc" ? "active" : "")" data-value="name_desc">
+                                <i class="bi bi-sort-alpha-up"></i>Tên Z → A
+                            </li>
+                            <li class="sort-option-item @(currentSort == "price_asc" ? "active" : "")" data-value="price_asc">
+                                <i class="bi bi-sort-numeric-down"></i>Giá thấp → cao
+                            </li>
+                            <li class="sort-option-item @(currentSort == "price_desc" ? "active" : "")" data-value="price_desc">
+                                <i class="bi bi-sort-numeric-up"></i>Giá cao → thấp
+                            </li>
+                            <li class="sort-option-item @(currentSort == "newest" ? "active" : "")" data-value="newest">
+                                <i class="bi bi-clock-history"></i>Mới nhất
+                            </li>
+                            <li class="sort-option-item @(currentSort == "oldest" ? "active" : "")" data-value="oldest">
+                                <i class="bi bi-hourglass-split"></i>Cũ nhất
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <!-- PRODUCT GRID -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 justify-content-center">
+                @{ int productIndex = 0; }
+                @foreach (var item in Model)
+                {
+                    <div class="col" data-aos="fade-up" data-aos-delay="@(productIndex * 50)">
+                        <div class="product-card mb-4">
+                            <div class="product-img-wrapper">
+                                @if(item.Price < 50000) {
+                                    <span class="product-badge badge-hot">HOT</span>
+                                } else if (item.Id % 3 == 0) {
+                                    <span class="product-badge badge-new">NEW</span>
+                                }
+                                
+                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-main-img">
+                                    <img src="@item.GetImagePath()" alt="@item.Name" loading="lazy" />
+                                </a>
+
+                                <div class="product-actions-overlay">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="action-btn-premium" title="Xem chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (item.StockQuantity > 0)
+                                    {
+                                        <form asp-controller="Carts" asp-action="AddToCart" method="post" style="display: contents;">
+                                            <input type="hidden" name="productId" value="@item.Id" />
+                                            <input type="hidden" name="quantity" value="1" />
+                                            <button type="submit" class="action-btn-premium add-cart-overlay" title="Thêm vào giỏ">
+                                                <i class="bi bi-cart-plus"></i>
+                                            </button>
+                                            <button type="submit" name="buyNow" value="true" class="action-btn-premium buy-now-overlay" title="Mua ngay">
+                                                <i class="bi bi-lightning-charge"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.Id" class="product-title-link text-decoration-none">
+                                    @item.Name
+                                </a>
+                                <div class="product-price-modern">
+                                    @string.Format(CultureInfo.GetCultureInfo("vi-VN"), "{0:N0}", item.Price) <span>₫</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    productIndex++;
+                }
+            </div>
+
+            <!-- PAGINATION -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="mt-5 pt-4" data-aos="fade-up">
+                    <ul class="pagination premium-pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link-premium @(ViewBag.CurrentPage == 1 ? "disabled" : "")" 
+                               asp-action="Index"
+                               asp-route-page="@(ViewBag.CurrentPage - 1)"
+                               asp-route-sortOrder="@ViewBag.CurrentSort"
+                               asp-route-keyword="@ViewBag.Keyword"
+                               asp-route-author="@ViewBag.SelectedAuthor">
+                                <i class="bi bi-arrow-left"></i>
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item">
+                                <a class="page-link-premium @(ViewBag.CurrentPage == i ? "active" : "")" 
+                                   asp-action="Index"
+                                   asp-route-page="@i"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort"
+                                   asp-route-keyword="@ViewBag.Keyword"
+                                   asp-route-author="@ViewBag.SelectedAuthor">@i</a>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link-premium @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")" 
+                               asp-action="Index"
+                               asp-route-page="@(ViewBag.CurrentPage + 1)"
+                               asp-route-sortOrder="@ViewBag.CurrentSort"
+                               asp-route-keyword="@ViewBag.Keyword"
+                               asp-route-author="@ViewBag.SelectedAuthor">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

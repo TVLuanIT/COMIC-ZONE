@@ -3,6 +3,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý hoàn tiền";
+    var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.RefundSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.RefundSearchModel();
 }
 
 <div class="container-fluid">
@@ -20,6 +21,9 @@
             </div>
         </div>
     </div>
+    
+    @* Reusable search form *@
+    <partial name="_RefundSearchForm" model="searchModel" />
 
     <!-- Main Content Card -->
     <div class="card shadow-sm border-0">
@@ -36,11 +40,21 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">Mã thanh toán</th>
-                            <th>Số tiền</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th>Lý do</th>
-                            <th class="text-center">Ngày tạo</th>
+                            <th class="ps-4">
+                                @Html.SortHeader("Mã đơn gốc", "Payment.Orderid", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th>
+                                @Html.SortHeader("Lý do", "Reason", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
+                            <th class="text-center">
+                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            </th>
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>
                     </thead>
@@ -112,4 +126,11 @@
             }
         </div>
     </div>
+    
+    @if (Model.Any())
+    {
+        <div class="card-footer bg-white border-top-0 pb-4">
+            <partial name="_AdminPagination" model="searchModel" />
+        </div>
+    }
 </div>

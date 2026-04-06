@@ -1,0 +1,113 @@
+@model COMICZONE.Areas.Admin.ViewModels.InventoryLogSearchModel
+
+<form method="get" class="inventory-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Tên SP, loại, ID...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Loại giao dịch</label>
+            <select name="Type" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="Import" selected="@(Model.Type == "Import")">Nhập kho</option>
+                <option value="Export" selected="@(Model.Type == "Export")">Xuất kho</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="LargeChangesOnly" value="true" @(Model.LargeChangesOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary">Giao dịch lớn (>=50)</label>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#inventoryAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="inventoryAdvancedSearch">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">ID Log</label>
+                <input type="number" name="Id" value="@Model.Id" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">ID Sản phẩm</label>
+                <input type="number" name="ProductId" value="@Model.ProductId" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tên sản phẩm (Exact/Partial)</label>
+                <input type="text" name="ProductName" value="@Model.ProductName" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="IncreaseOnly" value="true" @(Model.IncreaseOnly == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Chỉ tăng (+)</label>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="DecreaseOnly" value="true" @(Model.DecreaseOnly == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary">Chỉ giảm (-)</label>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số lượng từ</label>
+                <input type="number" name="ChangeAmountMin" value="@Model.ChangeAmountMin" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số lượng đến</label>
+                <input type="number" name="ChangeAmountMax" value="@Model.ChangeAmountMax" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Từ ngày</label>
+                <input type="date" name="CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Đến ngày</label>
+                <input type="date" name="CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.Id.HasValue || Model.ProductId.HasValue || 
+               !string.IsNullOrWhiteSpace(Model.ProductName) ||
+               Model.ChangeAmountMin.HasValue || Model.ChangeAmountMax.HasValue ||
+               Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue ||
+               Model.IncreaseOnly == true || Model.DecreaseOnly == true;
+    }
+}

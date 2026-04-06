@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using COMICZONE.Data;
-using COMICZONE.Extensions;
-using COMICZONE.Models;
-using COMICZONE.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Data;
+using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Models.Enums;
 using COMICZONE.Services;
+using COMICZONE.Helpers;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -26,13 +28,34 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Orders
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(OrderSearchModel search)
         {
-            var orders = await _context.Orders
+            var query = _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.Invoices)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyOrderFilters(search);
+            
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "CreatedAt", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var orders = await query.ToListAsync();
 
             return View(orders);
         }

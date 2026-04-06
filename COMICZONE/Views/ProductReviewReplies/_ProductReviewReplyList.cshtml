@@ -23,41 +23,48 @@
      data-productid="@productId">
     @if (totalReplies > 0)
     {
-        <button class="show-replies-btn btn btn-link p-0 mb-2" data-batch-size="@batchSize">
-            @totalReplies phản hồi
+        <button class="show-replies-btn" data-batch-size="@batchSize">
+            <i class="bi bi-chat-dots-fill me-2"></i>
+            <span class="btn-text">@totalReplies phản hồi</span>
         </button>
     }
 
     <div class="reply-list">
         @foreach (var reply in Model)
         {
-            <div class="reply-item mb-2 ps-3" data-reply-id="@reply.Replyid" style="display:none;">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                    <!-- LEFT: Avatar + content -->
+            <div class="reply-item" data-reply-id="@reply.Replyid" style="display:none;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="d-flex flex-grow-1">
-                        <div class="reply-avatar me-2">
-                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.GetDisplayAvatar(), size = 24 })
+                        <div class="reply-avatar">
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = reply.User.GetDisplayAvatar(), size = 32 })
                         </div>
 
-                        <div class="flex-grow-1">
-                            <!-- Tên người gửi + người được reply -->
-                            <div class="d-flex align-items-center gap-1 mb-1 reply-username">
-                                <strong>
-                                    @reply.User.GetDisplayUsername()
+                        <div class="ms-3 flex-grow-1">
+                            <div class="reply-header-info">
+                                <div class="reply-username-container mb-0">
+                                    <span class="reply-username">@reply.User.GetDisplayUsername()</span>
+                                    
+                                    @if (reply.Replytouser != null)
+                                    {
+                                        <i class="bi bi-caret-right-fill text-muted small mx-1"></i>
+                                        <span class="reply-to-mention">@@@reply.Replytouser.GetDisplayUsername()</span>
+                                    }
+
                                     @if (reply.Updatedat != null)
                                     {
-                                        <span class="edited-label text-muted ms-1">(đã chỉnh sửa)</span>
+                                        <span class="edited-label">đã chỉnh sửa</span>
                                     }
-                                </strong>
-
-                                @if (reply.Replytouser != null)
-                                {
-                                    <span class="text-primary ms-1">@reply.Replytouser.GetDisplayUsername()</span>
-                                }
+                                </div>
+                                <div class="review-date">
+                                    @(
+                                        (reply.Updatedat ?? reply.Createdat)?
+                                        .ToString("dd/MM/yyyy HH:mm") ?? "-"
+                                    )
+                                </div>
                             </div>
 
                             <!-- Nội dung reply -->
-                            <div class="reply-content mb-1 @(reply.Isdeleted ? "text-muted fst-italic py-1 px-2 bg-light rounded border-start border-3 border-warning" : "")">
+                            <div class="reply-content @(reply.Isdeleted ? "text-muted fst-italic py-2 px-3 bg-light rounded border-start border-3 border-warning" : "")">
                                 @if (reply.Isdeleted)
                                 {
                                     <i class="bi bi-eye-slash-fill me-1"></i>
@@ -70,21 +77,13 @@
                             </div>
 
                             <!-- FORM CHỈNH SỬA ĐÃ ẨN -->
-                            <div class="reply-edit-container mt-2" style="display:none;">
-                                <textarea class="form-control edit-reply-text" rows="2"></textarea>
-                                <div class="mt-1 text-end">
-                                    <button class="btn btn-sm btn-secondary cancel-edit">Hủy</button>
-                                    <button class="btn btn-sm btn-primary save-edit">Lưu</button>
+                            <div class="reply-edit-container mt-3 pt-3 border-top" style="display:none;">
+                                <textarea class="form-control premium-textarea mb-3 edit-reply-text" rows="2"></textarea>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn-premium-cancel cancel-edit px-3 py-1 rounded-pill small">Hủy</button>
+                                    <button class="btn-premium-save save-edit px-4 py-1 rounded-pill glass-hover-effect small">Lưu</button>
                                 </div>
                             </div>
-
-                            <!-- Thời gian -->
-                        <div class="reply-date text-muted" style="font-size:0.8rem;">
-                            @(
-                                (reply.Updatedat ?? reply.Createdat)?
-                                .ToString("dd/MM/yyyy HH:mm") ?? "-"
-                            )
-                        </div>
 
                             <!-- Like/Dislike -->
                             @if (!reply.Isdeleted)

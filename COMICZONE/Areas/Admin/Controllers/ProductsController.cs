@@ -7,6 +7,8 @@ using COMICZONE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,14 +23,38 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ProductSearchModel search)
         {
-            var products = await _context.Products
+            var query = _context.Products
                 .Include(p => p.Pictures)
                 .Include(p => p.Artists)
                 .Include(p => p.Tags)
                 .Include(p => p.ProductReviewSummary)
-                .ToListAsync();
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyProductFilters(search);
+            
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Id", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+            ViewBag.Artists = await _context.Artists.Where(a => !a.Isdeleted).ToListAsync();
+            ViewBag.Tags = await _context.Tags.Where(t => !t.Isdeleted).ToListAsync();
+
+            var products = await query.ToListAsync();
 
             return View(products);
         }

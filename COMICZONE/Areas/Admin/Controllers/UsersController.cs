@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Models.Enums;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +24,37 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(UserSearchModel search)
         {
             ViewBag.CurrentUserId = HttpContext.Session.GetString("UserId");
-            return View(await _context.Users.ToListAsync());
+
+            var query = _context.Users
+                .Include(u => u.Customer)
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyUserFilters(search);
+
+            var totalCount = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Id", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 10;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalCount;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var users = await query.ToListAsync();
+
+            return View(users);
         }
 
         // GET: Admin/Users/Details/5

@@ -236,8 +236,9 @@ namespace COMICZONE.Controllers
             return RedirectToAction("Notifications");
         }
 
-        public IActionResult Notifications()
+        public IActionResult Notifications(int page = 1)
         {
+            int pageSize = 6;
             var userIdStr = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(userIdStr))
@@ -247,10 +248,26 @@ namespace COMICZONE.Controllers
 
             int userId = int.Parse(userIdStr);
 
-            var notifications = _context.Notifications
-                .Where(n => n.UserId == userId && !n.Isdeleted)
+            var query = _context.Notifications
+                .Where(n => n.UserId == userId && !n.Isdeleted);
+
+            int totalItems = query.Count();
+
+            var notifications = query
                 .OrderByDescending(n => n.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Action = "Notifications",
+                Controller = "UserProfiles",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
 
             return View(notifications);
         }
@@ -388,9 +405,10 @@ namespace COMICZONE.Controllers
                 .ToList();
         }
 
-        private List<Order> GetOrders()
+        private List<Order> GetOrders(int page, int pageSize, out int totalItems)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
+            totalItems = 0;
 
             if (string.IsNullOrEmpty(userIdStr))
             {
@@ -399,9 +417,15 @@ namespace COMICZONE.Controllers
 
             int userId = int.Parse(userIdStr);
 
-            var orders = _context.Orders
-                .Where(o => o.UserId == userId && !o.Isdeleted)
+            var query = _context.Orders
+                .Where(o => o.UserId == userId && !o.Isdeleted);
+
+            totalItems = query.Count();
+
+            var orders = query
                 .OrderByDescending(o => o.OrderDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
 
             return orders;
@@ -459,11 +483,51 @@ namespace COMICZONE.Controllers
             return View(reviews);
         }
 
-        public IActionResult MyOrders()
+        public IActionResult MyOrders(int page = 1)
         {
-            var orders = GetOrders();
+            int pageSize = 6;
+            int totalItems;
+            var orders = GetOrders(page, pageSize, out totalItems);
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Action = "MyOrders",
+                Controller = "UserProfiles",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
 
             return View(orders);
+        }
+
+        public IActionResult OrderDetails(int id)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+
+            int userId = int.Parse(userIdStr);
+
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(pr => pr.Pictures)
+                .FirstOrDefault(o => o.OrderId == id && o.UserId == userId && !o.Isdeleted);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Page = "OrderDetails";
+            ViewBag.Order = order;
+
+            return View("MyOrders", new List<Order> { order });
         }
 
         public IActionResult MyProfile()

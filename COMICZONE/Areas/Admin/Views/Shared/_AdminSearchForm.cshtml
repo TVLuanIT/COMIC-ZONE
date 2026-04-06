@@ -1,0 +1,100 @@
+@model COMICZONE.Areas.Admin.ViewModels.AdminSearchModel
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<form method="get" class="admin-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Keyword Search - Always Shown *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search text-secondary"></i>
+                </span>
+                <input type="text" name="keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Tên, mã, email...">
+            </div>
+        </div>
+
+        @* Conditional Filters based on Controller *@
+        @if (controller == "Orders" || controller == "Payments" || controller == "ViolationReports" || controller == "ProductReviews")
+        {
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase">Trạng thái</label>
+                <select name="statusFilter" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    @if (controller == "Orders")
+                    {
+                        <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Chờ xử lý</option>
+                        <option value="Processing" selected="@(Model.StatusFilter == "Processing")">Đang xử lý</option>
+                        <option value="Shipped" selected="@(Model.StatusFilter == "Shipped")">Đang giao</option>
+                        <option value="Completed" selected="@(Model.StatusFilter == "Completed")">Hoàn thành</option>
+                        <option value="Cancelled" selected="@(Model.StatusFilter == "Cancelled")">Đã hủy</option>
+                    }
+                    else if (controller == "Payments")
+                    {
+                        <option value="SUCCESS" selected="@(Model.StatusFilter == "SUCCESS")">Thành công</option>
+                        <option value="PENDING" selected="@(Model.StatusFilter == "PENDING")">Chờ duyệt</option>
+                        <option value="FAILED" selected="@(Model.StatusFilter == "FAILED")">Thất bại</option>
+                    }
+                    else if (controller == "ViolationReports")
+                    {
+                        <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Đang chờ</option>
+                        <option value="Approved" selected="@(Model.StatusFilter == "Approved")">Đã chấp nhận</option>
+                        <option value="Rejected" selected="@(Model.StatusFilter == "Rejected")">Đã từ chối</option>
+                    }
+                    else if (controller == "ProductReviews")
+                    {
+                        <option value="Visible" selected="@(Model.StatusFilter == "Visible")">Đang hiển thị</option>
+                        <option value="Hidden" selected="@(Model.StatusFilter == "Hidden")">Đã ẩn</option>
+                    }
+                </select>
+            </div>
+        }
+
+        @if (controller == "Users")
+        {
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase">Vai trò</label>
+                <select name="roleFilter" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Admin" selected="@(Model.RoleFilter == "Admin")">Quản trị viên</option>
+                    <option value="User" selected="@(Model.RoleFilter == "User")">Người dùng</option>
+                </select>
+            </div>
+        }
+
+        @if (controller == "InventoryLogs" || controller == "ViolationReports")
+        {
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase">Loại</label>
+                <select name="typeFilter" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    @if (controller == "InventoryLogs")
+                    {
+                        <option value="Import" selected="@(Model.TypeFilter == "Import")">Nhập kho</option>
+                        <option value="Export" selected="@(Model.TypeFilter == "Export")">Xuất kho</option>
+                    }
+                    else if (controller == "ViolationReports")
+                    {
+                        <option value="Review" selected="@(Model.TypeFilter == "Review")">Đánh giá</option>
+                        <option value="Reply" selected="@(Model.TypeFilter == "Reply")">Phản hồi</option>
+                    }
+                </select>
+            </div>
+        }
+
+        <input type="hidden" name="sortColumn" value="@Model.SortColumn" />
+        <input type="hidden" name="isAscending" value="@(Model.IsAscending.ToString().ToLower())" />
+
+        <div class="col-md-1 d-flex gap-1 justify-content-end">
+            <button type="submit" class="btn btn-primary" title="Lọc dữ liệu">
+                <i class="ti ti-filter"></i>
+            </button>
+            <a href="@Url.Action("Index", controller)" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+</form>

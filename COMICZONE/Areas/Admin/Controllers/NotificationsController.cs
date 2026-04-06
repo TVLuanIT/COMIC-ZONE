@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -21,10 +23,34 @@ namespace COMICZONE.Areas.Admin.Controllers
         }
 
         // GET: Admin/Notifications
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(NotificationSearchRequest request)
         {
-            var comiczoneContext = _context.Notifications.Include(n => n.CreatedByNavigation).Include(n => n.User);
-            return View(await comiczoneContext.ToListAsync());
+            var query = _context.Notifications
+                .Include(n => n.User)
+                    .ThenInclude(u => u.Customer)
+                .Include(n => n.CreatedByNavigation)
+                .AsQueryable();
+
+            // 1. Apply Search/Filter
+            query = query.ApplySearch(request);
+
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(request.SortColumn, request.IsAscending);
+
+            // 3. Paging
+            query = query.ApplyPagination(request.Page, request.PageSize);
+
+            // 4. Update request metadata for pagination
+            request.TotalItems = totalItems;
+            request.Page = request.Page; // Sync
+            
+            ViewBag.SearchModel = request;
+
+            var notifications = await query.ToListAsync();
+
+            return View(notifications);
         }
 
         // GET: Admin/Notifications/Details/5

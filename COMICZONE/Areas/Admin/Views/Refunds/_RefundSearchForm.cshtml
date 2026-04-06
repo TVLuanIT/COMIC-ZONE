@@ -1,0 +1,143 @@
+@model COMICZONE.Areas.Admin.ViewModels.RefundSearchModel
+@using COMICZONE.Models.Enums
+
+<form method="get" class="refund-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã HT, Đơn, Lý do, User...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="Statuses" class="form-select" multiple size="1" style="min-height: 38px;">
+                <option value="PENDING" selected="@(Model.Statuses?.Contains("PENDING") == true)">Chờ duyệt</option>
+                <option value="PROCESSING" selected="@(Model.Statuses?.Contains("PROCESSING") == true)">Đang XL</option>
+                <option value="SUCCESS" selected="@(Model.Statuses?.Contains("SUCCESS") == true)">Thành công</option>
+                <option value="COMPLETED" selected="@(Model.Statuses?.Contains("COMPLETED") == true)">Hoàn tất</option>
+                <option value="REJECTED" selected="@(Model.Statuses?.Contains("REJECTED") == true)">Bị từ chối</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-check pb-2">
+                <input class="form-check-input" type="checkbox" name="PendingOnly" value="true" @(Model.PendingOnly == true ? "checked" : "")>
+                <label class="form-check-label small fw-bold text-uppercase text-secondary text-warning">Chờ duyệt</label>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#refundAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="refundAdvancedSearch">
+        <div class="row g-3">
+            @* Order Info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Đơn hàng / Khách hàng</h6></div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã đơn hàng</label>
+                <input type="number" name="OrderId" value="@Model.OrderId" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username khách</label>
+                <input type="text" name="OrderUsername" value="@Model.OrderUsername" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số điện thoại</label>
+                <input type="text" name="OrderPhoneNumber" value="@Model.OrderPhoneNumber" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái ĐH</label>
+                <select name="OrderStatus" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        <option value="@status.ToString()" selected="@(Model.OrderStatus == status.ToString())">@status.GetDisplayName()</option>
+                    }
+                </select>
+            </div>
+
+            @* Payment Info *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thông tin Thanh toán gốc</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">PT Thanh toán</label>
+                <select name="PaymentMethod" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="VNPAY" selected="@(Model.PaymentMethod == "VNPAY")">VNPay</option>
+                    <option value="COD" selected="@(Model.PaymentMethod == "COD")">COD</option>
+                    <option value="PayPal" selected="@(Model.PaymentMethod == "PayPal")">PayPal</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Mã GD (TXID)</label>
+                <input type="text" name="Transactionid" value="@Model.Transactionid" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái TT</label>
+                <input type="text" name="PaymentStatus" value="@Model.PaymentStatus" class="form-control" placeholder="SUCCESS, PENDING...">
+            </div>
+            <div class="col-md-3">
+                <div class="form-check pt-4 mt-2">
+                    <input class="form-check-input" type="checkbox" name="LargeRefundsOnly" value="true" @(Model.LargeRefundsOnly == true ? "checked" : "")>
+                    <label class="form-check-label small fw-bold text-uppercase text-secondary text-danger">Bù tiền lớn (>= 500k)</label>
+                </div>
+            </div>
+
+            @* Refund Details *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Chi tiết yêu cầu Hoàn tiền</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền từ</label>
+                <input type="number" name="AmountMin" value="@Model.AmountMin" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số tiền đến</label>
+                <input type="number" name="AmountMax" value="@Model.AmountMax" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày yêu cầu từ</label>
+                <input type="date" name="CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày yêu cầu đến</label>
+                <input type="date" name="CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-12">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Lý do hoàn tiền</label>
+                <input type="text" name="Reason" value="@Model.Reason" class="form-control" placeholder="Tìm theo nội dung lý do...">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return Model.OrderId.HasValue || !string.IsNullOrWhiteSpace(Model.OrderUsername) ||
+               !string.IsNullOrWhiteSpace(Model.OrderPhoneNumber) || !string.IsNullOrWhiteSpace(Model.OrderStatus) ||
+               !string.IsNullOrWhiteSpace(Model.PaymentMethod) || !string.IsNullOrWhiteSpace(Model.Transactionid) ||
+               !string.IsNullOrWhiteSpace(Model.PaymentStatus) || Model.LargeRefundsOnly == true ||
+               Model.AmountMin.HasValue || Model.AmountMax.HasValue ||
+               Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue ||
+               !string.IsNullOrWhiteSpace(Model.Reason) || Model.CompletedOnly == true;
+    }
+}

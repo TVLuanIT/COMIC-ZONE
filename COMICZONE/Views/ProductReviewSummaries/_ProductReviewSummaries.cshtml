@@ -1,43 +1,87 @@
-﻿@model COMICZONE.Models.ProductReviewSummary
+@model COMICZONE.Models.ProductReviewSummary
 
 @{
-    var rounded = Math.Round(Model.Averagerating);
-
-    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int>;
+    double avg = Convert.ToDouble(Model.Averagerating);
+    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int> ?? new Dictionary<int, int>();
     var total = Model.Totalreview == 0 ? 1 : Model.Totalreview;
 }
 
-<div class="review-summary-card">
-    <div class="summary-main">
-        <div class="rating-number">
-            @Model.Averagerating.ToString("0.0")
-            <span>/5</span>
+<div class="review-summary-premium mb-5" data-aos="fade-up">
+    <!-- Header Section -->
+    <div class="summary-top d-flex justify-content-between align-items-center mb-5">
+        <div class="summary-title-wrapper">
+            <h4 class="summary-title m-0 fw-bold">
+                <i class="bi bi-bar-chart-fill text-primary me-2"></i>Chỉ số đánh giá
+            </h4>
+            <p class="text-secondary small mt-1 mb-0">Dựa trên trải nghiệm thực tế từ người sỡ hữu.</p>
         </div>
-
-        <div class="rating-stars">
-            @for (int i = 1; i <= 5; i++)
-            {
-                if (i <= rounded)
-                {
-                    <span class="star filled">&#9733;</span>
-                }
-                else
-                {
-                    <span class="star">&#9733;</span>
-                }
-            }
-        </div>
-
-        <div class="review-count">
-            @Model.Totalreview đánh giá
-        </div>
+        
+        @if (Model.Lastupdated.HasValue)
+        {
+            <div class="summary-update-premium small px-3 py-2 bg-light rounded-pill text-secondary">
+                <i class="bi bi-clock-history me-1"></i>
+                <span class="d-none d-sm-inline">Cập nhật:</span> @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
+            </div>
+        }
     </div>
 
-    @if (Model.Lastupdated.HasValue)
-    {
-        <div class="summary-update">
-            Cập nhật:
-            @Model.Lastupdated.Value.ToString("dd/MM/yyyy HH:mm")
+    <!-- Layout: Top (Score) & Bottom (Bars) -->
+    <div class="summary-stacked-layout">
+        <!-- TOP: RATING BIG NUMBER DISPLAY -->
+        <div class="rating-display-centered text-center mb-5">
+            <div class="rating-score">
+                @avg.ToString("0.0")
+            </div>
+            
+            <div class="rating-stars-premium my-2">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= avg)
+                    {
+                        <i class="bi bi-star-fill text-warning mx-1 fs-3"></i>
+                    }
+                    else if (i - 0.5 <= avg)
+                    {
+                        <i class="bi bi-star-half text-warning mx-1 fs-3"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star-fill text-light mx-1 fs-3"></i>
+                    }
+                }
+            </div>
+            
+            <div class="rating-total-count fw-bold">
+                <span class="text-primary fs-5">@Model.Totalreview</span>
+                <span class="ms-1">Lượt nhận xét</span>
+            </div>
         </div>
-    }
+
+        <div class="summary-separator my-5"></div>
+
+        <!-- BOTTOM: BREAKDOWN BARS PROGRESS -->
+        <div class="breakdown-container-centered mx-auto" style="max-width: 600px;">
+            <div class="breakdown-list d-flex flex-column gap-3">
+                @for (int i = 5; i >= 1; i--)
+                {
+                    int count = breakdown.ContainsKey(i) ? breakdown[i] : 0;
+                    double percent = (double)count / total * 100;
+
+                    <div class="breakdown-item d-flex align-items-center gap-4">
+                        <div class="breakdown-label" style="min-width: 50px;">
+                            <span class="fw-bold">@i</span> <i class="bi bi-star-fill text-warning ms-1"></i>
+                        </div>
+                        
+                        <div class="breakdown-bar-container flex-grow-1">
+                            <div class="breakdown-bar-fill" style="width: @percent.ToString("0")%;"></div>
+                        </div>
+                        
+                        <div class="breakdown-count" style="min-width: 40px; text-align: right;">
+                            @count
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>

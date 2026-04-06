@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using COMICZONE.Models.Enums;
 
 namespace COMICZONE.Controllers
 {
@@ -100,6 +101,29 @@ namespace COMICZONE.Controllers
                     Lastupdated = null
                 };
             }
+
+            // Kiểm tra quyền review (phải có đơn hàng Hoàn thành, Admin thì được review hết)
+            bool canReview = false;
+            if (IsLoggedIn())
+            {
+                var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+                if (userRole == "Admin")
+                {
+                    canReview = true;
+                }
+                else if (int.TryParse(CurrentUserId(), out int userId))
+                {
+                    canReview = await _context.OrderItems
+                        .AnyAsync(oi => oi.ProductId == id &&
+                                       oi.Order.UserId == userId &&
+                                       oi.Order.Status == OrderStatus.Completed.ToString() &&
+                                       !oi.Order.Isdeleted);
+                }
+            }
+            ViewBag.CanReview = canReview;
+
+
+
             ViewBag.RelatedByAuthor = RelatedByAuthor;
             return View(product);
         }
@@ -310,7 +334,7 @@ namespace COMICZONE.Controllers
             if (!int.TryParse(CurrentUserId(), out int userId))
                 return RedirectToAction("Login", "Authentication");
 
-            int pageSize = 6;
+            int pageSize = 4;
 
             // 1. Lấy ID + thời gian xem gần nhất
             var productIds = await _context.UserProductViews

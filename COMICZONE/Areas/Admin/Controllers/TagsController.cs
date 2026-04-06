@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -20,11 +22,34 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        // GET: Admin/Tags
+        public async Task<IActionResult> Index(TagSearchModel search)
         {
-            var tags = await _context.Tags
+            var query = _context.Tags
                 .Include(t => t.Products)
-                .ToListAsync();
+                .AsQueryable();
+
+            // 1. Search & Filter
+            query = query.ApplyTagFilters(search);
+            
+            var totalItems = await query.CountAsync();
+
+            // 2. Sort
+            query = query.ApplySort(search.SortColumn ?? "Name", search.IsAscending);
+
+            // 3. Paging
+            int pageSize = search.PageSize > 0 ? search.PageSize : 20;
+            int pageNumber = search.Page > 0 ? search.Page : 1;
+            query = query.ApplyPagination(pageNumber, pageSize);
+
+            // Update search model for the view
+            search.TotalCount = totalItems;
+            search.Page = pageNumber;
+            search.PageSize = pageSize;
+
+            ViewBag.SearchModel = search;
+
+            var tags = await query.ToListAsync();
 
             return View(tags);
         }

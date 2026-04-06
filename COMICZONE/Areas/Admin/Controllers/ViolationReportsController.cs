@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using COMICZONE.Data;
-using COMICZONE.Extensions;
 using COMICZONE.Models;
 using COMICZONE.Models.Enums;
+using COMICZONE.Extensions;
+using COMICZONE.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,35 +23,34 @@ namespace COMICZONE.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ViolationReportSearchRequest request)
         {
-            var reports = await _context.ViolationReports
+            var query = _context.ViolationReports
                 .Include(v => v.User)
-                //.Where(v => !v.Isdeleted)
-                .ToListAsync();
+                    .ThenInclude(u => u.Customer)
+                .AsQueryable();
 
-            var userIds = reports
-                .Select(r => r.Userid)
-                .Distinct()
-                .ToList();
+            // 1. Apply Filtering
+            query = query.ApplyViolationReportSearch(request);
 
-            var users = (await _context.Users
-                .AsNoTracking()
-                .ToListAsync())
-                .ToDictionary(u => u.Id);
+            // 2. Count Total (for pagination)
+            request.TotalItems = await query.CountAsync();
 
-            ViewBag.Users = users;
+            // 3. Sorting
+            query = query.ApplyViolationReportSort(request.SortColumn, request.IsAscending);
 
+            // 4. Pagination
+            var pagedResults = await query.ApplyPagination(request.Page, request.PageSize).ToListAsync();
+
+            // Custom mapping logic (preserved context for the view)
             var reviewList = await _context.ProductReviews.ToListAsync();
             var replyList = await _context.ProductReviewReplies.ToListAsync();
 
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
+            ViewBag.ReviewContents = reviewList.ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
+            ViewBag.ReplyContents = replyList.ToDictionary(r => r.Replyid, r => r.Replycontent);
+            ViewBag.SearchModel = request;
 
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
-
-            return View(reports);
+            return View(pagedResults);
         }
 
         public async Task<IActionResult> Details(int? id)
