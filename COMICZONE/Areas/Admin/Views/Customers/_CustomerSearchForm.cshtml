@@ -1,0 +1,80 @@
+@model COMICZONE.Areas.Admin.ViewModels.CustomerSearchModel
+
+<form method="get" class="customer-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Tên, Số điện thoại, Email, Địa chỉ...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Họ tên</label>
+            <input type="text" name="FullName" value="@Model.FullName" class="form-control" placeholder="Tên khách hàng">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Hoạt động</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã vô hiệu hóa</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#customerAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="customerAdvancedSearch">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số điện thoại</label>
+                <input type="text" name="Phone" value="@Model.Phone" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="Email" value="@Model.Email" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày tạo từ</label>
+                <input type="date" name="CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày tạo đến</label>
+                <input type="date" name="CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-12">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Địa chỉ</label>
+                <input type="text" name="Address" value="@Model.Address" class="form-control" placeholder="Địa chỉ khách hàng">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Phone) || !string.IsNullOrWhiteSpace(Model.Email) ||
+               !string.IsNullOrWhiteSpace(Model.Address) || Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue;
+    }
+}

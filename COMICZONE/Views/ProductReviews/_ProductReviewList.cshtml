@@ -15,7 +15,7 @@
     var UserIdStr = Context.Session.GetString("UserId");
     var UserRoleStr = Context.Session.GetString("UserRole");
     int UserId = string.IsNullOrEmpty(UserIdStr) ? 0 : int.Parse(UserIdStr);
-    string UserRole = string.IsNullOrEmpty(UserRoleStr) ? "User" : UserRoleStr;
+    string UserRole = string.IsNullOrEmpty(UserRoleStr) ? "Customer" : UserRoleStr;
     bool isLoggedIn = UserId > 0; // UserId lấy từ session
 }
 

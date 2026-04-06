@@ -106,7 +106,7 @@ namespace COMICZONE.Controllers
             bool canReview = false;
             if (IsLoggedIn())
             {
-                var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+                var userRole = HttpContext.Session.GetString("UserRole") ?? "Customer";
                 if (userRole == "Admin")
                 {
                     canReview = true;

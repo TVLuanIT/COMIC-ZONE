@@ -62,7 +62,7 @@ namespace COMICZONE.Controllers
                 Username = username,
                 Email = email,
                 Passwordhash = BCrypt.Net.BCrypt.HashPassword(password),
-                Role = "User",
+                Role = "Customer",
                 Isactive = true,
                 Createdat = DateTime.Now,
 

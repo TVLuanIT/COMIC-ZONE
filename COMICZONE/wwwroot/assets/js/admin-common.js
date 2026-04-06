@@ -158,6 +158,7 @@ const initAdmin = () => {
     if (typeof ViolationReportIndex === 'function') safeInit(ViolationReportIndex);
     if (typeof OrderIndex === 'function') safeInit(OrderIndex);
     if (typeof UserIndex === 'function') safeInit(UserIndex);
+    if (typeof CustomerIndex === 'function') safeInit(CustomerIndex);
     if (typeof ProductReviewIndex === 'function') safeInit(ProductReviewIndex);
     if (typeof ProductReviewReplyIndex === 'function') safeInit(ProductReviewReplyIndex);
     if (typeof TagIndex === 'function') safeInit(TagIndex);

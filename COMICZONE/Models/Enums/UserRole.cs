@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace COMICZONE.Models.Enums
 {
@@ -7,7 +7,7 @@ namespace COMICZONE.Models.Enums
         [Display(Name = "Quản trị viên")]
         Admin = 1,
 
-        [Display(Name = "Người dùng")]
-        User = 2
+        [Display(Name = "Khách hàng")]
+        Customer = 2
     }
 }
