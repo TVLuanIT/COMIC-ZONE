@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using COMICZONE.Models;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.Models.Enums;
 
 namespace COMICZONE.Data;
 
@@ -85,9 +84,7 @@ public partial class ComiczoneContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__BLOG__3214EC2772788182");
 
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status)
-                .HasDefaultValue(BlogStatus.Pending)
-                .HasConversion<string>();
+            entity.Property(e => e.Status).HasDefaultValue("PENDING");
 
             entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
                 .OnDelete(DeleteBehavior.ClientSetNull)

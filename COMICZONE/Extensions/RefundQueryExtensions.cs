@@ -10,6 +10,11 @@ namespace COMICZONE.Extensions
         {
             if (search == null) return query;
 
+            if (search.IsDeleted.HasValue)
+            {
+                query = query.Where(r => r.Isdeleted == search.IsDeleted.Value);
+            }
+
             // 1. Keyword search (RefundId, PaymentId, Reason, Username)
             if (!string.IsNullOrWhiteSpace(search.Keyword))
             {

@@ -30,5 +30,7 @@ namespace COMICZONE.Areas.Admin.ViewModels
         public bool? CompletedOnly { get; set; }
 
         public bool? LargeRefundsOnly { get; set; }
+
+        public bool? IsDeleted { get; set; }
     }
 }

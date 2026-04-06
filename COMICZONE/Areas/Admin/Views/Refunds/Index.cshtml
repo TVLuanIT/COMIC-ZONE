@@ -39,7 +39,7 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
-                        <tr>
+                        <tr class="align-middle">
                             <th class="ps-4">
                                 @Html.SortHeader("Mã đơn gốc", "Payment.Orderid", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                             </th>
@@ -49,18 +49,19 @@
                             <th class="text-center">
                                 @Html.SortHeader("Trạng thái", "Status", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                             </th>
-                            <th>
-                                @Html.SortHeader("Lý do", "Reason", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                            <th class="text-center">
+                                @Html.SortHeader("Hiển thị", "Isdeleted", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                             </th>
+                            <th>Lý do</th>
                             <th class="text-center">
                                 @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
                             </th>
-                            <th class="text-end pe-4">Thao tác</th>
+                            <th class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model) {
-                            <tr>
+                            <tr id="row-@item.Id" class="@(item.Isdeleted ? "table-light text-muted" : "")">
                                 <td class="ps-4">
                                     <span class="fw-bold text-primary">#@item.Payment?.Paymentid</span>
                                     <div class="small text-muted">ID: @item.Id</div>
@@ -70,46 +71,78 @@
                                 </td>
                                 <td class="text-center">
                                     @{
-                                        var status = item.Status?.ToUpper() ?? "PENDING";
-                                        var statusClass = status switch
+                                        var statusEnum = item.RefundStatusEnum;
+                                        var statusClass = statusEnum switch
                                         {
-                                            "SUCCESS" or "COMPLETED" or "APPROVED" => "bg-success-subtle text-success",
-                                            "FAILED" or "REJECTED" or "CANCELLED" => "bg-danger-subtle text-danger",
-                                            "PROCESSING" or "PENDING" => "bg-warning-subtle text-warning",
+                                            COMICZONE.Models.Enums.RefundStatus.Success or 
+                                            COMICZONE.Models.Enums.RefundStatus.Completed => "bg-success text-white",
+                                            
+                                            COMICZONE.Models.Enums.RefundStatus.Rejected => "bg-danger text-white",
+                                            
+                                            COMICZONE.Models.Enums.RefundStatus.Processing or 
+                                            COMICZONE.Models.Enums.RefundStatus.Pending => "bg-warning text-dark",
+                                            
                                             _ => "bg-light text-dark"
                                         };
-                                        var statusText = status switch
+                                        var statusText = statusEnum switch
                                         {
-                                            "SUCCESS" or "COMPLETED" or "APPROVED" => "Thành công",
-                                            "FAILED" or "REJECTED" or "CANCELLED" => "Thất bại",
-                                            "PROCESSING" => "Đang xử lý",
-                                            "PENDING" => "Chờ duyệt",
+                                            COMICZONE.Models.Enums.RefundStatus.Success => "Thành công",
+                                            COMICZONE.Models.Enums.RefundStatus.Completed => "Hoàn tất",
+                                            COMICZONE.Models.Enums.RefundStatus.Rejected => "Thất bại",
+                                            COMICZONE.Models.Enums.RefundStatus.Processing => "Đang xử lý",
+                                            COMICZONE.Models.Enums.RefundStatus.Pending => "Chờ duyệt",
                                             _ => item.Status
                                         };
                                     }
-                                    <span class="badge @statusClass px-2 py-1 rounded">
+                                    <span class="badge @statusClass px-3 py-2 rounded-pill fw-bold shadow-sm" style="min-width: 100px;">
                                         @statusText
                                     </span>
                                 </td>
+                                <td class="text-center" id="visibility-cell-@item.Id">
+                                    @if (!item.Isdeleted)
+                                    {
+                                        <span class="badge bg-info text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-eye me-1"></i> Hiển thị
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-eye-off me-1"></i> Tạm ẩn
+                                        </span>
+                                    }
+                                </td>
                                 <td>
-                                    <div class="text-truncate" style="max-width: 250px;" title="@item.Reason">
+                                    <div class="text-truncate" style="max-width: 200px;" title="@item.Reason">
                                         @(string.IsNullOrEmpty(item.Reason) ? "Không có lý do" : item.Reason)
                                     </div>
                                 </td>
-                                <td class="text-center text-muted">
+                                <td class="text-center text-muted small">
                                     @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm text-info" title="Chi tiết">
-                                            <i class="ti ti-eye fs-5"></i>
+                                <td class="text-center pe-4">
+                                    <div class="btn-group shadow-sm rounded">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm border-end" title="Chi tiết">
+                                            <i class="ti ti-eye fs-5 text-info"></i>
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm text-primary" title="Chỉnh sửa">
-                                            <i class="ti ti-edit fs-5"></i>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm border-end" title="Chỉnh sửa">
+                                            <i class="ti ti-edit fs-5 text-primary"></i>
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light btn-sm text-danger" title="Xóa">
+                                        <!-- Hard Delete (Permanent) -->
+                                        <a asp-action="Delete" asp-route-id="@item.Id" 
+                                           class="btn btn-light btn-sm text-danger"
+                                           title="Xóa cứng (Vĩnh viễn)">
                                             <i class="ti ti-trash fs-5"></i>
                                         </a>
+
+                                        <!-- Soft Delete (Toggle Visibility) -->
+                                        <button type="button"
+                                                class="btn btn-light btn-sm border-end ajax-toggle-refund-status"
+                                                data-id="@item.Id"
+                                                data-url="@Url.Action("ToggleDelete", "Refunds")"
+                                                title="@(item.Isdeleted ? "Khôi phục" : "Xóa mềm (Tạm ẩn)")">
+                                            <i class="ti @(item.Isdeleted ? "ti-refresh text-success" : "ti-eye-off text-warning") fs-5"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

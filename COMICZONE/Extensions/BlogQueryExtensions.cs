@@ -30,9 +30,9 @@ namespace COMICZONE.Extensions
                 query = query.Where(b => b.Categories.Any(c => c.Id == search.CategoryId.Value));
             }
 
-            if (!string.IsNullOrWhiteSpace(search.StatusFilter) && Enum.TryParse<COMICZONE.Models.Enums.BlogStatus>(search.StatusFilter, out var statusEnum))
+            if (!string.IsNullOrWhiteSpace(search.StatusFilter))
             {
-                query = query.Where(b => b.Status == statusEnum);
+                query = query.Where(b => b.Status == search.StatusFilter);
             }
 
             return query;

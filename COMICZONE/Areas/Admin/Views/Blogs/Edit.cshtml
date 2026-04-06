@@ -91,20 +91,20 @@
                                 @foreach (var status in Enum.GetValues(typeof(COMICZONE.Models.Enums.BlogStatus)).Cast<COMICZONE.Models.Enums.BlogStatus>())
                                 {
                                     <div class="form-check custom-option p-0" style="flex: 1 0 45%;">
-                                        <input class="form-check-input d-none" type="radio" asp-for="Status" value="@status" id="status-@status">
+                                        <input class="form-check-input d-none" type="radio" asp-for="BlogStatusEnum" value="@status" id="status-@status">
                                         <label class="btn btn-outline-primary w-100 py-2 fw-medium rounded-3 small" for="status-@status">
                                             @switch (status)
                                             {
-                                                case COMICZONE.Models.Enums.BlogStatus.Draft: <i class="ti ti-file-pencil me-1"></i> <span>Bản nháp</span> break;
+                                                case COMICZONE.Models.Enums.BlogStatus.Draft: <i class="ti ti-pencil me-1"></i> <span>Bản nháp</span> break;
                                                 case COMICZONE.Models.Enums.BlogStatus.Pending: <i class="ti ti-clock me-1"></i> <span>Chờ duyệt</span> break;
                                                 case COMICZONE.Models.Enums.BlogStatus.Approved: <i class="ti ti-check me-1"></i> <span>Công khai</span> break;
-                                                case COMICZONE.Models.Enums.BlogStatus.Rejected: <i class="ti ti-ban me-1"></i> <span>Từ chối</span> break;
+                                                case COMICZONE.Models.Enums.BlogStatus.Rejected: <i class="ti ti-x me-1"></i> <span>Từ chối</span> break;
                                             }
                                         </label>
                                     </div>
                                 }
                             </div>
-                            <span asp-validation-for="Status" class="text-danger small mt-1 d-block"></span>
+                            <span asp-validation-for="BlogStatusEnum" class="text-danger small mt-1 d-block"></span>
                         </div>
 
                         <div class="mb-4">

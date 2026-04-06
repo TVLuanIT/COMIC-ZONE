@@ -30,6 +30,9 @@ public partial class Refund
     [Column("CREATED_AT", TypeName = "datetime")]
     public DateTime? CreatedAt { get; set; }
 
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
+
     [ForeignKey("PaymentId")]
     [InverseProperty("Refunds")]
     public virtual Payment Payment { get; set; } = null!;

@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using COMICZONE.Models.Enums;
 
 namespace COMICZONE.Models;
 
@@ -35,7 +34,8 @@ public partial class Blog
     public string? Thumbnail { get; set; }
 
     [Column("STATUS")]
-    public BlogStatus Status { get; set; }
+    [StringLength(20)]
+    public string Status { get; set; } = null!;
 
     [Column("AUTHORID")]
     public int Authorid { get; set; }

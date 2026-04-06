@@ -57,28 +57,28 @@
                                 <i class="ti ti-help me-1"></i> Chưa phân loại
                             </span>
                         }
-                        @if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Approved)
+                        @if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Approved)
                         {
-                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
                                 <i class="ti ti-check me-1"></i> Công khai
                             </span>
                         }
-                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Draft)
+                        else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Draft)
                         {
-                            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold">
-                                <i class="ti ti-file-pencil me-1"></i> Bản nháp
+                            <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                <i class="ti ti-pencil me-1"></i> Bản nháp
                             </span>
                         }
-                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Pending)
+                        else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Pending)
                         {
-                            <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill fw-bold">
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
                                 <i class="ti ti-clock me-1"></i> Chờ duyệt
                             </span>
                         }
-                        else if (Model.Status == COMICZONE.Models.Enums.BlogStatus.Rejected)
+                        else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Rejected)
                         {
-                            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fw-bold">
-                                <i class="ti ti-ban me-1"></i> Từ chối
+                            <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                <i class="ti ti-x me-1"></i> Từ chối
                             </span>
                         }
 

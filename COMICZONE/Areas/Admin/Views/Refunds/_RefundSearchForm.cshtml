@@ -26,6 +26,15 @@
         </div>
 
         <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Hiển thị</label>
+            <select name="IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang hiển thị</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã tạm ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
             <div class="form-check pb-2">
                 <input class="form-check-input" type="checkbox" name="PendingOnly" value="true" @(Model.PendingOnly == true ? "checked" : "")>
                 <label class="form-check-label small fw-bold text-uppercase text-secondary text-warning">Chờ duyệt</label>

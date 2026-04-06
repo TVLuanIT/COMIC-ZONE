@@ -79,7 +79,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         {
             ViewData["Authorid"] = new SelectList(_context.Users, "Id", "Username");
             ViewBag.Categories = _context.BlogCategories.Where(c => !c.Isdeleted).ToList();
-            return View(new Blog { Status = BlogStatus.Draft });
+            return View(new Blog { BlogStatusEnum = BlogStatus.Draft });
         }
 
         // POST: Admin/Blogs/Create
@@ -108,6 +108,12 @@ namespace COMICZONE.Areas.Admin.Controllers
 
                 blog.Createdat = DateTime.Now;
                 blog.Updatedat = DateTime.Now;
+
+                // Set default status if not provided
+                if (string.IsNullOrEmpty(blog.Status))
+                {
+                    blog.BlogStatusEnum = BlogStatus.Pending;
+                }
 
                 if (selectedCategories != null)
                 {

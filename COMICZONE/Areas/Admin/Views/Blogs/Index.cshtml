@@ -128,28 +128,28 @@
                                     </div>
                                 </td>
                                 <td id="status-cell-@item.Id">
-                                    @if (item.Status == COMICZONE.Models.Enums.BlogStatus.Approved)
+                                    @if (item.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Approved)
                                     {
                                         <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
-                                            <i class="ti ti-circle-check me-1"></i> Công khai
+                                            <i class="ti ti-check me-1"></i> Công khai
                                         </span>
                                     }
-                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Draft)
+                                    else if (item.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Draft)
+                                    {
+                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-pencil me-1"></i> Bản nháp
+                                        </span>
+                                    }
+                                    else if (item.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Pending)
                                     {
                                         <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
-                                            <i class="ti ti-file-pencil me-1"></i> Bản nháp
-                                        </span>
-                                    }
-                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Pending)
-                                    {
-                                        <span class="badge bg-info text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
                                             <i class="ti ti-clock me-1"></i> Chờ duyệt
                                         </span>
                                     }
-                                    else if (item.Status == COMICZONE.Models.Enums.BlogStatus.Rejected)
+                                    else if (item.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Rejected)
                                     {
-                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
-                                            <i class="ti ti-ban me-1"></i> Từ chối
+                                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                            <i class="ti ti-x me-1"></i> Từ chối
                                         </span>
                                     }
                                 </td>

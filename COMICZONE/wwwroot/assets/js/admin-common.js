@@ -166,6 +166,7 @@ const initAdmin = () => {
     if (typeof ArtistIndex === 'function') safeInit(ArtistIndex);
     if (typeof InvoiceIndex === 'function') safeInit(InvoiceIndex);
     if (typeof NotificationIndex === 'function') safeInit(NotificationIndex);
+    if (typeof RefundIndex === 'function') safeInit(RefundIndex);
 
     // Reports Dashboard entry point
     const reportsConfig = document.querySelector('[data-reports-config]');
