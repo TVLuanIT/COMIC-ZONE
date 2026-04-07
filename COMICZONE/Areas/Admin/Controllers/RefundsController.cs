@@ -89,8 +89,12 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,PaymentId,Amount,Status,Reason,CreatedAt")] Refund refund)
         {
+            ModelState.Remove("Payment");
+
             if (ModelState.IsValid)
             {
+                if (refund.CreatedAt == null) refund.CreatedAt = DateTime.Now;
+
                 _context.Add(refund);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -127,6 +131,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
+            ModelState.Remove("Payment");
 
             if (ModelState.IsValid)
             {
@@ -171,6 +177,21 @@ namespace COMICZONE.Areas.Admin.Controllers
             return View(refund);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleDelete(int id)
+        {
+            var refund = await _context.Refunds.FindAsync(id);
+            if (refund == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hồ sơ hoàn tiền" });
+            }
+
+            refund.Isdeleted = !refund.Isdeleted;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, isDeleted = refund.Isdeleted });
+        }
+
         // POST: Admin/Refunds/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -180,9 +201,9 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (refund != null)
             {
                 _context.Refunds.Remove(refund);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

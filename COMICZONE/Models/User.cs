@@ -51,7 +51,7 @@ public partial class User
     public bool Isdeleted { get; set; }
 
     [InverseProperty("User")]
-    public virtual ICollection<Blogcomment> Blogcomments { get; set; } = new List<Blogcomment>();
+    public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
 
     [InverseProperty("Author")]
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();

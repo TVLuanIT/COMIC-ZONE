@@ -76,6 +76,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Carts" asp-action="Index">
                                     <i class="bi bi-bag-heart me-1"></i>Giỏ hàng
+                                    @await Component.InvokeAsync("CartCount")
                                 </a>
                             </li>
                         </ul>

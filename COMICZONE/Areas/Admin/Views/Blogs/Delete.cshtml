@@ -1,0 +1,151 @@
+@model COMICZONE.Models.Blog
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa bài viết blog";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="mb-5 text-center">
+        <div class="bg-danger-subtle d-inline-flex p-4 rounded-circle mb-4 bounce-in">
+            <i class="ti ti-trash-x fs-1 text-danger"></i>
+        </div>
+        <h1 class="h3 fw-bold mb-1 text-dark">Xác nhận xóa bài viết</h1>
+        <p class="text-muted">Bạn có chắc chắn muốn bài viết này biến mất vĩnh viễn?</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-7 col-lg-9">
+            <div class="card border-0 shadow-lg overflow-hidden mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-danger py-3">
+                    <h5 class="card-title mb-0 text-white fw-semibold">Cảnh báo: Hành động không thể hoàn tác</h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center gap-4 mb-5">
+                        @if (!string.IsNullOrEmpty(Model.Thumbnail))
+                        {
+                            <img src="/images/blogs/@Model.Thumbnail" alt="@Model.Title" class="rounded-3 shadow-sm border" style="width: 150px; height: 100px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border shadow-sm" style="width: 150px; height: 100px;">
+                                <i class="ti ti-photo text-muted opacity-50 fs-2"></i>
+                            </div>
+                        }
+                        <div>
+                            <span class="badge bg-secondary-subtle text-secondary mb-1">ID Bài viết: #@Model.Id</span>
+                            <h4 class="fw-bold text-dark mb-1">@Model.Title</h4>
+                            <div class="text-muted small">
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    @if (Model.Categories != null && Model.Categories.Any())
+                                    {
+                                        @foreach (var cat in Model.Categories)
+                                        {
+                                            <span class="badge @(cat.Isdeleted ? "bg-secondary-subtle text-secondary" : "bg-primary-subtle text-primary") px-2 py-1 rounded-pill">
+                                                <i class="ti ti-tag me-1"></i> @cat.Name
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted px-2 py-1 rounded-pill">Chưa phân loại</span>
+                                    }
+                                </div>
+                                <div class="mt-2">
+                                    <i class="ti ti-user me-1 text-primary"></i> <strong>@Model.Author?.Username</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border shadow-none rounded-4 p-4 mb-4 bg-light-subtle">
+                        <div class="row g-4">
+                            <div class="col-sm-4">
+                                <span class="small text-muted text-uppercase fw-bold ls-wide">Slug (URL)</span>
+                            </div>
+                            <div class="col-sm-8 text-break font-monospace text-primary fw-medium">@Model.Slug</div>
+                            
+                            <div class="col-sm-4">
+                                <span class="small text-muted text-uppercase fw-bold ls-wide">Trạng thái</span>
+                            </div>
+                            <div class="col-sm-8">
+                                @if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Approved)
+                                {
+                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="ti ti-check me-1"></i> Công khai
+                                    </span>
+                                }
+                                else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Draft)
+                                {
+                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="ti ti-pencil me-1"></i> Bản nháp
+                                    </span>
+                                }
+                                else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Pending)
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="ti ti-clock me-1"></i> Chờ duyệt
+                                    </span>
+                                }
+                                else if (Model.BlogStatusEnum == COMICZONE.Models.Enums.BlogStatus.Rejected)
+                                {
+                                    <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="ti ti-x me-1"></i> Từ chối
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="col-sm-4">
+                                <span class="small text-muted text-uppercase fw-bold ls-wide">Hiển thị</span>
+                            </div>
+                            <div class="col-sm-8">
+                                @if (Model.Isdeleted)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger px-3 py-1 rounded-pill">Tạm ẩn</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill">Hiển thị</span>
+                                }
+                            </div>
+
+                            <div class="col-sm-4">
+                                <span class="small text-muted text-uppercase fw-bold ls-wide">Mô tả ngắn</span>
+                            </div>
+                            <div class="col-sm-8 text-muted small lh-base italic-font">
+                                "@Model.Shortdescription"
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top gap-3">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 fw-medium rounded-pill transition-all hover:bg-light">
+                                <i class="ti ti-arrow-left me-1"></i> Hủy và quay lại
+                            </a>
+                            <button type="submit" class="btn btn-danger px-5 py-2 fw-bold shadow-sm rounded-pill transition-all transform hover:scale-105">
+                                <i class="ti ti-trash me-1"></i> Xác nhận xóa ngay
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <p class="small text-muted">
+                    <i class="ti ti-info-circle me-1"></i> 
+                    Việc xóa bài viết sẽ xóa cả tệp hình ảnh thumbnail liên quan trong thư mục lưu trữ.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .italic-font { font-style: italic; }
+        .ls-wide { letter-spacing: 0.05em; }
+        .bg-light-subtle { background-color: #fbfbfb; }
+    </style>
+}

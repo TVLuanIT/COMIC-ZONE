@@ -20,9 +20,9 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Blog> Blogs { get; set; }
 
-    public virtual DbSet<Blogcategory> Blogcategories { get; set; }
+    public virtual DbSet<BlogCategory> BlogCategories { get; set; }
 
-    public virtual DbSet<Blogcomment> Blogcomments { get; set; }
+    public virtual DbSet<BlogComment> BlogComments { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }
 
@@ -90,44 +90,38 @@ public partial class ComiczoneContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BLOG_USER");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Blogs)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BLOG_CATEGORY");
-
-            entity.HasMany(d => d.Categories).WithMany(p => p.BlogsNavigation)
+            entity.HasMany(d => d.Categories).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
-                    "BlogBlogcategory",
-                    r => r.HasOne<Blogcategory>().WithMany()
+                    "BlogCategoryMap",
+                    r => r.HasOne<BlogCategory>().WithMany()
                         .HasForeignKey("Categoryid")
-                        .HasConstraintName("FK_BLOG_BLOGCATEGORY_CATEGORY"),
+                        .HasConstraintName("FK_BLOG_CATEGORY_MAP_CATEGORY"),
                     l => l.HasOne<Blog>().WithMany()
                         .HasForeignKey("Blogid")
-                        .HasConstraintName("FK_BLOG_BLOGCATEGORY_BLOG"),
+                        .HasConstraintName("FK_BLOG_CATEGORY_MAP_BLOG"),
                     j =>
                     {
                         j.HasKey("Blogid", "Categoryid");
-                        j.ToTable("BLOG_BLOGCATEGORY");
+                        j.ToTable("BLOG_CATEGORY_MAP");
                         j.IndexerProperty<int>("Blogid").HasColumnName("BLOGID");
                         j.IndexerProperty<int>("Categoryid").HasColumnName("CATEGORYID");
                     });
         });
 
-        modelBuilder.Entity<Blogcategory>(entity =>
+        modelBuilder.Entity<BlogCategory>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__BLOGCATE__3214EC27848A46AC");
         });
 
-        modelBuilder.Entity<Blogcomment>(entity =>
+        modelBuilder.Entity<BlogComment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BLOGCOMM__3214EC270A55F826");
-
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
 
-            entity.HasOne(d => d.Blog).WithMany(p => p.Blogcomments).HasConstraintName("FK_BLOGCOMMENT_BLOG");
+            entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments).HasConstraintName("FK_BLOG_COMMENT_BLOG");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Blogcomments)
+            entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BLOGCOMMENT_USER");
+                .HasConstraintName("FK_BLOG_COMMENT_USER");
         });
 
         modelBuilder.Entity<Cart>(entity =>

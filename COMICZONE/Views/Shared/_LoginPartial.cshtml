@@ -13,9 +13,10 @@
                href="#"
                data-bs-toggle="dropdown">
 
-            <div class="me-2">
+            <div class="me-2 position-relative">
                 @await Component.InvokeAsync("UserAvatar",
                 new { avatarUrl = avatar, size = 35 })
+                @await Component.InvokeAsync("UnreadNotificationCount")
             </div>
 
             @username

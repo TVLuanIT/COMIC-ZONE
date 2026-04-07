@@ -1,0 +1,222 @@
+@model COMICZONE.Models.Blog
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="mb-5">
+        <h1 class="h3 fw-bold mb-1 text-dark">Chỉnh sửa bài viết</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Blog</a></li>
+                <li class="breadcrumb-item active fw-medium text-primary" aria-current="page">Chỉnh sửa</li>
+            </ol>
+        </nav>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 shadow-sm mb-4"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Createdat" />
+        <input type="hidden" asp-for="Thumbnail" />
+        <input type="hidden" asp-for="Isdeleted" />
+        
+        <div class="row g-4">
+            <!-- Left Column: Content -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg mb-4" style="border-radius: 12px;">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-bold text-secondary">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control form-control-lg bg-light-subtle shadow-none border-2 focus-ring" placeholder="Nhập tiêu đề hấp dẫn..." />
+                            <span asp-validation-for="Title" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Slug" class="form-label fw-bold text-secondary">Đường dẫn (Slug)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="ti ti-link"></i></span>
+                                <input asp-for="Slug" class="form-control border-start-0 ps-0 bg-light-subtle shadow-none text-muted" placeholder="tieu-de-bai-viet" />
+                            </div>
+                            <span asp-validation-for="Slug" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Shortdescription" class="form-label fw-bold text-secondary">Mô tả ngắn <span class="text-danger">*</span></label>
+                            <textarea asp-for="Shortdescription" class="form-control bg-light-subtle shadow-none" rows="3" placeholder="Tóm tắt nội dung bài viết..."></textarea>
+                            <span asp-validation-for="Shortdescription" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="Content" class="form-label fw-bold text-secondary">Nội dung bài viết <span class="text-danger">*</span></label>
+                            <textarea asp-for="Content" class="form-control bg-light-subtle shadow-none font-monospace" rows="18" placeholder="Bắt đầu viết nội dung ở đây..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Settings -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg mb-4" style="border-radius: 12px;">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
+                            <i class="ti ti-settings me-2 text-primary"></i> Thiết lập bài viết
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">Danh mục <span class="text-danger">*</span></label>
+                            @{
+                                var selectedIds = ViewBag.SelectedCategories as List<int> ?? new List<int>();
+                            }
+                            <select name="selectedCategories" class="form-select select2-categories shadow-none" multiple="multiple" data-placeholder="Chọn một hoặc nhiều danh mục...">
+                                @if (ViewBag.Categories != null)
+                                {
+                                    foreach (var category in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.Categories)
+                                    {
+                                        <option value="@category.Id" selected="@(selectedIds.Contains(category.Id) ? "selected" : null)">@category.Name</option>
+                                    }
+                                }
+                            </select>
+                            <span class="text-danger small mt-1 d-block" id="category-error"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Status" class="form-label fw-bold text-secondary">Trạng thái</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var status in Enum.GetValues(typeof(COMICZONE.Models.Enums.BlogStatus)).Cast<COMICZONE.Models.Enums.BlogStatus>())
+                                {
+                                    <div class="form-check custom-option p-0" style="flex: 1 0 45%;">
+                                        <input class="form-check-input d-none" type="radio" asp-for="BlogStatusEnum" value="@status" id="status-@status">
+                                        <label class="btn btn-outline-primary w-100 py-2 fw-medium rounded-3 small" for="status-@status">
+                                            @switch (status)
+                                            {
+                                                case COMICZONE.Models.Enums.BlogStatus.Draft: <i class="ti ti-pencil me-1"></i> <span>Bản nháp</span> break;
+                                                case COMICZONE.Models.Enums.BlogStatus.Pending: <i class="ti ti-clock me-1"></i> <span>Chờ duyệt</span> break;
+                                                case COMICZONE.Models.Enums.BlogStatus.Approved: <i class="ti ti-check me-1"></i> <span>Công khai</span> break;
+                                                case COMICZONE.Models.Enums.BlogStatus.Rejected: <i class="ti ti-x me-1"></i> <span>Từ chối</span> break;
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <span asp-validation-for="BlogStatusEnum" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Authorid" class="form-label fw-bold text-secondary">Tác giả</label>
+                            <select asp-for="Authorid" class="form-select bg-light-subtle shadow-none" asp-items="ViewBag.Authorid"></select>
+                            <span asp-validation-for="Authorid" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-secondary">Ảnh đại diện (Thumbnail)</label>
+                            <div class="thumbnail-upload-container border-dashed rounded-3 p-4 bg-light text-center cursor-pointer transition-all hover:bg-light-subtle" id="dropZone">
+                                @if (!string.IsNullOrEmpty(Model.Thumbnail))
+                                {
+                                    <img id="thumbnailPreview" src="/images/blogs/@Model.Thumbnail" alt="Preview" class="img-fluid rounded shadow-sm mb-3 mx-auto" style="max-height: 180px; width: 100%; object-fit: cover;">
+                                    <div id="uploadPlaceholder" class="d-none">
+                                        <i class="ti ti-cloud-upload fs-1 text-primary opacity-50 mb-2 mt-2"></i>
+                                        <p class="small text-muted mb-0">Hỗ trợ JPG, PNG, WEBP. Tỷ lệ 16:9 tốt nhất.</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img id="thumbnailPreview" src="#" alt="Preview" class="img-fluid rounded shadow-sm mb-3 d-none mx-auto" style="max-height: 180px; width: 100%; object-fit: cover;">
+                                    <div id="uploadPlaceholder">
+                                        <i class="ti ti-cloud-upload fs-1 text-primary opacity-50 mb-2 mt-2"></i>
+                                        <p class="small text-muted mb-0">Hỗ trợ JPG, PNG, WEBP. Tỷ lệ 16:9 tốt nhất.</p>
+                                    </div>
+                                }
+                                <input type="file" name="thumbnailFile" id="thumbnailInput" class="d-none" accept="image/*" />
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-3 px-3 rounded-pill" onclick="document.getElementById('thumbnailInput').click()">
+                                    <i class="ti ti-photo me-1"></i> Thay đổi ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 pt-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm rounded-3 py-2 transition-all transform hover:scale-105">
+                                <i class="ti ti-device-floppy me-1"></i> Cập nhật bài viết
+                            </button>
+                            <a asp-action="Index" class="btn btn-light border py-2 rounded-3 text-muted">
+                                Hủy bỏ
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light-subtle py-3 px-4 rounded-bottom">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Ngày tạo:</span>
+                            <span class="fw-medium">@Model.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <style>
+        .border-dashed { border: 2px dashed #dee2e6; }
+        .cursor-pointer { cursor: pointer; }
+        input[type="radio"]:checked + label {
+            background-color: var(--bs-btn-hover-bg);
+            color: #fff;
+            border-color: var(--bs-btn-hover-border-color);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbInput = document.getElementById('thumbnailInput');
+            const thumbPreview = document.getElementById('thumbnailPreview');
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+            // Image preview
+            if (thumbInput) {
+                thumbInput.addEventListener('change', function() {
+                    const [file] = this.files;
+                    if (file) {
+                        thumbPreview.src = URL.createObjectURL(file);
+                        thumbPreview.classList.remove('d-none');
+                        if (uploadPlaceholder) uploadPlaceholder.classList.add('d-none');
+                    }
+                });
+            }
+
+            // Select2 initialization
+            if ($.fn.select2) {
+                $('.select2-categories').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: $('.select2-categories').data('placeholder'),
+                    allowClear: true,
+                    closeOnSelect: false
+                });
+            }
+
+            // Validation for categories
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const categories = $('.select2-categories').val();
+                    const errorSpan = document.getElementById('category-error');
+                    if (!categories || categories.length === 0) {
+                        e.preventDefault();
+                        errorSpan.textContent = 'Vui lòng chọn ít nhất một danh mục.';
+                        $('.select2-selection').addClass('border-danger');
+                    } else {
+                        errorSpan.textContent = '';
+                        $('.select2-selection').removeClass('border-danger');
+                    }
+                });
+            }
+        });
+    </script>
+}
+

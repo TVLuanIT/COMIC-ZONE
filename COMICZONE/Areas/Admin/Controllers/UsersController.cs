@@ -227,7 +227,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(u => u.Orders)
                 .Include(u => u.Carts)
                 .Include(u => u.Blogs)
-                .Include(u => u.Blogcomments)
+                .Include(u => u.BlogComments)
                 .Include(u => u.ProductReviews)
                 .Include(u => u.ViolationReports)
                 .Include(u => u.ProductReviewReplyUsers)
@@ -265,8 +265,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             if (user.Blogs.Any())
                 relatedData.Add("Blogs", user.Blogs.Select(b => $"Blog ID: {b.Id}, Title: {b.Title}, Ngày tạo: {b.Createdat.ToString("dd/MM/yyyy HH:mm")}"));
 
-            if (user.Blogcomments.Any())
-                relatedData.Add("Blog Comments", user.Blogcomments.Select(c => $"Comment ID: {c.Id}, Nội dung: {(c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content)}"));
+            if (user.BlogComments.Any())
+                relatedData.Add("Blog Comments", user.BlogComments.Select(c => $"Comment ID: {c.Id}, Nội dung: {(c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content)}"));
 
             if (user.ProductReviews.Any())
                 relatedData.Add("Product Reviews", user.ProductReviews.Select(r => $"Review ID: {r.Reviewid}, Ngôi sao: {r.Rating}, Nội dung: {(r.Reviewcontent.Length > 50 ? r.Reviewcontent.Substring(0, 50) + "..." : r.Reviewcontent)}"));
@@ -308,7 +308,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(u => u.Orders)
                 .Include(u => u.Carts)
                 .Include(u => u.Blogs)
-                .Include(u => u.Blogcomments)
+                .Include(u => u.BlogComments)
                 .Include(u => u.ProductReviews)
                 .Include(u => u.ViolationReports)
                 .Include(u => u.ProductReviewReplyUsers)
@@ -339,7 +339,7 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             // Kiểm tra nếu còn dữ liệu liên quan thì không xóa
             if (user.NotificationUsers.Any() || user.NotificationCreatedByNavigations.Any()
-                || user.Orders.Any() || user.Carts.Any() || user.Blogs.Any() || user.Blogcomments.Any()
+                || user.Orders.Any() || user.Carts.Any() || user.Blogs.Any() || user.BlogComments.Any()
                 || user.ProductReviews.Any() || user.ViolationReports.Any() || user.ProductReviewReplyUsers.Any()
                 || user.ProductReviewReplyReplytousers.Any() || user.ProductReviewLikes.Any() || user.ProductReviewReplyLikes.Any())
             {
@@ -418,8 +418,8 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             var user = await _context.Users
                 .Include(u => u.Customer)
-                .Include(u => u.Blogcomments)
-                .Include(u => u.Blogs).ThenInclude(b => b.Blogcomments)
+                .Include(u => u.BlogComments)
+                .Include(u => u.Blogs).ThenInclude(b => b.BlogComments)
                 .Include(u => u.Carts).ThenInclude(c => c.CartItems)
                 .Include(u => u.NotificationCreatedByNavigations)
                 .Include(u => u.NotificationUsers)
@@ -451,7 +451,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 _context.ProductReviewReplies.RemoveRange(user.ProductReviewReplyUsers);
                 _context.ProductReviewReplies.RemoveRange(user.ProductReviewReplyReplytousers);
                 _context.ProductReviews.RemoveRange(user.ProductReviews);
-                _context.Blogcomments.RemoveRange(user.Blogcomments);
+                _context.BlogComments.RemoveRange(user.BlogComments);
 
                 // 3. Xóa Commercial (Carts, Orders)
                 foreach(var cart in user.Carts) _context.CartItems.RemoveRange(cart.CartItems);
@@ -471,7 +471,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 }
 
                 // 4. Xóa Content (Blogs authored by user)
-                foreach(var blog in user.Blogs) _context.Blogcomments.RemoveRange(blog.Blogcomments);
+                foreach(var blog in user.Blogs) _context.BlogComments.RemoveRange(blog.BlogComments);
                 _context.Blogs.RemoveRange(user.Blogs);
 
                 // 5. Xóa System (Notifications, Reports...)

@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Models;
 
-[Table("BLOGCOMMENT")]
-public partial class Blogcomment
+[Table("BLOG_COMMENT")]
+public partial class BlogComment
 {
     [Key]
     [Column("ID")]
@@ -27,10 +27,10 @@ public partial class Blogcomment
     public DateTime Createdat { get; set; }
 
     [ForeignKey("Blogid")]
-    [InverseProperty("Blogcomments")]
+    [InverseProperty("BlogComments")]
     public virtual Blog Blog { get; set; } = null!;
 
     [ForeignKey("Userid")]
-    [InverseProperty("Blogcomments")]
+    [InverseProperty("BlogComments")]
     public virtual User User { get; set; } = null!;
 }
