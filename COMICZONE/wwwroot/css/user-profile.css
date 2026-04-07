@@ -99,6 +99,7 @@
     border-radius: 16px;
     transition: var(--transition-smooth);
     margin-bottom: 8px;
+    position: relative;
 }
 
 .sidebar-menu-link i { font-size: 1.25rem; transition: var(--transition-smooth); }
@@ -116,6 +117,15 @@
 }
 
 .sidebar-menu-link.active i { color: #fff; }
+
+/* Positioning for notification badges in sidebar */
+.sidebar-menu-link .cart-badge,
+.sidebar-menu-link .notification-badge-total {
+    top: 50% !important;
+    right: 15px !important;
+    transform: translateY(-50%) !important;
+    margin: 0;
+}
 
 /* Content Area Glass Containers */
 .profile-glass-content { flex: 1; }

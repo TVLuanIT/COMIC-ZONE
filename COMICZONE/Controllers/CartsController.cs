@@ -44,6 +44,10 @@ namespace COMICZONE.Controllers
                 .Include(c => c.Product)
                 .Sum(c => c.Quantity * (c.Product!.Price ?? 0));
 
+            var cartCount = _context.CartItems
+                .Where(c => c.CartId == item.CartId)
+                .Sum(c => (int?)c.Quantity) ?? 0;
+
             var itemTotal = itemTotalValue.ToString("N0");
             var cartTotal = cartTotalValue.ToString("N0");
 
@@ -51,7 +55,8 @@ namespace COMICZONE.Controllers
             {
                 success = true,
                 itemTotal,
-                cartTotal
+                cartTotal,
+                cartCount
             });
         }
 

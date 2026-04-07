@@ -43,6 +43,17 @@
 
 .cart-item-modern:hover .cart-img-box img { transform: scale(1.1); }
 
+/* Hide spin buttons */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.quantity-input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
 .cart-qty-wrapper {
     display: flex;
     align-items: center;

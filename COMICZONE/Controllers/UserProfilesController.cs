@@ -238,7 +238,6 @@ namespace COMICZONE.Controllers
 
         public IActionResult Notifications(int page = 1)
         {
-            int pageSize = 6;
             var userIdStr = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(userIdStr))
@@ -248,6 +247,20 @@ namespace COMICZONE.Controllers
 
             int userId = int.Parse(userIdStr);
 
+            // Tự động đánh dấu tất cả các thông báo là đã đọc khi vào trang này
+            var unreadNotifs = _context.Notifications
+                .Where(n => n.UserId == userId && 
+                       (n.IsRead == false || n.IsRead == null) && 
+                       !n.Isdeleted)
+                .ToList();
+
+            if (unreadNotifs.Any())
+            {
+                foreach (var n in unreadNotifs) n.IsRead = true;
+                _context.SaveChanges();
+            }
+
+            int pageSize = 6;
             var query = _context.Notifications
                 .Where(n => n.UserId == userId && !n.Isdeleted);
 
@@ -485,6 +498,24 @@ namespace COMICZONE.Controllers
 
         public IActionResult MyOrders(int page = 1)
         {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+            {
+                // Tự động đánh dấu các thông báo đơn hàng là đã đọc khi vào trang này
+                var unreadNotifs = _context.Notifications
+                    .Where(n => n.UserId == userId && 
+                           (n.IsRead == false || n.IsRead == null) && 
+                           !n.Isdeleted && 
+                           (n.Link.Contains("MyOrders") || n.Link.Contains("OrderDetails")))
+                    .ToList();
+
+                if (unreadNotifs.Any())
+                {
+                    foreach (var n in unreadNotifs) n.IsRead = true;
+                    _context.SaveChanges();
+                }
+            }
+
             int pageSize = 6;
             int totalItems;
             var orders = GetOrders(page, pageSize, out totalItems);

@@ -1,0 +1,3 @@
+@model int
+
+<span class="cart-badge @(Model == 0 ? "d-none" : "")">@(Model > 99 ? "99+" : Model)</span>

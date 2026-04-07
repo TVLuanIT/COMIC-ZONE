@@ -24,7 +24,7 @@ const CartQuantity = (() => {
                         if (data.success) {
                             // cập nhật tổng tiền item
                             const itemContainer = input.closest(".cart-item-modern") || input.closest("tr");
-                            
+
                             if (itemContainer) {
                                 const totalCell = itemContainer.querySelector(".item-total");
                                 if (totalCell) {
@@ -38,6 +38,17 @@ const CartQuantity = (() => {
                             if (cartTotal) {
                                 cartTotal.innerText = data.cartTotal + " ₫";
                             }
+
+                            // Cập nhật badge giỏ hàng
+                            const cartBadge = document.querySelector(".cart-badge");
+                            if (cartBadge) {
+                                if (data.cartCount > 0) {
+                                    cartBadge.innerText = data.cartCount > 99 ? "99+" : data.cartCount;
+                                    cartBadge.classList.remove("d-none");
+                                } else {
+                                    cartBadge.classList.add("d-none");
+                                }
+                            }
                         }
                     })
                     .catch(err => {
@@ -48,7 +59,7 @@ const CartQuantity = (() => {
 
         // Hỗ trợ nút tăng/giảm số lượng
         document.querySelectorAll('.increase-qty').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const input = this.parentElement.querySelector('.quantity-input');
                 if (input) {
                     input.value = parseInt(input.value) + 1;
@@ -58,7 +69,7 @@ const CartQuantity = (() => {
         });
 
         document.querySelectorAll('.decrease-qty').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const input = this.parentElement.querySelector('.quantity-input');
                 if (input && parseInt(input.value) > 1) {
                     input.value = parseInt(input.value) - 1;
