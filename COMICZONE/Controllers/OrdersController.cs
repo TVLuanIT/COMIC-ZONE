@@ -51,7 +51,7 @@ namespace COMICZONE.Controllers
             ViewBag.Page = "OrderDetails";
             ViewBag.Order = order;
 
-            return View("~/Views/UserProfiles/MyOrders.cshtml");
+            return View("~/Areas/Account/Views/UserProfiles/MyOrders.cshtml");
         }
 
         public IActionResult Success()
@@ -65,10 +65,10 @@ namespace COMICZONE.Controllers
             var userIdStr = CurrentUserId();
 
             if (!IsLoggedIn())
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             if (!int.TryParse(userIdStr, out int userId))
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             if (!ModelState.IsValid)
             {
@@ -223,7 +223,7 @@ namespace COMICZONE.Controllers
                     Message = $"Đơn hàng #{order.OrderId} của bạn đã được khởi tạo thành công. Chúng tôi sẽ sớm xử lý yêu cầu của bạn.",
                     CreatedAt = DateTime.Now,
                     IsRead = false,
-                    Link = $"/UserProfiles/MyOrders"
+                    Link = $"/Account/UserProfiles/MyOrders"
                 });
 
                 // NOTIFICATION: Payment Success (if applicable)
@@ -236,7 +236,7 @@ namespace COMICZONE.Controllers
                         Message = $"Giao dịch thanh toán cho đơn hàng #{order.OrderId} đã được xác nhận thành công. Cảm ơn bạn!",
                         CreatedAt = DateTime.Now,
                         IsRead = false,
-                        Link = $"/UserProfiles/MyOrders"
+                        Link = $"/Account/UserProfiles/MyOrders"
                     });
                 }
 
@@ -329,10 +329,10 @@ namespace COMICZONE.Controllers
             }
 
             if (!IsLoggedIn())
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             if (!int.TryParse(CurrentUserId(), out int userId))
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             // tránh duplicate order nếu callback chạy lại
             var existedPayment = _context.Payments.FirstOrDefault(p => p.Transactionid == response.TransactionId);
@@ -441,10 +441,10 @@ namespace COMICZONE.Controllers
         public async Task<IActionResult> CapturePaypalOrder(string orderID, CancellationToken cancellationToken)
         {
             if (!IsLoggedIn())
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             if (!int.TryParse(CurrentUserId(), out int userId))
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             try
             {

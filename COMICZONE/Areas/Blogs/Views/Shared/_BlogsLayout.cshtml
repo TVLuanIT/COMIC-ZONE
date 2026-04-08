@@ -23,6 +23,13 @@
     <link rel="stylesheet" href="~/blogs/css/blogs-home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/blogs/css/blogs-details.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/blogs/css/blogs-widgets.css" asp-append-version="true" />
+    
+    @if (ViewContext.RouteData.Values["area"]?.ToString() == "Account")
+    {
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    }
+    
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     
     @await RenderSectionAsync("Styles", required: false)
@@ -53,7 +60,10 @@
     </nav>
 
     <!-- MAIN CONTENT AREA -->
-    <main>
+    @{
+        var isAccountArea = ViewContext.RouteData.Values["area"]?.ToString() == "Account";
+    }
+    <main role="main" class="@(isAccountArea ? "main-content-premium" : "")">
         @RenderBody()
     </main>
 

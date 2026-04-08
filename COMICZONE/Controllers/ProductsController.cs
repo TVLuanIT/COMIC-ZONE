@@ -329,10 +329,10 @@ namespace COMICZONE.Controllers
         public async Task<IActionResult> ViewedHistory(int page = 1)
         {
             if (!IsLoggedIn())
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             if (!int.TryParse(CurrentUserId(), out int userId))
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             int pageSize = 4;
 
@@ -381,7 +381,7 @@ namespace COMICZONE.Controllers
                 ExtraParams = new Dictionary<string, string>()
             };
 
-            return View("~/Views/UserProfiles/MyHistory.cshtml", orderedProducts);
+            return View("~/Areas/Account/Views/UserProfiles/MyHistory.cshtml", orderedProducts);
         }
     }
 }

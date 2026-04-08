@@ -1,4 +1,4 @@
-﻿/* site.css - Core styles, Variables, Shared Layout and Resets */
+/* site.css - Core styles, Variables, Shared Layout and Resets */
 
 :root {
     /* Premium Color System */
@@ -62,9 +62,6 @@ a {
     animation: slideIn 0.5s ease forwards;
 }
 
-.d-none {
-    display: none !important;
-}
 
 .uppercase {
     text-transform: uppercase !important;

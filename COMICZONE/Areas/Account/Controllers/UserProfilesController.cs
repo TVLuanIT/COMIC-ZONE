@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Controllers;
 using System.Net;
 using System.Net.Mail;
 using COMICZONE.Models.Enums;
 
-namespace COMICZONE.Controllers
+namespace COMICZONE.Areas.Account.Controllers
 {
+    [Area("Account")]
     public class UserProfilesController : BaseController
     {
         private readonly ComiczoneContext _context;
@@ -22,13 +24,14 @@ namespace COMICZONE.Controllers
             _context = context;
         }
 
-        public IActionResult Settings()
+        public IActionResult Settings(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             ViewBag.Page = "Settings";
@@ -82,11 +85,12 @@ namespace COMICZONE.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction("Login", "Authentication");
+            return RedirectToAction("Login", "Authentication", new { area = "Account" });
         }
 
-        public IActionResult ForgotPassword()
+        public IActionResult ForgotPassword(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             ViewBag.Page = "ForgotPassword";
@@ -95,8 +99,9 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public IActionResult ForgotPassword(string email)
+        public IActionResult ForgotPassword(string email, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var user = _context.Users.FirstOrDefault(x => x.Email == email);
             var customer = GetCustomer();
 
@@ -237,13 +242,14 @@ namespace COMICZONE.Controllers
             return RedirectToAction("Notifications");
         }
 
-        public IActionResult Notifications(int page = 1)
+        public IActionResult Notifications(int page = 1, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var userIdStr = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             int userId = int.Parse(userIdStr);
@@ -279,6 +285,7 @@ namespace COMICZONE.Controllers
                 TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
                 Action = "Notifications",
                 Controller = "UserProfiles",
+                Area = "Account",
                 PageParam = "page",
                 ExtraParams = new Dictionary<string, string>()
             };
@@ -286,13 +293,14 @@ namespace COMICZONE.Controllers
             return View(notifications);
         }
 
-        public IActionResult ChangePassword()
+        public IActionResult ChangePassword(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             ViewBag.Page = "ChangePassword";
@@ -301,20 +309,21 @@ namespace COMICZONE.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Id == customer.Userid);
 
             if (user == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Passwordhash))
@@ -340,13 +349,14 @@ namespace COMICZONE.Controllers
             return RedirectToAction("MyProfile");
         }
 
-        public IActionResult EditProfile()
+        public IActionResult EditProfile(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             ViewBag.Page = "Edit";
@@ -356,12 +366,13 @@ namespace COMICZONE.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditProfile(Customer model)
+        public IActionResult EditProfile(Customer model, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             bool isChanged = false;
 
@@ -463,8 +474,9 @@ namespace COMICZONE.Controllers
             return customer;
         }
 
-        public IActionResult MyReviews(int reviewPage = 1, int replyPage = 1)
+        public IActionResult MyReviews(int reviewPage = 1, int replyPage = 1, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             int pageSize = 5;
 
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -497,8 +509,9 @@ namespace COMICZONE.Controllers
             return View(reviews);
         }
 
-        public IActionResult MyOrders(int page = 1)
+        public IActionResult MyOrders(int page = 1, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
             {
@@ -527,6 +540,7 @@ namespace COMICZONE.Controllers
                 TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
                 Action = "MyOrders",
                 Controller = "UserProfiles",
+                Area = "Account",
                 PageParam = "page",
                 ExtraParams = new Dictionary<string, string>()
             };
@@ -534,13 +548,14 @@ namespace COMICZONE.Controllers
             return View(orders);
         }
 
-        public IActionResult OrderDetails(int id)
+        public IActionResult OrderDetails(int id, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var userIdStr = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             int userId = int.Parse(userIdStr);
@@ -562,13 +577,14 @@ namespace COMICZONE.Controllers
             return View("MyOrders", new List<Order> { order });
         }
 
-        public IActionResult MyProfile()
+        public IActionResult MyProfile(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
 
             if (customer == null)
             {
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             ViewBag.Page = "Profile";
@@ -576,10 +592,11 @@ namespace COMICZONE.Controllers
             return View(customer);
         }
 
-        public IActionResult MyBlogs(int page = 1)
+        public IActionResult MyBlogs(int page = 1, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var customer = GetCustomer();
-            if (customer == null) return RedirectToAction("Login", "Authentication");
+            if (customer == null) return RedirectToAction("Login", "Authentication", new { area = "Account" });
 
             int pageSize = 6;
             var query = _context.Blogs
@@ -599,6 +616,7 @@ namespace COMICZONE.Controllers
                 TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
                 Action = "MyBlogs",
                 Controller = "UserProfiles",
+                Area = "Account",
                 PageParam = "page",
                 ExtraParams = new Dictionary<string, string>()
             };

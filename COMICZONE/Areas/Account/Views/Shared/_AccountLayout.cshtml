@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Tài Khoản COMICZONE</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Modern Design System -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+    
+    <style>
+        .account-nav {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .account-nav .navbar-brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .account-nav .nav-link {
+            font-weight: 500;
+            color: #475569 !important;
+            padding: 0.5rem 1.25rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .account-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-back-shop {
+            background: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary-color);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-back-shop:hover {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2);
+            transform: translateY(-2px);
+        }
+
+        .account-main-content {
+            padding-top: 100px;
+            min-height: calc(100-vh - 150px);
+        }
+    </style>
+</head>
+
+<body style="font-family: 'Inter', sans-serif; background: #f8fafc;">
+    <!-- ACCOUNT NAVBAR -->
+    <header>
+        <nav class="navbar navbar-expand-lg account-nav fixed-top">
+            <div class="container">
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo-nobg.png"
+                         asp-append-version="true"
+                         alt="ComicZone Logo"
+                         style="height:40px; width:auto; margin-right:10px;" />
+                    <span>COMIC<span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">ZONE</span></span>
+                </a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#accountNavbar">
+                    <i class="bi bi-list fs-2"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="accountNavbar">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Products" asp-action="Index">Sản phẩm</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Blogs" asp-controller="Home" asp-action="Index">Blogs</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn-back-shop d-none d-lg-flex">
+                            <i class="bi bi-arrow-left me-2"></i> Về cửa hàng
+                        </a>
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main role="main" class="account-main-content">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-4 border-top bg-white mt-5">
+        <div class="container text-center text-muted small">
+            <p class="mb-0">&copy; 2026 COMICZONE - Nền tảng truyện tranh bản quyền</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -40,6 +40,7 @@ namespace COMICZONE.Areas.Blogs.Controllers
             {
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Area = "Blogs",
                 Action = "Index",
                 Controller = "Home",
                 PageParam = "page",

@@ -2,8 +2,8 @@
 
 <div class="p-4">
     <div class="mb-4 text-center">
-        <h2 class="fw-bold text-white mb-1">Bài viết của tôi</h2>
-        <p class="text-white-50 small mb-0">Danh sách các bài review và tin tức bạn đã đóng góp.</p>
+        <h2 class="fw-bold text-dark mb-1">Bài viết của tôi</h2>
+        <p class="text-muted small mb-0">Danh sách các bài review và tin tức bạn đã đóng góp.</p>
     </div>
 
     <div class="row g-4">
@@ -25,14 +25,14 @@
                                             <span class="badge @(blog.Status == "Approved" ? "bg-success" : (blog.Status == "Pending" ? "bg-warning" : "bg-secondary")) rounded-pill small">
                                                 @(blog.Status == "Approved" ? "Đã duyệt" : (blog.Status == "Pending" ? "Chờ duyệt" : "Bản nháp"))
                                             </span>
-                                            <span class="text-white-50 x-small">@blog.Createdat.ToString("dd/MM/yyyy")</span>
+                                            <span class="text-muted x-small">@blog.Createdat.ToString("dd/MM/yyyy")</span>
                                         </div>
-                                        <h6 class="text-white fw-bold line-clamp-2 mb-2">@blog.Title</h6>
+                                        <h6 class="text-dark fw-bold line-clamp-2 mb-2">@blog.Title</h6>
                                     </div>
                                     <div class="text-end">
                                         @if (blog.Status == "Approved")
                                         {
-                                            <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@blog.Id" class="btn btn-sm btn-link text-white-50 text-decoration-none p-0">
+                                            <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@blog.Id" class="btn btn-sm btn-link text-muted text-decoration-none p-0">
                                                 Xem bài viết <i class="bi bi-arrow-right small"></i>
                                             </a>
                                         }
@@ -56,13 +56,13 @@
                             <span></span><span></span><span></span>
                         </div>
                     </div>
-                    <h4 class="text-white fw-bold mb-2">Chưa có bài viết nào</h4>
-                    <p class="text-white-50 mx-auto" style="max-width: 400px;">
+                    <h4 class="text-dark fw-bold mb-2">Chưa có bài viết nào</h4>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">
                         Bạn chưa có bài đóng góp hoặc review nào được hiển thị tại đây. 
                         Đừng quên khám phá những tin tức hấp dẫn khác từ cộng đồng nhé!
                     </p>
                     <div class="mt-4">
-                        <a asp-area="Blogs" asp-controller="Blogs" asp-action="Index" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm transition-all transform hover:scale-105">
+                        <a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm transition-all transform hover:scale-105">
                             <i class="bi bi-search me-2"></i> Khám phá Blog
                         </a>
                     </div>
@@ -93,9 +93,9 @@
     .empty-state-icon .icon-circle {
         width: 100px;
         height: 100px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.05);
         backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(0, 0, 0, 0.05);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -124,8 +124,8 @@
     }
 
     .empty-state-premium {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.02);
         border-radius: 30px;
-        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border: 1px dashed rgba(0, 0, 0, 0.1);
     }
 </style>

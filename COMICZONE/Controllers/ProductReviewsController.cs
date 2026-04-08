@@ -684,7 +684,7 @@ namespace COMICZONE.Controllers
                 string returnUrl = Url.Action("Detail", "Products",
                     new { id = review.Productid, tab = "comment" }) ?? "/";
 
-                return RedirectToAction("Login", "Authentication", new { returnUrl });
+                return RedirectToAction("Login", "Authentication", new { area = "Account", returnUrl });
             }
 
             int userId = int.Parse(userIdStr);

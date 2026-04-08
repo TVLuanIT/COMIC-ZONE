@@ -25,9 +25,10 @@
         <ul class="dropdown-menu dropdown-menu-end premium-dropdown shadow-lg animate slideIn">
             <li>
                 <a class="premium-dropdown-item"
-                   asp-area=""
+                   asp-area="Account"
                    asp-controller="UserProfiles"
-                   asp-action="MyProfile">
+                   asp-action="MyProfile"
+                   asp-route-returnUrl="@(Context.Request.Path.Value + Context.Request.QueryString.Value)">
                     <i class="bi bi-person-circle me-2"></i>
                     <span>Trang cá nhân</span>
                 </a>
@@ -36,7 +37,7 @@
             <li><hr class="dropdown-divider opacity-10"></li>
 
             <li>
-                <form asp-area=""
+                <form asp-area="Account"
                       asp-controller="Authentication"
                       asp-action="Logout"
                       method="post">
@@ -54,20 +55,20 @@
     {
         <li class="nav-item">
             <a class="nav-link"
-               asp-area=""
+               asp-area="Account"
                asp-controller="Authentication"
                asp-action="Register"
-               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
+               asp-route-returnUrl="@(Context.Request.Query["returnUrl"].FirstOrDefault() ?? Context.Request.Path.Value)">
                 Đăng ký
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link"
-               asp-area=""
+               asp-area="Account"
                asp-controller="Authentication"
                asp-action="Login"
-               asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
+               asp-route-returnUrl="@(Context.Request.Query["returnUrl"].FirstOrDefault() ?? Context.Request.Path.Value)">
                 Đăng nhập
             </a>
         </li>
