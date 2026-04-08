@@ -1,77 +1,103 @@
 @model IEnumerable<COMICZONE.Models.Blog>
+@using COMICZONE.Extensions
 
-<!-- TIN TỨC & BLOG -->
-<section class="py-5 bg-white overflow-hidden">
+<!-- TIN TỨC & BLOG PREMIUM -->
+<section class="blog-section-premium">
     <div class="container">
 
-        <!-- Tiêu đề hiện đại -->
-        <div class="section-title-modern">
-            <h2 data-aos="fade-up">
-                <i class="bi bi-journal-text me-2"></i>Tin Tức & Blog
+        <!-- Tiêu đề hiện đại & Cinematic -->
+        <div class="section-title-modern text-center mb-5 pb-3">
+            <h2 class="blog-section-title mt-2" data-aos="fade-up" data-aos-delay="100">
+                Tin Tức & <span class="text-gradient">Review</span>
             </h2>
-            <p data-aos="fade-up" data-aos-delay="100">Review truyện nổi bật dành cho fan manga & light novel</p>
+            <p class="blog-section-subtitle" data-aos="fade-up" data-aos-delay="200">
+                Những góc nhìn sâu sắc, tin tức nóng hổi từ thế giới Manga & Light Novel.
+            </p>
         </div>
 
         @if (Model != null && Model.Any())
         {
-            <!-- Swiper Container -->
-            <div id="blogSwiper" class="swiper product-swiper" data-aos="fade-up" data-aos-delay="200">
+            <!-- Swiper Container - Premium Layout -->
+            <div id="blogSwiperPremium" class="swiper product-swiper px-2" data-aos="fade-up" data-aos-delay="300">
                 <div class="swiper-wrapper">
                     @foreach (var blog in Model)
                     {
-                        <div class="swiper-slide">
-                            <a asp-area="Blogs" asp-action="Details" asp-controller="Home" asp-route-id="@blog.Id" class="blog-card-modern">
-                                <img src="@blog.Thumbnail" alt="@blog.Title" loading="lazy">
-                                <div class="blog-overlay">
-                                    <div class="blog-date">Review • @DateTime.Now.ToString("dd/MM/yyyy")</div>
-                                    <h3 class="blog-title">@blog.Title</h3>
+                        <div class="swiper-slide py-4">
+                            <a asp-area="Blogs" asp-action="Details" asp-controller="Home" asp-route-id="@blog.Id" class="blog-card-premium">
+                                <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
+                                     alt="@blog.Title" class="blog-card-image" loading="lazy">
+                                
+                                <div class="blog-card-content">
+                                    <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                                        <span class="blog-category-badge mb-0">
+                                            @(blog.Categories?.FirstOrDefault()?.Name ?? "Tin tức")
+                                        </span>
+                                    </div>
+                                    
+                                    <h3 class="blog-card-title">@blog.Title</h3>
+                                    
+                                    <div class="blog-card-meta">
+                                        <div class="blog-author">
+                                            <img src="@(blog.Author?.Avatar.AvatarOrDefault())" 
+                                                 class="blog-author-img" alt="@(blog.Author?.Username ?? "User")"
+                                                 onerror="this.src='/uploads/avatar/default-avatar.png'">
+                                            <span>@(blog.Author?.Username ?? "Ẩn danh")</span>
+                                        </div>
+                                        <span class="ms-auto"><i class="bi bi-clock me-1"></i> 5 phút đọc</span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
                     }
                 </div>
-                <!-- Pagination -->
-                <div class="swiper-pagination"></div>
+                <!-- Pagination dots -->
+                <div class="swiper-pagination blog-pagination"></div>
             </div>
 
-            <!-- Xem tất cả -->
-            <div class="text-center mt-4" data-aos="fade-up">
-                <a asp-area="Blogs" asp-action="Index" asp-controller="Home" class="btn-premium-pill">
-                    Xem Tất Cả Bài Viết <i class="bi bi-arrow-right"></i>
+            <!-- Nút xem thêm thiết kế lại -->
+            <div class="text-center mt-5" data-aos="fade-up">
+                <a asp-area="Blogs" asp-action="Index" asp-controller="Home" class="btn-hero btn-primary px-5">
+                    Khám phá toàn bộ Blog <i class="bi bi-arrow-right-short ms-2 fs-4"></i>
                 </a>
             </div>
         }
         else
         {
-            <p class="text-center text-muted mt-4">
-                Hiện tại chưa có bài đăng nào. Hãy quay lại sau!
-            </p>
+            <div class="text-center py-5" data-aos="fade-up">
+                <div class="hero-badge mb-4">Trống</div>
+                <h4 class="text-white-50">Hiện tại chưa có bài đăng nào mới. Hãy quay lại sau nhé!</h4>
+            </div>
         }
     </div>
 </section>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        new Swiper('#blogSwiper', {
-            slidesPerView: 1,
-            spaceBetween: 30,
-            loop: false,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            breakpoints: {
-                768: {
-                    slidesPerView: 2,
+        if (typeof Swiper !== 'undefined') {
+            new Swiper('#blogSwiperPremium', {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                centerInsufficientSlides: true,
+                watchOverflow: true,
+                grabCursor: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    dynamicBullets: true
                 },
-                1024: {
-                    slidesPerView: 3,
+                breakpoints: {
+                    768: { 
+                        slidesPerView: 2
+                    },
+                    1200: { 
+                        slidesPerView: 3
+                    }
                 },
-            },
-            autoplay: {
-                delay: 6000,
-                disableOnInteraction: false,
-            },
-        });
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false
+                }
+            });
+        }
     });
 </script>
