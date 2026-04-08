@@ -70,6 +70,13 @@
             </a>
         </li>
         <li>
+            <a asp-controller="UserProfiles" asp-action="MyBlogs" 
+               class="sidebar-menu-link @(action == "MyBlogs" ? "active" : "")">
+                <i class="bi bi-journal-text"></i>
+                <span>Bài viết của tôi</span>
+            </a>
+        </li>
+        <li>
             <a asp-controller="UserProfiles" asp-action="Notifications" 
                class="sidebar-menu-link @(action == "Notifications" ? "active" : "")">
                 <i class="bi bi-bell"></i>

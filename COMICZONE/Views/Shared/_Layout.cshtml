@@ -69,8 +69,24 @@
                                 @await Component.InvokeAsync("NavCategories")
                             </li>
                         
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="About">Về chúng tôi</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Khám phá
+                                </a>
+                                <ul class="dropdown-menu glass-dropdown animate slideIn" aria-labelledby="exploreDropdown">
+                                    <li>
+                                <a class="dropdown-item" asp-area="Blogs" asp-controller="Home" asp-action="Index">
+                                            <div class="icon-box me-3"><i class="bi bi-journal-text"></i></div>
+                                            <span>Blog truyện</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="About">
+                                            <div class="icon-box me-3"><i class="bi bi-info-circle"></i></div>
+                                            <span>Về chúng tôi</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         
                             <li class="nav-item">
@@ -130,7 +146,7 @@
                             <li><a asp-controller="Home" asp-action="Index" class="footer-link">Trang chủ</a></li>
                             <li><a asp-controller="Products" asp-action="Index" class="footer-link">Cửa hàng</a></li>
                             <li><a asp-controller="Home" asp-action="About" class="footer-link">Về chúng tôi</a></li>
-                            <li><a href="#" class="footer-link">Blog truyện</a></li>
+                            <li><a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="footer-link">Blog truyện</a></li>
                         </ul>
                     </div>
 

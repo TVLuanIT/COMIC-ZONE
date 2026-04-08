@@ -20,7 +20,7 @@
                     @foreach (var blog in Model)
                     {
                         <div class="swiper-slide">
-                            <a asp-action="Details" asp-controller="Blog" asp-route-id="@blog.Id" class="blog-card-modern">
+                            <a asp-area="Blogs" asp-action="Details" asp-controller="Blogs" asp-route-id="@blog.Id" class="blog-card-modern">
                                 <img src="@blog.Thumbnail" alt="@blog.Title" loading="lazy">
                                 <div class="blog-overlay">
                                     <div class="blog-date">Review • @DateTime.Now.ToString("dd/MM/yyyy")</div>
@@ -36,7 +36,7 @@
 
             <!-- Xem tất cả -->
             <div class="text-center mt-4" data-aos="fade-up">
-                <a asp-action="Index" asp-controller="Blog" class="btn-premium-pill">
+                <a asp-area="Blogs" asp-action="Index" asp-controller="Blogs" class="btn-premium-pill">
                     Xem Tất Cả Bài Viết <i class="bi bi-arrow-right"></i>
                 </a>
             </div>

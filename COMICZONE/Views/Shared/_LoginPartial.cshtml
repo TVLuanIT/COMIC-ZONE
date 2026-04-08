@@ -25,6 +25,7 @@
         <ul class="dropdown-menu dropdown-menu-end premium-dropdown shadow-lg animate slideIn">
             <li>
                 <a class="premium-dropdown-item"
+                   asp-area=""
                    asp-controller="UserProfiles"
                    asp-action="MyProfile">
                     <i class="bi bi-person-circle me-2"></i>
@@ -35,7 +36,8 @@
             <li><hr class="dropdown-divider opacity-10"></li>
 
             <li>
-                <form asp-controller="Authentication"
+                <form asp-area=""
+                      asp-controller="Authentication"
                       asp-action="Logout"
                       method="post">
                     <button type="submit"
@@ -52,6 +54,7 @@
     {
         <li class="nav-item">
             <a class="nav-link"
+               asp-area=""
                asp-controller="Authentication"
                asp-action="Register"
                asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">
@@ -61,6 +64,7 @@
 
         <li class="nav-item">
             <a class="nav-link"
+               asp-area=""
                asp-controller="Authentication"
                asp-action="Login"
                asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()">

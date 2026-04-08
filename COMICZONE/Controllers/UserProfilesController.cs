@@ -9,6 +9,7 @@ using COMICZONE.Data;
 using COMICZONE.Models;
 using System.Net;
 using System.Net.Mail;
+using COMICZONE.Models.Enums;
 
 namespace COMICZONE.Controllers
 {
@@ -573,6 +574,37 @@ namespace COMICZONE.Controllers
             ViewBag.Page = "Profile";
 
             return View(customer);
+        }
+
+        public IActionResult MyBlogs(int page = 1)
+        {
+            var customer = GetCustomer();
+            if (customer == null) return RedirectToAction("Login", "Authentication");
+
+            int pageSize = 6;
+            var query = _context.Blogs
+                .Include(b => b.Categories)
+                .Where(b => b.Authorid == customer.Userid && !b.Isdeleted);
+
+            int totalItems = query.Count();
+            var blogs = query
+                .OrderByDescending(b => b.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Action = "MyBlogs",
+                Controller = "UserProfiles",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
+
+            ViewBag.Page = "MyBlogs";
+            return View(blogs);
         }
 
     }

@@ -1,0 +1,70 @@
+/* 
+    PREMIUM BLOGS HOME - HERO & CARDS
+*/
+
+/* --- HERO SECTIONS --- */
+.blog-hero {
+    position: relative;
+    padding: 180px 0 100px;
+    background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+    overflow: hidden;
+}
+
+.hero-title-main { font-size: 4.5rem; line-height: 1.1; letter-spacing: -2px; color: var(--blogs-text); margin-bottom: 25px; }
+.text-gradient { background: var(--blogs-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-subtitle { color: var(--blogs-text-dim); font-size: 1.15rem; line-height: 1.7; margin-bottom: 35px; }
+
+/* AVATAR GROUP */
+.avatar-group { display: flex; align-items: center; }
+.avatar-sm {
+    width: 40px !important; 
+    height: 40px !important;
+    min-width: 40px;
+    border-radius: 50% !important;
+    border: 3px solid white !important;
+    margin-left: -15px;
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    background: #f8fafc;
+    transition: var(--blogs-tr);
+    display: inline-block;
+}
+.avatar-sm:hover { transform: translateY(-3px); z-index: 10; }
+.avatar-sm:first-child { margin-left: 0; }
+
+/* --- PREMIUM CARDS --- */
+.bg-blogs-content { background-color: #f1f5f9; }
+
+.featured-card {
+    background: white;
+    border: 1px solid var(--blogs-border);
+    border-radius: 40px;
+    overflow: hidden;
+    transition: var(--blogs-tr);
+    box-shadow: var(--blogs-sh-premium);
+}
+.featured-image-wrap { height: 260px; overflow: hidden; position: relative; }
+.featured-img { width: 100%; height: 100%; object-fit: cover; transition: var(--blogs-tr); }
+.featured-card:hover { transform: translateY(-5px); border-color: var(--blogs-primary); }
+.featured-card:hover .featured-img { transform: scale(1.05); }
+.featured-label { position: absolute; top: 15px; left: 15px; background: var(--blogs-primary); color: white; padding: 4px 12px; border-radius: 99px; font-weight: 700; font-size: 0.75rem; z-index: 10; }
+
+.blog-card-premium {
+    background: white;
+    border: 1px solid var(--blogs-border);
+    border-radius: 24px;
+    overflow: hidden;
+    height: 100%;
+    transition: var(--blogs-tr);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.blog-card-premium:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: var(--blogs-sh-premium);
+    border-color: var(--blogs-primary);
+}
+
+.card-thumb-wrap { height: 160px; overflow: hidden; position: relative; }
+.card-thumb { width: 100%; height: 100%; object-fit: cover; transition: var(--blogs-tr); }
+.blog-card-premium:hover .card-thumb { transform: scale(1.1); }
+.card-date-badge { background: var(--blogs-primary); color: white; border-radius: 12px; }

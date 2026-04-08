@@ -83,9 +83,24 @@ namespace COMICZONE
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapControllerRoute(
-                name: "areas",
-                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+            //app.MapAreaControllerRoute(
+            //    name: "Blogs",
+            //    areaName: "Blogs",
+            //    pattern: "Blogs/{controller=Blogs}/{action=Index}/{id?}");
+
+            //app.MapControllerRoute(
+            //    name: "areas",
+            //    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Blogs",
+                areaName: "Blogs",
+                pattern: "Blogs/{controller=Home}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Admin",
+                areaName: "Admin",
+                pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

@@ -1,0 +1,21 @@
+@model List<COMICZONE.Models.Blog>
+
+@{
+    ViewData["Title"] = "Bài viết của tôi";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" asp-append-version="true" />
+    <style>
+        .profile-glass-content { padding: 0 !important; }
+    </style>
+}
+
+<div class="profile-container-premium">
+    <!-- SIDEBAR -->
+    @await Html.PartialAsync("_MyProfileSidebar.cshtml")
+
+    <div class="profile-glass-content overflow-hidden">
+        @await Html.PartialAsync("_MyBlogs.cshtml", Model)
+    </div>
+</div>

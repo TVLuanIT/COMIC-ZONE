@@ -1,4 +1,4 @@
-/* site.css - Core styles, Variables, Shared Layout and Resets */
+﻿/* site.css - Core styles, Variables, Shared Layout and Resets */
 
 :root {
     /* Premium Color System */
@@ -12,7 +12,7 @@
     --text-secondary: #64748b;
     --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Legacy (if needed) */
     --primary-color: #EE4D2D;
     --primary-hover: #d73211;
@@ -37,11 +37,17 @@ body {
     background: #f8fafc;
     color: var(--text-primary);
     overflow-x: hidden;
-    padding-top: 80px; /* Offset for fixed navbar */
+    padding-top: 80px;
+    /* Offset for fixed navbar */
 }
 
 /* Base Headings & Links */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: 'Outfit', sans-serif;
     color: var(--text-primary);
 }
@@ -56,8 +62,13 @@ a {
     animation: slideIn 0.5s ease forwards;
 }
 
-.d-none { display: none !important; }
-.uppercase { text-transform: uppercase !important; }
+.d-none {
+    display: none !important;
+}
+
+.uppercase {
+    text-transform: uppercase !important;
+}
 
 .truncate-1 {
     display: -webkit-box;
@@ -104,6 +115,8 @@ a {
 
 /* Global Avatar Fix */
 .avatar-img {
+    width: var(--avatar-size, 35px);
+    height: var(--avatar-size, 35px);
     border-radius: 50% !important;
     object-fit: cover;
 }

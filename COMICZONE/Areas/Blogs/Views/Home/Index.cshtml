@@ -1,0 +1,188 @@
+@model IEnumerable<COMICZONE.Models.Blog>
+@using COMICZONE.Extensions
+
+@{
+    ViewData["Title"] = "Thế Giới Blog & Tin Tức";
+    var featured = Model?.FirstOrDefault();
+    // Nếu chỉ có 1 bài viết, hiển thị nó ở cả phần Mới Cập Nhật để tránh giao diện bị trống
+    var others = (Model != null && Model.Count() == 1) ? Model : Model?.Skip(1);
+    
+    // Lấy top 3 user từ ViewBag (đã query ở Controller)
+    var topUsers = ViewBag.TopUsers as List<COMICZONE.Models.User>;
+}
+
+<!-- NEW PREMIUM HERO SECTION -->
+<div class="blog-hero">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative z-index-2 text-center text-lg-start">
+        <div class="row align-items-center min-vh-50 py-5">
+            <div class="col-lg-7" data-aos="fade-right">
+                <div class="badge-premium mb-3">
+                    <i class="bi bi-stars me-2"></i>Cộng đồng ComicZone
+                </div>
+                <h1 class="hero-title-main">Khám Phá <span class="text-gradient">Vũ Trụ</span> Truyện</h1>
+                <p class="hero-subtitle">Nơi tụ hội của những bài review sâu sắc, tin tức nóng hổi và cảm xúc bất tận từ người hâm mộ manga & light novel.</p>
+                <div class="d-flex flex-wrap gap-4 mt-2 justify-content-center justify-content-lg-start align-items-center">
+                    <a href="#featured-section" class="btn-premium-grad">
+                        Bắt đầu đọc <i class="bi bi-arrow-down-short fs-4"></i>
+                    </a>
+                    <div class="d-flex align-items-center text-white-50 ms-lg-3">
+                        <div class="avatar-group me-3">
+                            @for (int i = 0; i < 3; i++)
+                            {
+                                var user = (topUsers != null && topUsers.Count > i) ? topUsers[i] : null;
+                                var avatarUrl = user?.Avatar.AvatarOrDefault() ?? "/uploads/avatar/default-avatar.png";
+                                var userName = user?.Username ?? "Thành viên";
+                                
+                                <img src="@avatarUrl" class="avatar-sm" alt="@userName" title="@userName">
+                            }
+                        </div>
+                        <span class="small fw-bold text-blogs-dim">1,000+ độc giả tin dùng</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block" data-aos="zoom-in">
+                <div class="hero-element-floating">
+                    <img src="/images/logo-nobg.png" class="img-fluid floating-logo floating-hero-logo opacity-75">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="py-5 bg-blogs-content" id="featured-section">
+    <div class="container">
+        <!-- FEATURED POST -->
+        @if (featured != null)
+        {
+            <div class="featured-card mb-5" data-aos="fade-up">
+                <div class="row g-0">
+                    <div class="col-lg-7">
+                        <div class="featured-image-wrap">
+                            <img src="@(string.IsNullOrEmpty(featured.Thumbnail) ? "/blogs/images/default-blog.png" : (featured.Thumbnail.StartsWith("http") ? featured.Thumbnail : "/images/blogs/" + featured.Thumbnail))" 
+                                 class="featured-img" alt="@featured.Title">
+                            <div class="featured-label">Nổi bật</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center h-100">
+                            <div class="d-flex align-items-center mb-3 text-primary fw-bold small text-uppercase spacing-1">
+                                <i class="bi bi-tag-fill me-2"></i> @(featured.Categories?.FirstOrDefault()?.Name ?? "General")
+                            </div>
+                            <h2 class="featured-title mb-3">@featured.Title</h2>
+                            <p class="featured-excerpt text-secondary mb-4 line-clamp-3">@featured.Shortdescription</p>
+                            
+                            <div class="d-flex align-items-center justify-content-between mt-auto">
+                                <div class="author-meta">
+                                    <h6 class="mb-0 fw-bold">@(featured.Author?.Username ?? "Admin")</h6>
+                                    <small class="text-muted">@featured.Createdat.ToString("MMMM dd, yyyy")</small>
+                                </div>
+                                <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@featured.Id" class="btn-read-more">
+                                    Đọc ngay <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row g-4">
+            <!-- MAIN LIST -->
+            <div class="col-lg-8">
+                <h4 class="fw-bold mb-4 d-flex align-items-center">
+                    <span class="title-line"></span> Mới Cập Nhật
+                </h4>
+                
+                <div class="row g-4">
+                    @if (others != null && others.Any())
+                    {
+                        @foreach (var item in others)
+                        {
+                            <div class="col-md-6" data-aos="fade-up">
+                                <div class="blog-card-premium">
+                                <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@item.Id" class="card-link">
+                                        <div class="card-thumb-wrap">
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                                 class="card-thumb" alt="@item.Title">
+                                            <div class="card-date-badge">
+                                                <span class="day">@item.Createdat.Day</span>
+                                                <span class="month">Thg @item.Createdat.Month</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-content p-4">
+                                            <h5 class="card-title line-clamp-2">@item.Title</h5>
+                                            <div class="d-flex align-items-center mt-3 text-muted x-small">
+                                                <span class="me-3"><i class="bi bi-person me-1"></i> @(item.Author?.Username ?? "Admin")</span>
+                                                <span><i class="bi bi-clock me-1"></i> 5 phút đọc</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (ViewBag.Pagination != null)
+                {
+                    <div class="mt-5 d-flex justify-content-center">
+                        @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
+                    </div>
+                }
+            </div>
+
+            <!-- SIDEBAR -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 110px;">
+                    <!-- Categories -->
+                    <div class="sidebar-card mb-4" data-aos="fade-left">
+                        <div class="card-header-premium">
+                            <i class="bi bi-grid-1x2-fill me-2"></i>
+                            <h6 class="mb-0">Danh mục phổ biến</h6>
+                        </div>
+                        <div class="card-body-premium">
+                            <div class="category-pills">
+                                @if (ViewBag.PopularCategories != null)
+                                {
+                                    foreach (var cat in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.PopularCategories)
+                                    {
+                                        <a href="#" class="cat-pill">
+                                            @cat.Name
+                                            <span class="count">@cat.Blogs.Count</span>
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="newsletter-premium sidebar-card" data-aos="fade-left" data-aos-delay="100">
+                        <div class="newsletter-icon-wrap">
+                            <i class="bi bi-send-fill text-white fs-2"></i>
+                        </div>
+                        <h5 class="text-white mb-2">Đăng ký ngay!</h5>
+                        <p class="mb-4">Cập nhật những review truyện hay nhất mỗi tuần.</p>
+                        <div class="input-group-premium">
+                            <input type="text" placeholder="Email của bạn..." class="form-control-premium">
+                            <button class="btn-premium-send"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="cta-premium-card mt-4" data-aos="fade-left" data-aos-delay="200">
+                         <div class="cta-icon-wrap">
+                             <i class="bi bi-pencil-square"></i>
+                         </div>
+                         <h5 class="fw-bold mb-3">Bạn có bài viết hay?</h5>
+                         <p class="text-secondary mb-4">Chia sẻ ngay kiến thức và niềm đam mê của bạn với cộng đồng ComicZone.</p>
+                         <a href="#" class="btn-cta-outline">Gửi bài ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
