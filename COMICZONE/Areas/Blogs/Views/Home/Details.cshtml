@@ -1,8 +1,14 @@
 @model COMICZONE.Models.Blog
+@using COMICZONE.Extensions
 
 @{
     ViewData["Title"] = Model.Title;
 }
+
+<!-- READING PROGRESS BAR -->
+<div class="reading-progress-container">
+    <div class="reading-progress-bar" id="readingProgress"></div>
+</div>
 
 <!-- PREMIUM ARTICLE HEADER -->
 <div class="article-hero" style="background-image: url('@(string.IsNullOrEmpty(Model.Thumbnail) ? "/blogs/images/default-blog.png" : (Model.Thumbnail.StartsWith("http") ? Model.Thumbnail : "/images/blogs/" + Model.Thumbnail))');">
@@ -18,20 +24,20 @@
                     <span class="active">Bài viết</span>
                 </div>
                 
-                <div class="category-badges mb-4" data-aos="zoom-in">
+                <div class="category-badges mb-4" data-aos="zoom-in" data-aos-delay="200">
                     @foreach(var cat in Model.Categories)
                     {
                         <span class="badge-glass">@cat.Name</span>
                     }
                 </div>
 
-                <h1 class="article-hero-title mb-4" data-aos="fade-up">@Model.Title</h1>
+                <h1 class="article-hero-title mb-5" data-aos="fade-up" data-aos-delay="300">@Model.Title</h1>
                 
-                <div class="author-info-glass d-flex align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="100">
-                    <img src="@(string.IsNullOrEmpty(Model.Author?.Avatar) ? "/uploads/avatar/default.png" : Model.Author.Avatar)" alt="Author" class="author-avatar me-3">
+                <div class="author-info-glass d-flex align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="400">
+                    <img src="@(Model.Author?.Avatar.AvatarOrDefault())" alt="Author" class="author-avatar me-3">
                     <div class="text-start">
-                        <div class="fw-bold text-white small">@(Model.Author?.Username ?? "Admin")</div>
-                        <div class="text-white-50 x-small">@Model.Createdat.ToString("MMMM dd, yyyy") • 5 min read</div>
+                        <div class="fw-bold text-dark small">@(Model.Author?.Username ?? "Admin")</div>
+                        <div class="text-muted x-small">@Model.Createdat.ToString("MMMM dd, yyyy") • 5 min read</div>
                     </div>
                 </div>
             </div>
@@ -93,7 +99,7 @@
                         {
                             <div class="comment-node mb-4">
                                 <div class="d-flex gap-3">
-                                    <img src="@(string.IsNullOrEmpty(comment.User?.Avatar) ? "/uploads/avatar/default.png" : comment.User.Avatar)" class="comment-avatar">
+                                    <img src="@(comment.User?.Avatar.AvatarOrDefault())" class="comment-avatar">
                                     <div class="comment-body">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <h6 class="mb-0 fw-bold">@(comment.User.Username)</h6>
@@ -118,7 +124,7 @@
                             foreach (var related in (IEnumerable<COMICZONE.Models.Blog>)ViewBag.RelatedBlogs)
                             {
                                 <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@related.Id" class="related-item d-flex gap-3 mb-4 text-decoration-none">
-                                    <img src="@(string.IsNullOrEmpty(related.Thumbnail) ? "/images/no-image.jpg" : (related.Thumbnail.StartsWith("http") ? related.Thumbnail : "/images/blogs/" + related.Thumbnail))" class="related-thumb">
+                                    <img src="@(string.IsNullOrEmpty(related.Thumbnail) ? "/blogs/images/default-blog.png" : (related.Thumbnail.StartsWith("http") ? related.Thumbnail : "/images/blogs/" + related.Thumbnail))" class="related-thumb">
                                     <div>
                                         <h6 class="related-title text-dark line-clamp-2">@related.Title</h6>
                                         <span class="x-small text-muted">@related.Createdat.ToString("dd/MM/yyyy")</span>
@@ -132,7 +138,7 @@
                          <img src="/images/logo-nobg.png" style="width: 80px;" class="mb-3 opacity-75">
                          <h5 class="text-white fw-bold">COMICZONE</h5>
                          <p class="x-small text-white-50">Chuyên cung cấp truyện tranh bản quyền chất lượng nhất.</p>
-                         <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">Ghé thăm Shop</a>
+                         <a asp-area="" asp-controller="Products" asp-action="Index" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">Ghé thăm Shop</a>
                     </div>
                 </div>
             </div>
@@ -140,3 +146,28 @@
     </div>
 </section>
 
+@section Scripts {
+    <script>
+        // Reading Progress Bar Logic
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            const progress = document.getElementById("readingProgress");
+            if (progress) {
+                progress.style.width = scrolled + "%";
+            }
+        });
+
+        // Initialize AOS
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    duration: 1000,
+                    once: true,
+                    offset: 100
+                });
+            }
+        });
+    </script>
+}

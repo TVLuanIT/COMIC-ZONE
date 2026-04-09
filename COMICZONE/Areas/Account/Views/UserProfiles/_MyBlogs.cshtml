@@ -15,7 +15,7 @@
                     <div class="card bg-white bg-opacity-10 border-0 rounded-4 overflow-hidden h-100 shadow-sm hover:bg-opacity-20 transition-all">
                         <div class="row g-0 h-100">
                             <div class="col-4">
-                                <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/images/no-image.jpg" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
+                                <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
                                      class="img-fluid h-100 object-fit-cover" alt="@blog.Title">
                             </div>
                             <div class="col-8">
@@ -73,7 +73,7 @@
 
     @if (ViewBag.Pagination != null)
     {
-        <div class="mt-4">
+        <div class="mt-4 d-flex justify-content-center">
              @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
         </div>
     }
