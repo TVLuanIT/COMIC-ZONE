@@ -49,6 +49,23 @@
             <li><a href="#featured-section">Nổi bật</a></li>
             <li><a href="#latest">Mới nhất</a></li>
         </ul>
+
+        <!-- BLOG SEARCH -->
+        <form class="blog-search-form d-none d-lg-flex" asp-area="Blogs" asp-controller="Home" asp-action="Search" method="get">
+            <div class="blog-search-container">
+                <button type="submit" class="search-btn-inner">
+                    <i class="bi bi-search search-icon"></i>
+                </button>
+                <input type="text" name="keyword" value="@ViewBag.Keyword" placeholder="Tìm kiếm bài viết..." class="blog-search-input">
+                @if (!string.IsNullOrEmpty(ViewBag.Keyword))
+                {
+                    <a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="clear-search">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                }
+            </div>
+        </form>
+
         <div class="nav-actions d-none d-md-block">
             <partial name="_LoginPartial" />
         </div>

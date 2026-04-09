@@ -1,0 +1,369 @@
+@model IEnumerable<COMICZONE.Models.Blog>
+@{
+    ViewData["Title"] = "Kết quả tìm kiếm: " + ViewBag.Keyword;
+}
+
+<!-- SEARCH RESULTS HERO SECTION -->
+<div class="blog-hero">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative z-index-2 text-center text-lg-start">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0 bg-white bg-opacity-50 p-2 px-3 rounded-pill border d-inline-flex" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="text-primary fw-bold text-decoration-none">Blog</a></li>
+                <li class="breadcrumb-item active text-secondary" aria-current="page">Tìm kiếm</li>
+            </ol>
+        </nav>
+        <h1 class="hero-title-main fs-2">Kết quả tìm kiếm cho: <span class="text-gradient">"@ViewBag.Keyword"</span></h1>
+        <p class="hero-subtitle mb-0">Tìm thấy @(Model?.Count() ?? 0) bài viết phù hợp với yêu cầu của bạn.</p>
+    </div>
+</div>
+
+<section class="py-5 bg-blogs-content">
+    <div class="container">
+        <!-- Category Filter Bar -->
+        <div class="blog-filter-bar mb-4" data-aos="fade-up">
+            <div class="filter-pills">
+                <a asp-action="Search" 
+                   asp-route-keyword="@ViewBag.Keyword"
+                   asp-route-sortBy="@ViewBag.SortBy"
+                   class="filter-pill @(ViewBag.SelectedCategoryId == null ? "active" : "")">
+                    Tất cả
+                </a>
+                @if (ViewBag.AllCategories != null)
+                {
+                    foreach (var cat in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.AllCategories)
+                    {
+                        <a asp-action="Search" 
+                           asp-route-keyword="@ViewBag.Keyword"
+                           asp-route-sortBy="@ViewBag.SortBy"
+                           asp-route-categoryId="@cat.Id"
+                           class="filter-pill @(ViewBag.SelectedCategoryId == (int?)cat.Id ? "active" : "")">
+                            @cat.Name
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- RESULTS LIST (Full Width) -->
+            <div class="col-lg-12">
+                <!-- Advanced Filter Toggle & Sort -->
+                <div class="filter-actions-wrap" data-aos="fade-up">
+                    <button type="button" class="filter-toggle-btn" id="filterToggleBtn">
+                        <i class="bi bi-funnel-fill"></i> Bộ lọc nâng cao
+                    </button>
+
+                    <!-- Sort Options -->
+                    <div class="modern-sort-wrapper" id="blogSortWrapper">
+                        <div class="sort-trigger" id="blogSortTrigger">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-sliders2 text-primary me-2"></i>
+                                <span class="text-muted small me-2">Sắp xếp:</span>
+                                <span class="fw-bold text-dark small" id="selectedSortLabel">
+                                    @switch (ViewBag.SortBy as string)
+                                    {
+                                        case "oldest": <text>Cũ nhất</text>; break;
+                                        case "title_asc": <text>Tiêu đề A → Z</text>; break;
+                                        case "title_desc": <text>Tiêu đề Z → A</text>; break;
+                                        default: <text>Mới nhất</text>; break;
+                                    }
+                                </span>
+                            </div>
+                            <i class="bi bi-chevron-down text-primary small transition-icon ms-3"></i>
+                        </div>
+                        <ul class="sort-options-list">
+                            <li class="sort-option-item @(ViewBag.SortBy == "newest" ? "active" : "")" data-value="newest">
+                                <i class="bi bi-clock-history"></i> Mới nhất
+                            </li>
+                            <li class="sort-option-item @(ViewBag.SortBy == "oldest" ? "active" : "")" data-value="oldest">
+                                <i class="bi bi-hourglass-split"></i> Cũ nhất
+                            </li>
+                            <li class="sort-option-item @(ViewBag.SortBy == "title_asc" ? "active" : "")" data-value="title_asc">
+                                <i class="bi bi-sort-alpha-down"></i> Tiêu đề A → Z
+                            </li>
+                            <li class="sort-option-item @(ViewBag.SortBy == "title_desc" ? "active" : "")" data-value="title_desc">
+                                <i class="bi bi-sort-alpha-up-alt"></i> Tiêu đề Z → A
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Advanced Filter Panel -->
+                <div class="advanced-filter-panel" id="advancedFilterPanel">
+                    <form method="get" id="advancedFilterForm">
+                        <input type="hidden" name="keyword" value="@ViewBag.Keyword" />
+                        <input type="hidden" name="sortBy" id="currentSortBy" value="@ViewBag.SortBy" />
+                        
+                        <div class="row g-4">
+                            <!-- Category Filter -->
+                            <div class="col-md-4">
+                                <label class="filter-group-label">Danh mục</label>
+                                <div class="modern-dropdown-wrapper-premium" id="categoryDropdown">
+                                    <div class="dropdown-trigger-premium">
+                                        <span class="selected-label">
+                                            @{
+                                                var selectedCat = (ViewBag.AllCategories as IEnumerable<COMICZONE.Models.BlogCategory>)?.FirstOrDefault(c => c.Id == ViewBag.SelectedCategoryId);
+                                                @(selectedCat?.Name ?? "Tất cả danh mục")
+                                            }
+                                        </span>
+                                        <i class="bi bi-chevron-down ms-2"></i>
+                                    </div>
+                                    <input type="hidden" name="categoryId" value="@ViewBag.SelectedCategoryId" />
+                                    <ul class="dropdown-menu-premium">
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedCategoryId == null ? "active" : "")" data-value="">
+                                            <span>Tất cả danh mục</span>
+                                            @if (ViewBag.SelectedCategoryId == null) { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        @if (ViewBag.AllCategories != null)
+                                        {
+                                            foreach (var cat in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.AllCategories)
+                                            {
+                                                <li class="dropdown-item-premium @(ViewBag.SelectedCategoryId == cat.Id ? "active" : "")" data-value="@cat.Id">
+                                                    <span>@cat.Name</span>
+                                                    @if (ViewBag.SelectedCategoryId == cat.Id) { <i class="bi bi-check2"></i> }
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Author Filter -->
+                            <div class="col-md-4">
+                                <label class="filter-group-label">Tác giả</label>
+                                <div class="modern-dropdown-wrapper-premium" id="authorDropdown">
+                                    <div class="dropdown-trigger-premium">
+                                        <span class="selected-label">
+                                            @{
+                                                var authorsList = ViewBag.Authors as IEnumerable<dynamic>;
+                                                var selectedAuthor = authorsList?.FirstOrDefault(a => a.Id == ViewBag.SelectedAuthorId);
+                                                @(selectedAuthor?.Username ?? "Tất cả tác giả")
+                                            }
+                                        </span>
+                                        <i class="bi bi-chevron-down ms-2"></i>
+                                    </div>
+                                    <input type="hidden" name="authorId" value="@ViewBag.SelectedAuthorId" />
+                                    <ul class="dropdown-menu-premium">
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedAuthorId == null ? "active" : "")" data-value="">
+                                            <span>Tất cả tác giả</span>
+                                            @if (ViewBag.SelectedAuthorId == null) { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        @if (ViewBag.Authors != null)
+                                        {
+                                            foreach (var author in ViewBag.Authors)
+                                            {
+                                                <li class="dropdown-item-premium @(ViewBag.SelectedAuthorId == author.Id ? "active" : "")" data-value="@author.Id">
+                                                    <span>@author.Username</span>
+                                                    @if (ViewBag.SelectedAuthorId == author.Id) { <i class="bi bi-check2"></i> }
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Date Range Filter -->
+                            <div class="col-md-4">
+                                <label class="filter-group-label">Thời gian</label>
+                                <div class="modern-dropdown-wrapper-premium" id="dateDropdown">
+                                    <div class="dropdown-trigger-premium">
+                                        <span class="selected-label">
+                                            @switch (ViewBag.SelectedDateRange as string)
+                                            {
+                                                case "today": <text>24 giờ qua</text>; break;
+                                                case "week": <text>7 ngày qua</text>; break;
+                                                case "month": <text>30 ngày qua</text>; break;
+                                                case "year": <text>Trong năm nay</text>; break;
+                                                default: <text>Tất cả thời gian</text>; break;
+                                            }
+                                        </span>
+                                        <i class="bi bi-chevron-down ms-2"></i>
+                                    </div>
+                                    <input type="hidden" name="dateRange" value="@ViewBag.SelectedDateRange" />
+                                    <ul class="dropdown-menu-premium">
+                                        <li class="dropdown-item-premium @(string.IsNullOrEmpty(ViewBag.SelectedDateRange) ? "active" : "")" data-value="">
+                                            <span>Tất cả thời gian</span>
+                                            @if (string.IsNullOrEmpty(ViewBag.SelectedDateRange)) { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedDateRange == "today" ? "active" : "")" data-value="today">
+                                            <span>24 giờ qua</span>
+                                            @if (ViewBag.SelectedDateRange == "today") { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedDateRange == "week" ? "active" : "")" data-value="week">
+                                            <span>7 ngày qua</span>
+                                            @if (ViewBag.SelectedDateRange == "week") { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedDateRange == "month" ? "active" : "")" data-value="month">
+                                            <span>30 ngày qua</span>
+                                            @if (ViewBag.SelectedDateRange == "month") { <i class="bi bi-check2"></i> }
+                                        </li>
+                                        <li class="dropdown-item-premium @(ViewBag.SelectedDateRange == "year" ? "active" : "")" data-value="year">
+                                            <span>Trong năm nay</span>
+                                            @if (ViewBag.SelectedDateRange == "year") { <i class="bi bi-check2"></i> }
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn-apply-filters">Áp dụng bộ lọc</button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a asp-action="Search" asp-route-keyword="@ViewBag.Keyword" class="btn-reset-filters text-center d-block text-decoration-none">Xóa bộ lọc</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row g-4">
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterToggleBtn = document.getElementById('filterToggleBtn');
+            const filterPanel = document.getElementById('advancedFilterPanel');
+            const sortWrapper = document.getElementById('blogSortWrapper');
+            const sortTrigger = document.getElementById('blogSortTrigger');
+            const sortOptions = document.querySelectorAll('.sort-option-item');
+            const advancedFilterForm = document.getElementById('advancedFilterForm');
+            const currentSortBy = document.getElementById('currentSortBy');
+
+            // Reusable logic for multi-dropdowns
+            const dropdowns = document.querySelectorAll('.modern-dropdown-wrapper-premium');
+            
+            dropdowns.forEach(wrapper => {
+                const trigger = wrapper.querySelector('.dropdown-trigger-premium');
+                const items = wrapper.querySelectorAll('.dropdown-item-premium');
+                const input = wrapper.querySelector('input[type="hidden"]');
+                const label = wrapper.querySelector('.selected-label');
+
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Close other dropdowns
+                    dropdowns.forEach(other => {
+                        if (other !== wrapper) other.classList.remove('active');
+                    });
+                    sortWrapper.classList.remove('active');
+                    wrapper.classList.toggle('active');
+                });
+
+                items.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const val = this.getAttribute('data-value');
+                        const text = this.querySelector('span').innerText;
+                        
+                        input.value = val;
+                        label.innerText = text;
+                        
+                        // Update active state
+                        items.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        wrapper.classList.remove('active');
+                    });
+                });
+            });
+
+            // Toggle Filter Panel
+            if (filterToggleBtn) {
+                filterToggleBtn.addEventListener('click', function() {
+                    const isOpen = filterPanel.style.display === 'block';
+                    filterPanel.style.display = isOpen ? 'none' : 'block';
+                    filterToggleBtn.classList.toggle('active');
+                });
+            }
+
+            // Keep panel open if any filter is active
+            const hasFilters = @(ViewBag.SelectedCategoryId != null || ViewBag.SelectedAuthorId != null || !string.IsNullOrEmpty(ViewBag.SelectedDateRange) ? "true" : "false");
+            if (hasFilters && filterPanel) {
+                filterPanel.style.display = 'block';
+                filterToggleBtn.classList.add('active');
+            }
+
+            // Sort Dropdown Toggle
+            if (sortTrigger) {
+                sortTrigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Close filter dropdowns
+                    dropdowns.forEach(d => d.classList.remove('active'));
+                    sortWrapper.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function() {
+                    sortWrapper.classList.remove('active');
+                    dropdowns.forEach(d => d.classList.remove('active'));
+                });
+
+                sortOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        currentSortBy.value = this.getAttribute('data-value');
+                        advancedFilterForm.submit();
+                    });
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({ duration: 1000, once: true, offset: 100 });
+            }
+        });
+    </script>
+}
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <div class="col-md-4" data-aos="fade-up">
+                                <div class="blog-card-premium">
+                                    <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@item.Id" class="card-link">
+                                        <div class="card-thumb-wrap">
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                                 class="card-thumb" alt="@item.Title">
+                                            <div class="card-date-badge">
+                                                <span class="day">@item.Createdat.Day</span>
+                                                <span class="month">Thg @item.Createdat.Month</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-content p-4">
+                                            <h5 class="card-title line-clamp-2">@item.Title</h5>
+                                            <div class="d-flex align-items-center mt-3 text-muted x-small">
+                                                <span class="me-3"><i class="bi bi-person me-1"></i> @(item.Author?.Username ?? "Admin")</span>
+                                                <span><i class="bi bi-clock me-1"></i> 5 phút đọc</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5" data-aos="fade-up">
+                            <div class="empty-search-box p-5 rounded-4 bg-light border">
+                                <i class="bi bi-search-heart text-muted display-1 mb-4"></i>
+                                <h3 class="fw-bold">Không tìm thấy bài viết</h3>
+                                <p class="text-secondary">Chúng tôi không tìm thấy kết quả nào khớp với từ khóa của bạn. Vui lòng thử lại với từ khóa khác.</p>
+                                <a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill mt-3 px-4">
+                                    Quay lại danh sách bài viết
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (ViewBag.Pagination != null)
+                {
+                    <div class="mt-5 d-flex justify-content-center">
+                        @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
