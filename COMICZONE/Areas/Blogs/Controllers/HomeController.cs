@@ -27,7 +27,7 @@ namespace COMICZONE.Areas.Blogs.Controllers
         // GET: Blogs
         public async Task<IActionResult> Index(int page = 1)
         {
-            int pageSize = 9;
+            int pageSize = 7;
             var query = _context.Blogs
                 .Include(b => b.Author)
                 .Include(b => b.Categories)

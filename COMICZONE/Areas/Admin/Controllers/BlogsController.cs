@@ -87,10 +87,16 @@ namespace COMICZONE.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Slug,Shortdescription,Content,Status,Authorid")] Blog blog, int[] selectedCategories, IFormFile? thumbnailFile)
+        public async Task<IActionResult> Create([Bind("Id,Title,Slug,Shortdescription,Content,Status,Authorid,BlogStatusEnum")] Blog blog, int[] selectedCategories, IFormFile? thumbnailFile)
         {
             ModelState.Remove("Author");
             ModelState.Remove("Categories");
+            ModelState.Remove("BlogComments");
+
+            if (selectedCategories == null || selectedCategories.Length == 0)
+            {
+                ModelState.AddModelError("selectedCategories", "Vui lòng chọn ít nhất một danh mục cho bài viết.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -160,7 +166,7 @@ namespace COMICZONE.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Slug,Shortdescription,Content,Status,Authorid,Createdat,Thumbnail,Isdeleted")] Blog blog, int[] selectedCategories, IFormFile? thumbnailFile)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Slug,Shortdescription,Content,Status,Authorid,Createdat,Thumbnail,Isdeleted,BlogStatusEnum")] Blog blog, int[] selectedCategories, IFormFile? thumbnailFile)
         {
             if (id != blog.Id)
             {
@@ -169,6 +175,12 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             ModelState.Remove("Author");
             ModelState.Remove("Categories");
+            ModelState.Remove("BlogComments");
+
+            if (selectedCategories == null || selectedCategories.Length == 0)
+            {
+                ModelState.AddModelError("selectedCategories", "Vui lòng chọn ít nhất một danh mục cho bài viết.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -282,11 +294,20 @@ namespace COMICZONE.Areas.Admin.Controllers
             var blog = await _context.Blogs.FindAsync(id);
             if (blog != null)
             {
-                blog.Isdeleted = true;
-                _context.Update(blog);
+                // Xóa tệp hình ảnh thumbnail nếu có
+                if (!string.IsNullOrEmpty(blog.Thumbnail))
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs", blog.Thumbnail);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                _context.Blogs.Remove(blog);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

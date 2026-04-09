@@ -82,7 +82,7 @@
                                     }
                                 }
                             </select>
-                            <span class="text-danger small mt-1 d-block" id="category-error"></span>
+                            @Html.ValidationMessage("selectedCategories", "", new { @class = "text-danger small mt-1 d-block", id = "category-error" })
                         </div>
 
                         <div class="mb-4">
