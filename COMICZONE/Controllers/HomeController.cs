@@ -75,6 +75,8 @@ namespace COMICZONE.Controllers
 
             // Gán ViewBag cho carousel Blog
             ViewBag.Blogs = await _context.Blogs
+                .Include(b => b.Author)
+                .Include(b => b.Categories)
                 .OrderByDescending(b => b.Createdat) // mới nhất trước
                 .Take(9) // lấy 9 bài mới nhất
                 .ToListAsync();

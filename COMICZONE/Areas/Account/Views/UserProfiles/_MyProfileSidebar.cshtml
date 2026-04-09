@@ -2,6 +2,12 @@
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var avatar = Context.Session.GetString("Avatar");
     var username = Context.Session.GetString("Username");
+    
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+    if (string.IsNullOrEmpty(returnUrl))
+    {
+        returnUrl = ViewData["ReturnUrl"]?.ToString();
+    }
 
     var firstChar = !string.IsNullOrEmpty(username)
         ? username.Substring(0, 1).ToUpper()
@@ -41,14 +47,16 @@
     <!-- SIDEBAR MENU -->
     <ul class="sidebar-menu-premium">
         <li>
-            <a asp-controller="UserProfiles" asp-action="MyProfile" 
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyProfile" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "MyProfile" ? "active" : "")">
                 <i class="bi bi-person-vcard"></i>
                 <span>Thông tin cá nhân</span>
             </a>
         </li>
         <li>
-            <a asp-controller="UserProfiles" asp-action="MyOrders" 
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyOrders" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "MyOrders" ? "active" : "")">
                 <i class="bi bi-bag-check"></i>
                 <span>Đơn hàng của tôi</span>
@@ -56,21 +64,32 @@
             </a>
         </li>
         <li>
-            <a asp-controller="UserProfiles" asp-action="MyReviews" 
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyReviews" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "MyReviews" ? "active" : "")">
                 <i class="bi bi-chat-heart"></i>
                 <span>Đánh giá của tôi</span>
             </a>
         </li>
         <li>
-            <a asp-controller="Products" asp-action="ViewedHistory" 
+            <a asp-area="" asp-controller="Products" asp-action="ViewedHistory" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "ViewedHistory" ? "active" : "")">
                 <i class="bi bi-clock-history"></i>
                 <span>Lịch sử xem</span>
             </a>
         </li>
         <li>
-            <a asp-controller="UserProfiles" asp-action="Notifications" 
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyBlogs" 
+               asp-route-returnUrl="@returnUrl"
+               class="sidebar-menu-link @(action == "MyBlogs" ? "active" : "")">
+                <i class="bi bi-journal-text"></i>
+                <span>Bài viết của tôi</span>
+            </a>
+        </li>
+        <li>
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="Notifications" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "Notifications" ? "active" : "")">
                 <i class="bi bi-bell"></i>
                 <span>Thông báo</span>
@@ -78,7 +97,8 @@
             </a>
         </li>
         <li>
-            <a asp-controller="UserProfiles" asp-action="Settings" 
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="Settings" 
+               asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "Settings" ? "active" : "")">
                 <i class="bi bi-gear"></i>
                 <span>Cài đặt</span>

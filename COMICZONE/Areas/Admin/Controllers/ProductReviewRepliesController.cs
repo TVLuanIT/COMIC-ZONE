@@ -272,7 +272,7 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToAction("Login", "Authentication", new { area = "" });
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
             }
 
             reply.Userid = int.Parse(userId);

@@ -37,7 +37,7 @@ function uploadAvatar(input) {
     let formData = new FormData();
     formData.append("avatar", file);
 
-    fetch("/UserProfiles/UploadAvatar", { method: "POST", body: formData })
+    fetch("/Account/UserProfiles/UploadAvatar", { method: "POST", body: formData })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
@@ -54,7 +54,7 @@ function uploadAvatar(input) {
 }
 
 // Global Premium Swal Mixin
-const PremiumSwal = typeof Swal !== 'undefined' ? Swal.mixin({
+window.PremiumSwal = typeof Swal !== 'undefined' ? Swal.mixin({
     customClass: {
         popup: 'premium-swal-popup',
         confirmButton: 'premium-swal-confirm',
@@ -66,7 +66,9 @@ const PremiumSwal = typeof Swal !== 'undefined' ? Swal.mixin({
     hideClass: { popup: 'animate__animated animate__fadeOutUp animate__faster' }
 }) : null;
 
-function showLoginRequired(message) {
+const PremiumSwal = window.PremiumSwal;
+
+window.showLoginRequired = function(message) {
     if (window.isShowingLoginAlert) return;
     window.isShowingLoginAlert = true;
 
@@ -85,7 +87,7 @@ function showLoginRequired(message) {
         console.log("Alert result:", result);
         if (result.isConfirmed) {
             const currentUrl = window.location.pathname + window.location.search;
-            window.location.href = `/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+            window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
         }
     });
 }

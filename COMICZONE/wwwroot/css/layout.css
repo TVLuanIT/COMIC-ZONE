@@ -98,7 +98,7 @@
 .navbar .dropdown-toggle img {
     width: 38px !important;
     height: 38px !important;
-    border-radius: 12px;
+    border-radius: 50%;
     object-fit: cover;
     border: 2px solid #fff;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);

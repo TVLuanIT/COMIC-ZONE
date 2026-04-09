@@ -254,7 +254,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 CreatedBy = adminId,
                 CreatedAt = DateTime.Now,
                 IsRead = false,
-                Link = "/UserProfiles/Index"
+                Link = "/Account/UserProfiles/MyProfile"
             });
 
             await _context.SaveChangesAsync();

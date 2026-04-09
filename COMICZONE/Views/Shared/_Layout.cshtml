@@ -42,7 +42,7 @@
                 <div class="container">
                     <!-- Logo -->
                     <div class="d-flex align-items-center">
-                        <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                        <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
                             <img src="~/images/logo-nobg.png"
                                  asp-append-version="true"
                                  alt="ComicZone Logo"
@@ -62,19 +62,35 @@
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                             </li>
                         
                             <li class="nav-item">
                                 @await Component.InvokeAsync("NavCategories")
                             </li>
                         
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="About">Về chúng tôi</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Khám phá
+                                </a>
+                                <ul class="dropdown-menu glass-dropdown animate slideIn" aria-labelledby="exploreDropdown">
+                                    <li>
+                                <a class="dropdown-item" asp-area="Blogs" asp-controller="Home" asp-action="Index">
+                                            <div class="icon-box me-3"><i class="bi bi-journal-text"></i></div>
+                                            <span>Blog truyện</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="About">
+                                            <div class="icon-box me-3"><i class="bi bi-info-circle"></i></div>
+                                            <span>Về chúng tôi</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Carts" asp-action="Index">
+                                <a class="nav-link" asp-area="" asp-controller="Carts" asp-action="Index">
                                     <i class="bi bi-bag-heart me-1"></i>Giỏ hàng
                                     @await Component.InvokeAsync("CartCount")
                                 </a>
@@ -83,7 +99,7 @@
 
                         <div class="d-flex align-items-center gap-3 flex-nowrap">
                             <!-- Search Form -->
-                            <form class="modern-search-container d-flex align-items-center" asp-controller="Products" asp-action="Search" method="get">
+                            <form class="modern-search-container d-flex align-items-center" asp-area="" asp-controller="Products" asp-action="Search" method="get">
                                 <button type="submit" class="bg-transparent border-0 p-0 d-flex align-items-center">
                                     <i class="bi bi-search text-secondary me-2"></i>
                                 </button>
@@ -109,7 +125,7 @@
                 <div class="row g-4 mb-5">
                     <!-- Column 1: Brand -->
                     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0" data-aos="fade-up">
-                        <a class="footer-brand-title" asp-controller="Home" asp-action="Index">
+                        <a class="footer-brand-title" asp-area="" asp-controller="Home" asp-action="Index">
                             COMIC<span>ZONE</span>
                         </a>
                         <p class="footer-desc">
@@ -127,10 +143,10 @@
                     <div class="col-lg-2 col-6" data-aos="fade-up" data-aos-delay="100">
                         <h4 class="footer-column-title">Khám Phá</h4>
                         <ul class="footer-links">
-                            <li><a asp-controller="Home" asp-action="Index" class="footer-link">Trang chủ</a></li>
-                            <li><a asp-controller="Products" asp-action="Index" class="footer-link">Cửa hàng</a></li>
-                            <li><a asp-controller="Home" asp-action="About" class="footer-link">Về chúng tôi</a></li>
-                            <li><a href="#" class="footer-link">Blog truyện</a></li>
+                            <li><a asp-area="" asp-controller="Home" asp-action="Index" class="footer-link">Trang chủ</a></li>
+                            <li><a asp-area="" asp-controller="Products" asp-action="Index" class="footer-link">Cửa hàng</a></li>
+                            <li><a asp-area="" asp-controller="Home" asp-action="About" class="footer-link">Về chúng tôi</a></li>
+                            <li><a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="footer-link">Blog truyện</a></li>
                         </ul>
                     </div>
 
@@ -183,6 +199,19 @@
             </div>
         </footer>
 
+        @if (TempData["Success"] != null)
+        {
+            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
+        }
+        @if (TempData["LoginRequired"] != null)
+        {
+            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
+        }
+
         <!-- Scripts -->
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -206,19 +235,6 @@
                 offset: 50
             });
         </script>
-
-        @if (TempData["Success"] != null)
-        {
-            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
-        }
-        @if (TempData["LoginRequired"] != null)
-        {
-            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
-        }
 
         @await RenderSectionAsync("Scripts", required: false)
 

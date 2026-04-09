@@ -69,7 +69,7 @@
                                 <td>
                                     <span class="fw-bold text-dark">@string.Format("{0:N0} VNĐ", item.Amount)</span>
                                 </td>
-                                <td class="text-center">
+                                <td>
                                     @{
                                         var statusEnum = item.RefundStatusEnum;
                                         var statusClass = statusEnum switch
@@ -98,7 +98,7 @@
                                         @statusText
                                     </span>
                                 </td>
-                                <td class="text-center" id="visibility-cell-@item.Id">
+                                <td id="visibility-cell-@item.Id">
                                     @if (!item.Isdeleted)
                                     {
                                         <span class="badge bg-info text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
@@ -117,7 +117,7 @@
                                         @(string.IsNullOrEmpty(item.Reason) ? "Không có lý do" : item.Reason)
                                     </div>
                                 </td>
-                                <td class="text-center text-muted small">
+                                <td class="text-muted small">
                                     @(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                 </td>
                                 <td class="text-center pe-4">

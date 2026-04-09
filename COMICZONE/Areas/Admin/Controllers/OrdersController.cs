@@ -161,7 +161,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                         CreatedBy = adminId,
                         CreatedAt = DateTime.Now,
                         IsRead = false,
-                        Link = $"/UserProfiles/MyOrders"
+                        Link = $"/Account/UserProfiles/MyOrders"
                     });
                 }
 
@@ -233,7 +233,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                         CreatedBy = adminId,
                         CreatedAt = DateTime.Now,
                         IsRead = false,
-                        Link = $"/UserProfiles/MyOrders"
+                        Link = $"/Account/UserProfiles/MyOrders"
                     });
                 }
 
@@ -296,7 +296,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 CreatedBy = adminId,
                 CreatedAt = DateTime.Now,
                 IsRead = false,
-                Link = "/UserProfiles/MyOrders"
+                Link = "/Account/UserProfiles/MyOrders"
             });
 
             await _context.SaveChangesAsync();

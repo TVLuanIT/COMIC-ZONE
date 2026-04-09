@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 public class AdminBaseController : Controller
@@ -9,7 +9,7 @@ public class AdminBaseController : Controller
 
         if (string.IsNullOrEmpty(role) || role != "Admin")
         {
-            context.Result = new RedirectToActionResult("Login", "Authentication", new { area = "" });
+            context.Result = new RedirectToActionResult("Login", "Authentication", new { area = "Account" });
         }
 
         base.OnActionExecuting(context);

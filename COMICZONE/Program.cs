@@ -26,8 +26,8 @@ namespace COMICZONE
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Authentication/Login";
-                    options.AccessDeniedPath = "/Authentication/Login";
+                    options.LoginPath = "/Account/Authentication/Login";
+                    options.AccessDeniedPath = "/Account/Authentication/Login";
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 });
 
@@ -83,9 +83,29 @@ namespace COMICZONE
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapControllerRoute(
-                name: "areas",
-                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+            //app.MapAreaControllerRoute(
+            //    name: "Blogs",
+            //    areaName: "Blogs",
+            //    pattern: "Blogs/{controller=Blogs}/{action=Index}/{id?}");
+
+            //app.MapControllerRoute(
+            //    name: "areas",
+            //    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Blogs",
+                areaName: "Blogs",
+                pattern: "Blogs/{controller=Home}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Admin",
+                areaName: "Admin",
+                pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Account",
+                areaName: "Account",
+                pattern: "Account/{controller=Authentication}/{action=Login}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

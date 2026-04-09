@@ -1,4 +1,4 @@
-﻿namespace COMICZONE.Models
+namespace COMICZONE.Models
 {
 public class PaginationModel
 {
@@ -7,6 +7,7 @@ public class PaginationModel
 
     public required string Action { get; set; }
     public required string Controller { get; set; }
+    public string Area { get; set; } = "";
 
     // Tên param page (page / reviewPage / replyPage)
     public string PageParam { get; set; } = "page";

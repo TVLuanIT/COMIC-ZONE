@@ -1,0 +1,26 @@
+@{
+    // Check both Query String and ViewData (from Controller) for maximum persistence
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault() 
+                    ?? (ViewData["ReturnUrl"] as string) 
+                    ?? "";
+
+    // Normalize check by looking for area segments (encoded or literal)
+    bool isBlogs = returnUrl.Contains("/Blogs", StringComparison.OrdinalIgnoreCase) || 
+                   returnUrl.Contains("%2FBlogs", StringComparison.OrdinalIgnoreCase);
+                   
+    bool isAdmin = returnUrl.Contains("/Admin", StringComparison.OrdinalIgnoreCase) || 
+                   returnUrl.Contains("%2FAdmin", StringComparison.OrdinalIgnoreCase);
+
+    if (isBlogs)
+    {
+        Layout = "~/Areas/Blogs/Views/Shared/_BlogsLayout.cshtml";
+    }
+    else if (isAdmin)
+    {
+        Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "_Layout"; // Trang chủ / Root layout
+    }
+}
