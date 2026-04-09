@@ -24,6 +24,15 @@
     /* Gradients */
     --blogs-grad: linear-gradient(135deg, var(--blogs-primary) 0%, var(--blogs-secondary) 100%);
     --blogs-grad-glass: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+
+    /* Variable BRIDGE for shared Premium components (like SweetAlert2) */
+    --primary-gradient: var(--blogs-grad);
+    --glass-border: var(--blogs-border);
+    --glass-bg: var(--blogs-glass);
+    --text-primary: var(--blogs-text);
+    --text-secondary: var(--blogs-text-dim);
+    --shadow-premium: var(--blogs-sh-premium);
+    --transition-smooth: var(--blogs-tr);
 }
 
 /* Global Reset Overrides */

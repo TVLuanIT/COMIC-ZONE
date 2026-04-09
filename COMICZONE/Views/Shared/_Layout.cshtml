@@ -199,6 +199,19 @@
             </div>
         </footer>
 
+        @if (TempData["Success"] != null)
+        {
+            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
+        }
+        @if (TempData["LoginRequired"] != null)
+        {
+            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
+        }
+
         <!-- Scripts -->
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -222,19 +235,6 @@
                 offset: 50
             });
         </script>
-
-        @if (TempData["Success"] != null)
-        {
-            <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
-        }
-        @if (TempData["LoginRequired"] != null)
-        {
-            <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
-        }
 
         @await RenderSectionAsync("Scripts", required: false)
 

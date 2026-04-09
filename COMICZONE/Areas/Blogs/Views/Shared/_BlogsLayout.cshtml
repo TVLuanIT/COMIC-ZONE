@@ -113,26 +113,46 @@
         </div>
     </footer>
 
+    @if (TempData["Success"] != null)
+    {
+        <script>window.successMessage = "@Html.Raw(TempData["Success"])";</script>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <script>window.errorMessage = "@Html.Raw(TempData["Error"])";</script>
+    }
+    @if (TempData["LoginRequired"] != null)
+    {
+        <script>window.loginRequiredMessage = "@Html.Raw(TempData["LoginRequired"])";</script>
+    }
+
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     
     <script>
+        console.log("Blogs Layout Scripts Loaded");
         // Init AOS
-        AOS.init({
-            duration: 1000,
-            once: true,
-            offset: 100
-        });
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                once: true,
+                offset: 100
+            });
+        }
 
         // Navbar Scroll Effect
         window.addEventListener('scroll', function() {
             const nav = document.getElementById('mainNav');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
+            if (nav) {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
             }
         });
     </script>

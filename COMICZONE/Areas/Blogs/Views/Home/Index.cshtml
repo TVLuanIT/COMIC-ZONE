@@ -178,7 +178,9 @@
                          </div>
                          <h5 class="fw-bold mb-3">Bạn có bài viết hay?</h5>
                          <p class="text-secondary mb-4">Chia sẻ ngay kiến thức và niềm đam mê của bạn với cộng đồng ComicZone.</p>
-                         <a href="#" class="btn-cta-outline">Gửi bài ngay</a>
+                         <a asp-area="Blogs" asp-controller="Home" asp-action="Create" 
+                            class="btn-cta-outline auth-check-link" 
+                            data-loggedin="@(!string.IsNullOrEmpty(Context.Session.GetString("UserId")) ? "true" : "false")">Gửi bài ngay</a>
                     </div>
                 </div>
             </div>
@@ -186,3 +188,44 @@
     </div>
 </section>
 
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const blogBtn = document.querySelector('.auth-check-link');
+            if (blogBtn) {
+                blogBtn.addEventListener('click', function(e) {
+                    const isLoggedIn = this.getAttribute('data-loggedin') === 'true';
+                    if (!isLoggedIn) {
+                        e.preventDefault();
+                        
+                        // Sử dụng PremiumSwal từ window để đảm bảo đồng bộ
+                        const swal = window.PremiumSwal || (typeof PremiumSwal !== 'undefined' ? PremiumSwal : null);
+                        
+                        if (swal) {
+                            swal.fire({
+                                icon: 'warning',
+                                title: 'Yêu cầu đăng nhập',
+                                text: 'Vui lòng đăng nhập để chia sẻ bài viết của bạn với cộng đồng.',
+                                confirmButtonText: 'Đăng nhập',
+                                cancelButtonText: 'Hủy',
+                                showCancelButton: true,
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const currentUrl = window.location.pathname + window.location.search;
+                                    window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(currentUrl)}`;
+                                }
+                            });
+                        } else if (typeof window.showLoginRequired === 'function') {
+                            window.showLoginRequired("Vui lòng đăng nhập để viết bài.");
+                        } else {
+                            // Fallback cuối cùng nếu script chưa load kịp
+                            console.log("PremiumSwal not found, using fallback");
+                            window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
