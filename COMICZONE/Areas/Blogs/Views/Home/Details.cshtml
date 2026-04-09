@@ -63,8 +63,13 @@
                 <div class="article-footer-tools d-flex justify-content-between align-items-center mt-5 py-4 border-top border-bottom">
                     <div class="tags-list">
                          <span class="fw-bold text-uppercase small text-muted me-3">Tags:</span>
-                         <span class="badge bg-light text-secondary rounded-pill px-3">Manga</span>
-                         <span class="badge bg-light text-secondary rounded-pill px-3">Review</span>
+                         @if (Model.Categories != null && Model.Categories.Any())
+                         {
+                             foreach(var cat in Model.Categories)
+                             {
+                                 <span class="badge bg-light text-secondary rounded-pill px-3">@cat.Name</span>
+                             }
+                         }
                     </div>
                     <div class="share-group d-flex gap-2">
                         <a href="#" class="share-icon fb"><i class="bi bi-facebook"></i></a>

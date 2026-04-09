@@ -235,7 +235,12 @@ namespace COMICZONE.Areas.Account.Controllers
 
                 if (!string.IsNullOrEmpty(notification.Link))
                 {
-                    return Redirect(notification.Link);
+                    string link = notification.Link;
+                    if (link.StartsWith("/UserProfiles/"))
+                    {
+                        link = "/Account" + link;
+                    }
+                    return Redirect(link);
                 }
             }
 
@@ -253,19 +258,6 @@ namespace COMICZONE.Areas.Account.Controllers
             }
 
             int userId = int.Parse(userIdStr);
-
-            // Tự động đánh dấu tất cả các thông báo là đã đọc khi vào trang này
-            var unreadNotifs = _context.Notifications
-                .Where(n => n.UserId == userId && 
-                       (n.IsRead == false || n.IsRead == null) && 
-                       !n.Isdeleted)
-                .ToList();
-
-            if (unreadNotifs.Any())
-            {
-                foreach (var n in unreadNotifs) n.IsRead = true;
-                _context.SaveChanges();
-            }
 
             int pageSize = 6;
             var query = _context.Notifications
@@ -512,27 +504,34 @@ namespace COMICZONE.Areas.Account.Controllers
         public IActionResult MyOrders(int page = 1, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+
+            int pageSize = 6;
+            int totalItems;
+            var orders = GetOrders(page, pageSize, out totalItems);
+
             var userIdStr = HttpContext.Session.GetString("UserId");
+            var unreadOrderIds = new List<int>();
             if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
             {
-                // Tự động đánh dấu các thông báo đơn hàng là đã đọc khi vào trang này
-                var unreadNotifs = _context.Notifications
+                var unreadOrderNotifs = _context.Notifications
                     .Where(n => n.UserId == userId && 
                            (n.IsRead == false || n.IsRead == null) && 
                            !n.Isdeleted && 
                            (n.Link.Contains("MyOrders") || n.Link.Contains("OrderDetails")))
                     .ToList();
-
-                if (unreadNotifs.Any())
+                
+                foreach (var notif in unreadOrderNotifs)
                 {
-                    foreach (var n in unreadNotifs) n.IsRead = true;
-                    _context.SaveChanges();
+                    foreach (var order in orders)
+                    {
+                        if (notif.Message.Contains($"#{order.OrderId} "))
+                        {
+                            unreadOrderIds.Add(order.OrderId);
+                        }
+                    }
                 }
             }
-
-            int pageSize = 6;
-            int totalItems;
-            var orders = GetOrders(page, pageSize, out totalItems);
+            ViewBag.UnreadOrderIds = unreadOrderIds.Distinct().ToList();
 
             ViewBag.Pagination = new PaginationModel
             {
@@ -569,6 +568,23 @@ namespace COMICZONE.Areas.Account.Controllers
             if (order == null)
             {
                 return NotFound();
+            }
+
+            string searchPattern = $"#{id} ";
+            
+            // Đánh dấu các thông báo liên quan đến đơn hàng này là đã đọc
+            var unreadNotifs = _context.Notifications
+                .Where(n => n.UserId == userId && 
+                       (n.IsRead == false || n.IsRead == null) && 
+                       !n.Isdeleted && 
+                       (n.Link.Contains("MyOrders") || n.Link.Contains("OrderDetails")) &&
+                       n.Message.Contains(searchPattern))
+                .ToList();
+
+            if (unreadNotifs.Any())
+            {
+                foreach (var n in unreadNotifs) n.IsRead = true;
+                _context.SaveChanges();
             }
 
             ViewBag.Page = "OrderDetails";

@@ -1,5 +1,9 @@
 @model List<COMICZONE.Models.Order>
 
+@{
+    var unreadOrderIds = ViewBag.UnreadOrderIds as List<int> ?? new List<int>();
+}
+
 <div class="premium-content-card" data-aos="fade-up">
 
     <div class="card-header-premium">
@@ -20,7 +24,8 @@
         <div class="orders-list">
             @foreach (var order in Model)
             {
-                <div class="premium-order-card" data-aos="fade-up" data-aos-delay="50">
+                bool isUnread = unreadOrderIds.Contains(order.OrderId);
+                <div class="premium-order-card @(isUnread ? "border border-danger" : "")" data-aos="fade-up" data-aos-delay="50">
                     <div>
                         <div class="d-flex align-items-center mb-2">
                             <span class="fw-800 text-primary fs-5 me-3">#@order.OrderId</span>
@@ -33,6 +38,10 @@
                                 else if (order.Status == "Cancelled") { statusText = "Đã hủy"; statusClass = "status-cancelled"; }
                             }
                             <span class="order-status-badge @statusClass">@statusText</span>
+                            @if (isUnread)
+                            {
+                                <span class="badge bg-danger ms-2 rounded-pill px-2 py-1 animate__animated animate__pulse animate__infinite" style="font-size: 0.75rem;">Có thông báo mới</span>
+                            }
                         </div>
                         <div class="text-muted small">
                             <i class="bi bi-calendar3 me-1"></i> @order.OrderDate?.ToString("HH:mm dd/MM/yyyy")

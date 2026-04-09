@@ -18,8 +18,9 @@
         @if (Model != null && Model.Any())
         {
             <!-- Swiper Container - Premium Layout -->
-            <div id="blogSwiperPremium" class="swiper product-swiper px-2" data-aos="fade-up" data-aos-delay="300">
-                <div class="swiper-wrapper">
+            <div class="position-relative" data-aos="fade-up" data-aos-delay="300">
+                <div id="blogSwiperPremium" class="swiper product-swiper px-2">
+                    <div class="swiper-wrapper">
                     @foreach (var blog in Model)
                     {
                         <div class="swiper-slide py-4">
@@ -53,6 +54,11 @@
                 <!-- Pagination dots -->
                 <div class="swiper-pagination blog-pagination"></div>
             </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="swiper-button-next blogSwiperPremium-next"></div>
+            <div class="swiper-button-prev blogSwiperPremium-prev"></div>
+        </div>
 
             <!-- Nút xem thêm thiết kế lại -->
             <div class="text-center mt-5" data-aos="fade-up">
@@ -84,6 +90,10 @@
                     el: '.swiper-pagination',
                     clickable: true,
                     dynamicBullets: true
+                },
+                navigation: {
+                    nextEl: '.blogSwiperPremium-next',
+                    prevEl: '.blogSwiperPremium-prev',
                 },
                 breakpoints: {
                     768: { 

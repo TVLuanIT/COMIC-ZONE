@@ -142,7 +142,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                             UserId = existingPayment.Order.UserId,
                             Title = "Cập nhật trạng thái thanh toán",
                             Message = $"Thanh toán cho đơn hàng #{existingPayment.Orderid} đã thay đổi từ '{oldStatus}' sang '{newStatus}'.",
-                            Link = $"/UserProfiles/OrderDetails/{existingPayment.Orderid}",
+                            Link = $"/Account/UserProfiles/OrderDetails/{existingPayment.Orderid}",
                             CreatedBy = adminId,
                             CreatedAt = DateTime.Now,
                             IsRead = false

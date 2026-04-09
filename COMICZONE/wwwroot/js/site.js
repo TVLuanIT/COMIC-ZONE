@@ -37,7 +37,7 @@ function uploadAvatar(input) {
     let formData = new FormData();
     formData.append("avatar", file);
 
-    fetch("/UserProfiles/UploadAvatar", { method: "POST", body: formData })
+    fetch("/Account/UserProfiles/UploadAvatar", { method: "POST", body: formData })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
