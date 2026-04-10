@@ -44,6 +44,28 @@ namespace COMICZONE.Areas.Blogs.Controllers
                 return NotFound();
             }
 
+            // Đánh dấu thông báo liên quan đến bài viết này là đã đọc nếu người dùng là tác giả
+            var currentUserIdStr = CurrentUserId();
+            if (!string.IsNullOrEmpty(currentUserIdStr) && int.TryParse(currentUserIdStr, out int userId))
+            {
+                if (blog.Authorid == userId)
+                {
+                    string searchPattern = $"/Blogs/Blogs/Details/{blog.Id}";
+                    var unreadBlogNotifs = await _context.Notifications
+                        .Where(n => n.UserId == userId && 
+                               (n.IsRead == false || n.IsRead == null) && 
+                               !n.Isdeleted && 
+                               n.Link.Contains(searchPattern))
+                        .ToListAsync();
+
+                    if (unreadBlogNotifs.Any())
+                    {
+                        foreach (var n in unreadBlogNotifs) n.IsRead = true;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+
             // Bài viết liên quan
             ViewBag.RelatedBlogs = await _context.Blogs
                 .Where(b => b.Id != id && b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted)

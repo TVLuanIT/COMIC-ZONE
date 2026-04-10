@@ -85,6 +85,7 @@
                class="sidebar-menu-link @(action == "MyBlogs" ? "active" : "")">
                 <i class="bi bi-journal-text"></i>
                 <span>Bài viết của tôi</span>
+                @await Component.InvokeAsync("UnreadBlogCount")
             </a>
         </li>
         <li>

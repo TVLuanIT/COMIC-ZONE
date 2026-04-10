@@ -50,6 +50,7 @@ namespace COMICZONE
 
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             builder.Services.AddSingleton(x => new PaypalClient
             (
