@@ -183,11 +183,17 @@
     object-fit: cover;
 }
 .form-control-premium {
+    width: 100%;
+    min-height: 120px;
     border-radius: 20px;
     padding: 20px;
     border: 1px solid #e2e8f0;
     background: #f8fafc;
+    color: var(--blogs-text);
     transition: var(--blogs-tr);
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: vertical;
 }
 .form-control-premium:focus {
     background: white;

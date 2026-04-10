@@ -374,5 +374,55 @@ namespace COMICZONE.Areas.Blogs.Controllers
 
             return slug;
         }
+
+        // POST: Blogs/Home/AddComment
+        [HttpPost]
+        public async Task<IActionResult> AddComment(int blogId, string content)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để bình luận." });
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return Json(new { success = false, message = "Nội dung bình luận không được để trống." });
+            }
+
+            try
+            {
+                var comment = new BlogComment
+                {
+                    Blogid = blogId,
+                    Userid = int.Parse(CurrentUserId()!),
+                    Content = content,
+                    Createdat = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                _context.BlogComments.Add(comment);
+                await _context.SaveChangesAsync();
+
+                // Nạp thêm thông tin User để trả về cho Client
+                await _context.Entry(comment).Reference(c => c.User).LoadAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Thêm bình luận thành công.",
+                    comment = new
+                    {
+                        username = comment.User?.Username ?? "User",
+                        avatar = COMICZONE.Extensions.StringExtensions.AvatarOrDefault(comment.User?.Avatar),
+                        content = comment.Content,
+                        createdAt = comment.Createdat.ToString("dd/MM/yyyy HH:mm")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Đã xảy ra lỗi: " + ex.Message });
+            }
+        }
     }
 }

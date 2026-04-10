@@ -85,9 +85,14 @@
                     @if (Context.Session.GetString("UserId") != null)
                     {
                         <div class="comment-form-premium mb-5">
-                            <textarea id="commentContent" class="form-control-premium" rows="3" placeholder="Để lại cảm nhận của bạn..."></textarea>
+                            <input type="hidden" id="blogId" value="@Model.Id" />
+                            <textarea id="commentContent" class="form-control-premium" rows="5" placeholder="Để lại cảm nhận của bạn..."></textarea>
                             <div class="text-end mt-3">
-                                <button class="btn btn-primary rounded-pill px-4">Gửi bình luận <i class="bi bi-send-fill ms-2"></i></button>
+                                <button id="btnSubmitComment" class="btn btn-primary rounded-pill px-4">
+                                    <span class="submit-text">Gửi bình luận</span>
+                                    <span class="submit-spinner spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                                    <i class="submit-icon bi bi-send-fill ms-2"></i>
+                                </button>
                             </div>
                         </div>
                     }
@@ -95,7 +100,7 @@
                     {
                         <div class="auth-suggest mb-5 text-center p-4 bg-light rounded-4">
                              <p class="mb-3 fw-medium">Bạn cần đăng nhập để bình luận</p>
-                             <a asp-area="Account" asp-controller="Authentication" asp-action="Login" class="btn btn-dark rounded-pill px-4">Đăng nhập ngay</a>
+                             <a asp-area="Account" asp-controller="Authentication" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-dark rounded-pill px-4">Đăng nhập ngay</a>
                         </div>
                     }
 
@@ -172,6 +177,85 @@
                     once: true,
                     offset: 100
                 });
+            }
+        });
+
+        // Comment Submission Logic
+        document.getElementById('btnSubmitComment')?.addEventListener('click', async function () {
+            const contentInput = document.getElementById('commentContent');
+            const content = contentInput.value.trim();
+            const blogId = document.getElementById('blogId').value;
+            
+            if (!content) {
+                alert('Vui lòng nhập nội dung bình luận!');
+                return;
+            }
+            
+            const btn = this;
+            const textSpan = btn.querySelector('.submit-text');
+            const iconSpan = btn.querySelector('.submit-icon');
+            const spinnerSpan = btn.querySelector('.submit-spinner');
+            
+            // Loading state
+            btn.disabled = true;
+            spinnerSpan.classList.remove('d-none');
+            iconSpan.classList.add('d-none');
+            
+            try {
+                const formData = new FormData();
+                formData.append('blogId', blogId);
+                formData.append('content', content);
+                
+                const response = await fetch('@Url.Action("AddComment", "Home", new { area = "Blogs" })', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    contentInput.value = '';
+                    
+                    // Create new comment HTML
+                    const html = `
+                        <div class="comment-node mb-4" data-aos="fade-down">
+                            <div class="d-flex gap-3">
+                                <img src="${result.comment.avatar}" class="comment-avatar" alt="Avatar">
+                                <div class="comment-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0 fw-bold">${result.comment.username}</h6>
+                                        <span class="x-small text-muted">${result.comment.createdAt}</span>
+                                    </div>
+                                    <p class="text-secondary mb-0">${result.comment.content}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const commentsList = document.querySelector('.comments-list');
+                    commentsList.insertAdjacentHTML('afterbegin', html);
+                    
+                    // Update comment count
+                    const countHeader = document.querySelector('.comments-area h3');
+                    if (countHeader) {
+                        const currentText = countHeader.innerText;
+                        const countMatch = currentText.match(/\d+/);
+                        if (countMatch) {
+                            const newCount = parseInt(countMatch[0]) + 1;
+                            countHeader.innerText = currentText.replace(/\d+/, newCount);
+                        }
+                    }
+                } else {
+                    alert(result.message || 'Có lỗi xảy ra!');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Gửi bình luận thất bại!');
+            } finally {
+                // Restore button state
+                btn.disabled = false;
+                spinnerSpan.classList.add('d-none');
+                iconSpan.classList.remove('d-none');
             }
         });
     </script>

@@ -51,6 +51,18 @@ public partial class User
     public bool Isdeleted { get; set; }
 
     [InverseProperty("User")]
+    public virtual ICollection<BlogCommentLike> BlogCommentLikes { get; set; } = new List<BlogCommentLike>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<BlogCommentReplyLike> BlogCommentReplyLikes { get; set; } = new List<BlogCommentReplyLike>();
+
+    [InverseProperty("Replytouser")]
+    public virtual ICollection<BlogCommentReply> BlogCommentReplyReplytousers { get; set; } = new List<BlogCommentReply>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<BlogCommentReply> BlogCommentReplyUsers { get; set; } = new List<BlogCommentReply>();
+
+    [InverseProperty("User")]
     public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
 
     [InverseProperty("Author")]

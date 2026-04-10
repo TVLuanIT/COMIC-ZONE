@@ -130,7 +130,7 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.form-control-premium {
+.input-group-premium .form-control-premium {
     background: transparent;
     border: none;
     color: white;
@@ -139,7 +139,7 @@
     flex-grow: 1;
     width: 100%;
 }
-.form-control-premium::placeholder { color: rgba(255, 255, 255, 0.75); }
+.input-group-premium .form-control-premium::placeholder { color: rgba(255, 255, 255, 0.75); }
 
 .btn-premium-send {
     background: white;
