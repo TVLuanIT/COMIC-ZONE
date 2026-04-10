@@ -182,7 +182,7 @@
     border-radius: 15px;
     object-fit: cover;
 }
-.form-control-premium {
+.comment-form-premium .form-control-premium {
     width: 100%;
     min-height: 120px;
     border-radius: 20px;

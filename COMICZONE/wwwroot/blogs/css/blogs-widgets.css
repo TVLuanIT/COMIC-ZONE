@@ -121,6 +121,7 @@
     border-radius: 99px;
     padding: 6px;
     display: flex;
+    align-items: center;
     transition: var(--blogs-tr);
     margin-top: 15px;
 }
@@ -138,6 +139,7 @@
     outline: none;
     flex-grow: 1;
     width: 100%;
+    min-height: unset !important;
 }
 .input-group-premium .form-control-premium::placeholder { color: rgba(255, 255, 255, 0.75); }
 

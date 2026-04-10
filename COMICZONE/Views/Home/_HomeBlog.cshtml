@@ -24,7 +24,7 @@
                     @foreach (var blog in Model)
                     {
                         <div class="swiper-slide py-4">
-                            <a asp-area="Blogs" asp-action="Details" asp-controller="Home" asp-route-id="@blog.Id" class="blog-card-premium">
+                            <a asp-area="Blogs" asp-action="Details" asp-controller="Blogs" asp-route-id="@blog.Id" class="blog-card-premium">
                                 <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
                                      alt="@blog.Title" class="blog-card-image" loading="lazy">
                                 
