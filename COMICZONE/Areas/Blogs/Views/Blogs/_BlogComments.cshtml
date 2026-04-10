@@ -2,7 +2,9 @@
 @using Microsoft.AspNetCore.Http
 
 <!-- COMMENTS SECTION -->
-<div class="comments-area mt-5" id="comments">
+<div class="comments-area mt-5" id="comments"
+     data-is-logged-in="@(Context.Session.GetString("UserId") != null ? "true" : "false")"
+     data-login-url="@Url.Action("Login", "Authentication", new { area = "Account", returnUrl = Context.Request.Path })">
     <h3 class="fw-bold mb-4">Thảo luận (@Model.BlogComments.Count)</h3>
     
     @if (Context.Session.GetString("UserId") != null)
@@ -27,18 +29,91 @@
         </div>
     }
 
-    <div class="comments-list">
+    <div class="comments-list" 
+         data-toggle-like-url="@Url.Action("ToggleCommentLike", "Blogs", new { area = "Blogs" })"
+         data-toggle-reply-url="@Url.Action("AddReply", "Blogs", new { area = "Blogs" })"
+         data-toggle-reply-like-url="@Url.Action("ToggleReplyLike", "Blogs", new { area = "Blogs" })">
+        @{
+            var currentUserIdStr = Context.Session.GetString("UserId");
+            int? currentUserId = !string.IsNullOrEmpty(currentUserIdStr) ? int.Parse(currentUserIdStr) : null;
+        }
         @foreach(var comment in Model.BlogComments.OrderByDescending(c => c.Createdat))
         {
-            <div class="comment-node mb-4">
+            var likes = comment.BlogCommentLikes.Count(l => l.Islike == true);
+            var dislikes = comment.BlogCommentLikes.Count(l => l.Islike == false);
+            var userReaction = currentUserId.HasValue ? comment.BlogCommentLikes.FirstOrDefault(l => l.Userid == currentUserId.Value)?.Islike : null;
+            
+            <div class="comment-node mb-4" id="comment-@comment.Id">
                 <div class="d-flex gap-3">
                     <img src="@(comment.User?.Avatar.AvatarOrDefault())" class="comment-avatar">
-                    <div class="comment-body">
+                    <div class="comment-body w-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="mb-0 fw-bold">@(comment.User.Username)</h6>
+                            <h6 class="mb-0 fw-bold">@(comment.User?.Username ?? "Ẩn danh")</h6>
                             <span class="x-small text-muted">@comment.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
                         </div>
-                        <p class="text-secondary mb-0">@comment.Content</p>
+                        <p class="text-secondary mb-2">@comment.Content</p>
+                        
+                        <div class="comment-actions d-flex gap-3 align-items-center">
+                            <button class="btn-like @(userReaction == true ? "active" : "") d-flex align-items-center gap-1" 
+                                    data-comment-id="@comment.Id" data-is-like="true">
+                                <i class="bi @(userReaction == true ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up")"></i>
+                                <span class="like-count count">@likes</span>
+                            </button>
+                            
+                            <button class="btn-dislike @(userReaction == false ? "active" : "") d-flex align-items-center gap-1" 
+                                    data-comment-id="@comment.Id" data-is-like="false">
+                                <i class="bi @(userReaction == false ? "bi-hand-thumbs-down-fill" : "bi-hand-thumbs-down")"></i>
+                            </button>
+
+                            <button class="btn-toggle-reply d-flex align-items-center gap-1" data-comment-id="@comment.Id">
+                                <i class="bi bi-reply-fill"></i>
+                                <span>Phản hồi</span>
+                            </button>
+                        </div>
+
+                        <!-- Reply Form (Hidden) -->
+                        <div class="reply-form-container mt-3 d-none" id="reply-form-@comment.Id">
+                             <div class="d-flex gap-2 align-items-center">
+                                 <textarea class="form-control-premium x-small reply-content w-100" rows="2" placeholder="Viết phản hồi..."></textarea>
+                                 <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" data-comment-id="@comment.Id">
+                                     <i class="bi bi-send-fill"></i>
+                                 </button>
+                             </div>
+                        </div>
+
+                        <!-- Replies List -->
+                        <div class="replies-list mt-3 ms-2 ps-3 border-start" id="replies-list-@comment.Id">
+                            @foreach(var reply in comment.BlogCommentReplies.Where(r => r.Isdeleted != true).OrderBy(r => r.Createdat))
+                            {
+                                var rLikes = reply.BlogCommentReplyLikes.Count(l => l.Islike == true);
+                                var rUserReaction = currentUserId.HasValue ? reply.BlogCommentReplyLikes.FirstOrDefault(l => l.Userid == currentUserId.Value)?.Islike : null;
+
+                                <div class="reply-node mb-3" id="reply-@reply.Replyid">
+                                    <div class="d-flex gap-2">
+                                        <img src="@(reply.User?.Avatar.AvatarOrDefault())" class="reply-avatar">
+                                        <div class="reply-body w-100">
+                                            <div class="d-flex justify-content-between align-items-center mb-0">
+                                                <h6 class="text-sm fw-bold mb-0">@(reply.User?.Username ?? "Ẩn danh")</h6>
+                                                <span class="xx-small text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</span>
+                                            </div>
+                                            <p class="small text-secondary mb-1">@reply.Content</p>
+                                            
+                                            <div class="reply-actions d-flex gap-2 align-items-center">
+                                                <button class="btn-reply-like @(rUserReaction == true ? "active" : "") xx-small" 
+                                                        data-reply-id="@reply.Replyid" data-is-like="true">
+                                                    <i class="bi @(rUserReaction == true ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up")"></i>
+                                                    <span class="count">@rLikes</span>
+                                                </button>
+                                                <button class="btn-reply-dislike @(rUserReaction == false ? "active" : "") xx-small" 
+                                                        data-reply-id="@reply.Replyid" data-is-like="false">
+                                                    <i class="bi @(rUserReaction == false ? "bi-hand-thumbs-down-fill" : "bi-hand-thumbs-down")"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

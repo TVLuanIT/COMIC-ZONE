@@ -1,5 +1,41 @@
 /* JS for Blog Comments Section */
 document.addEventListener('DOMContentLoaded', function() {
+    const commentsArea = document.querySelector('.comments-area');
+    const isLoggedIn = commentsArea ? commentsArea.getAttribute('data-is-logged-in') === 'true' : false;
+    const loginUrl = commentsArea ? commentsArea.getAttribute('data-login-url') : '';
+
+    function checkAuth() {
+        if (!isLoggedIn) {
+            Swal.fire({
+                title: 'Yêu cầu đăng nhập',
+                text: 'Vui lòng đăng nhập để thực hiện chức năng này.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'premium-swal-popup',
+                    confirmButton: 'premium-swal-confirm',
+                    cancelButton: 'premium-swal-cancel'
+                },
+                buttonsStyling: false,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp animate__faster'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = loginUrl;
+                }
+            });
+            return false;
+        }
+        return true;
+    }
+
     const btnSubmit = document.getElementById('btnSubmitComment');
     if (btnSubmit) {
         btnSubmit.addEventListener('click', async function () {
@@ -11,9 +47,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const actionUrl = commentForm ? commentForm.getAttribute('data-url') : '';
             
             if (!content) {
-                alert('Vui lòng nhập nội dung bình luận!');
+                Swal.fire({
+                    text: 'Vui lòng nhập nội dung bình luận!',
+                    icon: 'info',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
                 return;
             }
+
+            // Check auth
+            if (!checkAuth()) return;
             
             if (!actionUrl) {
                 console.error('Comment action URL not found');
@@ -47,15 +93,45 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Create new comment HTML
                     const html = `
-                        <div class="comment-node mb-4 animate__animated animate__fadeInDown">
+                        <div class="comment-node mb-4 animate__animated animate__fadeInDown" id="comment-${result.comment.id}">
                             <div class="d-flex gap-3">
                                 <img src="${result.comment.avatar}" class="comment-avatar" alt="Avatar">
-                                <div class="comment-body">
+                                <div class="comment-body w-100">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h6 class="mb-0 fw-bold">${result.comment.username}</h6>
                                         <span class="x-small text-muted">${result.comment.createdAt}</span>
                                     </div>
-                                    <p class="text-secondary mb-0">${result.comment.content}</p>
+                                    <p class="text-secondary mb-2">${result.comment.content}</p>
+                                    
+                                    <div class="comment-actions d-flex gap-3 align-items-center">
+                                        <button class="btn-like d-flex align-items-center gap-1" 
+                                                data-comment-id="${result.comment.id}" data-is-like="true">
+                                            <i class="bi bi-hand-thumbs-up"></i>
+                                            <span class="like-count count">0</span>
+                                        </button>
+                                        
+                                        <button class="btn-dislike d-flex align-items-center gap-1" 
+                                                data-comment-id="${result.comment.id}" data-is-like="false">
+                                            <i class="bi bi-hand-thumbs-down"></i>
+                                        </button>
+
+                                        <button class="btn-toggle-reply d-flex align-items-center gap-1" data-comment-id="${result.comment.id}">
+                                            <i class="bi bi-reply-fill"></i>
+                                            <span>Phản hồi</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="reply-form-container mt-3 d-none" id="reply-form-${result.comment.id}">
+                                         <div class="d-flex gap-2 align-items-center">
+                                             <textarea class="form-control-premium x-small reply-content w-100" rows="2" placeholder="Viết phản hồi..."></textarea>
+                                             <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" data-comment-id="${result.comment.id}">
+                                                 <i class="bi bi-send-fill"></i>
+                                             </button>
+                                         </div>
+                                    </div>
+
+                                    <div class="replies-list mt-3 ms-2 ps-3 border-start" id="replies-list-${result.comment.id}">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -76,17 +152,276 @@ document.addEventListener('DOMContentLoaded', function() {
                             countHeader.innerText = currentText.replace(/\d+/, newCount);
                         }
                     }
-                } else {
-                    alert(result.message || 'Có lỗi xảy ra!');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Gửi bình luận thất bại!');
-            } finally {
+                    } else if (!result.message || !result.message.includes("đăng nhập")) {
+                        Swal.fire({
+                            text: result.message || 'Có lỗi xảy ra!',
+                            icon: 'error',
+                            customClass: { popup: 'premium-swal-popup' }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire({
+                        text: 'Gửi bình luận thất bại!',
+                        icon: 'error',
+                        customClass: { popup: 'premium-swal-popup' }
+                    });
+                } finally {
                 // Restore button state
                 btn.disabled = false;
                 spinnerSpan.classList.add('d-none');
                 iconSpan.classList.remove('d-none');
+            }
+        });
+    }
+
+    // Like/Dislike Functionality
+    const commentsList = document.querySelector('.comments-list');
+    if (commentsList) {
+        const toggleLikeUrl = commentsList.getAttribute('data-toggle-like-url');
+        const toggleReplyUrl = commentsList.getAttribute('data-toggle-reply-url');
+        const toggleReplyLikeUrl = commentsList.getAttribute('data-toggle-reply-like-url');
+
+        // Toggle Reply Form
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-toggle-reply');
+            if (btn) {
+                const commentId = btn.getAttribute('data-comment-id');
+                const form = document.getElementById(`reply-form-${commentId}`);
+                if (form) {
+                    form.classList.toggle('d-none');
+                    if (!form.classList.contains('d-none')) {
+                        form.classList.add('animate__animated', 'animate__fadeIn');
+                        form.querySelector('textarea').focus();
+                    }
+                }
+            }
+        });
+
+        // Submit Reply
+        commentsList.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-submit-reply');
+            if (btn) {
+                const commentId = btn.getAttribute('data-comment-id');
+                const formContainer = document.getElementById(`reply-form-${commentId}`);
+                const textarea = formContainer.querySelector('.reply-content');
+                const content = textarea.value.trim();
+
+                if (!content) {
+                    Swal.fire({
+                        text: 'Vui lòng nhập nội dung phản hồi!',
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                    return;
+                }
+
+                // Check auth before sending
+                if (!checkAuth()) return;
+
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('commentId', commentId);
+                    formData.append('content', content);
+
+                    const response = await fetch(toggleReplyUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        textarea.value = '';
+                        formContainer.classList.add('d-none');
+
+                        // Create new reply HTML
+                        const replyHtml = `
+                            <div class="reply-node mb-3 animate__animated animate__fadeIn" id="reply-${result.reply.id}">
+                                <div class="d-flex gap-2">
+                                    <img src="${result.reply.avatar}" class="reply-avatar">
+                                    <div class="reply-body w-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-0">
+                                            <h6 class="text-sm fw-bold mb-0">${result.reply.username}</h6>
+                                            <span class="xx-small text-muted">${result.reply.createdAt}</span>
+                                        </div>
+                                        <p class="small text-secondary mb-1">${result.reply.content}</p>
+                                        
+                                        <div class="reply-actions d-flex gap-2 align-items-center">
+                                            <button class="btn-reply-like xx-small" 
+                                                    data-reply-id="${result.reply.id}" data-is-like="true">
+                                                <i class="bi bi-hand-thumbs-up"></i>
+                                                <span class="count">0</span>
+                                            </button>
+                                            <button class="btn-reply-dislike xx-small" 
+                                                    data-reply-id="${result.reply.id}" data-is-like="false">
+                                                <i class="bi bi-hand-thumbs-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        const repliesList = document.getElementById(`replies-list-${commentId}`);
+                        if (repliesList) {
+                            repliesList.insertAdjacentHTML('beforeend', replyHtml);
+                        }
+                    } else if (!result.message || !result.message.includes("đăng nhập")) {
+                        Swal.fire({
+                            text: result.message || 'Có lỗi xảy ra!',
+                            icon: 'error',
+                            customClass: { popup: 'premium-swal-popup' }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire({
+                        text: 'Gửi phản hồi thất bại!',
+                        icon: 'error',
+                        customClass: { popup: 'premium-swal-popup' }
+                    });
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        });
+
+        // Toggle Reply Like/Dislike
+        commentsList.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-reply-like, .btn-reply-dislike');
+            if (btn) {
+                const replyId = btn.getAttribute('data-reply-id');
+                const isLike = btn.getAttribute('data-is-like') === 'true';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('replyId', replyId);
+                    formData.append('isLike', isLike);
+
+                    const response = await fetch(toggleReplyLikeUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        const replyNode = document.getElementById(`reply-${replyId}`);
+                        if (replyNode) {
+                            const likeBtn = replyNode.querySelector('.btn-reply-like');
+                            const dislikeBtn = replyNode.querySelector('.btn-reply-dislike');
+                            const likeCount = likeBtn.querySelector('.count');
+
+                            // Update count
+                            if (likeCount) likeCount.innerText = result.likeCount;
+
+                            // Update active states
+                            likeBtn.classList.toggle('active', result.currentUserReaction === true);
+                            if (dislikeBtn) dislikeBtn.classList.toggle('active', result.currentUserReaction === false);
+                            
+                            // Update icons
+                            const likeIcon = likeBtn.querySelector('i');
+                            const dislikeIcon = dislikeBtn ? dislikeBtn.querySelector('i') : null;
+
+                            if (result.currentUserReaction === true) {
+                                likeIcon.className = 'bi bi-hand-thumbs-up-fill';
+                                if (dislikeIcon) dislikeIcon.className = 'bi bi-hand-thumbs-down';
+                            } else if (result.currentUserReaction === false) {
+                                likeIcon.className = 'bi bi-hand-thumbs-up';
+                                if (dislikeIcon) dislikeIcon.className = 'bi bi-hand-thumbs-down-fill';
+                            } else {
+                                likeIcon.className = 'bi bi-hand-thumbs-up';
+                                if (dislikeIcon) dislikeIcon.className = 'bi bi-hand-thumbs-down';
+                            }
+                        }
+                    } else if (!result.message || !result.message.includes("đăng nhập")) {
+                        Swal.fire({
+                            text: result.message || 'Có lỗi xảy ra!',
+                            icon: 'error',
+                            customClass: { popup: 'premium-swal-popup' }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire({
+                        text: 'Thao tác thất bại!',
+                        icon: 'error',
+                        customClass: { popup: 'premium-swal-popup' }
+                    });
+                }
+            }
+        });
+
+        // Toggle Comment Like
+        commentsList.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-like, .btn-dislike');
+            if (!btn) return;
+            if (btn.classList.contains('btn-reply-like')) return; // handled separately
+
+            const commentId = btn.getAttribute('data-comment-id');
+            const isLike = btn.getAttribute('data-is-like') === 'true';
+
+            try {
+                const formData = new FormData();
+                formData.append('commentId', commentId);
+                formData.append('isLike', isLike);
+
+                const response = await fetch(toggleLikeUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const commentNode = document.getElementById(`comment-${commentId}`);
+                    if (commentNode) {
+                        const likeBtn = commentNode.querySelector('.btn-like');
+                        const dislikeBtn = commentNode.querySelector('.btn-dislike');
+                        const likeCount = commentNode.querySelector('.like-count');
+
+                        // Update counts
+                        if (likeCount) likeCount.innerText = result.likeCount;
+
+                        // Update button states
+                        likeBtn.classList.toggle('active', result.currentUserReaction === true);
+                        dislikeBtn.classList.toggle('active', result.currentUserReaction === false);
+
+                        // Update icons
+                        const likeIcon = likeBtn.querySelector('i');
+                        const dislikeIcon = dislikeBtn.querySelector('i');
+                        
+                        if (result.currentUserReaction === true) {
+                            likeIcon.className = 'bi bi-hand-thumbs-up-fill';
+                            dislikeIcon.className = 'bi bi-hand-thumbs-down';
+                        } else if (result.currentUserReaction === false) {
+                            likeIcon.className = 'bi bi-hand-thumbs-up';
+                            dislikeIcon.className = 'bi bi-hand-thumbs-down-fill';
+                        } else {
+                            likeIcon.className = 'bi bi-hand-thumbs-up';
+                            dislikeIcon.className = 'bi bi-hand-thumbs-down';
+                        }
+                    }
+                } else if (!result.message || !result.message.includes("đăng nhập")) {
+                    Swal.fire({
+                        text: result.message || 'Có lỗi xảy ra!',
+                        icon: 'error',
+                        customClass: { popup: 'premium-swal-popup' }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    text: 'Thao tác thất bại!',
+                    icon: 'error',
+                    customClass: { popup: 'premium-swal-popup' }
+                });
             }
         });
     }

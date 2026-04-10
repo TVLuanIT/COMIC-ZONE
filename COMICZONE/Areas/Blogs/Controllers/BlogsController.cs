@@ -37,6 +37,14 @@ namespace COMICZONE.Areas.Blogs.Controllers
                 .Include(b => b.Categories)
                 .Include(b => b.BlogComments)
                     .ThenInclude(c => c.User)
+                .Include(b => b.BlogComments)
+                    .ThenInclude(c => c.BlogCommentLikes)
+                .Include(b => b.BlogComments)
+                    .ThenInclude(c => c.BlogCommentReplies)
+                        .ThenInclude(r => r.User)
+                .Include(b => b.BlogComments)
+                    .ThenInclude(c => c.BlogCommentReplies)
+                        .ThenInclude(r => r.BlogCommentReplyLikes)
                 .FirstOrDefaultAsync(m => m.Id == id && !m.Isdeleted);
 
             if (blog == null)
@@ -257,6 +265,7 @@ namespace COMICZONE.Areas.Blogs.Controllers
                     message = "Thêm bình luận thành công.",
                     comment = new
                     {
+                        id = comment.Id,
                         username = comment.User?.Username ?? "User",
                         avatar = COMICZONE.Extensions.StringExtensions.AvatarOrDefault(comment.User?.Avatar),
                         content = comment.Content,
@@ -268,6 +277,188 @@ namespace COMICZONE.Areas.Blogs.Controllers
             {
                 return Json(new { success = false, message = "Đã xảy ra lỗi: " + ex.Message });
             }
+        }
+        // POST: Blogs/Blogs/ToggleCommentLike
+        [HttpPost]
+        public async Task<IActionResult> ToggleCommentLike(int commentId, bool isLike)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var comment = await _context.BlogComments
+                .Include(c => c.BlogCommentLikes)
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.Isdeleted != true);
+
+            if (comment == null)
+            {
+                return Json(new { success = false, message = "Bình luận không tồn tại hoặc đã bị xóa." });
+            }
+
+            var existingLike = comment.BlogCommentLikes.FirstOrDefault(l => l.Userid == userId);
+
+            if (existingLike != null)
+            {
+                if (existingLike.Islike == isLike)
+                {
+                    // Toggle off if same reaction
+                    _context.BlogCommentLikes.Remove(existingLike);
+                }
+                else
+                {
+                    // Switch reaction (e.g. from like to dislike)
+                    existingLike.Islike = isLike;
+                    existingLike.Createdat = DateTime.Now;
+                    _context.BlogCommentLikes.Update(existingLike);
+                }
+            }
+            else
+            {
+                // Create new reaction
+                var newLike = new BlogCommentLike
+                {
+                    Commentid = commentId,
+                    Userid = userId,
+                    Islike = isLike,
+                    Createdat = DateTime.Now
+                };
+                _context.BlogCommentLikes.Add(newLike);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Refresh counts
+            var updatedComment = await _context.BlogComments
+                .Include(c => c.BlogCommentLikes)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+
+            var likeCount = updatedComment!.BlogCommentLikes.Count(l => l.Islike == true);
+            var dislikeCount = updatedComment!.BlogCommentLikes.Count(l => l.Islike == false);
+            var currentUserReaction = updatedComment!.BlogCommentLikes.FirstOrDefault(l => l.Userid == userId)?.Islike;
+
+            return Json(new
+            {
+                success = true,
+                likeCount = likeCount,
+                dislikeCount = dislikeCount,
+                currentUserReaction = currentUserReaction // true, false, or null
+            });
+        }
+
+        // POST: Blogs/Blogs/AddReply
+        [HttpPost]
+        public async Task<IActionResult> AddReply(int commentId, string content, int? parentReplyId = null)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để phản hồi." });
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return Json(new { success = false, message = "Nội dung phản hồi không được để trống." });
+            }
+
+            try
+            {
+                var reply = new BlogCommentReply
+                {
+                    Commentid = commentId,
+                    Userid = int.Parse(CurrentUserId()!),
+                    Content = content,
+                    Parentreplyid = parentReplyId,
+                    Createdat = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                _context.BlogCommentReplies.Add(reply);
+                await _context.SaveChangesAsync();
+
+                // Nạp thông tin User
+                await _context.Entry(reply).Reference(r => r.User).LoadAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    reply = new
+                    {
+                        id = reply.Replyid,
+                        username = reply.User?.Username ?? "User",
+                        avatar = COMICZONE.Extensions.StringExtensions.AvatarOrDefault(reply.User?.Avatar),
+                        content = reply.Content,
+                        createdAt = reply.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lưu phản hồi: " + ex.Message });
+            }
+        }
+
+        // POST: Blogs/Blogs/ToggleReplyLike
+        [HttpPost]
+        public async Task<IActionResult> ToggleReplyLike(int replyId, bool isLike)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var reply = await _context.BlogCommentReplies
+                .Include(r => r.BlogCommentReplyLikes)
+                .FirstOrDefaultAsync(r => r.Replyid == replyId && r.Isdeleted != true);
+
+            if (reply == null)
+            {
+                return Json(new { success = false, message = "Phản hồi không tồn tại." });
+            }
+
+            var existingLike = reply.BlogCommentReplyLikes.FirstOrDefault(l => l.Userid == userId);
+
+            if (existingLike != null)
+            {
+                if (existingLike.Islike == isLike)
+                {
+                    _context.BlogCommentReplyLikes.Remove(existingLike);
+                }
+                else
+                {
+                    existingLike.Islike = isLike;
+                    existingLike.Createdat = DateTime.Now;
+                    _context.BlogCommentReplyLikes.Update(existingLike);
+                }
+            }
+            else
+            {
+                var newLike = new BlogCommentReplyLike
+                {
+                    Replyid = replyId,
+                    Userid = userId,
+                    Islike = isLike,
+                    Createdat = DateTime.Now
+                };
+                _context.BlogCommentReplyLikes.Add(newLike);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var updatedReply = await _context.BlogCommentReplies
+                .Include(r => r.BlogCommentReplyLikes)
+                .FirstOrDefaultAsync(r => r.Replyid == replyId);
+
+            var likeCount = updatedReply!.BlogCommentReplyLikes.Count(l => l.Islike == true);
+            var currentUserReaction = updatedReply!.BlogCommentReplyLikes.FirstOrDefault(l => l.Userid == userId)?.Islike;
+
+            return Json(new
+            {
+                success = true,
+                likeCount = likeCount,
+                currentUserReaction = currentUserReaction
+            });
         }
     }
 }
