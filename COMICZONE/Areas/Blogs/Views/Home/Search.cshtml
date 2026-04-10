@@ -1,6 +1,16 @@
 @model IEnumerable<COMICZONE.Models.Blog>
 @{
-    ViewData["Title"] = "Kết quả tìm kiếm: " + ViewBag.Keyword;
+    var displayKeyword = ViewBag.Keyword as string;
+    var categoryId = ViewBag.SelectedCategoryId as int?;
+    var selectedCatName = (ViewBag.AllCategories as IEnumerable<COMICZONE.Models.BlogCategory>)?.FirstOrDefault(c => c.Id == categoryId)?.Name;
+    
+    if (!string.IsNullOrEmpty(displayKeyword)) {
+        ViewData["Title"] = "Kết quả tìm kiếm: " + displayKeyword;
+    } else if (categoryId.HasValue) {
+        ViewData["Title"] = "Danh mục: " + selectedCatName;
+    } else {
+        ViewData["Title"] = "Khám phá bài viết";
+    }
 }
 
 <!-- SEARCH RESULTS HERO SECTION -->
@@ -13,37 +23,26 @@
                 <li class="breadcrumb-item active text-secondary" aria-current="page">Tìm kiếm</li>
             </ol>
         </nav>
-        <h1 class="hero-title-main fs-2">Kết quả tìm kiếm cho: <span class="text-gradient">"@ViewBag.Keyword"</span></h1>
+        <h1 class="hero-title-main fs-2">
+            @if (!string.IsNullOrEmpty(displayKeyword))
+            {
+                <text>Kết quả tìm kiếm cho: </text><span class="text-gradient">"@displayKeyword"</span>
+            }
+            else if (categoryId.HasValue)
+            {
+                <text>Kết quả cho danh mục: </text><span class="text-gradient">"@selectedCatName"</span>
+            }
+            else
+            {
+                <text>Khám phá <span class="text-gradient">tất cả</span> bài viết</text>
+            }
+        </h1>
         <p class="hero-subtitle mb-0">Tìm thấy @(Model?.Count() ?? 0) bài viết phù hợp với yêu cầu của bạn.</p>
     </div>
 </div>
 
 <section class="py-5 bg-blogs-content">
     <div class="container">
-        <!-- Category Filter Bar -->
-        <div class="blog-filter-bar mb-4" data-aos="fade-up">
-            <div class="filter-pills">
-                <a asp-action="Search" 
-                   asp-route-keyword="@ViewBag.Keyword"
-                   asp-route-sortBy="@ViewBag.SortBy"
-                   class="filter-pill @(ViewBag.SelectedCategoryId == null ? "active" : "")">
-                    Tất cả
-                </a>
-                @if (ViewBag.AllCategories != null)
-                {
-                    foreach (var cat in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.AllCategories)
-                    {
-                        <a asp-action="Search" 
-                           asp-route-keyword="@ViewBag.Keyword"
-                           asp-route-sortBy="@ViewBag.SortBy"
-                           asp-route-categoryId="@cat.Id"
-                           class="filter-pill @(ViewBag.SelectedCategoryId == (int?)cat.Id ? "active" : "")">
-                            @cat.Name
-                        </a>
-                    }
-                }
-            </div>
-        </div>
 
         <div class="row g-4">
             <!-- RESULTS LIST (Full Width) -->
@@ -212,7 +211,7 @@
                                         <button type="submit" class="btn-apply-filters">Áp dụng bộ lọc</button>
                                     </div>
                                     <div class="col-md-3">
-                                        <a asp-action="Search" asp-route-keyword="@ViewBag.Keyword" class="btn-reset-filters text-center d-block text-decoration-none">Xóa bộ lọc</a>
+                                        <a asp-action="Search" class="btn-reset-filters text-center d-block text-decoration-none">Xóa bộ lọc</a>
                                     </div>
                                 </div>
                             </div>
@@ -347,7 +346,15 @@
                             <div class="empty-search-box p-5 rounded-4 bg-light border">
                                 <i class="bi bi-search-heart text-muted display-1 mb-4"></i>
                                 <h3 class="fw-bold">Không tìm thấy bài viết</h3>
-                                <p class="text-secondary">Chúng tôi không tìm thấy kết quả nào khớp với từ khóa của bạn. Vui lòng thử lại với từ khóa khác.</p>
+                                <p class="text-secondary">
+                                    @if (!string.IsNullOrEmpty(displayKeyword)) {
+                                        <text>Chúng tôi không tìm thấy kết quả nào khớp với từ khóa của bạn. Vui lòng thử lại với từ khóa khác.</text>
+                                    } else if (categoryId.HasValue) {
+                                        <text>Hiện chưa có bài viết nào trong danh mục này. Vui lòng quay lại sau!</text>
+                                    } else {
+                                        <text>Không tìm thấy bài viết nào phù hợp với yêu cầu của bạn.</text>
+                                    }
+                                </p>
                                 <a asp-area="Blogs" asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill mt-3 px-4">
                                     Quay lại danh sách bài viết
                                 </a>

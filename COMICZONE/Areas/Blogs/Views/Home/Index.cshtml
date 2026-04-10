@@ -3,9 +3,8 @@
 
 @{
     ViewData["Title"] = "Thế Giới Blog & Tin Tức";
-    var featured = Model?.FirstOrDefault();
-    // Nếu chỉ có 1 bài viết, hiển thị nó ở cả phần Mới Cập Nhật để tránh giao diện bị trống
-    var others = (Model != null && Model.Count() == 1) ? Model : Model?.Skip(1);
+    var featured = ViewBag.FeaturedBlog as COMICZONE.Models.Blog;
+    var others = Model;
     
     // Lấy top 3 user từ ViewBag (đã query ở Controller)
     var topUsers = ViewBag.TopUsers as List<COMICZONE.Models.User>;
@@ -149,10 +148,13 @@
                                 {
                                     foreach (var cat in (IEnumerable<COMICZONE.Models.BlogCategory>)ViewBag.PopularCategories)
                                     {
-                                        <a href="#" class="cat-pill">
-                                            @cat.Name
-                                            <span class="count">@cat.Blogs.Count</span>
-                                        </a>
+                                        <a asp-area="Blogs" asp-controller="Home" asp-action="Search" 
+                                           asp-route-categoryId="@cat.Id" 
+                                           asp-route-sortBy="newest" 
+                                           class="cat-pill">
+                                             @cat.Name
+                                             <span class="count">@cat.Blogs.Count</span>
+                                         </a>
                                     }
                                 }
                             </div>

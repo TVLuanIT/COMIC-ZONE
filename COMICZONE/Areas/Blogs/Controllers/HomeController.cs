@@ -27,11 +27,27 @@ namespace COMICZONE.Areas.Blogs.Controllers
         // GET: Blogs
         public async Task<IActionResult> Index(int page = 1)
         {
-            int pageSize = 7;
+            // 1. Lấy bài viết nổi bật (luôn là bài mới nhất)
+            var featuredBlog = await _context.Blogs
+                .Include(b => b.Author)
+                .Include(b => b.Categories)
+                .Where(b => b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted)
+                .OrderByDescending(b => b.Createdat)
+                .FirstOrDefaultAsync();
+
+            ViewBag.FeaturedBlog = featuredBlog;
+
+            // 2. Lấy danh sách các bài viết còn lại (phân trang)
+            int pageSize = 6; // Hiển thị 6 bài mỗi trang để tổng cộng khoảng 7 bài (1 nổi bật + 6 thường)
             var query = _context.Blogs
                 .Include(b => b.Author)
                 .Include(b => b.Categories)
                 .Where(b => b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted);
+
+            if (featuredBlog != null)
+            {
+                query = query.Where(b => b.Id != featuredBlog.Id);
+            }
 
             int totalItems = await query.CountAsync();
             var blogs = await query
@@ -53,6 +69,8 @@ namespace COMICZONE.Areas.Blogs.Controllers
 
             ViewBag.PopularCategories = await _context.BlogCategories
                 .Where(c => !c.Isdeleted)
+                .Include(c => c.Blogs.Where(b => b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted))
+                .OrderByDescending(c => c.Blogs.Count(b => b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted))
                 .Take(10)
                 .ToListAsync();
 
@@ -66,12 +84,8 @@ namespace COMICZONE.Areas.Blogs.Controllers
         }
 
         // GET: Blogs/Search
-        public async Task<IActionResult> Search(string keyword, string? sortBy, int? categoryId, int? authorId, string? dateRange, int page = 1)
+        public async Task<IActionResult> Search(string? keyword, string? sortBy, int? categoryId, int? authorId, string? dateRange, int page = 1)
         {
-            if (string.IsNullOrEmpty(keyword))
-            {
-                return RedirectToAction(nameof(Index));
-            }
 
             int pageSize = 9;
             var query = _context.Blogs
@@ -80,9 +94,12 @@ namespace COMICZONE.Areas.Blogs.Controllers
                 .Where(b => b.Status == BlogStatus.Approved.ToString() && !b.Isdeleted);
 
             // Filter by keyword
-            query = query.Where(b => b.Title.Contains(keyword) || 
-                                   b.Shortdescription.Contains(keyword) || 
-                                   b.Content.Contains(keyword));
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(b => b.Title.Contains(keyword) || 
+                                       b.Shortdescription.Contains(keyword) || 
+                                       b.Content.Contains(keyword));
+            }
 
             // Filter by category
             if (categoryId.HasValue)
