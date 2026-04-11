@@ -97,11 +97,22 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="d-flex gap-3">
                                 <img src="${result.comment.avatar}" class="comment-avatar" alt="Avatar">
                                 <div class="comment-body w-100">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="mb-0 fw-bold">${result.comment.username}</h6>
-                                        <span class="x-small text-muted">${result.comment.createdAt}</span>
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h6 class="mb-0 fw-bold">${result.comment.username}</h6>
+                                            <span class="x-small text-muted">${result.comment.createdAt}</span>
+                                        </div>
+                                        <div class="dropdown comment-dropdown">
+                                            <button class="btn btn-link dropdown-toggle comment-dropdown-toggle p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end comment-dropdown-menu">
+                                                <li><a class="dropdown-item btn-edit-comment" href="javascript:void(0)" data-comment-id="${result.comment.id}"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa</a></li>
+                                                <li><a class="dropdown-item text-danger btn-delete-comment" href="javascript:void(0)" data-comment-id="${result.comment.id}"><i class="bi bi-trash3-fill me-2"></i>Xóa</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <p class="text-secondary mb-2">${result.comment.content}</p>
+                                    <p class="text-secondary mb-2 comment-content-text">${result.comment.content}</p>
                                     
                                     <div class="comment-actions d-flex gap-3 align-items-center">
                                         <button class="btn-like d-flex align-items-center gap-1" 
@@ -186,6 +197,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const toggleLikeUrl = commentsList.getAttribute('data-toggle-like-url');
         const toggleReplyUrl = commentsList.getAttribute('data-toggle-reply-url');
         const toggleReplyLikeUrl = commentsList.getAttribute('data-toggle-reply-like-url');
+        const updateCommentUrl = commentsList.getAttribute('data-update-comment-url');
+        const deleteCommentUrl = commentsList.getAttribute('data-delete-comment-url');
+        const updateReplyUrl = commentsList.getAttribute('data-update-reply-url');
+        const deleteReplyUrl = commentsList.getAttribute('data-delete-reply-url');
 
         // Toggle Reply Form
         commentsList.addEventListener('click', function (e) {
@@ -552,5 +567,263 @@ document.addEventListener('DOMContentLoaded', function () {
                 btn.innerHTML = `${icon}Ẩn phản hồi`;
             }
         }
+
+        // --- EDIT/DELETE COMMENT ---
+        
+        // Edit Comment - Show Form
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-edit-comment');
+            if (!btn) return;
+            
+            const commentId = btn.getAttribute('data-comment-id');
+            const commentNode = document.getElementById(`comment-${commentId}`);
+            if (!commentNode) return;
+            
+            const contentP = commentNode.querySelector('.comment-content-text');
+            if (commentNode.querySelector('.edit-area')) return; // already editing
+            
+            const originalContent = contentP.innerText;
+            contentP.classList.add('d-none');
+            
+            const editHtml = `
+                <div class="edit-area animate__animated animate__fadeIn">
+                    <textarea class="form-control-premium edit-textarea w-100">${originalContent}</textarea>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-light btn-sm rounded-pill px-3 btn-cancel-edit-comment">Hủy</button>
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 btn-save-edit-comment" data-comment-id="${commentId}">Lưu</button>
+                    </div>
+                </div>
+            `;
+            contentP.insertAdjacentHTML('afterend', editHtml);
+        });
+
+        // Cancel Edit Comment
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-cancel-edit-comment');
+            if (!btn) return;
+            
+            const editArea = btn.closest('.edit-area');
+            const commentNode = editArea.closest('.comment-body');
+            const contentP = commentNode.querySelector('.comment-content-text');
+            
+            editArea.remove();
+            contentP.classList.remove('d-none');
+        });
+
+        // Save Edit Comment
+        commentsList.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-save-edit-comment');
+            if (!btn) return;
+            
+            const commentId = btn.getAttribute('data-comment-id');
+            const editArea = btn.closest('.edit-area');
+            const textarea = editArea.querySelector('textarea');
+            const newContent = textarea.value.trim();
+            
+            if (!newContent) {
+                Swal.fire({ text: 'Nội dung không được để trống!', icon: 'warning', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            try {
+                const formData = new FormData();
+                formData.append('commentId', commentId);
+                formData.append('content', newContent);
+
+                const response = await fetch(updateCommentUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.success) {
+                    const commentNode = editArea.closest('.comment-body');
+                    const contentP = commentNode.querySelector('.comment-content-text');
+                    contentP.innerText = newContent;
+                    editArea.remove();
+                    contentP.classList.remove('d-none');
+                    
+                    Swal.fire({ text: 'Đã cập nhật bình luận', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                } else {
+                    Swal.fire({ text: result.message, icon: 'error' });
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ text: 'Lỗi khi cập nhật!', icon: 'error' });
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Lưu';
+            }
+        });
+
+        // Delete Comment
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-delete-comment');
+            if (!btn) return;
+            
+            const commentId = btn.getAttribute('data-comment-id');
+            
+            Swal.fire({
+                title: 'Xóa bình luận?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-danger rounded-pill px-4 ms-2',
+                    cancelButton: 'btn btn-light rounded-pill px-4'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const formData = new FormData();
+                        formData.append('commentId', commentId);
+
+                        const response = await fetch(deleteCommentUrl, { method: 'POST', body: formData });
+                        const res = await response.json();
+
+                        if (res.success) {
+                            const node = document.getElementById(`comment-${commentId}`);
+                            node.classList.add('animate__animated', 'animate__fadeOutLeft');
+                            setTimeout(() => node.remove(), 500);
+                            
+                            // Update count
+                            const countHeader = document.querySelector('.comments-area h3');
+                            if (countHeader) {
+                                const currentText = countHeader.innerText;
+                                const countMatch = currentText.match(/\d+/);
+                                if (countMatch) {
+                                    const newCount = Math.max(0, parseInt(countMatch[0]) - 1);
+                                    countHeader.innerText = currentText.replace(/\d+/, newCount);
+                                }
+                            }
+                        } else {
+                            Swal.fire({ text: res.message, icon: 'error' });
+                        }
+                    } catch (err) {
+                        Swal.fire({ text: 'Lỗi khi xóa bình luận!', icon: 'error' });
+                    }
+                }
+            });
+        });
+
+        // --- EDIT/DELETE REPLY ---
+
+        // Edit Reply - Show Form
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-edit-reply');
+            if (!btn) return;
+            
+            const replyId = btn.getAttribute('data-reply-id');
+            const replyNode = document.getElementById(`reply-${replyId}`);
+            if (!replyNode) return;
+            
+            const contentP = replyNode.querySelector('p.text-secondary, p.small.text-secondary');
+            if (replyNode.querySelector('.edit-area')) return;
+            
+            const originalContent = contentP.innerText;
+            contentP.classList.add('d-none');
+            
+            const editHtml = `
+                <div class="edit-area animate__animated animate__fadeIn">
+                    <textarea class="form-control-premium edit-textarea w-100 x-small">${originalContent}</textarea>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-light btn-xs rounded-pill px-2 btn-cancel-edit-reply x-small">Hủy</button>
+                        <button class="btn btn-primary btn-xs rounded-pill px-2 btn-save-edit-reply x-small" data-reply-id="${replyId}">Lưu</button>
+                    </div>
+                </div>
+            `;
+            contentP.insertAdjacentHTML('afterend', editHtml);
+        });
+
+        // Cancel Edit Reply
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-cancel-edit-reply');
+            if (!btn) return;
+            
+            const editArea = btn.closest('.edit-area');
+            const replyBody = editArea.closest('.reply-body');
+            const contentP = replyBody.querySelector('p.text-secondary, p.small.text-secondary');
+            
+            editArea.remove();
+            contentP.classList.remove('d-none');
+        });
+
+        // Save Edit Reply
+        commentsList.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-save-edit-reply');
+            if (!btn) return;
+            
+            const replyId = btn.getAttribute('data-reply-id');
+            const editArea = btn.closest('.edit-area');
+            const textarea = editArea.querySelector('textarea');
+            const newContent = textarea.value.trim();
+            
+            if (!newContent) return;
+
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('replyId', replyId);
+                formData.append('content', newContent);
+
+                const response = await fetch(updateReplyUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.success) {
+                    const replyBody = editArea.closest('.reply-body');
+                    const contentP = replyBody.querySelector('p.text-secondary, p.small.text-secondary');
+                    contentP.innerText = newContent;
+                    editArea.remove();
+                    contentP.classList.remove('d-none');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Lưu';
+            }
+        });
+
+        // Delete Reply
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-delete-reply');
+            if (!btn) return;
+            
+            const replyId = btn.getAttribute('data-reply-id');
+            
+            Swal.fire({
+                title: 'Xóa phản hồi?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                customClass: {
+                    confirmButton: 'btn btn-danger btn-sm rounded-pill px-3 ms-2',
+                    cancelButton: 'btn btn-light btn-sm rounded-pill px-3'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const formData = new FormData();
+                        formData.append('replyId', replyId);
+
+                        const response = await fetch(deleteReplyUrl, { method: 'POST', body: formData });
+                        const res = await response.json();
+
+                        if (res.success) {
+                            const node = document.getElementById(`reply-${replyId}`);
+                            node.classList.add('animate__animated', 'animate__fadeOut');
+                            setTimeout(() => node.remove(), 500);
+                        }
+                    } catch (err) {}
+                }
+            });
+        });
     }
 });

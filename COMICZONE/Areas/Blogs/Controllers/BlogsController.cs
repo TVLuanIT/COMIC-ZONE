@@ -474,5 +474,168 @@ namespace COMICZONE.Areas.Blogs.Controllers
                 currentUserReaction = currentUserReaction
             });
         }
+        // POST: Blogs/Blogs/UpdateComment
+        [HttpPost]
+        public async Task<IActionResult> UpdateComment(int commentId, string content)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return Json(new { success = false, message = "Nội dung bình luận không được để trống." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var comment = await _context.BlogComments.FirstOrDefaultAsync(c => c.Id == commentId && !c.Isdeleted.Value);
+
+            if (comment == null)
+            {
+                return Json(new { success = false, message = "Bình luận không tồn tại." });
+            }
+
+            if (comment.Userid != userId)
+            {
+                return Json(new { success = false, message = "Bạn không có quyền chỉnh sửa bình luận này." });
+            }
+
+            try
+            {
+                comment.Content = content;
+                comment.Updatedat = DateTime.Now;
+                _context.BlogComments.Update(comment);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Cập nhật bình luận thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi cập nhật: " + ex.Message });
+            }
+        }
+
+        // POST: Blogs/Blogs/DeleteComment
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(int commentId)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var comment = await _context.BlogComments
+                .Include(c => c.BlogCommentReplies)
+                .FirstOrDefaultAsync(c => c.Id == commentId && !c.Isdeleted.Value);
+
+            if (comment == null)
+            {
+                return Json(new { success = false, message = "Bình luận không tồn tại." });
+            }
+
+            if (comment.Userid != userId)
+            {
+                return Json(new { success = false, message = "Bạn không có quyền xóa bình luận này." });
+            }
+
+            try
+            {
+                comment.Isdeleted = true;
+                comment.Updatedat = DateTime.Now;
+                
+                // Cũng đánh dấu các phản hồi là đã xóa nếu cần (tùy logic, ở đây ta chỉ ẩn bình luận cha)
+                foreach(var r in comment.BlogCommentReplies) r.Isdeleted = true;
+
+                _context.BlogComments.Update(comment);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Xóa bình luận thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi xóa: " + ex.Message });
+            }
+        }
+
+        // POST: Blogs/Blogs/UpdateReply
+        [HttpPost]
+        public async Task<IActionResult> UpdateReply(int replyId, string content)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return Json(new { success = false, message = "Nội dung phản hồi không được để trống." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var reply = await _context.BlogCommentReplies.FirstOrDefaultAsync(r => r.Replyid == replyId && !r.Isdeleted.Value);
+
+            if (reply == null)
+            {
+                return Json(new { success = false, message = "Phản hồi không tồn tại." });
+            }
+
+            if (reply.Userid != userId)
+            {
+                return Json(new { success = false, message = "Bạn không có quyền chỉnh sửa phản hồi này." });
+            }
+
+            try
+            {
+                reply.Content = content;
+                reply.Updatedat = DateTime.Now;
+                _context.BlogCommentReplies.Update(reply);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Cập nhật phản hồi thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi cập nhật: " + ex.Message });
+            }
+        }
+
+        // POST: Blogs/Blogs/DeleteReply
+        [HttpPost]
+        public async Task<IActionResult> DeleteReply(int replyId)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            var reply = await _context.BlogCommentReplies.FirstOrDefaultAsync(r => r.Replyid == replyId && !r.Isdeleted.Value);
+
+            if (reply == null)
+            {
+                return Json(new { success = false, message = "Phản hồi không tồn tại." });
+            }
+
+            if (reply.Userid != userId)
+            {
+                return Json(new { success = false, message = "Bạn không có quyền xóa phản hồi này." });
+            }
+
+            try
+            {
+                reply.Isdeleted = true;
+                reply.Updatedat = DateTime.Now;
+                _context.BlogCommentReplies.Update(reply);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Xóa phản hồi thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi xóa: " + ex.Message });
+            }
+        }
     }
 }

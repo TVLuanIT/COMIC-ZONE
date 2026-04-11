@@ -173,8 +173,8 @@
 }
 .comment-node:hover {
     background: white;
-    transform: translateX(10px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    /* transform: translateX(10px); -- Removed to fix dropdown positioning */
+    box-shadow: 0 15px 45px rgba(0,0,0,0.08);
 }
 .comment-avatar {
     width: 50px;
@@ -390,4 +390,67 @@
 
 .btn-submit-reply:hover {
     transform: rotate(15deg) scale(1.1);
+}
+
+/* --- COMMENT DROPDOWN --- */
+.comment-dropdown-toggle {
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+.comment-dropdown-toggle:hover {
+    color: var(--blogs-primary);
+    transform: scale(1.1);
+}
+.comment-dropdown-toggle::after {
+    display: none !important;
+}
+
+.comment-dropdown-menu {
+    border: none !important;
+    border-radius: 18px !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12) !important;
+    padding: 10px !important;
+    min-width: 170px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    z-index: 1070 !important;
+    margin-top: 5px !important;
+}
+
+.comment-dropdown-menu .dropdown-item {
+    border-radius: 10px !important;
+    padding: 8px 15px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    color: #475569 !important;
+    width: auto !important; /* Fix width issues */
+}
+
+.comment-dropdown-menu .dropdown-item:hover {
+    background: #f1f5f9 !important;
+    padding-left: 20px !important;
+    color: var(--blogs-primary) !important;
+}
+
+.comment-dropdown-menu .dropdown-item.text-danger:hover {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+
+/* --- EDIT MODE --- */
+.edit-area {
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    margin: 10px 0;
+    border: 1px solid var(--blogs-primary);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.1);
+}
+.edit-textarea {
+    min-height: 80px !important;
+    margin-bottom: 10px;
 }

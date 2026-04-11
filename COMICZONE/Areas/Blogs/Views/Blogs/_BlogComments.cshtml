@@ -5,7 +5,11 @@
 <div class="comments-area mt-5" id="comments"
      data-is-logged-in="@(Context.Session.GetString("UserId") != null ? "true" : "false")"
      data-login-url="@Url.Action("Login", "Authentication", new { area = "Account", returnUrl = Context.Request.Path })">
-    <h3 class="fw-bold mb-4">Thảo luận (@Model.BlogComments.Count)</h3>
+    @{
+        var totalDiscussion = Model.BlogComments.Count(c => c.Isdeleted != true) + 
+                              Model.BlogComments.Where(c => c.Isdeleted != true).SelectMany(c => c.BlogCommentReplies).Count(r => r.Isdeleted != true);
+    }
+    <h3 class="fw-bold mb-4">Thảo luận (@totalDiscussion)</h3>
     
     @if (Context.Session.GetString("UserId") != null)
     {
@@ -32,12 +36,16 @@
     <div class="comments-list" 
          data-toggle-like-url="@Url.Action("ToggleCommentLike", "Blogs", new { area = "Blogs" })"
          data-toggle-reply-url="@Url.Action("AddReply", "Blogs", new { area = "Blogs" })"
-         data-toggle-reply-like-url="@Url.Action("ToggleReplyLike", "Blogs", new { area = "Blogs" })">
+         data-toggle-reply-like-url="@Url.Action("ToggleReplyLike", "Blogs", new { area = "Blogs" })"
+         data-update-comment-url="@Url.Action("UpdateComment", "Blogs", new { area = "Blogs" })"
+         data-delete-comment-url="@Url.Action("DeleteComment", "Blogs", new { area = "Blogs" })"
+         data-update-reply-url="@Url.Action("UpdateReply", "Blogs", new { area = "Blogs" })"
+         data-delete-reply-url="@Url.Action("DeleteReply", "Blogs", new { area = "Blogs" })">
         @{
             var currentUserIdStr = Context.Session.GetString("UserId");
             int? currentUserId = !string.IsNullOrEmpty(currentUserIdStr) ? int.Parse(currentUserIdStr) : null;
         }
-        @foreach(var comment in Model.BlogComments.OrderByDescending(c => c.Createdat))
+        @foreach(var comment in Model.BlogComments.Where(c => c.Isdeleted != true).OrderByDescending(c => c.Createdat))
         {
             var likes = comment.BlogCommentLikes.Count(l => l.Islike == true);
             var dislikes = comment.BlogCommentLikes.Count(l => l.Islike == false);
@@ -47,9 +55,27 @@
                 <div class="d-flex gap-3">
                     <img src="@(comment.User?.Avatar.AvatarOrDefault())" class="comment-avatar">
                     <div class="comment-body w-100">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="mb-0 fw-bold">@(comment.User?.Username ?? "Ẩn danh")</h6>
-                            <span class="x-small text-muted">@comment.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <h6 class="mb-0 fw-bold">@(comment.User?.Username ?? "Ẩn danh")</h6>
+                                <span class="x-small text-muted">@comment.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div class="dropdown comment-dropdown">
+                                <button class="btn btn-link dropdown-toggle comment-dropdown-toggle p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end comment-dropdown-menu">
+                                    @if (comment.Userid == currentUserId)
+                                    {
+                                        <li><a class="dropdown-item btn-edit-comment" href="javascript:void(0)" data-comment-id="@comment.Id"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa</a></li>
+                                        <li><a class="dropdown-item text-danger btn-delete-comment" href="javascript:void(0)" data-comment-id="@comment.Id"><i class="bi bi-trash3-fill me-2"></i>Xóa</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a class="dropdown-item btn-report-comment" href="javascript:void(0)" data-comment-id="@comment.Id"><i class="bi bi-flag-fill me-2"></i>Báo cáo</a></li>
+                                    }
+                                </ul>
+                            </div>
                         </div>
                         <p class="text-secondary mb-2">@comment.Content</p>
                         
@@ -100,15 +126,33 @@
                                     <div class="d-flex gap-2">
                                         <img src="@(reply.User?.Avatar.AvatarOrDefault())" class="reply-avatar">
                                         <div class="reply-body w-100">
-                                            <div class="d-flex justify-content-between align-items-center mb-0">
-                                                <h6 class="text-sm fw-bold mb-0">
-                                                    @(reply.User?.Username ?? "Ẩn danh")
-                                                    @if (reply.Replytouser != null)
-                                                    {
-                                                        <span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> @reply.Replytouser.Username</span>
-                                                    }
-                                                </h6>
-                                                <span class="xx-small text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</span>
+                                            <div class="d-flex justify-content-between align-items-start mb-0">
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <h6 class="text-sm fw-bold mb-0">
+                                                        @(reply.User?.Username ?? "Ẩn danh")
+                                                        @if (reply.Replytouser != null)
+                                                        {
+                                                            <span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> @reply.Replytouser.Username</span>
+                                                        }
+                                                    </h6>
+                                                    <span class="xx-small text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</span>
+                                                </div>
+                                                <div class="dropdown reply-dropdown">
+                                                    <button class="btn btn-link dropdown-toggle comment-dropdown-toggle p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end comment-dropdown-menu">
+                                                        @if (reply.Userid == currentUserId)
+                                                        {
+                                                            <li><a class="dropdown-item btn-edit-reply" href="javascript:void(0)" data-reply-id="@reply.Replyid"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa</a></li>
+                                                            <li><a class="dropdown-item text-danger btn-delete-reply" href="javascript:void(0)" data-reply-id="@reply.Replyid"><i class="bi bi-trash3-fill me-2"></i>Xóa</a></li>
+                                                        }
+                                                        else
+                                                        {
+                                                            <li><a class="dropdown-item btn-report-reply" href="javascript:void(0)" data-reply-id="@reply.Replyid"><i class="bi bi-flag-fill me-2"></i>Báo cáo</a></li>
+                                                        }
+                                                    </ul>
+                                                </div>
                                             </div>
                                             <p class="small text-secondary mb-1">@reply.Content</p>
                                             
