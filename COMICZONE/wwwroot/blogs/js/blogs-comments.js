@@ -1,5 +1,5 @@
 /* JS for Blog Comments Section */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const commentsArea = document.querySelector('.comments-area');
     const isLoggedIn = commentsArea ? commentsArea.getAttribute('data-is-logged-in') === 'true' : false;
     const loginUrl = commentsArea ? commentsArea.getAttribute('data-login-url') : '';
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get URL from data attribute
             const commentForm = document.getElementById('commentForm');
             const actionUrl = commentForm ? commentForm.getAttribute('data-url') : '';
-            
+
             if (!content) {
                 Swal.fire({
                     text: 'Vui lòng nhập nội dung bình luận!',
@@ -60,37 +60,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Check auth
             if (!checkAuth()) return;
-            
+
             if (!actionUrl) {
                 console.error('Comment action URL not found');
                 return;
             }
-            
+
             const btn = this;
             const textSpan = btn.querySelector('.submit-text');
             const iconSpan = btn.querySelector('.submit-icon');
             const spinnerSpan = btn.querySelector('.submit-spinner');
-            
+
             // Loading state
             btn.disabled = true;
             spinnerSpan.classList.remove('d-none');
             iconSpan.classList.add('d-none');
-            
+
             try {
                 const formData = new FormData();
                 formData.append('blogId', blogId);
                 formData.append('content', content);
-                
+
                 const response = await fetch(actionUrl, {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     contentInput.value = '';
-                    
+
                     // Create new comment HTML
                     const html = `
                         <div class="comment-node mb-4 animate__animated animate__fadeInDown" id="comment-${result.comment.id}">
@@ -141,12 +141,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     `;
-                    
+
                     const commentsList = document.querySelector('.comments-list');
                     if (commentsList) {
                         commentsList.insertAdjacentHTML('afterbegin', html);
                     }
-                    
+
                     // Update comment count
                     const countHeader = document.querySelector('.comments-area h3');
                     if (countHeader) {
@@ -157,21 +157,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             countHeader.innerText = currentText.replace(/\d+/, newCount);
                         }
                     }
-                    } else if (!result.message || !result.message.includes("đăng nhập")) {
-                        Swal.fire({
-                            text: result.message || 'Có lỗi xảy ra!',
-                            icon: 'error',
-                            customClass: { popup: 'premium-swal-popup' }
-                        });
-                    }
-                } catch (err) {
-                    console.error(err);
+                } else if (!result.message || !result.message.includes("đăng nhập")) {
                     Swal.fire({
-                        text: 'Gửi bình luận thất bại!',
+                        text: result.message || 'Có lỗi xảy ra!',
                         icon: 'error',
                         customClass: { popup: 'premium-swal-popup' }
                     });
-                } finally {
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    text: 'Gửi bình luận thất bại!',
+                    icon: 'error',
+                    customClass: { popup: 'premium-swal-popup' }
+                });
+            } finally {
                 // Restore button state
                 btn.disabled = false;
                 spinnerSpan.classList.add('d-none');
@@ -188,31 +188,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const toggleReplyLikeUrl = commentsList.getAttribute('data-toggle-reply-like-url');
 
         // Toggle Reply Form
-        commentsList.addEventListener('click', function(e) {
+        commentsList.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-toggle-reply');
             if (btn) {
                 const formId = btn.getAttribute('data-form-id');
                 const parentReplyId = btn.getAttribute('data-parent-reply-id');
                 const replyToUser = btn.getAttribute('data-reply-to-user');
-                
+
                 const form = document.getElementById(formId);
                 if (form) {
                     const isOpening = form.classList.contains('d-none');
                     form.classList.toggle('d-none');
-                    
+
                     const submitBtn = form.querySelector('.btn-submit-reply');
                     const textarea = form.querySelector('textarea');
 
                     if (!form.classList.contains('d-none')) {
                         form.classList.add('animate__animated', 'animate__fadeIn');
-                        
+
                         // Prep tag if reply target exists
                         if (replyToUser && isOpening) {
                             textarea.value = `@${replyToUser} `;
                         } else if (!replyToUser && isOpening) {
                             textarea.value = '';
                         }
-                        
+
                         textarea.focus();
                     }
                 }
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Submit Reply
-        commentsList.addEventListener('click', async function(e) {
+        commentsList.addEventListener('click', async function (e) {
             const btn = e.target.closest('.btn-submit-reply');
             if (btn) {
                 const commentId = btn.getAttribute('data-comment-id');
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const formData = new FormData();
                     formData.append('commentId', commentId);
                     formData.append('content', content);
-                    
+
                     const parentReplyId = btn.getAttribute('data-parent-reply-id');
                     if (parentReplyId) {
                         formData.append('parentReplyId', parentReplyId);
@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         formContainer.classList.add('d-none');
 
                         // Create new reply HTML
-                        const replyToHtml = result.reply.replyToUsername 
-                            ? `<span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> ${result.reply.replyToUsername}</span>` 
+                        const replyToHtml = result.reply.replyToUsername
+                            ? `<span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> ${result.reply.replyToUsername}</span>`
                             : '';
 
                         const replyHtml = `
@@ -325,6 +325,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         const repliesList = document.getElementById(`replies-list-${commentId}`);
                         if (repliesList) {
                             repliesList.insertAdjacentHTML('beforeend', replyHtml);
+                            repliesList.classList.remove('d-none');
+                            
+                            // Hiển thị tất cả các phản hồi đang có
+                            repliesList.querySelectorAll('.reply-node').forEach(node => node.classList.remove('d-none'));
+
+                            // Cập nhật nút điều khiển
+                            let ctrlBtn = document.querySelector(`.btn-view-replies[data-comment-id="${commentId}"]`);
+                            if (!ctrlBtn) {
+                                // Tạo nút mới nếu chưa có
+                                const ctrlHtml = `
+                                    <div class="replies-control mt-2" id="replies-control-${commentId}">
+                                        <button class="btn-view-replies btn btn-link btn-sm p-0 text-decoration-none fw-bold small" 
+                                                data-comment-id="${commentId}" 
+                                                data-total="1"
+                                                data-current="1">
+                                            <i class="bi bi-chat-dots-fill me-1"></i>
+                                            Ẩn phản hồi
+                                        </button>
+                                    </div>
+                                `;
+                                repliesList.insertAdjacentHTML('afterend', ctrlHtml);
+                            } else {
+                                let total = parseInt(ctrlBtn.getAttribute('data-total')) + 1;
+                                // Tự động mở rộng toàn bộ để người dùng thấy câu trả lời vừa gửi
+                                let current = total; 
+                                ctrlBtn.setAttribute('data-total', total);
+                                ctrlBtn.setAttribute('data-current', current);
+                                updateRepliesButtonText(ctrlBtn, total, current);
+                            }
                         }
                     } else if (!result.message || !result.message.includes("đăng nhập")) {
                         Swal.fire({
@@ -348,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Toggle Reply Like/Dislike
-        commentsList.addEventListener('click', async function(e) {
+        commentsList.addEventListener('click', async function (e) {
             const btn = e.target.closest('.btn-reply-like, .btn-reply-dislike');
             if (btn) {
                 const replyId = btn.getAttribute('data-reply-id');
@@ -378,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Update active states
                             likeBtn.classList.toggle('active', result.currentUserReaction === true);
                             if (dislikeBtn) dislikeBtn.classList.toggle('active', result.currentUserReaction === false);
-                            
+
                             // Update icons
                             const likeIcon = likeBtn.querySelector('i');
                             const dislikeIcon = dislikeBtn ? dislikeBtn.querySelector('i') : null;
@@ -413,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Toggle Comment Like
-        commentsList.addEventListener('click', async function(e) {
+        commentsList.addEventListener('click', async function (e) {
             const btn = e.target.closest('.btn-like, .btn-dislike');
             if (!btn) return;
             if (btn.classList.contains('btn-reply-like')) return; // handled separately
@@ -449,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Update icons
                         const likeIcon = likeBtn.querySelector('i');
                         const dislikeIcon = dislikeBtn.querySelector('i');
-                        
+
                         if (result.currentUserReaction === true) {
                             likeIcon.className = 'bi bi-hand-thumbs-up-fill';
                             dislikeIcon.className = 'bi bi-hand-thumbs-down';
@@ -477,5 +506,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
+
+        // Toggle/Expand Replies
+        commentsList.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-view-replies');
+            if (btn) {
+                const commentId = btn.getAttribute('data-comment-id');
+                const list = document.getElementById(`replies-list-${commentId}`);
+                if (!list) return;
+
+                const total = parseInt(btn.getAttribute('data-total'));
+                let current = parseInt(btn.getAttribute('data-current'));
+
+                if (current === total && current > 0) {
+                    // Hide all
+                    list.classList.add('d-none');
+                    current = 0;
+                } else {
+                    // Show next 5
+                    list.classList.remove('d-none');
+                    current = Math.min(current + 5, total);
+
+                    const nodes = list.querySelectorAll('.reply-node');
+                    nodes.forEach((node, index) => {
+                        if (index < current) {
+                            node.classList.remove('d-none');
+                        } else {
+                            node.classList.add('d-none');
+                        }
+                    });
+                }
+
+                btn.setAttribute('data-current', current);
+                updateRepliesButtonText(btn, total, current);
+            }
+        });
+
+        function updateRepliesButtonText(btn, total, current) {
+            const icon = '<i class="bi bi-chat-dots-fill me-1"></i> ';
+            if (current === 0) {
+                btn.innerHTML = `${icon}${total} phản hồi`;
+            } else if (current < total) {
+                btn.innerHTML = `${icon}${total - current} phản hồi`;
+            } else {
+                btn.innerHTML = `${icon}Ẩn phản hồi`;
+            }
+        }
     }
 });

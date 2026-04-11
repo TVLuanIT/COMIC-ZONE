@@ -86,14 +86,17 @@
                              </div>
                         </div>
 
+                        @{
+                            var activeReplies = comment.BlogCommentReplies.Where(r => r.Isdeleted != true).OrderBy(r => r.Createdat).ToList();
+                        }
                         <!-- Replies List -->
-                        <div class="replies-list mt-3 ms-2 ps-3 border-start" id="replies-list-@comment.Id">
-                            @foreach(var reply in comment.BlogCommentReplies.Where(r => r.Isdeleted != true).OrderBy(r => r.Createdat))
+                        <div class="replies-list mt-3 ms-2 ps-3 border-start d-none" id="replies-list-@comment.Id">
+                            @foreach(var reply in activeReplies)
                             {
                                 var rLikes = reply.BlogCommentReplyLikes.Count(l => l.Islike == true);
                                 var rUserReaction = currentUserId.HasValue ? reply.BlogCommentReplyLikes.FirstOrDefault(l => l.Userid == currentUserId.Value)?.Islike : null;
 
-                                <div class="reply-node mb-3" id="reply-@reply.Replyid">
+                                <div class="reply-node mb-3 d-none" id="reply-@reply.Replyid">
                                     <div class="d-flex gap-2">
                                         <img src="@(reply.User?.Avatar.AvatarOrDefault())" class="reply-avatar">
                                         <div class="reply-body w-100">
@@ -145,6 +148,19 @@
                                 </div>
                             }
                         </div>
+
+                        @if (activeReplies.Any())
+                        {
+                            <div class="replies-control mt-2" id="replies-control-@comment.Id">
+                                <button class="btn-view-replies btn btn-link btn-sm p-0 text-decoration-none fw-bold small" 
+                                        data-comment-id="@comment.Id" 
+                                        data-total="@activeReplies.Count"
+                                        data-current="0">
+                                    <i class="bi bi-chat-dots-fill me-1"></i>
+                                    @activeReplies.Count phản hồi
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
