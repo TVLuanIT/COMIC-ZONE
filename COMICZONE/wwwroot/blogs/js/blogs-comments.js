@@ -825,5 +825,151 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
+        const reportUrl = commentsList.getAttribute('data-report-url');
+
+        async function handleReporting(targetType, targetId) {
+            if (!checkAuth()) return;
+
+            let selectedReason = null;
+            const { value: reason } = await Swal.fire({
+                title: 'Báo cáo vi phạm',
+                html: `
+                    <div class="report-reasons-list">
+                        <div class="report-reason-item" data-value="Spam">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Spam / Quảng cáo</span>
+                        </div>
+                        <div class="report-reason-item" data-value="Ngôn từ thù ghét">
+                            <i class="bi bi-exclamation-octagon"></i>
+                            <span>Ngôn từ thù ghét / Xúc phạm</span>
+                        </div>
+                        <div class="report-reason-item" data-value="Nội dung không phù hợp">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Nội dung không phù hợp</span>
+                        </div>
+                        <div class="report-reason-item" data-value="Quấy rối">
+                            <i class="bi bi-person-slash"></i>
+                            <span>Quấy rối / Đe dọa</span>
+                        </div>
+                        <div class="report-reason-item" data-value="Khác">
+                            <i class="bi bi-three-dots"></i>
+                            <span>Lý do khác</span>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'premium-swal-popup',
+                    cancelButton: 'premium-swal-cancel'
+                },
+                buttonsStyling: false,
+                didOpen: () => {
+                    const content = Swal.getHtmlContainer();
+                    content.querySelectorAll('.report-reason-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            selectedReason = item.getAttribute('data-value');
+                            Swal.clickConfirm();
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    return selectedReason;
+                }
+            });
+
+            if (reason) {
+                let finalReason = reason;
+                if (reason === 'Khác') {
+                    const { value: text } = await Swal.fire({
+                        title: 'Chi tiết lý do',
+                        input: 'textarea',
+                        inputPlaceholder: 'Nhập nội dung báo cáo của bạn...',
+                        showCancelButton: true,
+                        confirmButtonText: 'Gửi báo cáo',
+                        cancelButtonText: 'Quay lại',
+                        reverseButtons: true,
+                        customClass: {
+                            popup: 'premium-swal-popup',
+                            confirmButton: 'premium-swal-confirm ms-2',
+                            cancelButton: 'premium-swal-cancel'
+                        },
+                        buttonsStyling: false,
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Vui lòng nhập lý do cụ thể!';
+                            }
+                        }
+                    });
+                    if (text) {
+                        finalReason = text;
+                    } else {
+                        return; // User cancelled or went back
+                    }
+                }
+
+
+                try {
+                    const formData = new FormData();
+                    if (targetType === 'comment') {
+                        formData.append('commentId', targetId);
+                    } else {
+                        formData.append('replyId', targetId);
+                    }
+                    formData.append('reason', finalReason);
+
+                    const response = await fetch(reportUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Đã gửi báo cáo!',
+                            text: result.message,
+                            icon: 'success',
+                            timer: 3000,
+                            showConfirmButton: false,
+                            customClass: { popup: 'premium-swal-popup' }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Thất bại',
+                            text: result.message,
+                            icon: 'error',
+                            customClass: { popup: 'premium-swal-popup' }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire({
+                        text: 'Có lỗi xảy ra khi gửi báo cáo!',
+                        icon: 'error',
+                        customClass: { popup: 'premium-swal-popup' }
+                    });
+                }
+            }
+        }
+
+        // --- REPORT COMMENT/REPLY ---
+
+        // Report Comment
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-report-comment');
+            if (!btn) return;
+            handleReporting('comment', btn.getAttribute('data-comment-id'));
+        });
+
+        // Report Reply
+        commentsList.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-report-reply');
+            if (!btn) return;
+            handleReporting('reply', btn.getAttribute('data-reply-id'));
+        });
     }
 });
+
+

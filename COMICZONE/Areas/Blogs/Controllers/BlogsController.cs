@@ -637,5 +637,58 @@ namespace COMICZONE.Areas.Blogs.Controllers
                 return Json(new { success = false, message = "Lỗi khi xóa: " + ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Report(int? commentId, int? replyId, string reason)
+        {
+            if (!IsLoggedIn())
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện chức năng này." });
+            }
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                return Json(new { success = false, message = "Vui lòng cung cấp lý do báo cáo." });
+            }
+
+            if (!commentId.HasValue && !replyId.HasValue)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            var userId = int.Parse(CurrentUserId()!);
+            
+            int reportType = commentId.HasValue ? (int)ReportType.BlogComment : (int)ReportType.BlogCommentReply;
+            int targetId = commentId ?? replyId.Value;
+
+            // Check if already reported
+            bool alreadyReported = await _context.ViolationReports.AnyAsync(r => 
+                r.Userid == userId && 
+                r.Reporttype == reportType && 
+                r.Targetid == targetId && 
+                !r.Isdeleted);
+
+            if (alreadyReported)
+            {
+                return Json(new { success = false, message = "Bạn đã báo cáo nội dung này rồi." });
+            }
+
+            var report = new ViolationReport
+            {
+                Userid = userId,
+                Reporttype = reportType,
+                Targetid = targetId,
+                Reason = reason,
+                Createdat = DateTime.Now,
+                Status = (int)ReportStatus.Pending,
+                Isdeleted = false
+            };
+
+            _context.ViolationReports.Add(report);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Báo cáo của bạn đã được gửi. Chúng tôi sẽ sớm xem xét." });
+        }
     }
 }
+

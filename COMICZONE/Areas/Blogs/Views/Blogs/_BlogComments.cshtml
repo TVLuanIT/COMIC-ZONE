@@ -40,7 +40,9 @@
          data-update-comment-url="@Url.Action("UpdateComment", "Blogs", new { area = "Blogs" })"
          data-delete-comment-url="@Url.Action("DeleteComment", "Blogs", new { area = "Blogs" })"
          data-update-reply-url="@Url.Action("UpdateReply", "Blogs", new { area = "Blogs" })"
-         data-delete-reply-url="@Url.Action("DeleteReply", "Blogs", new { area = "Blogs" })">
+         data-delete-reply-url="@Url.Action("DeleteReply", "Blogs", new { area = "Blogs" })"
+         data-report-url="@Url.Action("Report", "Blogs", new { area = "Blogs" })">
+
         @{
             var currentUserIdStr = Context.Session.GetString("UserId");
             int? currentUserId = !string.IsNullOrEmpty(currentUserIdStr) ? int.Parse(currentUserIdStr) : null;
