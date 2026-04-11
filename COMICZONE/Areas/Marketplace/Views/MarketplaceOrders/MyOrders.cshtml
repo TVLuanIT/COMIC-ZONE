@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Marketplace của tôi";
+}
+
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="fw-bold mb-4" style="color: var(--primary-color);">
+                <i class="bi bi-shop-window me-2"></i> Marketplace của tôi
+            </h3>
+            
+            <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="selling-tab" data-bs-toggle="tab" data-bs-target="#selling" type="button" role="tab">Tài sản Đăng bán</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="buying-tab" data-bs-toggle="tab" data-bs-target="#buying" type="button" role="tab">Đơn hàng Đã mua</button>
+                </li>
+            </ul>
+            <div class="tab-content border border-top-0 rounded-bottom p-4 bg-white shadow-sm" id="myTabContent">
+                <div class="tab-pane fade show active" id="selling" role="tabpanel">
+                    <div class="position-relative mb-4">
+                        <h5 class="fw-bold text-center">Sản phẩm bạn đang bán & Đơn hàng khách mua</h5>
+                        <div class="position-absolute top-50 end-0 translate-middle-y">
+                            <a asp-controller="MarketplacePosts" asp-action="Create" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i> Đăng sản phẩm mới
+                            </a>
+                        </div>
+                    </div>
+                    
+                    @if (ViewBag.SellingOrders != null && ((IEnumerable<dynamic>)ViewBag.SellingOrders).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Người mua</th>
+                                        <th>Giá bán</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in ViewBag.SellingOrders)
+                                    {
+                                        <tr>
+                                            <td><span class="text-primary fw-bold">@order.Post?.Title</span></td>
+                                            <td>@order.Buyer?.Username</td>
+                                            <td class="text-danger fw-bold">@string.Format("{0:N0} đ", order.Price)</td>
+                                            <td><span class="badge bg-info text-dark">@order.Status</span></td>
+                                            <td>@order.Createdat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Bạn chưa nhận được đơn hàng nào từ người mua, hoặc chưa đăng bán sản phẩm.</p>
+                    }
+                </div>
+                
+                <div class="tab-pane fade" id="buying" role="tabpanel">
+                    <h5 class="text-center mb-4 fw-bold">Lịch sử Đơn hàng đã đặt trên Marketplace</h5>
+                    @if (ViewBag.BuyingOrders != null && ((IEnumerable<dynamic>)ViewBag.BuyingOrders).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Người bán</th>
+                                        <th>Giá mua</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in ViewBag.BuyingOrders)
+                                    {
+                                        <tr>
+                                            <td><span class="text-primary fw-bold">@order.Post?.Title</span></td>
+                                            <td>@order.Seller?.Username</td>
+                                            <td class="text-danger fw-bold">@string.Format("{0:N0} đ", order.Price)</td>
+                                            <td><span class="badge bg-secondary">@order.Status</span></td>
+                                            <td>@order.Createdat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Bạn chưa từng đặt mua sản phẩm nào trên Marketplace.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

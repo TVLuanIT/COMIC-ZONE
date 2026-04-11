@@ -51,6 +51,7 @@ namespace COMICZONE
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IMarketplaceService, MarketplaceService>();
 
             builder.Services.AddSingleton(x => new PaypalClient
             (
@@ -97,6 +98,11 @@ namespace COMICZONE
                 name: "Blogs",
                 areaName: "Blogs",
                 pattern: "Blogs/{controller=Home}/{action=Index}/{id?}");
+
+            app.MapAreaControllerRoute(
+                name: "Marketplace",
+                areaName: "Marketplace",
+                pattern: "Marketplace/{controller=Home}/{action=Index}/{id?}");
 
             app.MapAreaControllerRoute(
                 name: "Admin",

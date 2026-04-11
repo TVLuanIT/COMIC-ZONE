@@ -1,0 +1,71 @@
+@model IEnumerable<COMICZONE.Models.MarketplacePost>
+
+@{
+    ViewData["Title"] = "Cộng đồng bán đồ cũ (Marketplace)";
+}
+
+<div class="container mt-5 pt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: var(--primary-color);">Marketplace</h2>
+        <a asp-action="Create" class="btn btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color);">
+            <i class="fas fa-plus"></i> Đăng bán mới
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mt-3 mb-3 custom-alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var post in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        @if (post.MarketplacePostImages != null && post.MarketplacePostImages.Any())
+                        {
+                            <img src="~/images/marketplace/@post.MarketplacePostImages.First().Filename" class="card-img-top" alt="@post.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-image text-muted fa-3x"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate" title="@post.Title">@post.Title</h5>
+                            <p class="card-text text-danger fw-bold mb-1">
+                                @string.Format("{0:N0} đ", post.Price)
+                            </p>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-tag me-1"></i> Tình trạng: @post.Condition
+                            </p>
+                            <p class="text-muted small">
+                                <i class="fas fa-user me-1"></i> Người bán: @(post.Seller?.Username ?? "Ẩn danh")
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-dark w-100" style="border-radius: 8px;">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-box-open fa-4x text-muted"></i>
+                </div>
+                <h5 class="text-muted">Hiện chưa có sản phẩm nào được đăng bán.</h5>
+                <p>Hãy trở thành người đầu tiên đăng bán đồ cũ trên Marketplace!</p>
+            </div>
+        }
+    </div>
+</div>

@@ -74,6 +74,27 @@ public partial class User
     [InverseProperty("User")]
     public virtual Customer? Customer { get; set; }
 
+    [InverseProperty("User")]
+    public virtual ICollection<MarketplaceFavorite> MarketplaceFavorites { get; set; } = new List<MarketplaceFavorite>();
+
+    [InverseProperty("Receiver")]
+    public virtual ICollection<MarketplaceMessage> MarketplaceMessageReceivers { get; set; } = new List<MarketplaceMessage>();
+
+    [InverseProperty("Sender")]
+    public virtual ICollection<MarketplaceMessage> MarketplaceMessageSenders { get; set; } = new List<MarketplaceMessage>();
+
+    [InverseProperty("Buyer")]
+    public virtual ICollection<MarketplaceOrder> MarketplaceOrderBuyers { get; set; } = new List<MarketplaceOrder>();
+
+    [InverseProperty("Seller")]
+    public virtual ICollection<MarketplaceOrder> MarketplaceOrderSellers { get; set; } = new List<MarketplaceOrder>();
+
+    [InverseProperty("Seller")]
+    public virtual ICollection<MarketplacePost> MarketplacePosts { get; set; } = new List<MarketplacePost>();
+
+    [InverseProperty("Reviewer")]
+    public virtual ICollection<MarketplaceReview> MarketplaceReviews { get; set; } = new List<MarketplaceReview>();
+
     [InverseProperty("CreatedByNavigation")]
     public virtual ICollection<Notification> NotificationCreatedByNavigations { get; set; } = new List<Notification>();
 
