@@ -3,16 +3,7 @@
 */
 
 /* --- HERO SECTIONS --- */
-.blog-hero {
-    position: relative;
-    padding: 180px 0 100px;
-    background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
-    overflow: hidden;
-}
-
-.hero-title-main { font-size: 4.5rem; line-height: 1.1; letter-spacing: -2px; color: var(--blogs-text); margin-bottom: 25px; }
-.text-gradient { background: var(--blogs-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.hero-subtitle { color: var(--blogs-text-dim); font-size: 1.15rem; line-height: 1.7; margin-bottom: 35px; }
+/* Base styles moved to blogs-core.css */
 
 /* AVATAR GROUP */
 .avatar-group { display: flex; align-items: center; }

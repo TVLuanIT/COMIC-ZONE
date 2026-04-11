@@ -104,6 +104,22 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* Navbar Stability Fixes */
+.navbar-nav .nav-link,
+.navbar-right-actions > *,
+.premium-dropdown-item {
+    white-space: nowrap !important;
+}
+
+.navbar-right-actions {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.navbar-right-actions > * {
+    flex-shrink: 0;
+}
+
 /* Cinematic Page Header */
 .page-header {
     background: var(--dark-bg);

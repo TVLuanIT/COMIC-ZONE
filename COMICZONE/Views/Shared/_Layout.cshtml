@@ -32,6 +32,13 @@
         <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
 
+        <!-- Conditional Blog Assets -->
+        @if (ViewContext.RouteData.Values["area"]?.ToString() == "Blogs")
+        {
+            <link rel="stylesheet" href="~/blogs/css/blogs-core.css" asp-append-version="true" />
+            <link rel="stylesheet" href="~/blogs/css/blogs-layout.css" asp-append-version="true" />
+        }
+
         @await RenderSectionAsync("Styles", required: false)
     </head>
 
@@ -103,13 +110,31 @@
                             </li>
                         </ul>
 
-                        <div class="d-flex align-items-center gap-3 flex-nowrap">
-                            <!-- Search Form -->
-                            <form class="modern-search-container d-flex align-items-center" asp-area="" asp-controller="Products" asp-action="Search" method="get">
+                        <div class="d-flex align-items-center gap-3 flex-nowrap navbar-right-actions">
+                            @{
+                                var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+                                var isBlogsArea = currentArea == "Blogs";
+                                var searchArea = isBlogsArea ? "Blogs" : "";
+                                var searchController = isBlogsArea ? "Home" : "Products";
+                                var searchAction = "Search";
+                            }
+                            <!-- Contextual Search Form -->
+                            <form class="modern-search-container d-flex align-items-center" 
+                                  asp-area="@searchArea" 
+                                  asp-controller="@searchController" 
+                                  asp-action="@searchAction" 
+                                  method="get">
+                                
+                                @if (isBlogsArea)
+                                {
+                                    <input type="hidden" name="sortBy" value="newest" />
+                                }
+
                                 <button type="submit" class="bg-transparent border-0 p-0 d-flex align-items-center">
                                     <i class="bi bi-search text-secondary me-2"></i>
                                 </button>
-                                <input class="modern-search-input" type="search" name="keyword" placeholder="Khám phá vũ trụ truyện...">
+                                <input class="modern-search-input" type="search" name="keyword" 
+                                       placeholder="@(isBlogsArea ? "Tìm kiếm bài viết blog..." : "Khám phá vũ trụ truyện...")">
                             </form>
                             
                             <!-- Login / Register -->
@@ -241,6 +266,23 @@
                 offset: 50
             });
         </script>
+
+        @if (ViewContext.RouteData.Values["area"]?.ToString() == "Blogs")
+        {
+            <script>
+                // Navbar Scroll Effect for Blogs (if needed, though main layout has its own)
+                window.addEventListener('scroll', function() {
+                    const nav = document.querySelector('.glass-nav');
+                    if (nav) {
+                        if (window.scrollY > 50) {
+                            nav.classList.add('scrolled');
+                        } else {
+                            nav.classList.remove('scrolled');
+                        }
+                    }
+                });
+            </script>
+        }
 
         @await RenderSectionAsync("Scripts", required: false)
 
