@@ -115,16 +115,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-hand-thumbs-down"></i>
                                         </button>
 
-                                        <button class="btn-toggle-reply d-flex align-items-center gap-1" data-comment-id="${result.comment.id}">
+                                        <button class="btn-toggle-reply d-flex align-items-center gap-1" 
+                                                data-comment-id="${result.comment.id}"
+                                                data-form-id="reply-form-c-${result.comment.id}"
+                                                data-reply-to-user="${result.comment.username}">
                                             <i class="bi bi-reply-fill"></i>
                                             <span>Phản hồi</span>
                                         </button>
                                     </div>
 
-                                    <div class="reply-form-container mt-3 d-none" id="reply-form-${result.comment.id}">
+                                    <div class="reply-form-container mt-3 d-none" id="reply-form-c-${result.comment.id}">
                                          <div class="d-flex gap-2 align-items-center">
                                              <textarea class="form-control-premium x-small reply-content w-100" rows="2" placeholder="Viết phản hồi..."></textarea>
-                                             <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" data-comment-id="${result.comment.id}">
+                                             <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" 
+                                                     data-comment-id="${result.comment.id}"
+                                                     data-form-id="reply-form-c-${result.comment.id}">
                                                  <i class="bi bi-send-fill"></i>
                                              </button>
                                          </div>
@@ -186,13 +191,29 @@ document.addEventListener('DOMContentLoaded', function() {
         commentsList.addEventListener('click', function(e) {
             const btn = e.target.closest('.btn-toggle-reply');
             if (btn) {
-                const commentId = btn.getAttribute('data-comment-id');
-                const form = document.getElementById(`reply-form-${commentId}`);
+                const formId = btn.getAttribute('data-form-id');
+                const parentReplyId = btn.getAttribute('data-parent-reply-id');
+                const replyToUser = btn.getAttribute('data-reply-to-user');
+                
+                const form = document.getElementById(formId);
                 if (form) {
+                    const isOpening = form.classList.contains('d-none');
                     form.classList.toggle('d-none');
+                    
+                    const submitBtn = form.querySelector('.btn-submit-reply');
+                    const textarea = form.querySelector('textarea');
+
                     if (!form.classList.contains('d-none')) {
                         form.classList.add('animate__animated', 'animate__fadeIn');
-                        form.querySelector('textarea').focus();
+                        
+                        // Prep tag if reply target exists
+                        if (replyToUser && isOpening) {
+                            textarea.value = `@${replyToUser} `;
+                        } else if (!replyToUser && isOpening) {
+                            textarea.value = '';
+                        }
+                        
+                        textarea.focus();
                     }
                 }
             }
@@ -203,7 +224,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const btn = e.target.closest('.btn-submit-reply');
             if (btn) {
                 const commentId = btn.getAttribute('data-comment-id');
-                const formContainer = document.getElementById(`reply-form-${commentId}`);
+                const formId = btn.getAttribute('data-form-id');
+                const formContainer = document.getElementById(formId);
                 const textarea = formContainer.querySelector('.reply-content');
                 const content = textarea.value.trim();
 
@@ -230,6 +252,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     const formData = new FormData();
                     formData.append('commentId', commentId);
                     formData.append('content', content);
+                    
+                    const parentReplyId = btn.getAttribute('data-parent-reply-id');
+                    if (parentReplyId) {
+                        formData.append('parentReplyId', parentReplyId);
+                    }
 
                     const response = await fetch(toggleReplyUrl, {
                         method: 'POST',
@@ -242,13 +269,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         formContainer.classList.add('d-none');
 
                         // Create new reply HTML
+                        const replyToHtml = result.reply.replyToUsername 
+                            ? `<span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> ${result.reply.replyToUsername}</span>` 
+                            : '';
+
                         const replyHtml = `
                             <div class="reply-node mb-3 animate__animated animate__fadeIn" id="reply-${result.reply.id}">
                                 <div class="d-flex gap-2">
                                     <img src="${result.reply.avatar}" class="reply-avatar">
                                     <div class="reply-body w-100">
                                         <div class="d-flex justify-content-between align-items-center mb-0">
-                                            <h6 class="text-sm fw-bold mb-0">${result.reply.username}</h6>
+                                            <h6 class="text-sm fw-bold mb-0">
+                                                ${result.reply.username}
+                                                ${replyToHtml}
+                                            </h6>
                                             <span class="xx-small text-muted">${result.reply.createdAt}</span>
                                         </div>
                                         <p class="small text-secondary mb-1">${result.reply.content}</p>
@@ -263,6 +297,25 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     data-reply-id="${result.reply.id}" data-is-like="false">
                                                 <i class="bi bi-hand-thumbs-down"></i>
                                             </button>
+                                            <button class="btn-toggle-reply xx-small border-0 bg-transparent text-primary fw-medium" 
+                                                    data-comment-id="${commentId}" 
+                                                    data-parent-reply-id="${result.reply.id}"
+                                                    data-reply-to-user="${result.reply.username}"
+                                                    data-form-id="reply-form-r-${result.reply.id}">
+                                                Phản hồi
+                                            </button>
+                                        </div>
+
+                                        <div class="reply-form-container mt-2 d-none" id="reply-form-r-${result.reply.id}">
+                                            <div class="d-flex gap-2 align-items-center ps-3 border-start">
+                                                <textarea class="form-control-premium xx-small reply-content w-100" rows="1" placeholder="Viết phản hồi..."></textarea>
+                                                <button class="btn btn-primary btn-sm rounded-pill px-2 btn-submit-reply" 
+                                                        data-comment-id="${commentId}"
+                                                        data-parent-reply-id="${result.reply.id}"
+                                                        data-form-id="reply-form-r-${result.reply.id}">
+                                                    <i class="bi bi-send-fill x-small"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -65,17 +65,22 @@
                                 <i class="bi @(userReaction == false ? "bi-hand-thumbs-down-fill" : "bi-hand-thumbs-down")"></i>
                             </button>
 
-                            <button class="btn-toggle-reply d-flex align-items-center gap-1" data-comment-id="@comment.Id">
+                            <button class="btn-toggle-reply d-flex align-items-center gap-1" 
+                                    data-comment-id="@comment.Id" 
+                                    data-form-id="reply-form-c-@comment.Id"
+                                    data-reply-to-user="@(comment.User?.Username ?? "Ẩn danh")">
                                 <i class="bi bi-reply-fill"></i>
                                 <span>Phản hồi</span>
                             </button>
                         </div>
 
                         <!-- Reply Form (Hidden) -->
-                        <div class="reply-form-container mt-3 d-none" id="reply-form-@comment.Id">
+                        <div class="reply-form-container mt-3 d-none" id="reply-form-c-@comment.Id">
                              <div class="d-flex gap-2 align-items-center">
                                  <textarea class="form-control-premium x-small reply-content w-100" rows="2" placeholder="Viết phản hồi..."></textarea>
-                                 <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" data-comment-id="@comment.Id">
+                                 <button class="btn btn-primary btn-sm rounded-pill px-3 btn-submit-reply" 
+                                         data-comment-id="@comment.Id"
+                                         data-form-id="reply-form-c-@comment.Id">
                                      <i class="bi bi-send-fill"></i>
                                  </button>
                              </div>
@@ -93,7 +98,13 @@
                                         <img src="@(reply.User?.Avatar.AvatarOrDefault())" class="reply-avatar">
                                         <div class="reply-body w-100">
                                             <div class="d-flex justify-content-between align-items-center mb-0">
-                                                <h6 class="text-sm fw-bold mb-0">@(reply.User?.Username ?? "Ẩn danh")</h6>
+                                                <h6 class="text-sm fw-bold mb-0">
+                                                    @(reply.User?.Username ?? "Ẩn danh")
+                                                    @if (reply.Replytouser != null)
+                                                    {
+                                                        <span class="fw-normal text-muted ms-1"><i class="bi bi-caret-right-fill x-small"></i> @reply.Replytouser.Username</span>
+                                                    }
+                                                </h6>
                                                 <span class="xx-small text-muted">@reply.Createdat?.ToString("dd/MM/yyyy HH:mm")</span>
                                             </div>
                                             <p class="small text-secondary mb-1">@reply.Content</p>
@@ -108,6 +119,26 @@
                                                         data-reply-id="@reply.Replyid" data-is-like="false">
                                                     <i class="bi @(rUserReaction == false ? "bi-hand-thumbs-down-fill" : "bi-hand-thumbs-down")"></i>
                                                 </button>
+                                                <button class="btn-toggle-reply xx-small border-0 bg-transparent text-primary fw-medium" 
+                                                        data-comment-id="@comment.Id" 
+                                                        data-parent-reply-id="@reply.Replyid"
+                                                        data-reply-to-user="@(reply.User?.Username ?? "Ẩn danh")"
+                                                        data-form-id="reply-form-r-@reply.Replyid">
+                                                    Phản hồi
+                                                </button>
+                                            </div>
+
+                                            <!-- Nested Reply Form (Hidden) -->
+                                            <div class="reply-form-container mt-2 d-none" id="reply-form-r-@reply.Replyid">
+                                                <div class="d-flex gap-2 align-items-center ps-3 border-start">
+                                                    <textarea class="form-control-premium xx-small reply-content w-100" rows="1" placeholder="Viết phản hồi..."></textarea>
+                                                    <button class="btn btn-primary btn-sm rounded-pill px-2 btn-submit-reply" 
+                                                            data-comment-id="@comment.Id"
+                                                            data-parent-reply-id="@reply.Replyid"
+                                                            data-form-id="reply-form-r-@reply.Replyid">
+                                                        <i class="bi bi-send-fill x-small"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

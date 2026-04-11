@@ -41,10 +41,10 @@ namespace COMICZONE.Areas.Blogs.Controllers
                     .ThenInclude(c => c.BlogCommentLikes)
                 .Include(b => b.BlogComments)
                     .ThenInclude(c => c.BlogCommentReplies)
-                        .ThenInclude(r => r.User)
+                        .ThenInclude(r => r.BlogCommentReplyLikes)
                 .Include(b => b.BlogComments)
                     .ThenInclude(c => c.BlogCommentReplies)
-                        .ThenInclude(r => r.BlogCommentReplyLikes)
+                        .ThenInclude(r => r.Replytouser)
                 .FirstOrDefaultAsync(m => m.Id == id && !m.Isdeleted);
 
             if (blog == null)
@@ -373,11 +373,24 @@ namespace COMICZONE.Areas.Blogs.Controllers
                     Isdeleted = false
                 };
 
+                if (parentReplyId.HasValue)
+                {
+                    var parentReply = await _context.BlogCommentReplies.FindAsync(parentReplyId.Value);
+                    if (parentReply != null)
+                    {
+                        reply.Replytouserid = parentReply.Userid;
+                    }
+                }
+
                 _context.BlogCommentReplies.Add(reply);
                 await _context.SaveChangesAsync();
 
-                // Nạp thông tin User
+                // Nạp thông tin User và Replytouser
                 await _context.Entry(reply).Reference(r => r.User).LoadAsync();
+                if (reply.Replytouserid.HasValue)
+                {
+                    await _context.Entry(reply).Reference(r => r.Replytouser).LoadAsync();
+                }
 
                 return Json(new
                 {
@@ -388,7 +401,8 @@ namespace COMICZONE.Areas.Blogs.Controllers
                         username = reply.User?.Username ?? "User",
                         avatar = COMICZONE.Extensions.StringExtensions.AvatarOrDefault(reply.User?.Avatar),
                         content = reply.Content,
-                        createdAt = reply.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                        createdAt = reply.Createdat?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        replyToUsername = reply.Replytouser?.Username
                     }
                 });
             }
