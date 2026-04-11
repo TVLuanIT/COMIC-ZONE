@@ -24,6 +24,12 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<BlogComment> BlogComments { get; set; }
 
+    public virtual DbSet<BlogCommentLike> BlogCommentLikes { get; set; }
+
+    public virtual DbSet<BlogCommentReply> BlogCommentReplies { get; set; }
+
+    public virtual DbSet<BlogCommentReplyLike> BlogCommentReplyLikes { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<CartItem> CartItems { get; set; }
@@ -116,12 +122,65 @@ public partial class ComiczoneContext : DbContext
         modelBuilder.Entity<BlogComment>(entity =>
         {
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Isdeleted).HasDefaultValue(false);
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments).HasConstraintName("FK_BLOG_COMMENT_BLOG");
 
             entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BLOG_COMMENT_USER");
+        });
+
+        modelBuilder.Entity<BlogCommentLike>(entity =>
+        {
+            entity.HasKey(e => new { e.Commentid, e.Userid }).HasName("PK__BLOG_COM__76496CD23D4AF486");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Islike).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Comment).WithMany(p => p.BlogCommentLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_COMMENT_LIKE_COMMENT");
+
+            entity.HasOne(d => d.User).WithMany(p => p.BlogCommentLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_COMMENT_LIKE_USER");
+        });
+
+        modelBuilder.Entity<BlogCommentReply>(entity =>
+        {
+            entity.HasKey(e => e.Replyid).HasName("PK__BLOG_COM__4B22DB5A6F906101");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Isdeleted).HasDefaultValue(false);
+
+            entity.HasOne(d => d.Comment).WithMany(p => p.BlogCommentReplies)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BLOG_COMMENT_REPLY_COMMENT");
+
+            entity.HasOne(d => d.Parentreply).WithMany(p => p.InverseParentreply).HasConstraintName("FK_BLOG_COMMENT_REPLY_PARENT");
+
+            entity.HasOne(d => d.Replytouser).WithMany(p => p.BlogCommentReplyReplytousers).HasConstraintName("FK_BLOG_COMMENT_REPLY_TO_USER");
+
+            entity.HasOne(d => d.User).WithMany(p => p.BlogCommentReplyUsers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BLOG_COMMENT_REPLY_USER");
+        });
+
+        modelBuilder.Entity<BlogCommentReplyLike>(entity =>
+        {
+            entity.HasKey(e => new { e.Replyid, e.Userid }).HasName("PK__BLOG_COM__0C9B3CA9DB75D44F");
+
+            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Islike).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Reply).WithMany(p => p.BlogCommentReplyLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_REPLY_LIKE_REPLY");
+
+            entity.HasOne(d => d.User).WithMany(p => p.BlogCommentReplyLikes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_REPLY_LIKE_USER");
         });
 
         modelBuilder.Entity<Cart>(entity =>

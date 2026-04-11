@@ -1,0 +1,61 @@
+@model COMICZONE.Models.Blog
+@using Microsoft.AspNetCore.Http
+
+<!-- COMMENTS SECTION -->
+<div class="comments-area mt-5" id="comments"
+     data-is-logged-in="@(Context.Session.GetString("UserId") != null ? "true" : "false")"
+     data-login-url="@Url.Action("Login", "Authentication", new { area = "Account", returnUrl = Context.Request.Path })">
+    @{
+        var activeCommentsCount = Model.BlogComments.Count(c => c.Isdeleted != true);
+        var totalDiscussion = (int)ViewBag.TotalDiscussion;
+    }
+    <h3 class="fw-bold mb-4">Thảo luận (@totalDiscussion)</h3>
+    
+    @if (Context.Session.GetString("UserId") != null)
+    {
+        <div class="comment-form-premium mb-5" id="commentForm" data-url="@Url.Action("AddComment", "Blogs", new { area = "Blogs" })">
+            <input type="hidden" id="blogId" value="@Model.Id" />
+            <textarea id="commentContent" class="form-control-premium" rows="5" placeholder="Để lại cảm nhận của bạn..."></textarea>
+            <div class="text-end mt-3">
+                <button id="btnSubmitComment" class="btn btn-primary rounded-pill px-4">
+                    <span class="submit-text">Gửi bình luận</span>
+                    <span class="submit-spinner spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                    <i class="submit-icon bi bi-send-fill ms-2"></i>
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="auth-suggest mb-5 text-center p-4 bg-light rounded-4">
+             <p class="mb-3 fw-medium">Bạn cần đăng nhập để bình luận</p>
+             <a asp-area="Account" asp-controller="Authentication" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-dark rounded-pill px-4">Đăng nhập ngay</a>
+        </div>
+    }
+
+    <div class="comments-list" 
+         data-toggle-like-url="@Url.Action("ToggleCommentLike", "Blogs", new { area = "Blogs" })"
+         data-toggle-reply-url="@Url.Action("AddReply", "Blogs", new { area = "Blogs" })"
+         data-toggle-reply-like-url="@Url.Action("ToggleReplyLike", "Blogs", new { area = "Blogs" })"
+         data-update-comment-url="@Url.Action("UpdateComment", "Blogs", new { area = "Blogs" })"
+         data-delete-comment-url="@Url.Action("DeleteComment", "Blogs", new { area = "Blogs" })"
+         data-update-reply-url="@Url.Action("UpdateReply", "Blogs", new { area = "Blogs" })"
+         data-delete-reply-url="@Url.Action("DeleteReply", "Blogs", new { area = "Blogs" })"
+         data-report-url="@Url.Action("Report", "Blogs", new { area = "Blogs" })">
+
+        @await Html.PartialAsync("_CommentNodes", (IEnumerable<COMICZONE.Models.BlogComment>)ViewBag.FirstPageComments)
+    </div>
+
+    <!-- LOAD MORE SECTION -->
+    <div class="load-more-container mt-5 text-center @(activeCommentsCount <= 5 ? "d-none" : "")" id="loadMoreContainer">
+        <button id="btnLoadMore" class="btn btn-outline-primary rounded-pill px-5 py-2 fw-bold" 
+                data-blog-id="@Model.Id" 
+                data-page="1" 
+                data-url="@Url.Action("GetComments", "Blogs", new { area = "Blogs" })">
+            <span class="load-more-text">Xem thêm bình luận</span>
+            <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+        </button>
+    </div>
+</div>
+
+<script src="~/blogs/js/blogs-comments.js" asp-append-version="true"></script>

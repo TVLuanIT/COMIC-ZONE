@@ -121,6 +121,7 @@
     border-radius: 99px;
     padding: 6px;
     display: flex;
+    align-items: center;
     transition: var(--blogs-tr);
     margin-top: 15px;
 }
@@ -130,7 +131,7 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.form-control-premium {
+.input-group-premium .form-control-premium {
     background: transparent;
     border: none;
     color: white;
@@ -138,8 +139,9 @@
     outline: none;
     flex-grow: 1;
     width: 100%;
+    min-height: unset !important;
 }
-.form-control-premium::placeholder { color: rgba(255, 255, 255, 0.75); }
+.input-group-premium .form-control-premium::placeholder { color: rgba(255, 255, 255, 0.75); }
 
 .btn-premium-send {
     background: white;

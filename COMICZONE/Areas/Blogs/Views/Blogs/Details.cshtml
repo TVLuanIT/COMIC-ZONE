@@ -79,44 +79,7 @@
                 </div>
 
                 <!-- COMMENTS SECTION -->
-                <div class="comments-area mt-5" id="comments">
-                    <h3 class="fw-bold mb-4">Thảo luận (@Model.BlogComments.Count)</h3>
-                    
-                    @if (Context.Session.GetString("UserId") != null)
-                    {
-                        <div class="comment-form-premium mb-5">
-                            <textarea id="commentContent" class="form-control-premium" rows="3" placeholder="Để lại cảm nhận của bạn..."></textarea>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary rounded-pill px-4">Gửi bình luận <i class="bi bi-send-fill ms-2"></i></button>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="auth-suggest mb-5 text-center p-4 bg-light rounded-4">
-                             <p class="mb-3 fw-medium">Bạn cần đăng nhập để bình luận</p>
-                             <a asp-area="Account" asp-controller="Authentication" asp-action="Login" class="btn btn-dark rounded-pill px-4">Đăng nhập ngay</a>
-                        </div>
-                    }
-
-                    <div class="comments-list">
-                        @foreach(var comment in Model.BlogComments.OrderByDescending(c => c.Createdat))
-                        {
-                            <div class="comment-node mb-4">
-                                <div class="d-flex gap-3">
-                                    <img src="@(comment.User?.Avatar.AvatarOrDefault())" class="comment-avatar">
-                                    <div class="comment-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <h6 class="mb-0 fw-bold">@(comment.User.Username)</h6>
-                                            <span class="x-small text-muted">@comment.Createdat.ToString("dd/MM/yyyy HH:mm")</span>
-                                        </div>
-                                        <p class="text-secondary mb-0">@comment.Content</p>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+                @await Html.PartialAsync("_BlogComments", Model)
             </div>
 
             <!-- SIDEBAR DETAILS -->
@@ -128,7 +91,7 @@
                         {
                             foreach (var related in (IEnumerable<COMICZONE.Models.Blog>)ViewBag.RelatedBlogs)
                             {
-                                <a asp-area="Blogs" asp-controller="Home" asp-action="Details" asp-route-id="@related.Id" class="related-item d-flex gap-3 mb-4 text-decoration-none">
+                                <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@related.Id" class="related-item d-flex gap-3 mb-4 text-decoration-none">
                                     <img src="@(string.IsNullOrEmpty(related.Thumbnail) ? "/blogs/images/default-blog.png" : (related.Thumbnail.StartsWith("http") ? related.Thumbnail : "/images/blogs/" + related.Thumbnail))" class="related-thumb">
                                     <div>
                                         <h6 class="related-title text-dark line-clamp-2">@related.Title</h6>
@@ -152,27 +115,5 @@
 </section>
 
 @section Scripts {
-    <script>
-        // Reading Progress Bar Logic
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            const progress = document.getElementById("readingProgress");
-            if (progress) {
-                progress.style.width = scrolled + "%";
-            }
-        });
-
-        // Initialize AOS
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof AOS !== 'undefined') {
-                AOS.init({
-                    duration: 1000,
-                    once: true,
-                    offset: 100
-                });
-            }
-        });
-    </script>
+    <script src="~/blogs/js/blogs-details.js" asp-append-version="true"></script>
 }

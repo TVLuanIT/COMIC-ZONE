@@ -626,6 +626,33 @@ namespace COMICZONE.Areas.Account.Controllers
                 .Take(pageSize)
                 .ToList();
 
+            // Tìm các blog có thông báo chưa đọc
+            var unreadBlogIds = new List<int>();
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+            {
+                var unreadBlogNotifs = _context.Notifications
+                    .Where(n => n.UserId == userId && 
+                           (n.IsRead == false || n.IsRead == null) && 
+                           !n.Isdeleted && 
+                           n.Link.Contains("/Blogs/Blogs/Details/"))
+                    .ToList();
+                
+                foreach (var notif in unreadBlogNotifs)
+                {
+                    // Trích xuất ID từ link kiểu /Blogs/Blogs/Details/123
+                    var parts = notif.Link.Split('/');
+                    if (parts.Length > 0 && int.TryParse(parts.Last(), out int blogId))
+                    {
+                        if (blogs.Any(b => b.Id == blogId))
+                        {
+                            unreadBlogIds.Add(blogId);
+                        }
+                    }
+                }
+            }
+            ViewBag.UnreadBlogIds = unreadBlogIds.Distinct().ToList();
+
             ViewBag.Pagination = new PaginationModel
             {
                 CurrentPage = page,

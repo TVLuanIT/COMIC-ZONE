@@ -20,15 +20,26 @@ public partial class BlogComment
     public int Userid { get; set; }
 
     [Column("CONTENT")]
-    [StringLength(500)]
     public string Content { get; set; } = null!;
 
     [Column("CREATEDAT", TypeName = "datetime")]
     public DateTime Createdat { get; set; }
 
+    [Column("UPDATEDAT", TypeName = "datetime")]
+    public DateTime? Updatedat { get; set; }
+
+    [Column("ISDELETED")]
+    public bool? Isdeleted { get; set; }
+
     [ForeignKey("Blogid")]
     [InverseProperty("BlogComments")]
     public virtual Blog Blog { get; set; } = null!;
+
+    [InverseProperty("Comment")]
+    public virtual ICollection<BlogCommentLike> BlogCommentLikes { get; set; } = new List<BlogCommentLike>();
+
+    [InverseProperty("Comment")]
+    public virtual ICollection<BlogCommentReply> BlogCommentReplies { get; set; } = new List<BlogCommentReply>();
 
     [ForeignKey("Userid")]
     [InverseProperty("BlogComments")]

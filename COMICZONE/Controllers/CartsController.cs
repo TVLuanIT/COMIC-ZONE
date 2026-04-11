@@ -79,8 +79,13 @@ namespace COMICZONE.Controllers
 
             if (string.IsNullOrEmpty(userIdStr))
             {
+                var referer = Request.Headers["Referer"].ToString();
+                if (string.IsNullOrEmpty(referer) || referer.Contains("/Carts"))
+                {
+                    referer = Url.Action("Index", "Home")!;
+                }
                 TempData["LoginRequired"] = "Vui lòng đăng nhập để xem giỏ hàng.";
-                return RedirectToAction("Index", "Home");
+                return Redirect(referer);
             }
 
             int userId = int.Parse(userIdStr);

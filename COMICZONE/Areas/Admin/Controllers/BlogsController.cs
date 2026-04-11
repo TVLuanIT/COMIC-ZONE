@@ -10,6 +10,7 @@ using COMICZONE.Models;
 using COMICZONE.Areas.Admin.ViewModels;
 using COMICZONE.Extensions;
 using COMICZONE.Models.Enums;
+using COMICZONE.Services;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -17,10 +18,12 @@ namespace COMICZONE.Areas.Admin.Controllers
     public class BlogsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
+        private readonly INotificationService _notificationService;
 
-        public BlogsController(ComiczoneContext context)
+        public BlogsController(ComiczoneContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         // GET: Admin/Blogs
@@ -214,6 +217,10 @@ namespace COMICZONE.Areas.Admin.Controllers
 
                     if (existingBlog == null) return NotFound();
 
+                    // Store old values for notification
+                    var oldStatus = existingBlog.BlogStatusEnum;
+                    var oldIsDeleted = existingBlog.Isdeleted;
+
                     // Update scalar properties
                     _context.Entry(existingBlog).CurrentValues.SetValues(blog);
                     existingBlog.Updatedat = DateTime.Now;
@@ -231,6 +238,43 @@ namespace COMICZONE.Areas.Admin.Controllers
                     }
 
                     await _context.SaveChangesAsync();
+
+                    // Send notifications if changes occurred
+                    var currentAdminId = HttpContext.Session.GetInt32("UserId");
+                    var blogLink = $"/Blogs/Blogs/Details/{existingBlog.Id}";
+
+                    // Status change notification
+                    if (oldStatus != existingBlog.BlogStatusEnum)
+                    {
+                        string statusMsg = existingBlog.BlogStatusEnum switch
+                        {
+                            BlogStatus.Approved => "đã được phê duyệt và công khai",
+                            BlogStatus.Rejected => "đã bị từ chối",
+                            BlogStatus.Pending => "đang chờ kiểm duyệt lại",
+                            _ => "đã được cập nhật trạng thái"
+                        };
+
+                        await _notificationService.SendNotificationAsync(
+                            existingBlog.Authorid,
+                            currentAdminId,
+                            "Cập nhật trạng thái bài viết",
+                            $"Bài viết \"{existingBlog.Title}\" của bạn {statusMsg}.",
+                            blogLink
+                        );
+                    }
+
+                    // Visibility change notification
+                    if (oldIsDeleted != existingBlog.Isdeleted)
+                    {
+                        string visibilityMsg = existingBlog.Isdeleted ? "tạm ẩn" : "hiển thị lại";
+                        await _notificationService.SendNotificationAsync(
+                            existingBlog.Authorid,
+                            currentAdminId,
+                            "Cập nhật hiển thị bài viết",
+                            $"Bài viết \"{existingBlog.Title}\" của bạn đã được {visibilityMsg}.",
+                            blogLink
+                        );
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -282,6 +326,17 @@ namespace COMICZONE.Areas.Admin.Controllers
 
             blog.Isdeleted = !blog.Isdeleted;
             await _context.SaveChangesAsync();
+
+            // Send notification
+            var currentAdminId = HttpContext.Session.GetInt32("UserId");
+            string action = blog.Isdeleted ? "tạm ẩn" : "hiển thị lại";
+            await _notificationService.SendNotificationAsync(
+                blog.Authorid,
+                currentAdminId,
+                "Cập nhật hiển thị bài viết",
+                $"Bài viết \"{blog.Title}\" của bạn đã được {action} bởi quản trị viên.",
+                $"/Blogs/Blogs/Details/{blog.Id}"
+            );
 
             return Json(new { success = true, isDeleted = blog.Isdeleted });
         }

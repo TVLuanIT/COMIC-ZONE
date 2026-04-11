@@ -41,7 +41,7 @@
         </div>
 
         <h3 class="profile-username-premium">@username</h3>
-        <p class="text-white-50 small mt-1">Thành viên mạn bạc</p>
+        <p class="text-secondary small mt-1">Thành viên mạn bạc</p>
     </div>
 
     <!-- SIDEBAR MENU -->
@@ -85,6 +85,7 @@
                class="sidebar-menu-link @(action == "MyBlogs" ? "active" : "")">
                 <i class="bi bi-journal-text"></i>
                 <span>Bài viết của tôi</span>
+                @await Component.InvokeAsync("UnreadBlogCount")
             </a>
         </li>
         <li>

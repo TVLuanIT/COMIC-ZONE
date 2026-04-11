@@ -97,9 +97,13 @@ namespace COMICZONE.Areas.Account.Controllers
         }
         
         [HttpPost]
-        public IActionResult Logout()
+        public IActionResult Logout(string? returnUrl = null)
         {
             HttpContext.Session.Clear();
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction("Index", "Home", new { area = "" });
         }
         
