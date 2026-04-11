@@ -182,7 +182,7 @@
     border-radius: 50%;
     object-fit: cover;
 }
-.comment-form-premium .form-control-premium {
+.form-control-premium {
     width: 100%;
     min-height: 120px;
     border-radius: 20px;
@@ -194,6 +194,16 @@
     font-size: 1rem;
     line-height: 1.6;
     resize: vertical;
+}
+.form-control-premium.small {
+    min-height: 80px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+}
+.form-control-premium.x-small {
+    min-height: 60px;
+    padding: 10px 15px;
+    font-size: 0.85rem;
 }
 .form-control-premium:focus {
     background: white;
@@ -444,15 +454,40 @@
 /* --- EDIT MODE --- */
 .edit-area {
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 20px;
-    margin: 10px 0;
-    border: 1px solid var(--blogs-primary);
-    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.1);
+    margin: 15px 0;
+    border: 1.5px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(99, 102, 241, 0.05);
+    position: relative;
+    overflow: hidden;
 }
+
+.edit-header {
+    margin-bottom: 12px;
+}
+
+.edit-icon-bg {
+    width: 28px;
+    height: 28px;
+    background: var(--blogs-grad);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+}
+
 .edit-textarea {
-    min-height: 80px !important;
-    margin-bottom: 10px;
+    margin-bottom: 12px !important;
+    border-radius: 14px !important;
+}
+
+.btn-xs {
+    padding: 4px 12px;
+    font-size: 0.75rem;
 }
 
 /* --- PREMIUM SWEETALERT CUSTOMIZATION --- */

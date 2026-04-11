@@ -40,6 +40,7 @@
                 <form asp-area="Account"
                       asp-controller="Authentication"
                       asp-action="Logout"
+                      asp-route-returnUrl="@(Context.Request.Path.Value + Context.Request.QueryString.Value)"
                       method="post">
                     <button type="submit"
                             class="premium-dropdown-item logout-btn-premium">

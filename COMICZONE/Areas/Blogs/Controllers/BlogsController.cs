@@ -35,22 +35,33 @@ namespace COMICZONE.Areas.Blogs.Controllers
             var blog = await _context.Blogs
                 .Include(b => b.Author)
                 .Include(b => b.Categories)
-                .Include(b => b.BlogComments)
-                    .ThenInclude(c => c.User)
-                .Include(b => b.BlogComments)
-                    .ThenInclude(c => c.BlogCommentLikes)
-                .Include(b => b.BlogComments)
-                    .ThenInclude(c => c.BlogCommentReplies)
-                        .ThenInclude(r => r.BlogCommentReplyLikes)
-                .Include(b => b.BlogComments)
-                    .ThenInclude(c => c.BlogCommentReplies)
-                        .ThenInclude(r => r.Replytouser)
+                .Include(b => b.BlogComments) // Để tính tổng số lượng
                 .FirstOrDefaultAsync(m => m.Id == id && !m.Isdeleted);
 
             if (blog == null)
             {
                 return NotFound();
             }
+
+            // Tải 5 bình luận đầu tiên cùng toàn bộ thông tin liên quan (User, Likes, Replies...)
+            ViewBag.FirstPageComments = await _context.BlogComments
+                .Where(c => c.Blogid == blog.Id && (c.Isdeleted == false || c.Isdeleted == null))
+                .Include(c => c.User)
+                .Include(c => c.BlogCommentLikes)
+                .Include(c => c.BlogCommentReplies)
+                    .ThenInclude(r => r.BlogCommentReplyLikes)
+                .Include(c => c.BlogCommentReplies)
+                    .ThenInclude(r => r.Replytouser)
+                .OrderByDescending(c => c.Createdat)
+                .Take(5)
+                .ToListAsync();
+
+            // Tính toán tổng số thảo luận (bình luận + phản hồi)
+            var commentCount = blog.BlogComments.Count(c => c.Isdeleted != true);
+            var replyCount = await _context.BlogCommentReplies
+                .CountAsync(r => r.Comment.Blogid == blog.Id && (r.Isdeleted == false || r.Isdeleted == null));
+            
+            ViewBag.TotalDiscussion = commentCount + replyCount;
 
             // Đánh dấu thông báo liên quan đến bài viết này là đã đọc nếu người dùng là tác giả
             var currentUserIdStr = CurrentUserId();
@@ -688,6 +699,27 @@ namespace COMICZONE.Areas.Blogs.Controllers
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Báo cáo của bạn đã được gửi. Chúng tôi sẽ sớm xem xét." });
+        }
+
+        // GET: Blogs/Blogs/GetComments
+        [HttpGet]
+        public async Task<IActionResult> GetComments(int blogId, int page = 1)
+        {
+            int pageSize = 5;
+            var comments = await _context.BlogComments
+                .Where(c => c.Blogid == blogId && (c.Isdeleted == false || c.Isdeleted == null))
+                .Include(c => c.User)
+                .Include(c => c.BlogCommentLikes)
+                .Include(c => c.BlogCommentReplies)
+                    .ThenInclude(r => r.BlogCommentReplyLikes)
+                .Include(c => c.BlogCommentReplies)
+                    .ThenInclude(r => r.Replytouser)
+                .OrderByDescending(c => c.Createdat)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return PartialView("_CommentNodes", comments);
         }
     }
 }
