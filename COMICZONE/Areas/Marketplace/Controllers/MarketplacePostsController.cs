@@ -25,9 +25,40 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder = "date_desc", string? searchTerm = null, string? category = null, string? condition = null, decimal? minPrice = null, decimal? maxPrice = null, int page = 1)
         {
-            var posts = await _marketplaceService.GetAllPostsAsync("Approved");
+            const int pageSize = 12;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentSearch"] = searchTerm;
+            ViewData["CurrentCategory"] = category;
+            ViewData["CurrentCondition"] = condition;
+            ViewData["MinPrice"] = minPrice;
+            ViewData["MaxPrice"] = maxPrice;
+
+            var (posts, totalCount) = await _marketplaceService.GetAllPostsAsync("Approved", sortOrder, searchTerm, category, condition, minPrice, maxPrice, page, pageSize);
+
+            var extraParams = new Dictionary<string, string>
+            {
+                { "sortOrder", sortOrder },
+                { "searchTerm", searchTerm ?? "" },
+                { "category", category ?? "" },
+                { "condition", condition ?? "" },
+                { "minPrice", minPrice?.ToString() ?? "" },
+                { "maxPrice", maxPrice?.ToString() ?? "" }
+            };
+
+            var pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                Controller = "MarketplacePosts",
+                Action = "Index",
+                Area = "Marketplace",
+                ExtraParams = extraParams
+            };
+
+            ViewBag.Pagination = pagination;
             return View(posts);
         }
 

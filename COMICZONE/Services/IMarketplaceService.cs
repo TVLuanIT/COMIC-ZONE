@@ -7,7 +7,7 @@ namespace COMICZONE.Services
     public interface IMarketplaceService
     {
         // Posts
-        Task<List<MarketplacePost>> GetAllPostsAsync(string status = "Approved");
+        Task<(List<MarketplacePost> Items, int TotalCount)> GetAllPostsAsync(string status = "Approved", string sortOrder = "date_desc", string? searchTerm = null, string? category = null, string? condition = null, decimal? minPrice = null, decimal? maxPrice = null, int page = 1, int pageSize = 12);
         Task<MarketplacePost?> GetPostByIdAsync(int id);
         Task<MarketplacePost> CreatePostAsync(MarketplacePost post);
         Task<bool> UpdatePostStatusAsync(int postId, string status);

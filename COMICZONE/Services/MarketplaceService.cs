@@ -17,14 +17,55 @@ namespace COMICZONE.Services
             _context = context;
         }
 
-        public async Task<List<MarketplacePost>> GetAllPostsAsync(string status = "Approved")
+        public async Task<(List<MarketplacePost> Items, int TotalCount)> GetAllPostsAsync(string status = "Approved", string sortOrder = "date_desc", string? searchTerm = null, string? category = null, string? condition = null, decimal? minPrice = null, decimal? maxPrice = null, int page = 1, int pageSize = 12)
         {
-            return await _context.MarketplacePosts
+            var query = _context.MarketplacePosts
                 .Include(p => p.Seller)
                 .Include(p => p.MarketplacePostImages)
-                .Where(p => p.Status == status && p.Isdeleted == false)
-                .OrderByDescending(p => p.Createdat)
-                .ToListAsync();
+                .Where(p => p.Status == status && p.Isdeleted == false);
+
+            // Filtering
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(p => p.Title.Contains(searchTerm) || (p.Description != null && p.Description.Contains(searchTerm)));
+            }
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(p => p.Category == category);
+            }
+
+            if (!string.IsNullOrEmpty(condition))
+            {
+                query = query.Where(p => p.Condition == condition);
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            // Count total before pagination
+            int totalCount = await query.CountAsync();
+
+            // Sorting
+            query = sortOrder switch
+            {
+                "date_asc" => query.OrderBy(p => p.Createdat),
+                "price_asc" => query.OrderBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.Price),
+                _ => query.OrderByDescending(p => p.Createdat),
+            };
+
+            // Pagination
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<MarketplacePost?> GetPostByIdAsync(int id)
