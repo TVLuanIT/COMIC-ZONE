@@ -87,7 +87,16 @@
                         </div>
                         <div class="col-6">
                             <label class="text-muted small">Tình trạng</label>
-                            <p class="fw-semibold mb-0">@Model.Condition</p>
+                            @{
+                                var condText = Model.Condition switch {
+                                    "NewLike" => "Như mới",
+                                    "VeryGood" => "Rất tốt",
+                                    "Good" => "Tốt",
+                                    "Acceptable" => "Chấp nhận được",
+                                    _ => Model.Condition
+                                };
+                            }
+                            <p class="fw-semibold mb-0">@condText</p>
                         </div>
                         <div class="col-6">
                             <label class="text-muted small">Ngày đăng</label>
@@ -135,9 +144,16 @@
                             👤 Thông tin người bán
                         </label>
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:48px;height:48px;">
-                                @Model.Seller?.Username?.Substring(0, 1).ToUpper()
-                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Seller?.Avatar))
+                            {
+                                <img src="@Model.Seller.Avatar" class="rounded-circle" style="width:48px;height:48px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:48px;height:48px;">
+                                    @Model.Seller?.Username?.Substring(0, 1).ToUpper()
+                                </div>
+                            }
                             <div class="ms-3">
                                 <h6 class="fw-bold mb-0">@Model.Seller?.Username</h6>
                                 <small class="text-muted">ID: @Model.Sellerid</small>

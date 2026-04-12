@@ -34,7 +34,17 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="Category" class="form-label fw-bold">Danh mục</label>
-                            <input asp-for="Category" class="form-control" placeholder="Ví dụ: Truyện tranh, Băng đĩa, Mô hình..." required />
+                            <select asp-for="Category" class="form-select" required>
+                                <option value="" disabled selected>-- Chọn danh mục --</option>
+                                <option value="Manga">Manga</option>
+                                <option value="Manhua">Manhua</option>
+                                <option value="Manhwa">Manhwa</option>
+                                <option value="Comics">Comics (Truyện tranh Âu Mỹ)</option>
+                                <option value="Novel">Light Novel / Tiểu thuyết</option>
+                                <option value="Anime Goods">Anime Goods (Phụ kiện)</option>
+                                <option value="Figures">Figures / Models (Mô hình)</option>
+                                <option value="Others">Khác</option>
+                            </select>
                         </div>
                         <div class="mb-4">
                             <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết</label>

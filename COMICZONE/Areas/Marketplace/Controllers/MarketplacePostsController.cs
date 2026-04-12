@@ -6,6 +6,10 @@ using System.IO;
 using System;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace COMICZONE.Areas.Marketplace.Controllers
 {
@@ -13,10 +17,12 @@ namespace COMICZONE.Areas.Marketplace.Controllers
     public class MarketplacePostsController : COMICZONE.Controllers.BaseController
     {
         private readonly IMarketplaceService _marketplaceService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MarketplacePostsController(IMarketplaceService marketplaceService)
+        public MarketplacePostsController(IMarketplaceService marketplaceService, IWebHostEnvironment webHostEnvironment)
         {
             _marketplaceService = marketplaceService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -67,7 +73,7 @@ namespace COMICZONE.Areas.Marketplace.Controllers
 
                 if (uploadedImages != null && uploadedImages.Count > 0)
                 {
-                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/marketplace");
+                    var folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "marketplace");
                     if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
                     foreach (var file in uploadedImages)

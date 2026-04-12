@@ -1,4 +1,5 @@
 @model COMICZONE.Areas.Admin.ViewModels.MarketplacePostSearchModel
+@using System.Linq
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -40,6 +41,7 @@
                             <th>@Html.SortHeader("Tình trạng", "condition", Model.SortColumn, Model.IsAscending, "postSearch")</th>
                             <th class="text-center">@Html.SortHeader("Trạng thái", "status", Model.SortColumn, Model.IsAscending, "postSearch")</th>
                             <th class="text-center">@Html.SortHeader("Ngày", "createdat", Model.SortColumn, Model.IsAscending, "postSearch")</th>
+                            <th class="text-center">Hiển thị</th>
                             <th class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
@@ -52,7 +54,7 @@
                                 <tr id="mkt-post-row-@item.Id" class="@(item.Isdeleted == true ? "bg-light text-muted opacity-75" : "")">
                                     <td class="ps-4 fw-bold">#@item.Id</td>
                                     <td>
-                                        @if (firstImg != null)
+                                        @if (item.MarketplacePostImages != null && item.MarketplacePostImages.Any())
                                         {
                                             <img src="/uploads/marketplace/@firstImg" class="rounded-1" width="40" height="40" style="object-fit: cover;" />
                                         }
@@ -68,15 +70,15 @@
                                     <td>
                                         @{
                                             var condBadge = item.Condition switch {
-                                                "New" => "bg-success-subtle text-success",
-                                                "LikeNew" => "bg-info-subtle text-info",
+                                                "NewLike" => "bg-success-subtle text-success",
+                                                "VeryGood" => "bg-info-subtle text-info",
                                                 "Good" => "bg-primary-subtle text-primary",
-                                                "Fair" => "bg-warning-subtle text-warning",
-                                                _ => "bg-danger-subtle text-danger"
+                                                "Acceptable" => "bg-warning-subtle text-warning",
+                                                _ => "bg-secondary-subtle text-secondary"
                                             };
                                             var condText = item.Condition switch {
-                                                "New" => "Mới", "LikeNew" => "Như mới", "Good" => "Tốt",
-                                                "Fair" => "Khá", "Poor" => "Cũ", _ => item.Condition
+                                                "NewLike" => "Như mới", "VeryGood" => "Rất tốt", "Good" => "Tốt",
+                                                "Acceptable" => "Chấp nhận được", _ => item.Condition
                                             };
                                         }
                                         <span class="badge @condBadge">@condText</span>
@@ -98,16 +100,27 @@
                                         <span class="badge rounded-pill px-2 py-1 @statusBadge">@statusText</span>
                                     </td>
                                     <td class="small text-muted">@item.Createdat?.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">
+                                        @if (item.Isdeleted == true)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger visibility-badge">Đã ẩn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success-subtle text-success visibility-badge">Công khai</span>
+                                        }
+                                    </td>
                                     <td class="text-center pe-4">
                                         <div class="d-flex gap-1 justify-content-center">
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="ti ti-info-circle"></i></a>
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
-
                                             @if (item.Status == "Pending")
                                             {
                                                 <button class="btn btn-sm btn-outline-success btn-approve-post" data-id="@item.Id" title="Duyệt"><i class="ti ti-check"></i></button>
                                                 <button class="btn btn-sm btn-outline-danger btn-reject-post" data-id="@item.Id" title="Từ chối"><i class="ti ti-x"></i></button>
                                             }
+
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="ti ti-info-circle"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa vĩnh viễn"><i class="ti ti-trash"></i></a>
 
                                             <button class="btn btn-sm btn-outline-secondary btn-toggle-delete-post" data-id="@item.Id"
                                                     title="@(item.Isdeleted == true ? "Hiển thị lại" : "Tạm ẩn")">

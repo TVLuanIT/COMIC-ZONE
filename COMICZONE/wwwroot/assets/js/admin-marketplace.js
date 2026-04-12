@@ -97,18 +97,25 @@ const MarketplacePostIndex = {
                         const data = await response.json();
                         if (data.success) {
                             const row = document.getElementById(`mkt-post-row-${id}`);
-                            if (row) {
-                                row.classList.toggle('bg-light');
-                                row.classList.toggle('text-muted');
-                                row.classList.toggle('opacity-75');
-                            }
                             const icon = btn.querySelector('i');
+                            const badge = row ? row.querySelector('.visibility-badge') : null;
+
                             if (data.isDeleted) {
-                                icon.className = 'ti ti-eye';
-                                btn.title = 'Hiện';
+                                if (row) row.classList.add('bg-light', 'text-muted', 'opacity-75');
+                                if (icon) icon.className = 'ti ti-refresh';
+                                btn.title = 'Hiển thị lại';
+                                if (badge) {
+                                    badge.className = 'badge bg-danger-subtle text-danger visibility-badge';
+                                    badge.innerText = 'Đã ẩn';
+                                }
                             } else {
-                                icon.className = 'ti ti-eye-off';
-                                btn.title = 'Ẩn';
+                                if (row) row.classList.remove('bg-light', 'text-muted', 'opacity-75');
+                                if (icon) icon.className = 'ti ti-ban';
+                                btn.title = 'Tạm ẩn';
+                                if (badge) {
+                                    badge.className = 'badge bg-success-subtle text-success visibility-badge';
+                                    badge.innerText = 'Công khai';
+                                }
                             }
                             Swal.fire({
                                 toast: true, position: 'top-end', icon: 'success',
@@ -117,6 +124,7 @@ const MarketplacePostIndex = {
                             });
                         }
                     } catch (err) {
+                        console.error(err);
                         Swal.fire('Lỗi', 'Không thể thay đổi trạng thái.', 'error');
                     }
                 }

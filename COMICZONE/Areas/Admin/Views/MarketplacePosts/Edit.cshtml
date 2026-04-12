@@ -42,7 +42,16 @@
                             </div>
                             <div class="mb-0">
                                 <label class="form-label small fw-semibold">Tình trạng</label>
-                                <input value="@Model.Condition" class="form-control" disabled />
+                                @{
+                                    var condText = Model.Condition switch {
+                                        "NewLike" => "Như mới",
+                                        "VeryGood" => "Rất tốt",
+                                        "Good" => "Tốt",
+                                        "Acceptable" => "Chấp nhận được",
+                                        _ => Model.Condition
+                                    };
+                                }
+                                <input value="@condText" class="form-control" disabled />
                             </div>
                         </div>
                     </div>
@@ -73,18 +82,22 @@
                         </div>
 
                         <!-- Ảnh thumbnail -->
-                        @if (Model.MarketplacePostImages?.Any() == true)
-                        {
-                            <div class="p-3 border rounded-4 bg-light mt-3">
-                                <label class="text-muted small d-block mb-2 fw-bold">🖼️ Ảnh đính kèm</label>
-                                <div class="d-flex gap-2 flex-wrap">
+                        <div class="p-3 border rounded-4 bg-light mt-3">
+                            <label class="text-muted small d-block mb-2 fw-bold">🖼️ Ảnh đính kèm</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if (Model.MarketplacePostImages?.Any() == true)
+                                {
                                     @foreach (var img in Model.MarketplacePostImages)
                                     {
                                         <img src="/uploads/marketplace/@img.Filename" class="rounded-2 border" width="60" height="60" style="object-fit:cover;" />
                                     }
-                                </div>
+                                }
+                                else
+                                {
+                                    <img src="/uploads/marketplace/default.png" class="rounded-2 border" width="60" height="60" style="object-fit:cover;" />
+                                }
                             </div>
-                        }
+                        </div>
                     </div>
                 </div>
 
