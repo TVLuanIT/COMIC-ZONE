@@ -1,0 +1,189 @@
+@model COMICZONE.Models.MarketplacePost
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = $"Chi tiết bài đăng #{Model.Id}";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📦 @ViewData["Title"]</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm">⬅ Quay lại</a>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Ảnh sản phẩm -->
+                <div class="col-md-5">
+                    <div class="border rounded-4 overflow-hidden bg-light">
+                        @if (Model.MarketplacePostImages?.Any() == true)
+                        {
+                            <div id="postImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    @for (int i = 0; i < Model.MarketplacePostImages.Count; i++)
+                                    {
+                                        var img = Model.MarketplacePostImages.ElementAt(i);
+                                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                                            <img src="/uploads/marketplace/@img.Filename" class="d-block w-100" style="height: 350px; object-fit: contain; background: #f8f9fa;" />
+                                        </div>
+                                    }
+                                </div>
+                                @if (Model.MarketplacePostImages.Count > 1)
+                                {
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#postImageCarousel" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" style="filter: invert(1);"></span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#postImageCarousel" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" style="filter: invert(1);"></span>
+                                    </button>
+                                }
+                            </div>
+                            <div class="text-center text-muted small py-2">@Model.MarketplacePostImages.Count ảnh</div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <img src="/uploads/marketplace/default.png" class="img-fluid rounded-4" style="max-height: 350px;" alt="Default Image" />
+                                <div class="text-muted small mt-2">Chưa có ảnh sản phẩm</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Thông tin bài đăng -->
+                <div class="col-md-7">
+                    <h4 class="fw-bold mb-3">@Model.Title</h4>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="text-muted small">Giá</label>
+                            <h5 class="fw-bold text-success">@Model.Price.ToString("N0")đ</h5>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Trạng thái</label><br />
+                            @{
+                                var statusBadge = Model.Status switch {
+                                    "Pending" => "bg-warning-subtle text-warning",
+                                    "Approved" => "bg-success-subtle text-success",
+                                    "Rejected" => "bg-danger-subtle text-danger",
+                                    "Sold" => "bg-info-subtle text-info",
+                                    _ => "bg-secondary-subtle text-secondary"
+                                };
+                                var statusText = Model.Status switch {
+                                    "Pending" => "Chờ duyệt",
+                                    "Approved" => "Đã duyệt",
+                                    "Rejected" => "Từ chối",
+                                    "Sold" => "Đã bán",
+                                    _ => Model.Status
+                                };
+                            }
+                            <span class="badge rounded-pill px-3 py-2 @statusBadge">@statusText</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Danh mục</label>
+                            <p class="fw-semibold mb-0">@Model.Category</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Tình trạng</label>
+                            <p class="fw-semibold mb-0">@Model.Condition</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Ngày đăng</label>
+                            <p class="mb-0">@Model.Createdat?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Cập nhật</label>
+                            <p class="mb-0">@(Model.Updatedat?.ToString("dd/MM/yyyy HH:mm") ?? "—")</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Trạng thái dữ liệu</label><br />
+                            @if (Model.Isdeleted == true)
+                            {
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2">Đã ẩn</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success-subtle text-success px-3 py-2">Hiển thị</span>
+                            }
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Yêu thích</label>
+                            <p class="mb-0"><i class="ti ti-heart-filled text-danger me-1"></i>@(Model.MarketplaceFavorites?.Count ?? 0)</p>
+                        </div>
+                    </div>
+
+                    <!-- Mô tả -->
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="border rounded-3 p-3 bg-light">
+                            <label class="text-muted small d-block mb-2 fw-bold text-uppercase">Mô tả</label>
+                            <p class="mb-0">@Model.Description</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Thông tin người bán -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-4 border rounded-4 bg-light shadow-sm">
+                        <label class="text-muted small d-block mb-3 fw-bold text-uppercase">
+                            👤 Thông tin người bán
+                        </label>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:48px;height:48px;">
+                                @Model.Seller?.Username?.Substring(0, 1).ToUpper()
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-0">@Model.Seller?.Username</h6>
+                                <small class="text-muted">ID: @Model.Sellerid</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Giao dịch liên quan -->
+                <div class="col-md-6">
+                    <div class="p-4 border rounded-4 bg-light shadow-sm">
+                        <label class="text-muted small d-block mb-3 fw-bold text-uppercase">
+                            🛒 Giao dịch (@(Model.MarketplaceOrders?.Count ?? 0))
+                        </label>
+                        @if (Model.MarketplaceOrders?.Any() == true)
+                        {
+                            @foreach (var order in Model.MarketplaceOrders)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded-3 border">
+                                    <div>
+                                        <span class="fw-semibold">#@order.Id</span>
+                                        <small class="text-muted ms-2">Buyer: @order.Buyer?.Username</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-secondary-subtle text-secondary me-1">@order.Status</span>
+                                        <span class="fw-bold text-success">@order.Price.ToString("N0")đ</span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">Chưa có giao dịch nào.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-white d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-outline-secondary">⬅ Quay lại danh sách</a>
+            <div class="d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="ti ti-edit me-1"></i>Chỉnh sửa</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger"><i class="ti ti-trash me-1"></i>Xóa</a>
+            </div>
+        </div>
+    </div>
+</div>

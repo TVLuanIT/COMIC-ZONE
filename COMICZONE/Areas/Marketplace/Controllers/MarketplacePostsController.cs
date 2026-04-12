@@ -55,6 +55,11 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             ModelState.Remove("MarketplaceMessages");
             ModelState.Remove("MarketplaceOrders");
 
+            if (uploadedImages == null || uploadedImages.Count == 0 || !uploadedImages.Any(f => f.Length > 0))
+            {
+                ModelState.AddModelError("uploadedImages", "Bạn phải tải lên ít nhất một tấm ảnh minh họa cho sản phẩm.");
+            }
+
             if (ModelState.IsValid)
             {
                 post.Sellerid = int.Parse(CurrentUserId());
@@ -62,7 +67,7 @@ namespace COMICZONE.Areas.Marketplace.Controllers
 
                 if (uploadedImages != null && uploadedImages.Count > 0)
                 {
-                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/marketplace");
+                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/marketplace");
                     if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
                     foreach (var file in uploadedImages)
@@ -75,8 +80,13 @@ namespace COMICZONE.Areas.Marketplace.Controllers
                             {
                                 await file.CopyToAsync(stream);
                             }
-                            // Assuming we add images to the context or through a service method
-                            // Not implemented in service yet, let's keep it simple for MVC setup
+                            
+                            var postImage = new MarketplacePostImage
+                            {
+                                Postid = createdPost.Id,
+                                Filename = fileName
+                            };
+                            await _marketplaceService.AddPostImageAsync(postImage);
                         }
                     }
                 }

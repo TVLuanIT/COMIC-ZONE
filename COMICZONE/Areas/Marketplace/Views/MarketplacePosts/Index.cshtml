@@ -7,49 +7,49 @@
 <div class="container mt-5 pt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold" style="color: var(--primary-color);">Marketplace</h2>
-        <a asp-action="Create" class="btn btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color);">
-            <i class="fas fa-plus"></i> Đăng bán mới
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm border-0" style="background: var(--primary-gradient);">
+            <i class="bi bi-plus-lg me-1"></i> Đăng bán mới
         </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success mt-3 mb-3 custom-alert">
-            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+        <div class="alert alert-success mt-3 mb-3 border-0 shadow-sm rounded-4 px-4 py-3">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
         </div>
     }
 
-    <div class="row">
+    <div class="row g-4">
         @if (Model != null && Model.Any())
         {
             @foreach (var post in Model)
             {
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                    <div class="card h-100 border-0 shadow-sm card-hover" style="border-radius: 16px; overflow: hidden; transition: transform 0.3s ease;">
                         @if (post.MarketplacePostImages != null && post.MarketplacePostImages.Any())
                         {
-                            <img src="~/images/marketplace/@post.MarketplacePostImages.First().Filename" class="card-img-top" alt="@post.Title" style="height: 200px; object-fit: cover;">
+                            <img src="/uploads/marketplace/@post.MarketplacePostImages.First().Filename" class="card-img-top" alt="@post.Title" style="height: 220px; object-fit: cover;">
                         }
                         else
                         {
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-image text-muted fa-3x"></i>
-                            </div>
+                            <img src="/uploads/marketplace/default.png" class="card-img-top" alt="Default Image" style="height: 220px; object-fit: cover;">
                         }
-                        <div class="card-body">
-                            <h5 class="card-title text-truncate" title="@post.Title">@post.Title</h5>
-                            <p class="card-text text-danger fw-bold mb-1">
+                        <div class="card-body p-4">
+                            <h6 class="card-title fw-bold text-truncate mb-2" title="@post.Title">@post.Title</h6>
+                            <p class="card-text text-danger fw-bold mb-3" style="font-size: 1.15rem;">
                                 @string.Format("{0:N0} đ", post.Price)
                             </p>
-                            <p class="text-muted small mb-2">
-                                <i class="fas fa-tag me-1"></i> Tình trạng: @post.Condition
-                            </p>
-                            <p class="text-muted small">
-                                <i class="fas fa-user me-1"></i> Người bán: @(post.Seller?.Username ?? "Ẩn danh")
-                            </p>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="text-muted small">
+                                    <i class="bi bi-tag me-2"></i>@post.Condition
+                                </span>
+                                <span class="text-muted small">
+                                    <i class="bi bi-person me-2"></i>@(post.Seller?.Username ?? "Ẩn danh")
+                                </span>
+                            </div>
                         </div>
-                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
-                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-dark w-100" style="border-radius: 8px;">
+                        <div class="card-footer bg-white border-top-0 pt-0 p-4">
+                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-dark w-100 rounded-pill fw-bold py-2">
                                 Chi tiết
                             </a>
                         </div>
@@ -61,10 +61,10 @@
         {
             <div class="col-12 text-center py-5">
                 <div class="mb-3">
-                    <i class="fas fa-box-open fa-4x text-muted"></i>
+                    <i class="bi bi-box2 text-muted display-1"></i>
                 </div>
                 <h5 class="text-muted">Hiện chưa có sản phẩm nào được đăng bán.</h5>
-                <p>Hãy trở thành người đầu tiên đăng bán đồ cũ trên Marketplace!</p>
+                <p class="text-secondary">Hãy trở thành người đầu tiên đăng bán đồ cũ trên Marketplace!</p>
             </div>
         }
     </div>

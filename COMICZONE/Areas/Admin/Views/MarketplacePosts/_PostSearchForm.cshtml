@@ -1,0 +1,92 @@
+@model COMICZONE.Areas.Admin.ViewModels.MarketplacePostSearchModel
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get" id="postSearchForm">
+            <input type="hidden" name="activeTab" value="Posts" />
+            <input type="hidden" asp-for="SortColumn" />
+            <input type="hidden" asp-for="IsAscending" />
+
+            <div class="row g-3">
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="ti ti-search text-muted"></i></span>
+                        <input asp-for="Keyword" class="form-control border-start-0 ps-0" placeholder="Tìm theo tiêu đề, người bán..." />
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <select asp-for="Status" class="form-select">
+                        <option value="">-- Trạng thái --</option>
+                        <option value="Pending">Chờ duyệt</option>
+                        <option value="Approved">Đã duyệt</option>
+                        <option value="Rejected">Từ chối</option>
+                        <option value="Sold">Đã bán</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <select asp-for="Category" class="form-select">
+                        <option value="">-- Danh mục --</option>
+                        <option value="Manga">Manga</option>
+                        <option value="Comic">Comic</option>
+                        <option value="LightNovel">Light Novel</option>
+                        <option value="Figure">Figure</option>
+                        <option value="Merchandise">Merchandise</option>
+                        <option value="Other">Khác</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <select asp-for="Condition" class="form-select">
+                        <option value="">-- Tình trạng --</option>
+                        <option value="New">Mới</option>
+                        <option value="LikeNew">Như mới</option>
+                        <option value="Good">Tốt</option>
+                        <option value="Fair">Khá</option>
+                        <option value="Poor">Cũ</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2 col-lg-1">
+                    <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i>Lọc</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#postAdvancedSearch">
+                        <i class="ti ti-adjustments-horizontal"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse @(Model.PriceFrom.HasValue || Model.PriceTo.HasValue || Model.CreatedFrom.HasValue || Model.CreatedTo.HasValue || !string.IsNullOrEmpty(Model.SellerUsername) ? "show" : "")" id="postAdvancedSearch">
+                <hr class="my-3 opacity-25">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Người bán</label>
+                        <input asp-for="SellerUsername" class="form-control form-control-sm" placeholder="Username..." />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Giá từ</label>
+                        <input asp-for="PriceFrom" type="number" class="form-control form-control-sm" placeholder="0" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Giá đến</label>
+                        <input asp-for="PriceTo" type="number" class="form-control form-control-sm" placeholder="999999" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Từ ngày</label>
+                        <input asp-for="CreatedFrom" type="date" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Đến ngày</label>
+                        <input asp-for="CreatedTo" type="date" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Hiển thị</label>
+                        <select asp-for="IsDeleted" class="form-select form-select-sm">
+                            <option value="">Tất cả</option>
+                            <option value="false">Đang hiển thị</option>
+                            <option value="true">Đã ẩn</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

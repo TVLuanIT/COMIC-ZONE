@@ -12,6 +12,7 @@ namespace COMICZONE.Services
         Task<MarketplacePost> CreatePostAsync(MarketplacePost post);
         Task<bool> UpdatePostStatusAsync(int postId, string status);
         Task<bool> DeletePostAsync(int postId);
+        Task AddPostImageAsync(MarketplacePostImage image);
 
         // Orders
         Task<MarketplaceOrder> PlaceOrderAsync(MarketplaceOrder order);

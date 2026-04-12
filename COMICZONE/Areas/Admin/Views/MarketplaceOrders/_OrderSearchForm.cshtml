@@ -1,0 +1,59 @@
+@model COMICZONE.Areas.Admin.ViewModels.MarketplaceOrderSearchModel
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get" id="orderSearchForm">
+            <input type="hidden" name="activeTab" value="Orders" />
+            <input type="hidden" asp-for="SortColumn" />
+            <input type="hidden" asp-for="IsAscending" />
+
+            <div class="row g-3">
+                <div class="col-md-5 col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="ti ti-search text-muted"></i></span>
+                        <input asp-for="Keyword" class="form-control border-start-0 ps-0" placeholder="Tìm theo ID, bài đăng, người mua/bán..." />
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <select asp-for="Status" class="form-select">
+                        <option value="">-- Trạng thái --</option>
+                        <option value="Pending">Chờ xử lý</option>
+                        <option value="Confirmed">Đã xác nhận</option>
+                        <option value="Completed">Hoàn thành</option>
+                        <option value="Cancelled">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i>Lọc</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#orderAdvancedSearch">
+                        <i class="ti ti-adjustments-horizontal"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse @(Model.BuyerId.HasValue || Model.SellerId.HasValue || Model.PriceFrom.HasValue || Model.CreatedFrom.HasValue || !string.IsNullOrEmpty(Model.BuyerUsername) || !string.IsNullOrEmpty(Model.SellerUsername) ? "show" : "")" id="orderAdvancedSearch">
+                <hr class="my-3 opacity-25">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Người mua</label>
+                        <input asp-for="BuyerUsername" class="form-control form-control-sm" placeholder="Username..." />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Người bán</label>
+                        <input asp-for="SellerUsername" class="form-control form-control-sm" placeholder="Username..." />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Từ ngày</label>
+                        <input asp-for="CreatedFrom" type="date" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold">Đến ngày</label>
+                        <input asp-for="CreatedTo" type="date" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

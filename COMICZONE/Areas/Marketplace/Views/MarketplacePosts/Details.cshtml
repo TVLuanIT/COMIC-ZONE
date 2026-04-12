@@ -1,0 +1,136 @@
+@model COMICZONE.Models.MarketplacePost
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-5 pt-4 pb-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Marketplace</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Gallery Ảnh -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
+                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @if (Model.MarketplacePostImages != null && Model.MarketplacePostImages.Any())
+                        {
+                            int i = 0;
+                            foreach (var img in Model.MarketplacePostImages)
+                            {
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="/uploads/marketplace/@img.Filename" class="d-block w-100" style="height: 500px; object-fit: contain; background: #f8f9fa;" alt="@Model.Title">
+                                </div>
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            <div class="carousel-item active">
+                                <img src="/uploads/marketplace/default.png" class="d-block w-100" style="height: 500px; object-fit: contain; background: #f8f9fa;" alt="Default Image">
+                            </div>
+                        }
+                    </div>
+                    @if (Model.MarketplacePostImages?.Count > 1)
+                    {
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true" style="filter: invert(1);"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true" style="filter: invert(1);"></span>
+                        </button>
+                    }
+                </div>
+                
+                @if (Model.MarketplacePostImages?.Count > 1)
+                {
+                    <div class="d-flex gap-2 p-3 overflow-auto">
+                        @foreach (var img in Model.MarketplacePostImages)
+                        {
+                            <img src="/uploads/marketplace/@img.Filename" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-lg-5">
+            <div class="ps-lg-3">
+                <div class="mb-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">@Model.Category</span>
+                    @{
+                        var condBadge = Model.Condition switch {
+                            "NewLike" => "bg-success-subtle text-success",
+                            "VeryGood" => "bg-info-subtle text-info",
+                            "Good" => "bg-warning-subtle text-warning",
+                            _ => "bg-secondary-subtle text-secondary"
+                        };
+                    }
+                    <span class="badge @condBadge border border-opacity-10 px-3 py-2 ms-2">Tình trạng: @Model.Condition</span>
+                </div>
+                
+                <h2 class="fw-bold mb-3">@Model.Title</h2>
+                
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="text-danger fw-bold mb-0" style="font-size: 2rem;">@Model.Price.ToString("N0")đ</h3>
+                    @if (Model.Status == "Sold")
+                    {
+                        <span class="badge bg-danger ms-3 px-3 py-2">Hết hàng</span>
+                    }
+                </div>
+
+                <div class="card border-0 bg-light rounded-4 mb-4 shadow-none">
+                    <div class="card-body p-4">
+                        <label class="text-muted small fw-bold text-uppercase mb-2 d-block">Mô tả sản phẩm</label>
+                        <p class="mb-0 text-dark" style="white-space: pre-line; line-height: 1.6;">@Model.Description</p>
+                    </div>
+                </div>
+
+                <!-- Người bán -->
+                <div class="card border border-light-subtle rounded-4 mb-4 shadow-sm">
+                    <div class="card-body p-3">
+                        <label class="text-muted small fw-bold text-uppercase mb-3 d-block">Thông tin người bán</label>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" 
+                                 style="width: 52px; height: 52px; font-size: 1.25rem; background: var(--primary-gradient);">
+                                @(Model.Seller?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 fw-bold">@Model.Seller?.Username</h6>
+                                <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Tham gia từ @(Model.Seller?.Createdat.ToString("MM/yyyy") ?? "N/A")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-3">
+                    @if (Model.Status != "Sold")
+                    {
+                        <button class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm border-0" style="background: var(--primary-gradient);">
+                            <i class="bi bi-chat-dots-fill me-2"></i>Liên hệ người bán
+                        </button>
+                        <button class="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold">
+                            <i class="bi bi-heart me-2"></i>Lưu bài đăng
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary btn-lg rounded-pill py-3 fw-bold disabled">
+                            Sản phẩm đã bán
+                        </button>
+                    }
+                </div>
+                
+                <p class="text-center text-muted small mt-4">
+                    <i class="bi bi-shield-check text-success me-1"></i> Giao dịch an toàn cùng ComicZone
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

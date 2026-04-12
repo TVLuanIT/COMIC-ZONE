@@ -67,6 +67,12 @@ namespace COMICZONE.Services
             return true;
         }
 
+        public async Task AddPostImageAsync(MarketplacePostImage image)
+        {
+            _context.MarketplacePostImages.Add(image);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<MarketplaceOrder> PlaceOrderAsync(MarketplaceOrder order)
         {
             order.Createdat = DateTime.Now;
