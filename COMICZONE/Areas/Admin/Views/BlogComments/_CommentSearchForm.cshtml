@@ -1,0 +1,122 @@
+@model COMICZONE.Areas.Admin.ViewModels.BlogCommentSearchModel
+
+<form method="get" class="review-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <input type="hidden" name="activeTab" value="Comments" />
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="commentSearch.Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã BL, Username, Blog, Nội dung...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="commentSearch.IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang hiển thị</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-7 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#commentAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" asp-route-activeTab="Comments" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="commentAdvancedSearch">
+        <div class="row g-3">
+            @* User & Blog info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Người dùng & Bài viết</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username</label>
+                <input type="text" name="commentSearch.Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="commentSearch.UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tiêu đề blog</label>
+                <input type="text" name="commentSearch.BlogTitle" value="@Model.BlogTitle" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Nội dung BL</label>
+                <input type="text" name="commentSearch.ContentKeyword" value="@Model.ContentKeyword" class="form-control">
+            </div>
+
+            @* Quantitative & Flags *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Định lượng & Trạng thái phản hồi</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Số phản hồi (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="commentSearch.ReplyCountMin" value="@Model.ReplyCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="commentSearch.ReplyCountMax" value="@Model.ReplyCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Lượt thích (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="commentSearch.LikeCountMin" value="@Model.LikeCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="commentSearch.LikeCountMax" value="@Model.LikeCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-wrap gap-3 pt-3 mt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="commentSearch.NoReplyOnly" value="true" @(Model.NoReplyOnly == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary text-warning">Chưa có PH</label>
+                    </div>
+                </div>
+            </div>
+
+            @* Timeline *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thời gian</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày bình luận từ</label>
+                <input type="date" name="commentSearch.CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày bình luận đến</label>
+                <input type="date" name="commentSearch.CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật từ</label>
+                <input type="date" name="commentSearch.UpdatedFrom" value="@(Model.UpdatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật đến</label>
+                <input type="date" name="commentSearch.UpdatedTo" value="@(Model.UpdatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="commentSearch.SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="commentSearch.IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Username) || !string.IsNullOrWhiteSpace(Model.UserEmail) ||
+               !string.IsNullOrWhiteSpace(Model.BlogTitle) || !string.IsNullOrWhiteSpace(Model.ContentKeyword) ||
+               Model.ReplyCountMin.HasValue || Model.ReplyCountMax.HasValue ||
+               Model.NoReplyOnly == true ||
+               Model.LikeCountMin.HasValue || Model.CreatedFrom.HasValue ||
+               Model.UpdatedFrom.HasValue;
+    }
+}

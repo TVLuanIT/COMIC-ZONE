@@ -167,6 +167,8 @@ const initAdmin = () => {
     if (typeof InvoiceIndex === 'function') safeInit(InvoiceIndex);
     if (typeof NotificationIndex === 'function') safeInit(NotificationIndex);
     if (typeof RefundIndex === 'function') safeInit(RefundIndex);
+    if (typeof BlogCommentIndex === 'function') safeInit(BlogCommentIndex);
+    if (typeof BlogCommentReplyIndex === 'function') safeInit(BlogCommentReplyIndex);
 
     // Reports Dashboard entry point
     const reportsConfig = document.querySelector('[data-reports-config]');

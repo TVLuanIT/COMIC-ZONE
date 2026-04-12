@@ -213,7 +213,7 @@
 
                 <!-- 5. Nội dung -->
                 <li class="nav-item">
-                    <a class="nav-link @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "active" : "")"
+                    <a class="nav-link @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" || controller == "BlogComments" || controller == "BlogCommentReplies" ? "active" : "")"
                        data-bs-toggle="collapse" href="#contentMenu">
                         <i class="ti ti-article"></i>
                         <span class="nav-text">Nội dung</span>
@@ -221,12 +221,19 @@
                         <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
-                    <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "show" : "")"
+                    <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" || controller == "BlogComments" || controller == "BlogCommentReplies" ? "show" : "")"
                         id="contentMenu">
                         <li>
                             <a asp-area="Admin" asp-controller="ProductReviews" asp-action="Index"
                                class="@(controller == "ProductReviews" ? "active" : "")">
-                                <i class="ti ti-star"></i> Quản lý đánh giá
+                                <i class="ti ti-star"></i> Đánh giá sản phẩm
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="BlogComments" asp-action="Index"
+                               class="@(controller == "BlogComments" || controller == "BlogCommentReplies" ? "active" : "")">
+                                <i class="ti ti-message-circle"></i> Bình luận blog
                             </a>
                         </li>
 
@@ -303,6 +310,7 @@
         <!-- Modular Admin Scripts -->
         <script src="~/assets/js/admin-products.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-blogs.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-blog-comments.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-reviews.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-violations.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-orders.js" asp-append-version="true"></script>
