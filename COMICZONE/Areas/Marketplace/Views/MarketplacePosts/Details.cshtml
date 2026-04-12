@@ -98,10 +98,7 @@
                     <div class="card-body p-3">
                         <label class="text-muted small fw-bold text-uppercase mb-3 d-block">Thông tin người bán</label>
                         <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" 
-                                 style="width: 52px; height: 52px; font-size: 1.25rem; background: var(--primary-gradient);">
-                                @(Model.Seller?.Username?.Substring(0, 1).ToUpper() ?? "U")
-                            </div>
+                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.Seller?.Avatar, size = 52 })
                             <div class="ms-3">
                                 <h6 class="mb-0 fw-bold">@Model.Seller?.Username</h6>
                                 <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Tham gia từ @(Model.Seller?.Createdat.ToString("MM/yyyy") ?? "N/A")</small>
@@ -116,8 +113,15 @@
                         <button class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm border-0" style="background: var(--primary-gradient);">
                             <i class="bi bi-chat-dots-fill me-2"></i>Liên hệ người bán
                         </button>
-                        <button class="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold">
-                            <i class="bi bi-heart me-2"></i>Lưu bài đăng
+                        <button class="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold" id="btnFavorite" onclick="toggleFavorite(@Model.Id)">
+                            @if ((bool)ViewBag.IsFavorited)
+                            {
+                                <i class="bi bi-heart-fill me-2 text-danger"></i><span>Đã lưu</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-heart me-2"></i><span>Lưu bài đăng</span>
+                            }
                         </button>
                     }
                     else
@@ -135,3 +139,65 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function toggleFavorite(postId) {
+            try {
+                const res = await fetch(`/Marketplace/MarketplacePosts/ToggleFavorite?postId=${postId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+
+                if (!data.success && data.message === 'login_required') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Chưa đăng nhập',
+                        text: 'Bạn cần đăng nhập để lưu bài đăng.',
+                        confirmButtonText: 'Đăng nhập',
+                        showCancelButton: true,
+                        cancelButtonText: 'Để sau',
+                        confirmButtonColor: '#6366f1'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+                        }
+                    });
+                    return;
+                }
+
+                const btn = document.getElementById('btnFavorite');
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+
+                if (data.isFavorited) {
+                    icon.className = 'bi bi-heart-fill me-2 text-danger';
+                    text.textContent = 'Đã lưu';
+                    btn.classList.add('btn-dark');
+                    btn.classList.remove('btn-outline-dark');
+                } else {
+                    icon.className = 'bi bi-heart me-2';
+                    text.textContent = 'Lưu bài đăng';
+                    btn.classList.remove('btn-dark');
+                    btn.classList.add('btn-outline-dark');
+                }
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: data.isFavorited ? 'Đã lưu bài đăng' : 'Đã bỏ lưu bài đăng'
+                });
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
+            }
+        }
+    </script>
+}

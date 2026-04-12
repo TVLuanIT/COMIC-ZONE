@@ -66,7 +66,30 @@ namespace COMICZONE.Areas.Marketplace.Controllers
         {
             var post = await _marketplaceService.GetPostByIdAsync(id);
             if (post == null) return NotFound();
+
+            if (IsLoggedIn())
+            {
+                var userId = int.Parse(CurrentUserId());
+                ViewBag.IsFavorited = await _marketplaceService.IsFavoritedAsync(userId, id);
+            }
+            else
+            {
+                ViewBag.IsFavorited = false;
+            }
+
             return View(post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleFavorite(int postId)
+        {
+            if (!IsLoggedIn())
+                return Json(new { success = false, message = "login_required" });
+
+            var userId = int.Parse(CurrentUserId());
+            var isFavorited = await _marketplaceService.ToggleFavoriteAsync(userId, postId);
+
+            return Json(new { success = true, isFavorited });
         }
 
         public IActionResult Create()

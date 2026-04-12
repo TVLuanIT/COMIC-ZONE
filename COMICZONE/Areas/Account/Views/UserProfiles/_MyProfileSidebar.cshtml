@@ -72,6 +72,14 @@
             </a>
         </li>
         <li>
+            <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyFavorites" 
+               asp-route-returnUrl="@returnUrl"
+               class="sidebar-menu-link @(action == "MyFavorites" ? "active" : "")">
+                <i class="bi bi-heart-fill"></i>
+                <span>Sản phẩm đã lưu</span>
+            </a>
+        </li>
+        <li>
             <a asp-area="" asp-controller="Products" asp-action="ViewedHistory" 
                asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "ViewedHistory" ? "active" : "")">

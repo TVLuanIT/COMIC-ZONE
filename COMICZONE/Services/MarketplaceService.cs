@@ -185,5 +185,55 @@ namespace COMICZONE.Services
                 .OrderByDescending(r => r.Createdat)
                 .ToListAsync();
         }
+        public async Task<bool> IsFavoritedAsync(int userId, int postId)
+        {
+            return await _context.MarketplaceFavorites
+                .AnyAsync(f => f.Userid == userId && f.Postid == postId);
+        }
+
+        public async Task<bool> ToggleFavoriteAsync(int userId, int postId)
+        {
+            var existing = await _context.MarketplaceFavorites
+                .FirstOrDefaultAsync(f => f.Userid == userId && f.Postid == postId);
+
+            if (existing != null)
+            {
+                _context.MarketplaceFavorites.Remove(existing);
+                await _context.SaveChangesAsync();
+                return false; // removed => not favorited
+            }
+            else
+            {
+                _context.MarketplaceFavorites.Add(new MarketplaceFavorite
+                {
+                    Userid = userId,
+                    Postid = postId,
+                    Createdat = DateTime.Now
+                });
+                await _context.SaveChangesAsync();
+                return true; // added => is favorited
+            }
+        }
+
+        public async Task<(List<MarketplacePost> Items, int TotalCount)> GetUserFavoritesAsync(int userId, int page = 1, int pageSize = 8)
+        {
+            var query = _context.MarketplaceFavorites
+                .Where(f => f.Userid == userId && f.Post.Isdeleted == false);
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .Include(f => f.Post)
+                    .ThenInclude(p => p.MarketplacePostImages)
+                .Include(f => f.Post)
+                    .ThenInclude(p => p.Seller)
+                .OrderByDescending(f => f.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(f => f.Post)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

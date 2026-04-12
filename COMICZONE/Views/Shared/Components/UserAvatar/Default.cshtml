@@ -1,5 +1,5 @@
-﻿<img src="@(ViewData["AvatarUrl"] ?? "/images/default-avatar.png")"
+<img src="@(string.IsNullOrEmpty(ViewData["AvatarUrl"]?.ToString()) ? "/uploads/avatar/default-avatar.png" : ViewData["AvatarUrl"])"
      alt="avatar"
      class="avatar-img"
      style="--avatar-size:@(ViewData["Size"])px;"
-     onerror="this.onerror=null;this.src='/images/default-avatar.png';" />
+     onerror="this.onerror=null;this.src='/uploads/avatar/default-avatar.png';" />

@@ -23,5 +23,10 @@ namespace COMICZONE.Services
         // Reviews
         Task<MarketplaceReview> AddReviewAsync(MarketplaceReview review);
         Task<List<MarketplaceReview>> GetSellerReviewsAsync(int sellerId);
+
+        // Favorites
+        Task<bool> IsFavoritedAsync(int userId, int postId);
+        Task<bool> ToggleFavoriteAsync(int userId, int postId);
+        Task<(List<MarketplacePost> Items, int TotalCount)> GetUserFavoritesAsync(int userId, int page = 1, int pageSize = 8);
     }
 }
