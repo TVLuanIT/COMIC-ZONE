@@ -4,33 +4,49 @@
     ViewData["Title"] = "Cộng đồng bán đồ cũ (Marketplace)";
 }
 
-<div class="container mt-5 pt-4">
-    <!-- Header & Action -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <h2 class="fw-bold m-0" style="color: var(--primary-color);">Marketplace</h2>
-        <a href="javascript:void(0)" onclick="handleCreatePostClick()" class="btn btn-primary rounded-pill px-4 shadow-sm border-0 d-flex align-items-center" style="background: var(--primary-gradient); padding-top: 0.6rem; padding-bottom: 0.6rem;">
-            <i class="bi bi-plus-lg me-1"></i> Đăng bán mới
-        </a>
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nice-select2@2.1.0/dist/css/nice-select2.css">
+    <link rel="stylesheet" href="~/marketplace/css/marketplace.css" asp-append-version="true">
+}
 
-    <!-- Filter Bar -->
-    <div class="card border-0 shadow-sm mb-5" style="border-radius: 20px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
-        <div class="card-body p-4">
-            <form method="get" asp-action="Index" id="filterForm">
-                <div class="row g-3">
+<div class="marketplace-area">
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
+
+    <div class="container pt-5 pb-5">
+        <!-- Cinematic Header -->
+        <div class="marketplace-header text-center mb-5" data-aos="fade-down">
+            <h1 class="fw-900 letter-spacing-tight mb-3">
+                Comic<span class="text-gradient">Marketplace</span>
+            </h1>
+            <p class="text-muted fs-5 mb-5 mx-auto" style="max-width: 600px;">
+                Khám phá kho tàng truyện tranh, mô hình và phụ kiện từ cộng đồng sưu tầm lớn nhất.
+            </p>
+            
+            <div data-aos="zoom-in" data-aos-delay="200">
+                <a href="javascript:void(0)" onclick="handleCreatePostClick()" class="btn-premium-grad">
+                    <i class="bi bi-plus-lg fs-5"></i> <span>Đăng bán sản phẩm</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Floating Search & Filter Bar -->
+        <div class="mp-search-container mb-5" data-aos="fade-up" data-aos-delay="300">
+            <div class="mp-filter-bar">
+                <form method="get" asp-action="Index" id="filterForm" class="row g-0 align-items-center">
                     <!-- Search input -->
-                    <div class="col-lg-4 col-md-12">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0 rounded-start-pill ps-3">
-                                <i class="bi bi-search text-primary"></i>
-                            </span>
-                            <input type="text" name="searchTerm" value='@ViewData["CurrentSearch"]' class="form-control bg-light border-0 rounded-end-pill" placeholder="Bạn đang tìm gì?">
+                    <div class="col-lg-5">
+                        <div class="d-flex align-items-center px-2">
+                            <i class="bi bi-search text-primary fs-5 me-3"></i>
+                            <input type="text" name="searchTerm" value='@ViewData["CurrentSearch"]' 
+                                   class="form-control mp-filter-input border-0 bg-transparent shadow-none" 
+                                   placeholder="Bạn đang tìm sản phẩm gì?">
                         </div>
                     </div>
 
-                    <!-- Category dropdown -->
-                    <div class="col-lg-2 col-md-4">
-                        <select name="category" class="form-select bg-light border-0 rounded-pill px-3">
+                    <!-- Category Filter -->
+                    <div class="col-lg-3 border-start border-opacity-10">
+                        <select name="category" class="form-select border-0 bg-transparent fw-600 shadow-none px-4">
                             <option value="">Tất cả danh mục</option>
                             <!option value="Manga" @(ViewData["CurrentCategory"]?.ToString() == "Manga" ? "selected" : "")>Manga</!option>
                             <!option value="Manhua" @(ViewData["CurrentCategory"]?.ToString() == "Manhua" ? "selected" : "")>Manhua</!option>
@@ -43,192 +59,121 @@
                         </select>
                     </div>
 
-                    <!-- Condition dropdown -->
-                    <div class="col-lg-2 col-md-4">
-                        <select name="condition" class="form-select bg-light border-0 rounded-pill px-3">
-                            <option value="">Mọi tình trạng</option>
-                            <!option value="NewLike" @(ViewData["CurrentCondition"]?.ToString() == "NewLike" ? "selected" : "")>Như mới</!option>
-                            <!option value="VeryGood" @(ViewData["CurrentCondition"]?.ToString() == "VeryGood" ? "selected" : "")>Rất tốt</!option>
-                            <!option value="Good" @(ViewData["CurrentCondition"]?.ToString() == "Good" ? "selected" : "")>Tốt</!option>
-                            <!option value="Acceptable" @(ViewData["CurrentCondition"]?.ToString() == "Acceptable" ? "selected" : "")>Chấp nhận được</!option>
-                        </select>
-                    </div>
-
-                    <!-- Sort order -->
-                    <div class="col-lg-2 col-md-4">
-                        <select name="sortOrder" class="form-select bg-light border-0 rounded-pill px-3">
+                    <!-- Sort Filter -->
+                    <div class="col-lg-2 border-start border-opacity-10">
+                        <select name="sortOrder" class="form-select border-0 bg-transparent fw-600 shadow-none px-4">
                             <!option value="date_desc" @(ViewData["CurrentSort"]?.ToString() == "date_desc" ? "selected" : "")>Mới nhất</!option>
                             <!option value="date_asc" @(ViewData["CurrentSort"]?.ToString() == "date_asc" ? "selected" : "")>Cũ nhất</!option>
-                            <!option value="price_asc" @(ViewData["CurrentSort"]?.ToString() == "price_asc" ? "selected" : "")>Giá: Thấp - Cao</!option>
-                            <!option value="price_desc" @(ViewData["CurrentSort"]?.ToString() == "price_desc" ? "selected" : "")>Giá: Cao - Thấp</!option>
+                            <!option value="price_asc" @(ViewData["CurrentSort"]?.ToString() == "price_asc" ? "selected" : "")>Giá thấp</!option>
+                            <!option value="price_desc" @(ViewData["CurrentSort"]?.ToString() == "price_desc" ? "selected" : "")>Giá cao</!option>
+                            <!option value="title_asc" @(ViewData["CurrentSort"]?.ToString() == "title_asc" ? "selected" : "")>Tên A-Z</!option>
+                            <!option value="title_desc" @(ViewData["CurrentSort"]?.ToString() == "title_desc" ? "selected" : "")>Tên Z-A</!option>
                         </select>
                     </div>
 
-                    <!-- Buttons -->
-                    <div class="col-lg-2 col-md-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary rounded-pill px-3 flex-grow-1 shadow-sm" style="background: var(--primary-gradient); border: none;">
-                            <i class="bi bi-filter me-1"></i> Lọc
+                    <!-- Action Buttons -->
+                    <div class="col-lg-2 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm me-1">
+                            <i class="bi bi-funnel-fill"></i>
                         </button>
-                        <a asp-action="Index" class="btn btn-light rounded-pill px-3 shadow-sm border-0 d-flex align-items-center justify-content-center" title="Xóa bộ lọc">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </a>
                     </div>
-
-                    <!-- Price range -->
-                    <div class="col-12 mt-3">
-                        <div class="d-flex align-items-center flex-wrap gap-3">
-                            <span class="small fw-bold text-muted ps-2"><i class="bi bi-cash-coin me-1"></i> Khoảng giá:</span>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="number" name="minPrice" value='@ViewData["MinPrice"]' class="form-control form-control-sm bg-light border-0 rounded-pill px-3" placeholder="Tối thiểu" style="width: 130px;">
-                                <span class="text-muted small">-</span>
-                                <input type="number" name="maxPrice" value='@ViewData["MaxPrice"]' class="form-control form-control-sm bg-light border-0 rounded-pill px-3" placeholder="Tối đa" style="width: 130px;">
-                                <span class="text-muted small">VNĐ</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success mt-3 mb-3 border-0 shadow-sm rounded-4 px-4 py-3">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-        </div>
-    }
-
-    <div class="row g-4">
-        @if (Model != null && Model.Any())
+        @if (TempData["Success"] != null)
         {
-            @foreach (var post in Model)
-            {
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100 border-0 shadow-sm card-hover" style="border-radius: 16px; overflow: hidden; transition: transform 0.3s ease;">
-                        @if (post.MarketplacePostImages != null && post.MarketplacePostImages.Any())
-                        {
-                            <img src="/uploads/marketplace/@post.MarketplacePostImages.First().Filename" class="card-img-top" alt="@post.Title" style="height: 220px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <img src="/uploads/marketplace/default.png" class="card-img-top" alt="Default Image" style="height: 220px; object-fit: cover;">
-                        }
-                        <div class="card-body p-4">
-                            <h6 class="card-title fw-bold text-truncate mb-2" title="@post.Title">@post.Title</h6>
-                            <p class="card-text text-danger fw-bold mb-3" style="font-size: 1.15rem;">
-                                @string.Format("{0:N0} đ", post.Price)
-                            </p>
-                            <div class="d-flex flex-column gap-1">
-                                <span class="text-muted small">
-                                    <i class="bi bi-tag me-2"></i>@post.Condition
-                                </span>
-                                <span class="text-muted small">
-                                    <i class="bi bi-person me-2"></i>@(post.Seller?.Username ?? "Ẩn danh")
-                                </span>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 pt-0 p-4">
-                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-dark w-100 rounded-pill fw-bold py-2">
-                                Chi tiết
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <div class="mb-3">
-                    <i class="bi bi-box2 text-muted display-1"></i>
-                </div>
-                <h5 class="text-muted">Hiện chưa có sản phẩm nào được đăng bán.</h5>
-                <p class="text-secondary">Hãy trở thành người đầu tiên đăng bán đồ cũ trên Marketplace!</p>
+            <div class="alert alert-success border-0 shadow-sm rounded-4 px-4 py-3 animate__animated animate__fadeIn mb-5">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
             </div>
         }
-    </div>
 
-        <div class="mt-5 d-flex justify-content-center">
+        <!-- Product Grid -->
+        <div class="row g-4 mb-5">
+            @if (Model != null && Model.Any())
+            {
+                int delay = 0;
+                @foreach (var post in Model)
+                {
+                    <div class="col-xl-3 col-lg-4 col-sm-6" data-aos="fade-up" data-aos-delay="@(delay * 50)">
+                        <a asp-action="Details" asp-route-id="@post.Id" class="text-decoration-none">
+                            <div class="mp-card mp-product-card">
+                                <div class="mp-img-wrapper">
+                                    <span class="mp-badge-tag shadow-sm">@post.Category</span>
+                                    <div class="mp-img-inner shadow-sm">
+                                        @if (post.MarketplacePostImages != null && post.MarketplacePostImages.Any())
+                                        {
+                                            <img src="/uploads/marketplace/@post.MarketplacePostImages.First().Filename" alt="@post.Title">
+                                        }
+                                        else
+                                        {
+                                            <img src="/uploads/marketplace/default.png" alt="Default Image">
+                                        }
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); border-radius: 0 0 24px 24px;">
+                                         <span class="badge rounded-pill bg-white bg-opacity-25 backdrop-blur text-white small fw-bold px-3 py-2">
+                                             <i class="bi bi-info-circle me-1"></i> @post.Condition
+                                         </span>
+                                    </div>
+                                </div>
+                                <div class="mp-card-body">
+                                    <h5 class="fw-800 text-dark text-truncate-2 mb-3" style="height: 3rem; line-height: 1.4;">@post.Title</h5>
+                                    
+                                    <div class="d-flex justify-content-center align-items-center mb-4">
+                                        <div class="mp-price-highlight">@string.Format("{0:N0}", post.Price)<span class="small ms-1">₫</span></div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between pt-3 border-top border-opacity-10">
+                                        <div class="d-flex align-items-center gap-2">
+                                            @await Component.InvokeAsync("UserAvatar", new { avatarUrl = post.Seller?.Avatar, size = 32 })
+                                            <span class="text-secondary small fw-600">@(post.Seller?.Username ?? "Seller")</span>
+                                        </div>
+                                        <div class="text-primary fs-5">
+                                            <i class="bi bi-arrow-right-circle-fill"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    delay++;
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5 glass-card" data-aos="fade-up">
+                    <div class="mb-4">
+                        <i class="bi bi-search-heart text-primary display-1 opacity-25"></i>
+                    </div>
+                    <h2 class="fw-900 text-dark">Chưa có sản phẩm nào</h2>
+                    <p class="text-secondary fs-5">Hãy là người đầu tiên đăng bán sản phẩm tại đây!</p>
+                    <a asp-action="Index" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold shadow-lg">Làm mới danh sách</a>
+                </div>
+            }
+        </div>
+
+        <div class="d-flex justify-content-center py-5">
             <partial name="_Pagination" model="ViewBag.Pagination" />
         </div>
-    }
+    </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/nice-select2@2.1.0/dist/js/nice-select2.js"></script>
+    <script src="~/marketplace/js/marketplace.js" asp-append-version="true"></script>
     <script>
-        // Check if there's a redirect message from server (direct URL access)
-        @if (TempData["IncompleteProfile"] != null)
-        {
-            <text>
-            Swal.fire({
-                title: 'Hồ sơ chưa hoàn thiện',
-                text: '@TempData["IncompleteProfile"]',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Cập nhật ngay',
-                cancelButtonText: 'Để sau',
-                confirmButtonColor: '#6366f1',
-                cancelButtonColor: '#aaa',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })';
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            Marketplace.initIndex({
+                incompleteProfile: '@(TempData["IncompleteProfile"] != null ? TempData["IncompleteProfile"].ToString() : "")',
+                editProfileUrl: '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })',
+                loginUrl: '@Url.Action("Login", "Authentication", new { area = "Account" })',
+                checkProfileUrl: '@Url.Action("CheckProfileStatus", "MarketplacePosts")',
+                createPostUrl: '@Url.Action("Create", "MarketplacePosts")'
             });
-            </text>
-        }
-
-        async function handleCreatePostClick() {
-            try {
-                const response = await fetch('@Url.Action("CheckProfileStatus", "MarketplacePosts")');
-                const data = await response.json();
-
-                if (!data.success) {
-                    if (data.message === "login_required") {
-                        Swal.fire({
-                            title: 'Yêu cầu đăng nhập',
-                            text: 'Bạn cần đăng nhập để đăng bài bán.',
-                            icon: 'info',
-                            showCancelButton: true,
-                            confirmButtonText: 'Đăng nhập',
-                            cancelButtonText: 'Để sau',
-                            confirmButtonColor: '#6366f1',
-                            cancelButtonColor: '#aaa',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '@Url.Action("Login", "Authentication", new { area = "Account" })';
-                            }
-                        });
-                    } else {
-                        Swal.fire('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại.', 'error');
-                    }
-                    return;
-                }
-
-                if (!data.isComplete) {
-                    Swal.fire({
-                        title: 'Hồ sơ chưa hoàn thiện',
-                        text: 'Bạn cần bổ sung số điện thoại và địa chỉ để người mua có thể liên lạc trước khi đăng bán.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Cập nhật ngay',
-                        cancelButtonText: 'Để sau',
-                        confirmButtonColor: '#6366f1',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })';
-                        }
-                    });
-                } else {
-                    window.location.href = '@Url.Action("Create", "MarketplacePosts")';
-                }
-            } catch (error) {
-                console.error('Error checking profile:', error);
-                // Fallback to direct navigation if API fails
-                window.location.href = '@Url.Action("Create", "MarketplacePosts")';
-            }
+        });
+        
+        function handleCreatePostClick() {
+            Marketplace.handleCreatePostClick();
         }
     </script>
 }

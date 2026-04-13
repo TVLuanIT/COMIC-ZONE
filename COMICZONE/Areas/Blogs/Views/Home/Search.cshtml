@@ -229,7 +229,7 @@
                                 <div class="blog-card-premium">
                                     <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@item.Id" class="card-link">
                                         <div class="card-thumb-wrap">
-                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/uploads/blogs/" + item.Thumbnail))" 
                                                  class="card-thumb" alt="@item.Title">
                                             <div class="card-date-badge">
                                                 <span class="day">@item.Createdat.Day</span>

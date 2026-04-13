@@ -11,7 +11,7 @@
 </div>
 
 <!-- PREMIUM ARTICLE HEADER -->
-<div class="article-hero" style="background-image: url('@(string.IsNullOrEmpty(Model.Thumbnail) ? "/blogs/images/default-blog.png" : (Model.Thumbnail.StartsWith("http") ? Model.Thumbnail : "/images/blogs/" + Model.Thumbnail))');">
+<div class="article-hero" style="background-image: url('@(string.IsNullOrEmpty(Model.Thumbnail) ? "/blogs/images/default-blog.png" : (Model.Thumbnail.StartsWith("http") ? Model.Thumbnail : "/uploads/blogs/" + Model.Thumbnail))');">
     <div class="hero-glass-overlay"></div>
     <div class="container position-relative z-index-3">
         <div class="row justify-content-center">
@@ -92,7 +92,7 @@
                             foreach (var related in (IEnumerable<COMICZONE.Models.Blog>)ViewBag.RelatedBlogs)
                             {
                                 <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@related.Id" class="related-item d-flex gap-3 mb-4 text-decoration-none">
-                                    <img src="@(string.IsNullOrEmpty(related.Thumbnail) ? "/blogs/images/default-blog.png" : (related.Thumbnail.StartsWith("http") ? related.Thumbnail : "/images/blogs/" + related.Thumbnail))" class="related-thumb">
+                                    <img src="@(string.IsNullOrEmpty(related.Thumbnail) ? "/blogs/images/default-blog.png" : (related.Thumbnail.StartsWith("http") ? related.Thumbnail : "/uploads/blogs/" + related.Thumbnail))" class="related-thumb">
                                     <div>
                                         <h6 class="related-title text-dark line-clamp-2">@related.Title</h6>
                                         <span class="x-small text-muted">@related.Createdat.ToString("dd/MM/yyyy")</span>

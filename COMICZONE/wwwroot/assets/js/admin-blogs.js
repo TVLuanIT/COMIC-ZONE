@@ -30,12 +30,13 @@ const BlogIndex = () => {
                     type: 'POST',
                     data: { id: id },
                     success: function (response) {
-                        if (!response.success) {
-                            AlertHelper.error(response.message || 'Thao tác không thành công');
+                        const isSuccess = response.success !== undefined ? response.success : response.Success;
+                        if (!isSuccess) {
+                            AlertHelper.error(response.message || response.Message || 'Thao tác không thành công');
                             return;
                         }
 
-                        const isDeleted = response.isDeleted;
+                        const isDeleted = response.isDeleted !== undefined ? response.isDeleted : response.IsDeleted;
                         const rowId = isCategory ? '#category-row-' + id : '#blog-row-' + id;
                         const row = jQuery(rowId);
                         const editBtn = row.find('a[title="Chỉnh sửa"]');
@@ -52,7 +53,7 @@ const BlogIndex = () => {
                                     <i class="ti ti-eye-off me-1"></i> Tạm ẩn
                                 </span>
                             `);
-                            btn.removeClass('btn-outline-warning').addClass('btn-outline-success');
+                            btn.removeClass('btn-outline-warning btn-outline-success').addClass('btn-outline-success');
                             btn.attr('title', 'Khôi phục');
                             btn.html('<i class="ti ti-refresh fs-5"></i>');
                             editBtn.addClass('disabled');
@@ -68,7 +69,7 @@ const BlogIndex = () => {
                                 </span>
                             `);
                             
-                            btn.removeClass('btn-outline-success').addClass('btn-outline-warning');
+                            btn.removeClass('btn-outline-warning btn-outline-success').addClass('btn-outline-warning');
                             btn.attr('title', 'Tạm ẩn');
                             btn.html('<i class="ti ti-ban fs-5"></i>');
                             editBtn.removeClass('disabled');
@@ -76,9 +77,9 @@ const BlogIndex = () => {
 
                         AlertHelper.success("Cập nhật trạng thái thành công");
                         
-                        // If it's a category toggle, we might want to reload to show changed counts or just for consistency
+                        // If it's a category toggle, we reload to update the blog counts accurately
                         if (isCategory) {
-                             setTimeout(() => location.reload(), 1000);
+                             setTimeout(() => location.reload(), 800);
                         }
                     },
                     error: function () {

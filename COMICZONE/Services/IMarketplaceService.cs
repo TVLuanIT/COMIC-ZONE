@@ -13,12 +13,13 @@ namespace COMICZONE.Services
         Task<bool> UpdatePostStatusAsync(int postId, string status);
         Task<bool> DeletePostAsync(int postId);
         Task AddPostImageAsync(MarketplacePostImage image);
+        Task<(List<MarketplacePost> Items, int TotalCount)> GetPostsBySellerAsync(int sellerId, int page = 1, int pageSize = 10);
 
         // Orders
         Task<MarketplaceOrder> PlaceOrderAsync(MarketplaceOrder order);
         Task<bool> UpdateOrderStatusAsync(int orderId, string status);
-        Task<List<MarketplaceOrder>> GetOrdersByBuyerAsync(int buyerId);
-        Task<List<MarketplaceOrder>> GetOrdersBySellerAsync(int sellerId);
+        Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersByBuyerAsync(int buyerId, int page = 1, int pageSize = 10);
+        Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersBySellerAsync(int sellerId, int page = 1, int pageSize = 10);
 
         // Reviews
         Task<MarketplaceReview> AddReviewAsync(MarketplaceReview review);

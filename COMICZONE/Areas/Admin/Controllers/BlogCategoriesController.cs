@@ -214,30 +214,27 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var blogCategory = await _context.BlogCategories.FindAsync(id);
+            var blogCategory = await _context.BlogCategories
+                .Include(c => c.Blogs)
+                    .ThenInclude(b => b.Categories)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (blogCategory != null)
             {
-                blogCategory.Isdeleted = true;
-                _context.Update(blogCategory);
-                
-                // Soft delete associated blogs (Option B)
-                var blogs = await _context.Blogs
-                    .Include(b => b.Categories)
-                    .Where(b => b.Categories.Any(c => c.Id == id))
-                    .ToListAsync();
-
-                foreach(var blog in blogs)
+                // Soft delete associated blogs if they only belong to this category or other hidden categories
+                foreach (var blog in blogCategory.Blogs)
                 {
-                    // Hide blog only if ALL its categories are hidden
                     if (blog.Categories.All(c => c.Isdeleted || c.Id == id))
                     {
                         blog.Isdeleted = true;
-                        _context.Update(blog);
+                        // EF will track this change automatically, no need for _context.Update(blog)
                     }
                 }
+
+                _context.BlogCategories.Remove(blogCategory);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

@@ -58,7 +58,7 @@
                 <div class="row g-0">
                     <div class="col-lg-7">
                         <div class="featured-image-wrap">
-                            <img src="@(string.IsNullOrEmpty(featured.Thumbnail) ? "/blogs/images/default-blog.png" : (featured.Thumbnail.StartsWith("http") ? featured.Thumbnail : "/images/blogs/" + featured.Thumbnail))" 
+                            <img src="@(string.IsNullOrEmpty(featured.Thumbnail) ? "/blogs/images/default-blog.png" : (featured.Thumbnail.StartsWith("http") ? featured.Thumbnail : "/uploads/blogs/" + featured.Thumbnail))" 
                                  class="featured-img" alt="@featured.Title">
                             <div class="featured-label">Nổi bật</div>
                         </div>
@@ -103,7 +103,7 @@
                                 <div class="blog-card-premium">
                                 <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@item.Id" class="card-link">
                                         <div class="card-thumb-wrap">
-                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/uploads/blogs/" + item.Thumbnail))" 
                                                  class="card-thumb" alt="@item.Title">
                                             <div class="card-date-badge">
                                                 <span class="day">@item.Createdat.Day</span>

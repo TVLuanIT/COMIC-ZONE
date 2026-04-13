@@ -138,7 +138,7 @@ namespace COMICZONE.Areas.Blogs.Controllers
                     if (thumbnailFile != null && thumbnailFile.Length > 0)
                     {
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnailFile.FileName);
-                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs");
+                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs");
 
                         if (!Directory.Exists(folderPath))
                             Directory.CreateDirectory(folderPath);

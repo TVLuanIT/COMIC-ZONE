@@ -59,6 +59,8 @@ namespace COMICZONE.Services
                 "date_asc" => query.OrderBy(p => p.Createdat),
                 "price_asc" => query.OrderBy(p => p.Price),
                 "price_desc" => query.OrderByDescending(p => p.Price),
+                "title_asc" => query.OrderBy(p => p.Title),
+                "title_desc" => query.OrderByDescending(p => p.Title),
                 _ => query.OrderByDescending(p => p.Createdat),
             };
 
@@ -114,6 +116,22 @@ namespace COMICZONE.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<(List<MarketplacePost> Items, int TotalCount)> GetPostsBySellerAsync(int sellerId, int page = 1, int pageSize = 10)
+        {
+            var query = _context.MarketplacePosts
+                .Include(p => p.MarketplacePostImages)
+                .Where(p => p.Sellerid == sellerId && p.Isdeleted == false);
+
+            int totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(p => p.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<MarketplaceOrder> PlaceOrderAsync(MarketplaceOrder order)
         {
             order.Createdat = DateTime.Now;
@@ -141,25 +159,39 @@ namespace COMICZONE.Services
             return true;
         }
 
-        public async Task<List<MarketplaceOrder>> GetOrdersByBuyerAsync(int buyerId)
+        public async Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersByBuyerAsync(int buyerId, int page = 1, int pageSize = 10)
         {
-            return await _context.MarketplaceOrders
+            var query = _context.MarketplaceOrders
                 .Include(o => o.Post)
                     .ThenInclude(p => p.MarketplacePostImages)
                 .Include(o => o.Seller)
-                .Where(o => o.Buyerid == buyerId)
+                .Where(o => o.Buyerid == buyerId);
+
+            int totalCount = await query.CountAsync();
+            var items = await query
                 .OrderByDescending(o => o.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
-        public async Task<List<MarketplaceOrder>> GetOrdersBySellerAsync(int sellerId)
+        public async Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersBySellerAsync(int sellerId, int page = 1, int pageSize = 10)
         {
-            return await _context.MarketplaceOrders
+            var query = _context.MarketplaceOrders
                 .Include(o => o.Post)
                 .Include(o => o.Buyer)
-                .Where(o => o.Sellerid == sellerId)
+                .Where(o => o.Sellerid == sellerId);
+
+            int totalCount = await query.CountAsync();
+            var items = await query
                 .OrderByDescending(o => o.Createdat)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<MarketplaceReview> AddReviewAsync(MarketplaceReview review)

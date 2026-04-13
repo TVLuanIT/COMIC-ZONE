@@ -24,13 +24,11 @@
                     <div class="d-flex align-items-center gap-4 mb-5">
                         @if (!string.IsNullOrEmpty(Model.Thumbnail))
                         {
-                            <img src="/images/blogs/@Model.Thumbnail" alt="@Model.Title" class="rounded-3 shadow-sm border" style="width: 150px; height: 100px; object-fit: cover;">
+                            <img src="/uploads/blogs/@Model.Thumbnail" alt="@Model.Title" class="rounded-3 shadow-sm border" style="width: 150px; height: 100px; object-fit: cover;">
                         }
                         else
                         {
-                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border shadow-sm" style="width: 150px; height: 100px;">
-                                <i class="ti ti-photo text-muted opacity-50 fs-2"></i>
-                            </div>
+                            <img src="/blogs/images/default-blog.png" alt="Default Blog" class="rounded-3 shadow-sm border" style="width: 150px; height: 100px; object-fit: cover;">
                         }
                         <div>
                             <span class="badge bg-secondary-subtle text-secondary mb-1">ID Bài viết: #@Model.Id</span>

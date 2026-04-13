@@ -32,11 +32,15 @@
         <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/COMICZONE.styles.css" asp-append-version="true" />
 
-        <!-- Conditional Blog Assets -->
         @if (ViewContext.RouteData.Values["area"]?.ToString() == "Blogs")
         {
             <link rel="stylesheet" href="~/blogs/css/blogs-core.css" asp-append-version="true" />
             <link rel="stylesheet" href="~/blogs/css/blogs-layout.css" asp-append-version="true" />
+        }
+        
+        @if (ViewContext.RouteData.Values["area"]?.ToString() == "Marketplace")
+        {
+            <link rel="stylesheet" href="~/marketplace/css/marketplace.css" asp-append-version="true" />
         }
 
         @await RenderSectionAsync("Styles", required: false)

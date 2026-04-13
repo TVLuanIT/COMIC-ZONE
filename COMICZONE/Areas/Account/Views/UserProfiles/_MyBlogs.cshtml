@@ -18,7 +18,7 @@
                         <div class="row g-0 h-100">
                             <div class="col-4 position-relative">
                                 <div class="manage-thumb-wrapper h-100">
-                                    <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
+                                    <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/uploads/blogs/" + blog.Thumbnail))" 
                                          class="manage-thumb" alt="@blog.Title">
                                     @if (isUnread)
                                     {

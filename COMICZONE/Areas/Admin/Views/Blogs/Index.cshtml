@@ -63,13 +63,11 @@
                                     <div class="d-flex align-items-center gap-3">
                                         @if (!string.IsNullOrEmpty(item.Thumbnail))
                                         {
-                                            <img src="/images/blogs/@item.Thumbnail" alt="@item.Title" class="rounded shadow-sm border" style="width: 70px; height: 45px; object-fit: cover;">
+                                            <img src="/uploads/blogs/@item.Thumbnail" alt="@item.Title" class="rounded shadow-sm border" style="width: 70px; height: 45px; object-fit: cover;">
                                         }
                                         else
                                         {
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center shadow-sm border" style="width: 70px; height: 45px;">
-                                                <i class="ti ti-photo text-muted opacity-50"></i>
-                                            </div>
+                                            <img src="/blogs/images/default-blog.png" alt="Default Blog" class="rounded shadow-sm border" style="width: 70px; height: 45px; object-fit: cover;">
                                         }
                                         <div style="max-width: 350px;">
                                             <div class="fw-bold text-dark text-truncate" title="@item.Title">@item.Title</div>
