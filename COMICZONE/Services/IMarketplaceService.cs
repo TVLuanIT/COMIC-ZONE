@@ -28,5 +28,11 @@ namespace COMICZONE.Services
         Task<bool> IsFavoritedAsync(int userId, int postId);
         Task<bool> ToggleFavoriteAsync(int userId, int postId);
         Task<(List<MarketplacePost> Items, int TotalCount)> GetUserFavoritesAsync(int userId, int page = 1, int pageSize = 8);
+
+        // Messages
+        Task<MarketplaceMessage> SendMessageAsync(MarketplaceMessage message);
+        Task<List<MarketplaceMessage>> GetConversationAsync(int userId, int otherUserId, int postId);
+        Task<int> GetUnreadCountAsync(int userId, int postId);
+        Task MarkMessagesAsReadAsync(int receiverId, int senderId, int postId);
     }
 }

@@ -235,5 +235,52 @@ namespace COMICZONE.Services
 
             return (items, totalCount);
         }
+
+        // Messages
+        public async Task<MarketplaceMessage> SendMessageAsync(MarketplaceMessage message)
+        {
+            message.Createdat = DateTime.Now;
+            message.Isread = false;
+            _context.MarketplaceMessages.Add(message);
+            await _context.SaveChangesAsync();
+            
+            // Optionally, load sender info to return for immediate display
+            await _context.Entry(message).Reference(m => m.Sender).LoadAsync();
+            return message;
+        }
+
+        public async Task<List<MarketplaceMessage>> GetConversationAsync(int userId, int otherUserId, int postId)
+        {
+            return await _context.MarketplaceMessages
+                .Include(m => m.Sender)
+                .Include(m => m.Receiver)
+                .Where(m => m.Postid == postId && 
+                            ((m.Senderid == userId && m.Receiverid == otherUserId) || 
+                             (m.Senderid == otherUserId && m.Receiverid == userId)))
+                .OrderBy(m => m.Createdat)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetUnreadCountAsync(int userId, int postId)
+        {
+            return await _context.MarketplaceMessages
+                .CountAsync(m => m.Receiverid == userId && m.Postid == postId && m.Isread == false);
+        }
+
+        public async Task MarkMessagesAsReadAsync(int receiverId, int senderId, int postId)
+        {
+            var unreadMessages = await _context.MarketplaceMessages
+                .Where(m => m.Receiverid == receiverId && m.Senderid == senderId && m.Postid == postId && m.Isread == false)
+                .ToListAsync();
+
+            if (unreadMessages.Any())
+            {
+                foreach (var msg in unreadMessages)
+                {
+                    msg.Isread = true;
+                }
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

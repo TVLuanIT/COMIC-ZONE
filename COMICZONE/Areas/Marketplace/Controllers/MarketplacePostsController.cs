@@ -71,10 +71,12 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             {
                 var userId = int.Parse(CurrentUserId());
                 ViewBag.IsFavorited = await _marketplaceService.IsFavoritedAsync(userId, id);
+                ViewBag.CurrentUserId = userId;
             }
             else
             {
                 ViewBag.IsFavorited = false;
+                ViewBag.CurrentUserId = null;
             }
 
             return View(post);
@@ -156,5 +158,90 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             }
             return View(post);
         }
+        [HttpPost]
+        public async Task<IActionResult> SendMessage([FromBody] MessageRequest request)
+        {
+            if (!IsLoggedIn())
+                return Json(new { success = false, message = "login_required" });
+
+            if (string.IsNullOrWhiteSpace(request.Message))
+                return Json(new { success = false, message = "Message is empty" });
+
+            var senderId = int.Parse(CurrentUserId());
+            if (senderId == request.ReceiverId)
+                return Json(new { success = false, message = "Cannot send message to yourself" });
+
+            var message = new MarketplaceMessage
+            {
+                Postid = request.PostId,
+                Senderid = senderId,
+                Receiverid = request.ReceiverId,
+                Message = request.Message,
+                Createdat = DateTime.Now,
+                Isread = false
+            };
+
+            var sentMessage = await _marketplaceService.SendMessageAsync(message);
+
+            return Json(new
+            {
+                success = true,
+                message = new
+                {
+                    id = sentMessage.Id,
+                    senderId = sentMessage.Senderid,
+                    receiverId = sentMessage.Receiverid,
+                    text = sentMessage.Message,
+                    createdAt = sentMessage.Createdat?.ToString("o"),
+                    senderName = sentMessage.Sender?.Username,
+                    senderAvatar = sentMessage.Sender?.Avatar
+                }
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMessages(int postId, int otherUserId)
+        {
+            if (!IsLoggedIn())
+                return Json(new { success = false, message = "login_required" });
+
+            var currentUserId = int.Parse(CurrentUserId());
+
+            // Mark unread messages as read
+            await _marketplaceService.MarkMessagesAsReadAsync(currentUserId, otherUserId, postId);
+
+            var messages = await _marketplaceService.GetConversationAsync(currentUserId, otherUserId, postId);
+
+            var result = messages.Select(m => new
+            {
+                id = m.Id,
+                senderId = m.Senderid,
+                receiverId = m.Receiverid,
+                text = m.Message,
+                createdAt = m.Createdat?.ToString("o"),
+                senderName = m.Sender?.Username,
+                senderAvatar = m.Sender?.Avatar
+            });
+
+            return Json(new { success = true, messages = result });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount(int postId)
+        {
+            if (!IsLoggedIn()) return Json(new { count = 0 });
+
+            var currentUserId = int.Parse(CurrentUserId());
+            var count = await _marketplaceService.GetUnreadCountAsync(currentUserId, postId);
+            
+            return Json(new { count });
+        }
+    }
+
+    public class MessageRequest
+    {
+        public int PostId { get; set; }
+        public int ReceiverId { get; set; }
+        public string Message { get; set; }
     }
 }

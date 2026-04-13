@@ -110,9 +110,21 @@
                 <div class="d-grid gap-3">
                     @if (Model.Status != "Sold")
                     {
-                        <button class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm border-0" style="background: var(--primary-gradient);">
-                            <i class="bi bi-chat-dots-fill me-2"></i>Liên hệ người bán
-                        </button>
+                        @if (ViewBag.CurrentUserId != null && ViewBag.CurrentUserId == Model.Sellerid)
+                        {
+                            <button class="btn btn-secondary btn-lg rounded-pill py-3 fw-bold disabled">
+                                Đây là bài đăng của bạn
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm border-0 position-relative" id="btnContactSeller" style="background: var(--primary-gradient);">
+                                <i class="bi bi-chat-dots-fill me-2"></i>Liên hệ người bán
+                                <span id="unreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                    0
+                                </span>
+                            </button>
+                        }
                         <button class="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold" id="btnFavorite" onclick="toggleFavorite(@Model.Id)">
                             @if ((bool)ViewBag.IsFavorited)
                             {
@@ -140,8 +152,111 @@
     </div>
 </div>
 
+<!-- Chat Drawer -->
+<div id="chatDrawerBackdrop" class="drawer-backdrop"></div>
+<div id="chatDrawer" class="chat-drawer shadow-lg d-flex flex-column">
+    <div class="chat-header p-3 d-flex align-items-center text-white" style="background: var(--primary-gradient);">
+        @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.Seller?.Avatar, size = 40 })
+        <div class="ms-3 flex-grow-1">
+            <h6 class="mb-0 fw-bold">@Model.Seller?.Username</h6>
+            <small class="text-white-50 text-truncate d-block" style="max-width: 200px;">@Model.Title</small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="btnCloseChat" aria-label="Close"></button>
+    </div>
+    
+    <div class="chat-body flex-grow-1 p-3 overflow-auto" id="chatMessageList" style="background-color: #f8f9fa;">
+        <!-- Messages will be injected here -->
+        <div class="text-center text-muted small mt-2">Đang tải cuộc trò chuyện...</div>
+    </div>
+    
+    <div class="chat-footer p-3 bg-white border-top">
+        <form id="chatForm" class="d-flex align-items-center gap-2">
+            <input type="text" class="form-control rounded-pill px-3 py-2 bg-light border-0" id="chatInput" placeholder="Nhập tin nhắn..." autocomplete="off">
+            <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" style="width: 42px; height: 42px; background: var(--primary-gradient); border: none;" id="btnSendChat">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
+    <style>
+        .drawer-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 20000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .drawer-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .chat-drawer {
+            position: fixed;
+            top: 0; right: -400px;
+            width: 400px; max-width: 100vw; height: 100vh;
+            background: #fff;
+            z-index: 20001;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .chat-drawer.show {
+            right: 0;
+        }
+        
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+        .chat-sender {
+            background-color: #6366f1; /* Premium purple-ish primary */
+            color: white;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+        .chat-receiver {
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .chat-time {
+            font-size: 0.7rem;
+            color: #adb5bd;
+            margin-top: 2px;
+            display: block;
+        }
+        .chat-sender-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+        .chat-receiver-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
     <script>
+        // --- Favorites Logic ---
         async function toggleFavorite(postId) {
             try {
                 const res = await fetch(`/Marketplace/MarketplacePosts/ToggleFavorite?postId=${postId}`, {
@@ -151,19 +266,7 @@
                 const data = await res.json();
 
                 if (!data.success && data.message === 'login_required') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Chưa đăng nhập',
-                        text: 'Bạn cần đăng nhập để lưu bài đăng.',
-                        confirmButtonText: 'Đăng nhập',
-                        showCancelButton: true,
-                        cancelButtonText: 'Để sau',
-                        confirmButtonColor: '#6366f1'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
-                        }
-                    });
+                    requireLoginPrompt('Bạn cần đăng nhập để lưu bài đăng.');
                     return;
                 }
 
@@ -199,5 +302,215 @@
                 Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
             }
         }
+
+        function requireLoginPrompt(textMsg) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa đăng nhập',
+                text: textMsg,
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Để sau',
+                confirmButtonColor: '#6366f1'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+                }
+            });
+        }
+
+        // --- Chat Logic ---
+        const postId = @Model.Id;
+        const sellerId = @Model.Sellerid;
+        const currentUserId = @(ViewBag.CurrentUserId != null ? ViewBag.CurrentUserId.ToString() : "null");
+        
+        const btnContact = document.getElementById('btnContactSeller');
+        const drawerBackdrop = document.getElementById('chatDrawerBackdrop');
+        const chatDrawer = document.getElementById('chatDrawer');
+        const btnCloseChat = document.getElementById('btnCloseChat');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessageList = document.getElementById('chatMessageList');
+        const unreadBadge = document.getElementById('unreadBadge');
+        
+        let chatInterval = null;
+        let isDrawerOpen = false;
+        
+        if (btnContact) {
+            btnContact.addEventListener('click', function() {
+                if (!currentUserId) {
+                    requireLoginPrompt('Bạn cần đăng nhập để liên hệ người bán.');
+                    return;
+                }
+                openChatDrawer();
+            });
+        }
+        
+        if (btnCloseChat) btnCloseChat.addEventListener('click', closeChatDrawer);
+        if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeChatDrawer);
+        
+        function openChatDrawer() {
+            isDrawerOpen = true;
+            drawerBackdrop.classList.add('show');
+            chatDrawer.classList.add('show');
+            document.body.style.overflow = 'hidden'; // prevent bg scroll
+            
+            // clear badge
+            if (unreadBadge) {
+                unreadBadge.style.display = 'none';
+                unreadBadge.innerText = '0';
+            }
+            
+            // init load
+            loadMessages();
+            // start polling
+            chatInterval = setInterval(loadMessages, 5000); // 5 sec
+            
+            setTimeout(() => chatInput.focus(), 300);
+        }
+        
+        function closeChatDrawer() {
+            isDrawerOpen = false;
+            drawerBackdrop.classList.remove('show');
+            chatDrawer.classList.remove('show');
+            document.body.style.overflow = '';
+            
+            if (chatInterval) {
+                clearInterval(chatInterval);
+                chatInterval = null;
+            }
+        }
+        
+        async function loadMessages() {
+            if (!currentUserId) return;
+            try {
+                const res = await fetch(`/Marketplace/MarketplacePosts/GetMessages?postId=${postId}&otherUserId=${sellerId}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderMessages(data.messages);
+                }
+            } catch (e) {
+                console.error('Error loading messages:', e);
+            }
+        }
+        
+        function renderMessages(messages) {
+            if (!messages || messages.length === 0) {
+                chatMessageList.innerHTML = '<div class="text-center text-muted small mt-4">Chưa có tin nhắn nào. Bắt đầu trò chuyện ngay!</div>';
+                return;
+            }
+            
+            // save scroll position logic
+            const isScrolledToBottom = chatMessageList.scrollHeight - chatMessageList.clientHeight <= chatMessageList.scrollTop + 50;
+            
+            let html = '';
+            messages.forEach(msg => {
+                const isMe = msg.senderId === currentUserId;
+                const time = new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                if (isMe) {
+                    html += `
+                        <div class="chat-sender-container">
+                            <div class="chat-bubble chat-sender">${escapeHtml(msg.text)}</div>
+                            <span class="chat-time text-end">${time}</span>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="chat-receiver-container">
+                            <div class="chat-bubble chat-receiver">${escapeHtml(msg.text)}</div>
+                            <span class="chat-time text-start">${time}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Only update DOM if content changed (simple check)
+            if (chatMessageList.innerHTML.length !== html.length) {
+                chatMessageList.innerHTML = html;
+                if (isScrolledToBottom) {
+                    scrollToBottom();
+                }
+            }
+        }
+        
+        if (chatForm) {
+            chatForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                if (!text) return;
+                
+                // optimistic UI
+                const currentText = text;
+                chatInput.value = '';
+                
+                const payload = {
+                    PostId: postId,
+                    ReceiverId: sellerId,
+                    Message: currentText
+                };
+                
+                try {
+                    const res = await fetch(`/Marketplace/MarketplacePosts/SendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success && data.message) {
+                        // Immediately reload instead of manipulating DOM logic to keep it simple and in sync
+                        loadMessages();
+                        scrollToBottom();
+                    } else {
+                        Swal.fire('Lỗi', data.message || 'Không thể gửi tin nhắn.', 'error');
+                    }
+                } catch (err) {
+                    console.error('Send message error:', err);
+                    Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
+                }
+            });
+        }
+        
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatMessageList.scrollTop = chatMessageList.scrollHeight;
+            }, 50);
+        }
+        
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+        
+        // --- Badge Polling ---
+        async function checkUnread() {
+            if (!currentUserId || isDrawerOpen) return;
+            try {
+                const res = await fetch(`/Marketplace/MarketplacePosts/GetUnreadCount?postId=${postId}`);
+                const data = await res.json();
+                
+                if (data && data.count > 0 && unreadBadge) {
+                    unreadBadge.innerText = data.count > 99 ? '99+' : data.count;
+                    unreadBadge.style.display = 'block';
+                } else if (unreadBadge) {
+                    unreadBadge.style.display = 'none';
+                }
+            } catch (e) { }
+        }
+        
+        // check unread on load and ping every 10s
+        if (currentUserId && currentUserId !== sellerId) {
+            checkUnread();
+            setInterval(checkUnread, 10000);
+        }
+        
     </script>
 }
