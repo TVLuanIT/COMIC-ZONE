@@ -8,7 +8,7 @@
     <!-- Header & Action -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h2 class="fw-bold m-0" style="color: var(--primary-color);">Marketplace</h2>
-        <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm border-0 d-flex align-items-center" style="background: var(--primary-gradient); padding-top: 0.6rem; padding-bottom: 0.6rem;">
+        <a href="javascript:void(0)" onclick="handleCreatePostClick()" class="btn btn-primary rounded-pill px-4 shadow-sm border-0 d-flex align-items-center" style="background: var(--primary-gradient); padding-top: 0.6rem; padding-bottom: 0.6rem;">
             <i class="bi bi-plus-lg me-1"></i> Đăng bán mới
         </a>
     </div>
@@ -148,10 +148,87 @@
         }
     </div>
 
-    @if (ViewBag.Pagination != null)
-    {
         <div class="mt-5 d-flex justify-content-center">
             <partial name="_Pagination" model="ViewBag.Pagination" />
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        // Check if there's a redirect message from server (direct URL access)
+        @if (TempData["IncompleteProfile"] != null)
+        {
+            <text>
+            Swal.fire({
+                title: 'Hồ sơ chưa hoàn thiện',
+                text: '@TempData["IncompleteProfile"]',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật ngay',
+                cancelButtonText: 'Để sau',
+                confirmButtonColor: '#6366f1',
+                cancelButtonColor: '#aaa',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })';
+                }
+            });
+            </text>
+        }
+
+        async function handleCreatePostClick() {
+            try {
+                const response = await fetch('@Url.Action("CheckProfileStatus", "MarketplacePosts")');
+                const data = await response.json();
+
+                if (!data.success) {
+                    if (data.message === "login_required") {
+                        Swal.fire({
+                            title: 'Yêu cầu đăng nhập',
+                            text: 'Bạn cần đăng nhập để đăng bài bán.',
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'Đăng nhập',
+                            cancelButtonText: 'Để sau',
+                            confirmButtonColor: '#6366f1',
+                            cancelButtonColor: '#aaa',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '@Url.Action("Login", "Authentication", new { area = "Account" })';
+                            }
+                        });
+                    } else {
+                        Swal.fire('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại.', 'error');
+                    }
+                    return;
+                }
+
+                if (!data.isComplete) {
+                    Swal.fire({
+                        title: 'Hồ sơ chưa hoàn thiện',
+                        text: 'Bạn cần bổ sung số điện thoại và địa chỉ để người mua có thể liên lạc trước khi đăng bán.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Cập nhật ngay',
+                        cancelButtonText: 'Để sau',
+                        confirmButtonColor: '#6366f1',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })';
+                        }
+                    });
+                } else {
+                    window.location.href = '@Url.Action("Create", "MarketplacePosts")';
+                }
+            } catch (error) {
+                console.error('Error checking profile:', error);
+                // Fallback to direct navigation if API fails
+                window.location.href = '@Url.Action("Create", "MarketplacePosts")';
+            }
+        }
+    </script>
+}

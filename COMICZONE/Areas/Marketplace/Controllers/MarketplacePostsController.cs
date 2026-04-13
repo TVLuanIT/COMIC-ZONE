@@ -94,13 +94,23 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             return Json(new { success = true, isFavorited });
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             if (!IsLoggedIn())
             {
                 TempData["LoginRequired"] = "Bạn cần đăng nhập để đăng bán.";
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+
+            var userId = int.Parse(CurrentUserId());
+            var customer = await _marketplaceService.GetCustomerByUserIdAsync(userId);
+
+            if (customer == null || string.IsNullOrWhiteSpace(customer.Phone) || string.IsNullOrWhiteSpace(customer.Address))
+            {
+                TempData["IncompleteProfile"] = "Bạn cần cập nhật số điện thoại và địa chỉ trong hồ sơ trước khi đăng bán.";
+                return RedirectToAction("Index");
+            }
+
             return View();
         }
 
@@ -227,14 +237,19 @@ namespace COMICZONE.Areas.Marketplace.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUnreadCount(int postId)
+        public async Task<IActionResult> CheckProfileStatus()
         {
-            if (!IsLoggedIn()) return Json(new { count = 0 });
+            if (!IsLoggedIn())
+                return Json(new { success = false, message = "login_required" });
 
-            var currentUserId = int.Parse(CurrentUserId());
-            var count = await _marketplaceService.GetUnreadCountAsync(currentUserId, postId);
-            
-            return Json(new { count });
+            var userId = int.Parse(CurrentUserId());
+            var customer = await _marketplaceService.GetCustomerByUserIdAsync(userId);
+
+            bool isComplete = customer != null && 
+                             !string.IsNullOrWhiteSpace(customer.Phone) && 
+                             !string.IsNullOrWhiteSpace(customer.Address);
+
+            return Json(new { success = true, isComplete });
         }
     }
 

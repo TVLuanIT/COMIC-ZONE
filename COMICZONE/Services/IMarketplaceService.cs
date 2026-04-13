@@ -34,5 +34,8 @@ namespace COMICZONE.Services
         Task<List<MarketplaceMessage>> GetConversationAsync(int userId, int otherUserId, int postId);
         Task<int> GetUnreadCountAsync(int userId, int postId);
         Task MarkMessagesAsReadAsync(int receiverId, int senderId, int postId);
+
+        // User Profile Check
+        Task<Customer?> GetCustomerByUserIdAsync(int userId);
     }
 }

@@ -311,7 +311,8 @@
                 confirmButtonText: 'Đăng nhập',
                 showCancelButton: true,
                 cancelButtonText: 'Để sau',
-                confirmButtonColor: '#6366f1'
+                confirmButtonColor: '#6366f1',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = `/Account/Authentication/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;

@@ -282,5 +282,11 @@ namespace COMICZONE.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Customer?> GetCustomerByUserIdAsync(int userId)
+        {
+            return await _context.Customers
+                .FirstOrDefaultAsync(c => c.Userid == userId);
+        }
     }
 }
