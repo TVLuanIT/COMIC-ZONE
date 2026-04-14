@@ -52,6 +52,7 @@ namespace COMICZONE
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IMarketplaceService, MarketplaceService>();
+            builder.Services.AddScoped<IChatService, ChatService>();
 
             builder.Services.AddSingleton(x => new PaypalClient
             (
@@ -59,6 +60,8 @@ namespace COMICZONE
                 builder.Configuration["Paypal:AppSecret"],
                 builder.Configuration["Paypal:Mode"]
             ));
+
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -114,10 +117,17 @@ namespace COMICZONE
                 areaName: "Account",
                 pattern: "Account/{controller=Authentication}/{action=Login}/{id?}");
 
+            app.MapAreaControllerRoute(
+                name: "Chat",
+                areaName: "Chat",
+                pattern: "Chat/{controller=Conversations}/{action=Index}/{id?}");
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             //app.MapRazorPages();
+
+            app.MapHub<COMICZONE.Hubs.ChatHub>("/chatHub");
 
             app.Run();
         }

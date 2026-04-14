@@ -64,6 +64,14 @@
             </a>
         </li>
         <li>
+            <a asp-area="Marketplace" asp-controller="MarketplaceOrders" asp-action="MyOrders" 
+               asp-route-returnUrl="@returnUrl"
+               class="sidebar-menu-link @(action == "MyOrders" ? "active" : "")">
+                <i class="bi bi-shop-window"></i>
+                <span>Marketplace của tôi</span>
+            </a>
+        </li>
+        <li>
             <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyReviews" 
                asp-route-returnUrl="@returnUrl"
                class="sidebar-menu-link @(action == "MyReviews" ? "active" : "")">

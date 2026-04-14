@@ -1,0 +1,160 @@
+@model List<COMICZONE.Models.MarketplaceMessage>
+
+@{
+    ViewData["Title"] = "Hộp thư Messenger";
+    int currentUserId = (int)ViewBag.CurrentUserId;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/chat/css/chat-index.css" asp-append-version="true" />
+}
+
+<div class="chat-premium-area">
+    <div class="container">
+        <div class="messenger-container" data-aos="fade-up">
+            <!-- Sidebar: Conversation List -->
+            <div class="chat-sidebar">
+                <div class="chat-sidebar-header">
+                    <h4 class="fw-800 mb-4" style="font-family: 'Outfit', sans-serif;">Hộp thư</h4>
+                    <div class="chat-search-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Tìm kiếm cuộc trò chuyện..." />
+                    </div>
+                </div>
+
+                <div class="conversation-list" id="conversationList">
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var conv in Model)
+                        {
+                            var otherUser = conv.Senderid == currentUserId ? conv.Receiver : conv.Sender;
+                            bool isActive = ViewBag.OtherUserId != null && (int)ViewBag.OtherUserId == otherUser.Id;
+                            bool isUnread = (conv.Isread == false || conv.Isread == null) && conv.Receiverid == currentUserId;
+
+                            <a href="javascript:void(0)" 
+                               class="chat-item @(isActive ? "active" : "")" 
+                               data-user-id="@otherUser.Id"
+                               onclick="ChatApp.openConversation(@otherUser.Id, '@otherUser.Username', '@(otherUser.Avatar ?? "/img/default-avatar.png")')">
+                                <div class="avatar-wrapper">
+                                    <img src="@(otherUser.Avatar ?? "/img/default-avatar.png")" alt="@otherUser.Username" />
+                                    @* <div class="online-status"></div> *@
+                                </div>
+                                <div class="chat-item-info">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="chat-item-name text-truncate">@otherUser.Username</span>
+                                        <span class="small @(isActive ? "text-light" : "text-muted") opacity-75">
+                                            @conv.Createdat?.ToString("HH:mm")
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="chat-item-last-msg text-truncate">
+                                            @{
+                                                string displayMsg = conv.Message == "[MESSAGE_RECALLED]" ? "Tin nhắn đã bị thu hồi" : conv.Message;
+                                            }
+                                            @(conv.Senderid == currentUserId ? "Bạn: " : "")@displayMsg
+                                        </span>
+                                        @if (isUnread)
+                                        {
+                                            <div class="unread-dot"></div>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 px-3">
+                            <p class="text-muted small">Chưa có cuộc trò chuyện nào.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="chat-main" id="chatMainArea">
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="welcome-screen @(ViewBag.OtherUserId != null ? "d-none" : "")">
+                    <div class="mb-4">
+                        <i class="bi bi-chat-heart text-primary display-1 opacity-25"></i>
+                    </div>
+                    <h3 class="welcome-title">Chào mừng đến với Hộp thư!</h3>
+                    <p class="welcome-text">Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu trao đổi với cộng đồng ComicZone.</p>
+                </div>
+
+                <!-- Chat Content -->
+                <div id="chatContent" class="flex-column h-100 @(ViewBag.OtherUserId != null ? "d-flex" : "d-none")">
+                    <div class="chat-main-header">
+                        <div class="d-flex align-items-center">
+                            <div id="activeUserAvatar">
+                                <!-- Dynamic Avatar -->
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 fw-800" id="activeUserName">Đang tải...</h6>
+                                <small class="text-success fw-600"><i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> Trực tuyến</small>
+                            </div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <button class="btn btn-light btn-sm rounded-circle"><i class="bi bi-search"></i></button>
+                            <button class="btn btn-light btn-sm rounded-circle ms-2"><i class="bi bi-three-dots-vertical"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="messages-area" id="messagesList">
+                        <!-- Messages will be loaded here -->
+                    </div>
+
+                    @if (ViewBag.ActivePost != null)
+                    {
+                        var activePost = (COMICZONE.Models.MarketplacePost)ViewBag.ActivePost;
+                        <div class="active-post-header active-post-context-zalo animate__animated animate__fadeInUp" id="activePostContext">
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <img src="/uploads/marketplace/@(activePost.MarketplacePostImages?.FirstOrDefault()?.Filename ?? "default.png")" 
+                                     alt="@activePost.Title" />
+                                <div class="ms-3 overflow-hidden">
+                                    <div class="fw-800 text-dark text-truncate small">Ngữ cảnh: @activePost.Title</div>
+                                    <div class="text-primary fw-700 small">@activePost.Price.ToString("N0") ₫</div>
+                                </div>
+                            </div>
+                            <button class="btn-close-context" onclick="ChatApp.closePostContext()" title="Bỏ đính kèm">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="chat-input-area">
+                        <form id="chatFormMain">
+                            <input type="hidden" id="targetUserId" value="@ViewBag.OtherUserId" />
+                            <input type="hidden" id="currentPostId" value="@ViewBag.PostId" />
+                            
+                            <div class="chat-input-wrapper shadow-sm">
+                                <span class="input-action"><i class="bi bi-emoji-smile"></i></span>
+                                <span class="input-action"><i class="bi bi-paperclip"></i></span>
+                                <input type="text" id="chatInputMain" placeholder="Soạn tin nhắn..." autocomplete="off" />
+                                <button type="submit" class="btn-send">
+                                    <i class="bi bi-send-fill fs-5"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ChatApp.init({
+                currentUserId: @currentUserId,
+                initialOtherUserId: @(ViewBag.OtherUserId ?? "null"),
+                getMessagesUrl: '@Url.Action("GetMessages", "Conversations", new { area = "Chat" })',
+                sendMessageUrl: '@Url.Action("SendMessage", "Conversations", new { area = "Chat" })',
+                recallMessageUrl: '@Url.Action("RecallMessage", "Conversations", new { area = "Chat" })'
+            });
+        });
+    </script>
+}

@@ -29,38 +29,6 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sortWrapper = document.getElementById('sortWrapper');
-            const sortTrigger = document.getElementById('sortTrigger');
-            const sortOptions = document.querySelectorAll('.sort-option-item');
-            const sortForm = document.getElementById('sortForm');
-            const currentSortOrder = document.getElementById('currentSortOrder');
-
-            // Toggle dropdown
-            sortTrigger.addEventListener('click', function(e) {
-                e.stopPropagation();
-                sortWrapper.classList.toggle('active');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                sortWrapper.classList.remove('active');
-            });
-
-            // Handle option selection
-            sortOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const val = this.getAttribute('data-value');
-                    currentSortOrder.value = val;
-                    sortForm.submit();
-                });
-            });
-        });
-    </script>
-}
-
 <div class="container py-4">
     <div class="row g-4">
         
@@ -240,4 +208,4 @@
             }
         </div>
     </div>
-</div>
+</div>

@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="wwwroot\chat\js\" />
     <Folder Include="wwwroot\marketplace\js\" />
     <Folder Include="wwwroot\marketplace\css\" />
   </ItemGroup>

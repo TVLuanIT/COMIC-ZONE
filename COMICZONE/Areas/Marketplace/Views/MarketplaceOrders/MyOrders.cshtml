@@ -37,7 +37,7 @@
                         <div class="glass-card p-4 p-md-5">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h5 class="fw-800 mb-0">Quản lý bài đăng của bạn</h5>
-                                <a asp-controller="MarketplacePosts" asp-action="Create" class="btn btn-primary rounded-pill px-3 fw-bold">
+                                <a href="javascript:void(0)" onclick="handleCreatePostClick()" class="btn btn-primary rounded-pill px-3 fw-bold">
                                     <i class="bi bi-plus-lg me-1"></i> Đăng bán mới
                                 </a>
                             </div>
@@ -104,7 +104,7 @@
                                 <div class="text-center py-5">
                                     <i class="bi bi-file-earmark-plus text-muted display-4 mb-3"></i>
                                     <p class="text-muted">Bạn chưa đăng bán sản phẩm nào. Hãy bắt đầu ngay!</p>
-                                    <a asp-controller="MarketplacePosts" asp-action="Create" class="btn btn-primary rounded-pill px-4 mt-2 fw-bold">Đăng sản phẩm đầu tiên</a>
+                                    <a href="javascript:void(0)" onclick="handleCreatePostClick()" class="btn btn-primary rounded-pill px-4 mt-2 fw-bold">Đăng sản phẩm đầu tiên</a>
                                 </div>
                             }
                         </div>
@@ -211,6 +211,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/marketplace/js/marketplace.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Restore active tab from URL if present
@@ -227,6 +228,19 @@
                 const postTab = document.querySelector('#post-tab');
                 if (postTab) bootstrap.Tab.getOrCreateInstance(postTab).show();
             }
+
+            // Initialize Marketplace config for profile checks
+            Marketplace.initIndex({
+                incompleteProfile: '@Html.Raw(TempData["IncompleteProfile"] ?? "")',
+                editProfileUrl: '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })',
+                loginUrl: '@Url.Action("Login", "Authentication", new { area = "Account" })',
+                checkProfileUrl: '@Url.Action("CheckProfileStatus", "MarketplacePosts", new { area = "Marketplace" })',
+                createPostUrl: '@Url.Action("Create", "MarketplacePosts", new { area = "Marketplace" })'
+            });
         });
+
+        function handleCreatePostClick() {
+            Marketplace.handleCreatePostClick();
+        }
     </script>
 }

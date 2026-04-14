@@ -179,154 +179,21 @@ const Marketplace = {
     },
 
     openChatDrawer: function() {
-        this.chat.isOpen = true;
-        document.getElementById('chatDrawerBackdrop').classList.add('show');
-        document.getElementById('chatDrawer').classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        const unreadBadge = document.getElementById('unreadBadge');
-        if (unreadBadge) {
-            unreadBadge.style.display = 'none';
-            unreadBadge.innerText = '0';
-        }
-        
-        this.loadMessages();
-        this.chat.interval = setInterval(() => this.loadMessages(), 5000);
-        setTimeout(() => document.getElementById('chatInput').focus(), 300);
+        const postId = this.config.postId;
+        const sellerId = this.config.sellerId;
+        window.location.href = `/Chat/Conversations/Index?otherUserId=${sellerId}&postId=${postId}`;
     },
 
     closeChatDrawer: function() {
-        this.chat.isOpen = false;
-        document.getElementById('chatDrawerBackdrop').classList.remove('show');
-        document.getElementById('chatDrawer').classList.remove('show');
-        document.body.style.overflow = '';
-        
-        if (this.chat.interval) {
-            clearInterval(this.chat.interval);
-            this.chat.interval = null;
-        }
+        // Obsolete
     },
 
-    loadMessages: async function() {
-        if (!this.config.currentUserId) return;
-        try {
-            const res = await fetch(`${this.config.getMessagesUrl}?postId=${this.config.postId}&otherUserId=${this.config.sellerId}`);
-            const data = await res.json();
-            if (data.success) {
-                this.renderMessages(data.messages);
-            }
-        } catch (e) {
-            console.error('Error loading messages:', e);
-        }
-    },
-
-    renderMessages: function(messages) {
-        const chatMessageList = document.getElementById('chatMessageList');
-        if (!messages || messages.length === 0) {
-            chatMessageList.innerHTML = '<div class="text-center text-muted small mt-4">Chưa có tin nhắn nào. Bắt đầu trò chuyện ngay!</div>';
-            return;
-        }
-        
-        const isScrolledToBottom = chatMessageList.scrollHeight - chatMessageList.clientHeight <= chatMessageList.scrollTop + 50;
-        
-        let html = '';
-        messages.forEach(msg => {
-            const isMe = msg.senderId === this.config.currentUserId;
-            const time = new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            if (isMe) {
-                html += `
-                    <div class="chat-sender-container">
-                        <div class="chat-bubble chat-sender">${this.escapeHtml(msg.text)}</div>
-                        <span class="chat-time text-end">${time}</span>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="chat-receiver-container">
-                        <div class="chat-bubble chat-receiver">${this.escapeHtml(msg.text)}</div>
-                        <span class="chat-time text-start">${time}</span>
-                    </div>
-                `;
-            }
-        });
-        
-        if (chatMessageList.innerHTML.length !== html.length) {
-            chatMessageList.innerHTML = html;
-            if (isScrolledToBottom) {
-                this.scrollToBottom();
-            }
-        }
-    },
-
-    handleChatSubmit: async function(e) {
-        e.preventDefault();
-        const chatInput = document.getElementById('chatInput');
-        const text = chatInput.value.trim();
-        if (!text) return;
-        
-        const currentText = text;
-        chatInput.value = '';
-        
-        const payload = {
-            PostId: this.config.postId,
-            ReceiverId: this.config.sellerId,
-            Message: currentText
-        };
-        
-        try {
-            const res = await fetch(this.config.sendMessageUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            
-            if (data.success) {
-                this.loadMessages();
-                this.scrollToBottom();
-            } else {
-                Swal.fire('Lỗi', data.message || 'Không thể gửi tin nhắn.', 'error');
-            }
-        } catch (err) {
-            console.error('Send message error:', err);
-            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
-        }
-    },
-
-    checkUnread: async function() {
-        if (!this.config.currentUserId || this.chat.isOpen) return;
-        try {
-            const res = await fetch(`${this.config.getUnreadCountUrl}?postId=${this.config.postId}`);
-            const data = await res.json();
-            const unreadBadge = document.getElementById('unreadBadge');
-            
-            if (data && data.count > 0 && unreadBadge) {
-                unreadBadge.innerText = data.count > 99 ? '99+' : data.count;
-                unreadBadge.style.display = 'block';
-            } else if (unreadBadge) {
-                unreadBadge.style.display = 'none';
-            }
-        } catch (e) { }
-    },
-
-    scrollToBottom: function() {
-        const chatMessageList = document.getElementById('chatMessageList');
-        if (chatMessageList) {
-            setTimeout(() => {
-                chatMessageList.scrollTop = chatMessageList.scrollHeight;
-            }, 50);
-        }
-    },
-
-    escapeHtml: function(unsafe) {
-        return unsafe
-             .replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "&#039;");
-    },
+    loadMessages: async function() { /* Obsolete */ },
+    renderMessages: function(messages) { /* Obsolete */ },
+    handleChatSubmit: async function(e) { /* Obsolete */ },
+    checkUnread: async function() { /* Obsolete */ },
+    scrollToBottom: function() { /* Obsolete */ },
+    escapeHtml: function(unsafe) { /* Obsolete */ },
 
     // Initialization for Create page
     initCreate: function() {

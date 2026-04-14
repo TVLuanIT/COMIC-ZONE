@@ -117,7 +117,7 @@
                                     </div>
                                 </div>
                                 <div class="mp-card-body">
-                                    <h5 class="fw-800 text-dark text-truncate-2 mb-3" style="height: 3rem; line-height: 1.4;">@post.Title</h5>
+                                    <h5 class="fw-800 text-dark text-truncate-2 mb-3" style="height: 3.2rem; line-height: 1.4; overflow: hidden;">@post.Title</h5>
                                     
                                     <div class="d-flex justify-content-center align-items-center mb-4">
                                         <div class="mp-price-highlight">@string.Format("{0:N0}", post.Price)<span class="small ms-1">₫</span></div>
@@ -164,7 +164,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             Marketplace.initIndex({
-                incompleteProfile: '@(TempData["IncompleteProfile"] != null ? TempData["IncompleteProfile"].ToString() : "")',
+                incompleteProfile: '@Html.Raw(TempData["IncompleteProfile"] ?? "")',
                 editProfileUrl: '@Url.Action("EditProfile", "UserProfiles", new { area = "Account" })',
                 loginUrl: '@Url.Action("Login", "Authentication", new { area = "Account" })',
                 checkProfileUrl: '@Url.Action("CheckProfileStatus", "MarketplacePosts")',

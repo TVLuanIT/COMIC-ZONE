@@ -16,7 +16,7 @@
             <div class="me-2 position-relative">
                 @await Component.InvokeAsync("UserAvatar",
                 new { avatarUrl = avatar, size = 35 })
-                @await Component.InvokeAsync("UnreadNotificationCount")
+                @await Component.InvokeAsync("UnreadTotalCount")
             </div>
 
             @username
@@ -31,6 +31,19 @@
                    asp-route-returnUrl="@(Context.Request.Path.Value + Context.Request.QueryString.Value)">
                     <i class="bi bi-person-circle me-2"></i>
                     <span>Trang cá nhân</span>
+                </a>
+            </li>
+
+            <li>
+                <a class="premium-dropdown-item d-flex align-items-center justify-content-between"
+                   asp-area="Chat"
+                   asp-controller="Conversations"
+                   asp-action="Index">
+                    <div>
+                        <i class="bi bi-chat-dots me-2"></i>
+                        <span>Hộp thư</span>
+                    </div>
+                    @await Component.InvokeAsync("UnreadChatCount")
                 </a>
             </li>
 

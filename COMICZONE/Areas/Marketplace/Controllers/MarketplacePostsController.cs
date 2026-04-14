@@ -253,6 +253,33 @@ namespace COMICZONE.Areas.Marketplace.Controllers
 
             return Json(new { success = true, isComplete });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> MyPosts(int page = 1)
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Authentication", new { area = "Account", returnUrl = Request.Path + Request.QueryString });
+            }
+
+            int userId = int.Parse(CurrentUserId());
+            int pageSize = 10;
+
+            var (posts, totalCount) = await _marketplaceService.GetPostsBySellerAsync(userId, page, pageSize);
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                Controller = "MarketplacePosts",
+                Action = "MyPosts",
+                Area = "Marketplace",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
+
+            return View(posts);
+        }
     }
 
     public class MessageRequest
