@@ -15,15 +15,6 @@ namespace COMICZONE.Services
         Task AddPostImageAsync(MarketplacePostImage image);
         Task<(List<MarketplacePost> Items, int TotalCount)> GetPostsBySellerAsync(int sellerId, int page = 1, int pageSize = 10);
 
-        // Orders
-        Task<MarketplaceOrder> PlaceOrderAsync(MarketplaceOrder order);
-        Task<bool> UpdateOrderStatusAsync(int orderId, string status);
-        Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersByBuyerAsync(int buyerId, int page = 1, int pageSize = 10);
-        Task<(List<MarketplaceOrder> Items, int TotalCount)> GetOrdersBySellerAsync(int sellerId, int page = 1, int pageSize = 10);
-
-        // Reviews
-        Task<MarketplaceReview> AddReviewAsync(MarketplaceReview review);
-        Task<List<MarketplaceReview>> GetSellerReviewsAsync(int sellerId);
 
         // Favorites
         Task<bool> IsFavoritedAsync(int userId, int postId);

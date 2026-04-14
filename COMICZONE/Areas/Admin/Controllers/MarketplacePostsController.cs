@@ -53,7 +53,6 @@ namespace COMICZONE.Areas.Admin.Controllers
             var post = await _context.MarketplacePosts
                 .Include(p => p.Seller)
                 .Include(p => p.MarketplacePostImages)
-                .Include(p => p.MarketplaceOrders).ThenInclude(o => o.Buyer)
                 .Include(p => p.MarketplaceFavorites)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -119,19 +118,11 @@ namespace COMICZONE.Areas.Admin.Controllers
                 .Include(p => p.MarketplacePostImages)
                 .Include(p => p.MarketplaceFavorites)
                 .Include(p => p.MarketplaceMessages)
-                .Include(p => p.MarketplaceOrders)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (post == null) return NotFound();
 
-            // 1. Kiểm tra đơn hàng - Nếu đã có đơn hàng thì không cho phép xóa vĩnh viễn
-            if (post.MarketplaceOrders.Any())
-            {
-                TempData["Error"] = "Không thể xóa vĩnh viễn bài đăng này vì đã có đơn hàng liên quan. Vui lòng sử dụng tính năng 'Ẩn bài đăng' thay thế.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            // 2. Xóa các tệp ảnh vật lý trên đĩa
+            // 1. Xóa các tệp ảnh vật lý trên đĩa
             var folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "marketplace");
             foreach (var img in post.MarketplacePostImages)
             {

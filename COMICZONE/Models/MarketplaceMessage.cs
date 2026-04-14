@@ -31,6 +31,9 @@ public partial class MarketplaceMessage
     [Column("ISREAD")]
     public bool? Isread { get; set; }
 
+    [Column("CREATED_AT", TypeName = "datetime")]
+    public DateTime? CreatedAt1 { get; set; }
+
     [ForeignKey("Postid")]
     [InverseProperty("MarketplaceMessages")]
     public virtual MarketplacePost? Post { get; set; }

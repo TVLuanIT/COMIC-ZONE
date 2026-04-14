@@ -50,6 +50,9 @@ public partial class MarketplacePost
     [Column("ISDELETED")]
     public bool? Isdeleted { get; set; }
 
+    [Column("CREATED_AT", TypeName = "datetime")]
+    public DateTime? CreatedAt1 { get; set; }
+
     [InverseProperty("Post")]
     public virtual ICollection<MarketplaceFavorite> MarketplaceFavorites { get; set; } = new List<MarketplaceFavorite>();
 
@@ -57,10 +60,10 @@ public partial class MarketplacePost
     public virtual ICollection<MarketplaceMessage> MarketplaceMessages { get; set; } = new List<MarketplaceMessage>();
 
     [InverseProperty("Post")]
-    public virtual ICollection<MarketplaceOrder> MarketplaceOrders { get; set; } = new List<MarketplaceOrder>();
+    public virtual ICollection<MarketplacePostImage> MarketplacePostImages { get; set; } = new List<MarketplacePostImage>();
 
     [InverseProperty("Post")]
-    public virtual ICollection<MarketplacePostImage> MarketplacePostImages { get; set; } = new List<MarketplacePostImage>();
+    public virtual ICollection<MarketplacePostPromotion> MarketplacePostPromotions { get; set; } = new List<MarketplacePostPromotion>();
 
     [ForeignKey("Sellerid")]
     [InverseProperty("MarketplacePosts")]

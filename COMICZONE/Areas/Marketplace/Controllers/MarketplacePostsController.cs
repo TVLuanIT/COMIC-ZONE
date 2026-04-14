@@ -127,7 +127,6 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             ModelState.Remove("MarketplacePostImages");
             ModelState.Remove("MarketplaceFavorites");
             ModelState.Remove("MarketplaceMessages");
-            ModelState.Remove("MarketplaceOrders");
 
             if (uploadedImages == null || uploadedImages.Count == 0 || !uploadedImages.Any(f => f.Length > 0))
             {

@@ -40,17 +40,17 @@ public partial class ComiczoneContext : DbContext
 
     public virtual DbSet<Invoice> Invoices { get; set; }
 
+    public virtual DbSet<MarketplaceAdvertisement> MarketplaceAdvertisements { get; set; }
+
     public virtual DbSet<MarketplaceFavorite> MarketplaceFavorites { get; set; }
 
     public virtual DbSet<MarketplaceMessage> MarketplaceMessages { get; set; }
-
-    public virtual DbSet<MarketplaceOrder> MarketplaceOrders { get; set; }
 
     public virtual DbSet<MarketplacePost> MarketplacePosts { get; set; }
 
     public virtual DbSet<MarketplacePostImage> MarketplacePostImages { get; set; }
 
-    public virtual DbSet<MarketplaceReview> MarketplaceReviews { get; set; }
+    public virtual DbSet<MarketplacePostPromotion> MarketplacePostPromotions { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -252,6 +252,14 @@ public partial class ComiczoneContext : DbContext
                 .HasConstraintName("FK_INVOICE_ORDER");
         });
 
+        modelBuilder.Entity<MarketplaceAdvertisement>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC27AF1B9A7E");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("ACTIVE");
+        });
+
         modelBuilder.Entity<MarketplaceFavorite>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC2763EE0058");
@@ -269,6 +277,7 @@ public partial class ComiczoneContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC27A6B1827E");
 
+            entity.Property(e => e.CreatedAt1).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Isread).HasDefaultValue(false);
 
@@ -283,29 +292,11 @@ public partial class ComiczoneContext : DbContext
                 .HasConstraintName("FK_MARKETPLACE_MESSAGE_SENDER");
         });
 
-        modelBuilder.Entity<MarketplaceOrder>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC279A849714");
-
-            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.Buyer).WithMany(p => p.MarketplaceOrderBuyers)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MARKETPLACE_ORDER_BUYER");
-
-            entity.HasOne(d => d.Post).WithMany(p => p.MarketplaceOrders)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MARKETPLACE_ORDER_POST");
-
-            entity.HasOne(d => d.Seller).WithMany(p => p.MarketplaceOrderSellers)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MARKETPLACE_ORDER_SELLER");
-        });
-
         modelBuilder.Entity<MarketplacePost>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC27E35B9C3C");
 
+            entity.Property(e => e.CreatedAt1).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Isdeleted).HasDefaultValue(false);
 
@@ -321,19 +312,20 @@ public partial class ComiczoneContext : DbContext
             entity.HasOne(d => d.Post).WithMany(p => p.MarketplacePostImages).HasConstraintName("FK_MARKETPLACE_IMAGE_POST");
         });
 
-        modelBuilder.Entity<MarketplaceReview>(entity =>
+        modelBuilder.Entity<MarketplacePostPromotion>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC270E0FD413");
+            entity.HasKey(e => e.Id).HasName("PK__MARKETPL__3214EC276E121914");
 
-            entity.Property(e => e.Createdat).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValue("ACTIVE");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.MarketplaceReviews)
+            entity.HasOne(d => d.Post).WithMany(p => p.MarketplacePostPromotions)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MARKETPLACE_REVIEW_ORDER");
+                .HasConstraintName("FK__MARKETPLA__POSTI__226010D3");
 
-            entity.HasOne(d => d.Reviewer).WithMany(p => p.MarketplaceReviews)
+            entity.HasOne(d => d.User).WithMany(p => p.MarketplacePostPromotions)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MARKETPLACE_REVIEW_USER");
+                .HasConstraintName("FK__MARKETPLA__USERI__2354350C");
         });
 
         modelBuilder.Entity<Notification>(entity =>

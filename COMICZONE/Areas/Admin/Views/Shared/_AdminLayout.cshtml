@@ -257,7 +257,7 @@
 
                 <!-- 5.5. Marketplace -->
                 <li class="nav-item">
-                    <a class="nav-link @(controller == "MarketplacePosts" || controller == "MarketplaceOrders" || controller == "MarketplaceReviews" ? "active" : "")"
+                    <a class="nav-link @(controller == "MarketplacePosts" ? "active" : "")"
                        data-bs-toggle="collapse" href="#marketplaceMenu">
                         <i class="ti ti-building-store"></i>
                         <span class="nav-text">Marketplace</span>
@@ -265,7 +265,7 @@
                         <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
-                    <ul class="collapse ps-3 @(controller == "MarketplacePosts" || controller == "MarketplaceOrders" || controller == "MarketplaceReviews" ? "show" : "")"
+                    <ul class="collapse ps-3 @(controller == "MarketplacePosts" ? "show" : "")"
                         id="marketplaceMenu">
                         <li>
                             <a asp-area="Admin" asp-controller="MarketplacePosts" asp-action="Index"
@@ -274,19 +274,6 @@
                             </a>
                         </li>
 
-                        <li>
-                            <a asp-area="Admin" asp-controller="MarketplaceOrders" asp-action="Index"
-                               class="@(controller == "MarketplaceOrders" ? "active" : "")">
-                                <i class="ti ti-transfer"></i> Quản lý giao dịch
-                            </a>
-                        </li>
-
-                        <li>
-                            <a asp-area="Admin" asp-controller="MarketplaceReviews" asp-action="Index"
-                               class="@(controller == "MarketplaceReviews" ? "active" : "")">
-                                <i class="ti ti-star"></i> Đánh giá người bán
-                            </a>
-                        </li>
                     </ul>
                 </li>
 

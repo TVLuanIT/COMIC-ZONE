@@ -34,22 +34,22 @@
                     <thead class="table-light">
                         <tr class="align-middle">
                             <th class="ps-4">
-                                @Html.SortHeader("Mã GD", "Paymentid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Mã GD", "Paymentid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th>
-                                @Html.SortHeader("Mã Đơn", "Orderid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Mã Đơn", "Orderid", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Số tiền", "Amount", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Trạng thái", "Paymentstatus", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Trạng thái", "Paymentstatus", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Phương thức", "Paymentmethod", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Phương thức", "Paymentmethod", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Createdat", searchModel.IsAscending)
                             </th>
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>

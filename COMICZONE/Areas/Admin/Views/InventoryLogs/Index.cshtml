@@ -37,16 +37,16 @@
                     <thead class="table-light border-bottom">
                         <tr class="align-middle">
                             <th class="ps-4">
-                                @Html.SortHeader("Sản phẩm", "Product.Name", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Sản phẩm", "Product.Name", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Số lượng", "ChangeAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Số lượng", "ChangeAmount", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Loại giao dịch", "Type", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Loại giao dịch", "Type", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending)
                             </th>
                             <th class="text-center">
-                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending, searchModel.Keyword)
+                                @Html.SortHeader("Ngày tạo", "CreatedAt", searchModel.SortColumn ?? "CreatedAt", searchModel.IsAscending)
                             </th>
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>
