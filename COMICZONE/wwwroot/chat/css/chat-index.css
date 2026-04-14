@@ -164,6 +164,7 @@
 .messages-area {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden !important; /* Prevent horizontal scrollbars */
     padding: 1.5rem;
     background: #fdfdfd;
     display: flex;
@@ -218,16 +219,24 @@
 }
 
 .chat-sender {
-    background: #e1e4ff; /* Light purple/blue like Zalo dark/light mix */
-    color: #1a1a1b;
-    border-bottom-right-radius: 2px;
+    background: linear-gradient(135deg, #f472b6 0%, #a855f7 100%) !important; /* Bold Vibrant Pink Purple */
+    color: #ffffff !important; /* White text for high contrast */
+    border-bottom-right-radius: 4px !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4) !important;
+    transition: all 0.3s ease;
+}
+
+.chat-sender .message-text {
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .chat-receiver {
-    background: #ffffff;
-    color: #1a1a1b;
-    border-bottom-left-radius: 2px;
-    border: 1px solid #e5e7eb;
+    background: #ffffff !important;
+    color: #1a1a1b !important;
+    border-bottom-left-radius: 4px !important;
+    border: 1px solid #f3f4f6 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .chat-time {
@@ -243,28 +252,94 @@
     background: rgba(255, 255, 255, 0.95);
     border-top: 1px solid rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.active-post-context-zalo .d-flex {
+    flex: 1;
+    overflow: hidden;
 }
 
 .active-post-context-zalo img {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+/* Ultimate Priority for Premium Close Button */
+.btn-close-context {
+    border: none !important;
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #64748b !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-close-context:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
+    transform: rotate(90deg);
+}
+
+.btn-close-context:active {
+    transform: scale(0.9);
 }
 
 /* Post Card inside Bubble - Zalo Style */
+.bubble-post-card-link {
+    text-decoration: none !important;
+    display: block;
+    margin-bottom: 20px; /* More space before text */
+    transition: transform 0.2s ease;
+}
+
+.bubble-post-card-link:hover .bubble-post-card {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: scale(0.98);
+}
+
+.bubble-post-card-link:active .bubble-post-card {
+    transform: scale(0.95);
+}
+
 .bubble-post-card {
     background: rgba(0, 0, 0, 0.04);
     border-radius: 12px;
     padding: 12px;
-    margin-bottom: 20px; /* More space before text */
     display: flex;
     align-items: center;
     gap: 18px;
     width: 350px;
     max-width: 100%;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .chat-sender .bubble-post-card {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.chat-sender .bubble-post-info .title,
+.chat-sender .bubble-post-info .price {
+    color: #ffffff !important;
 }
 
 .bubble-post-card img {
@@ -331,27 +406,42 @@
 
 .recall-btn {
     position: absolute;
-    right: -30px;
-    top: 10px;
     background: #f0f2f5;
     border: 1px solid #ddd;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
     color: #65676b;
     opacity: 0;
     transition: all 0.2s;
     z-index: 5;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.chat-sender-container .recall-btn {
+    left: -35px; /* Move to left side for sender messages */
+}
+
+.chat-receiver-container .recall-btn {
+    right: -35px; /* Stay on right side for receiver messages */
 }
 
 .message-wrapper:hover .recall-btn {
     opacity: 1;
-    right: -25px;
+}
+
+.chat-sender-container .message-wrapper:hover .recall-btn {
+    left: -32px;
+}
+
+.chat-receiver-container .message-wrapper:hover .recall-btn {
+    right: -32px;
 }
 
 .recall-btn:hover {
@@ -455,3 +545,14 @@
     align-items: center;
     gap: 0.5rem;
 }
+/* Premium SweetAlert2 Custom Styles */
+.premium-swal-popup { border-radius: 20px !important; padding: 2.5rem !important; font-family: 'Inter', sans-serif !important; }
+.premium-swal-confirm { background: linear-gradient(135deg, #f472b6 0%, #a855f7 100%) !important; border-radius: 12px !important; padding: 12px 30px !important; font-weight: 700 !important; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3) !important; transition: transform 0.2s ease !important; border: none !important; color: white !important; margin: 5px !important; }
+.premium-swal-confirm:hover { transform: scale(1.05) !important; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4) !important; }
+.premium-swal-cancel { background: #f1f5f9 !important; color: #64748b !important; border-radius: 12px !important; padding: 12px 30px !important; font-weight: 600 !important; transition: all 0.2s ease !important; border: none !important; margin: 5px !important; }
+.premium-swal-cancel:hover { background: #e2e8f0 !important; color: #475569 !important; }
+.swal2-title { font-family: 'Outfit', sans-serif !important; font-weight: 800 !important; color: #1e293b !important; margin-bottom: 0.5rem !important; }
+.swal2-html-container { color: #64748b !important; font-size: 0.95rem !important; margin-bottom: 1rem !important; }
+
+.recalled-wrapper { display: flex !important; align-items: center !important; gap: 8px !important; font-style: italic !important; opacity: 0.8 !important; }
+.recalled-wrapper i { font-size: 14px !important; }

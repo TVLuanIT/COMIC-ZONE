@@ -71,10 +71,10 @@ const ChatApp = {
         this.connection.on("MessageRecalled", (id) => {
             const el = document.querySelector(`.message-wrapper[data-id="${id}"]`);
             if (el) {
-                const bubble = el.querySelector('.chat-bubble');
+                const bubble = el.querySelector('.message-bubble'); // Updated from .chat-bubble
                 if (bubble) {
                     bubble.classList.add('recalled');
-                    bubble.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i> <span class="recalled-text">Tin nhắn đã được thu hồi</span>';
+                    bubble.innerHTML = '<div class="recalled-wrapper"><i class="bi bi-arrow-counterclockwise me-2"></i><span>Tin nhắn đã được thu hồi</span></div>';
                 }
                 const btn = el.querySelector('.recall-btn');
                 if (btn) btn.remove();
@@ -203,24 +203,15 @@ const ChatApp = {
             return;
         }
 
-        // Theo dõi các postId đã hiển thị card để tránh lặp lại (Zalo style)
-        const shownPostIds = new Set();
-
         messages.forEach(m => {
-            let shouldShowCard = false;
-            if (m.postId && !shownPostIds.has(m.postId)) {
-                shouldShowCard = true;
-                shownPostIds.add(m.postId);
-            }
-
             this.appendMessage({
                 senderId: m.senderId,
                 text: m.text,
                 createdAt: m.createdAt,
-                postId: shouldShowCard ? m.postId : null,
-                postTitle: shouldShowCard ? m.postTitle : null,
-                postPrice: shouldShowCard ? m.postPrice : null,
-                postImage: shouldShowCard ? m.postImage : null,
+                postId: m.postId,
+                postTitle: m.postTitle,
+                postPrice: m.postPrice,
+                postImage: m.postImage,
                 id: m.id // Pass ID for recall
             });
         });
@@ -243,18 +234,20 @@ const ChatApp = {
             const displayImage = msg.postImage ? `/uploads/marketplace/${msg.postImage}` : '/uploads/marketplace/default.png';
 
             postHtml = `
-                <div class="bubble-post-card">
-                    <img src="${displayImage}" alt="${this.escapeHtml(msg.postTitle)}" />
-                    <div class="bubble-post-info">
-                        <div class="title">${this.escapeHtml(msg.postTitle)}</div>
-                        <div class="price">${displayPrice}</div>
+                <a href="/Marketplace/MarketplacePosts/Details/${msg.postId}" class="bubble-post-card-link" target="_blank">
+                    <div class="bubble-post-card">
+                        <img src="${displayImage}" alt="${this.escapeHtml(msg.postTitle)}" />
+                        <div class="bubble-post-info">
+                            <div class="title">${this.escapeHtml(msg.postTitle)}</div>
+                            <div class="price">${displayPrice}</div>
+                        </div>
                     </div>
-                </div>
+                </a>
             `;
         }
 
         let bubbleContent = isRecalled
-            ? '<i class="bi bi-arrow-counterclockwise me-1"></i> <span class="recalled-text">Tin nhắn đã được thu hồi</span>'
+            ? '<div class="recalled-wrapper"><i class="bi bi-arrow-counterclockwise me-2"></i><span>Tin nhắn đã được thu hồi</span></div>'
             : `<div class="message-text">${this.escapeHtml(msg.text)}</div>`;
 
         let recallBtn = (isMe && !isRecalled && msg.id)
@@ -274,19 +267,40 @@ const ChatApp = {
     },
 
     recallMessage: async function (messageId) {
-        if (!confirm('Bạn có chắc muốn thu hồi tin nhắn này?')) return;
-
-        try {
-            const res = await fetch(`${this.config.recallMessageUrl}?messageId=${messageId}`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                // Invoke SignalR to notify other party
-                const receiverId = document.getElementById('targetUserId').value;
-                await this.connection.invoke("RecallMessage", parseInt(messageId), parseInt(receiverId));
+        Swal.fire({
+            title: 'Thu hồi tin nhắn?',
+            text: "Bạn có chắc chắn muốn thu hồi tin nhắn này không?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Thu hồi',
+            cancelButtonText: 'Hủy',
+            reverseButtons: true,
+            customClass: {
+                popup: 'premium-swal-popup animate__animated animate__fadeInDown animate__faster',
+                confirmButton: 'premium-swal-confirm',
+                cancelButton: 'premium-swal-cancel'
+            },
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
             }
-        } catch (e) {
-            console.error("Recall error:", e);
-        }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`${this.config.recallMessageUrl}?messageId=${messageId}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        // Invoke SignalR to notify other party
+                        const receiverId = document.getElementById('targetUserId').value;
+                        await this.connection.invoke("RecallMessage", parseInt(messageId), parseInt(receiverId));
+                    }
+                } catch (e) {
+                    console.error("Recall error:", e);
+                }
+            }
+        });
     },
 
     updateSidebarUnread: function (senderId, text) {
