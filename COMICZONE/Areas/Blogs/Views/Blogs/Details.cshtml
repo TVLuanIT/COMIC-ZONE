@@ -52,10 +52,10 @@
             <div class="col-lg-8 blog-main-column" data-aos="fade-up">
                 <div class="article-excerpt">
                     <i class="bi bi-quote fs-1 text-primary-light"></i>
-                    <p>@Model.Shortdescription</p>
+                    <p style="white-space: pre-line;">@Model.Shortdescription</p>
                 </div>
 
-                <div class="article-body lh-lg">
+                <div class="article-body lh-lg" style="white-space: pre-line;">
                     @Html.Raw(Model.Content)
                 </div>
 

@@ -1,5 +1,6 @@
 using COMICZONE.Data;
 using COMICZONE.Models;
+using COMICZONE.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace COMICZONE.Services
         public async Task<MarketplacePost> CreatePostAsync(MarketplacePost post)
         {
             post.Createdat = DateTime.Now;
-            post.Status = "Pending";
+            post.StatusEnum = MarketplacePostStatus.Pending;
             post.Isdeleted = false;
             _context.MarketplacePosts.Add(post);
             await _context.SaveChangesAsync();
@@ -141,7 +142,7 @@ namespace COMICZONE.Services
             var post = await _context.MarketplacePosts.FindAsync(order.Postid);
             if (post != null)
             {
-                post.Status = "Sold";
+                post.StatusEnum = MarketplacePostStatus.Sold;
             }
             
             await _context.SaveChangesAsync();

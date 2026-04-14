@@ -1,3 +1,4 @@
+@using COMICZONE.Models.Enums
 @model COMICZONE.Models.MarketplacePost
 
 @{
@@ -63,11 +64,7 @@
 
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">Trạng thái bài đăng</label>
-                                <select asp-for="Status" class="form-select">
-                                    <option value="Pending">Chờ duyệt</option>
-                                    <option value="Approved">Đã duyệt</option>
-                                    <option value="Rejected">Từ chối</option>
-                                    <option value="Sold">Đã bán</option>
+                                <select asp-for="StatusEnum" class="form-select" asp-items="Html.GetEnumSelectList<MarketplacePostStatus>()">
                                 </select>
                             </div>
 

@@ -7,6 +7,9 @@ using COMICZONE.Extensions;
 using COMICZONE.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -14,10 +17,12 @@ namespace COMICZONE.Areas.Admin.Controllers
     public class MarketplacePostsController : AdminBaseController
     {
         private readonly ComiczoneContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MarketplacePostsController(ComiczoneContext context)
+        public MarketplacePostsController(ComiczoneContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // ==================== INDEX ====================
@@ -110,13 +115,44 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var post = await _context.MarketplacePosts.FindAsync(id);
-            if (post != null)
+            var post = await _context.MarketplacePosts
+                .Include(p => p.MarketplacePostImages)
+                .Include(p => p.MarketplaceFavorites)
+                .Include(p => p.MarketplaceMessages)
+                .Include(p => p.MarketplaceOrders)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post == null) return NotFound();
+
+            // 1. Kiểm tra đơn hàng - Nếu đã có đơn hàng thì không cho phép xóa vĩnh viễn
+            if (post.MarketplaceOrders.Any())
             {
-                _context.MarketplacePosts.Remove(post);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = $"Đã xóa bài đăng #{id} vĩnh viễn.";
+                TempData["Error"] = "Không thể xóa vĩnh viễn bài đăng này vì đã có đơn hàng liên quan. Vui lòng sử dụng tính năng 'Ẩn bài đăng' thay thế.";
+                return RedirectToAction(nameof(Index));
             }
+
+            // 2. Xóa các tệp ảnh vật lý trên đĩa
+            var folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "marketplace");
+            foreach (var img in post.MarketplacePostImages)
+            {
+                var filePath = Path.Combine(folderPath, img.Filename);
+                if (System.IO.File.Exists(filePath))
+                {
+                    try { System.IO.File.Delete(filePath); } catch { /* Ignore file system errors */ }
+                }
+            }
+
+            // 3. Xóa các bản ghi liên quan trong DB
+            _context.MarketplacePostImages.RemoveRange(post.MarketplacePostImages);
+            _context.MarketplaceFavorites.RemoveRange(post.MarketplaceFavorites);
+            _context.MarketplaceMessages.RemoveRange(post.MarketplaceMessages);
+
+            // 4. Xóa bài đăng chính
+            _context.MarketplacePosts.Remove(post);
+
+            await _context.SaveChangesAsync();
+            
+            TempData["Success"] = $"Đã xóa bài đăng #{id} vĩnh viễn cùng tất cả dữ liệu liên quan.";
             return RedirectToAction(nameof(Index));
         }
 

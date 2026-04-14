@@ -7,6 +7,25 @@
     var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.BlogSearchModel ?? new COMICZONE.Areas.Admin.ViewModels.BlogSearchModel();
 }
 
+@section Styles {
+    <style>
+        .cat-badge {
+            max-width: 130px !important;
+            display: inline-block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            vertical-align: middle !important;
+            line-height: 1.2 !important;
+            text-align: center;
+        }
+        
+        .cat-badge-container {
+            min-width: 150px;
+        }
+    </style>
+}
+
 <div class="container-fluid px-4 py-5">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
@@ -76,17 +95,17 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-wrap gap-1" style="max-width: 250px;">
+                                    <div class="d-flex align-items-center flex-wrap gap-1" style="max-width: 250px;">
                                         @if (item.Categories != null && item.Categories.Any())
                                         {
                                             var displayedCats = item.Categories.Take(1).ToList();
                                             var moreCount = item.Categories.Count - 1;
- 
+
                                             @foreach (var cat in displayedCats)
                                             {
-                                                <span class="badge @(cat.Isdeleted ? "bg-secondary-subtle text-secondary" : "bg-primary text-white") px-3 py-1 rounded-pill fw-semibold shadow-sm" 
-                                                      style="font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.05);"
-                                                      title="@(cat.Isdeleted ? "Danh mục đã bị ẩn" : "Danh mục hoạt động")">
+                                                <span class="badge @(cat.Isdeleted ? "bg-secondary-subtle text-secondary" : "bg-primary text-white") cat-badge px-3 py-2 rounded-pill fw-semibold shadow-sm" 
+                                                      style="white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 130px !important; display: inline-block !important;"
+                                                      title="@cat.Name (@(cat.Isdeleted ? "Danh mục đã bị ẩn" : "Danh mục hoạt động"))">
                                                     @cat.Name
                                                 </span>
                                             }
@@ -94,7 +113,7 @@
                                             @if (moreCount > 0)
                                             {
                                                 <span class="badge bg-light text-muted border px-2 py-1 rounded-pill fw-bold" 
-                                                      style="font-size: 0.75rem;" 
+                                                      style="font-size: 0.75rem; vertical-align: middle;" 
                                                       title="@string.Join(", ", item.Categories.Skip(1).Select(c => c.Name))">
                                                     +@moreCount
                                                 </span>

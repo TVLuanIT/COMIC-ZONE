@@ -1,3 +1,4 @@
+@using COMICZONE.Models.Enums
 @model COMICZONE.Models.MarketplacePost
 
 @{
@@ -43,28 +44,16 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label asp-for="Condition" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Tình trạng phẩm</label>
-                                    <select asp-for="Condition" class="form-select mp-form-control">
-                                        <option value="NewLike">Như mới (99%)</option>
-                                        <option value="VeryGood">Rất tốt (90-95%)</option>
-                                        <option value="Good">Tốt (80-85%)</option>
-                                        <option value="Acceptable">Sử dụng được</option>
+                                    <label asp-for="ConditionEnum" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Tình trạng phẩm</label>
+                                    <select asp-for="ConditionEnum" class="form-select mp-form-control" asp-items="Html.GetEnumSelectList<MarketplacePostCondition>()">
                                     </select>
                                 </div>
 
                                 <!-- Category -->
                                 <div class="col-12">
-                                    <label asp-for="Category" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Danh mục</label>
-                                    <select asp-for="Category" class="form-select mp-form-control" required>
+                                    <label asp-for="CategoryEnum" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Danh mục</label>
+                                    <select asp-for="CategoryEnum" class="form-select mp-form-control" asp-items="Html.GetEnumSelectList<MarketplacePostCategory>()">
                                         <option value="" disabled selected>-- Chọn danh mục sản phẩm --</option>
-                                        <option value="Manga">Manga</option>
-                                        <option value="Manhua">Manhua</option>
-                                        <option value="Manhwa">Manhwa</option>
-                                        <option value="Comics">Comics (Âu Mỹ)</option>
-                                        <option value="Novel">Light Novel / Tiểu thuyết</option>
-                                        <option value="Anime Goods">Anime Goods (Phụ kiện)</option>
-                                        <option value="Figures">Figures / Models (Mô hình)</option>
-                                        <option value="Others">Khác</option>
                                     </select>
                                 </div>
 

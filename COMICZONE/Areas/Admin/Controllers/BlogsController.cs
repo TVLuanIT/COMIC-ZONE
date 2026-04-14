@@ -19,11 +19,13 @@ namespace COMICZONE.Areas.Admin.Controllers
     {
         private readonly ComiczoneContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public BlogsController(ComiczoneContext context, INotificationService notificationService)
+        public BlogsController(ComiczoneContext context, INotificationService notificationService, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _notificationService = notificationService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Admin/Blogs
@@ -389,14 +391,30 @@ namespace COMICZONE.Areas.Admin.Controllers
                 // 5. Xóa tệp hình ảnh thumbnail nếu có
                 if (!string.IsNullOrEmpty(blog.Thumbnail))
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs", blog.Thumbnail);
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "blogs", blog.Thumbnail);
                     if (System.IO.File.Exists(filePath))
                     {
-                        System.IO.File.Delete(filePath);
+                        try { System.IO.File.Delete(filePath); } catch { }
                     }
                 }
 
-                // 6. Xóa bài viết
+                // 6. Xóa các tệp ảnh được nhúng trong nội dung Content (nếu có)
+                if (!string.IsNullOrEmpty(blog.Content))
+                {
+                    // Tìm các đường dẫn hình ảnh trong thẻ img có nguồn từ /uploads/blogs/
+                    var matches = System.Text.RegularExpressions.Regex.Matches(blog.Content, @"src=""/uploads/blogs/([^""]+)""");
+                    foreach (System.Text.RegularExpressions.Match match in matches)
+                    {
+                        var fileName = match.Groups[1].Value;
+                        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "blogs", fileName);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            try { System.IO.File.Delete(filePath); } catch { }
+                        }
+                    }
+                }
+
+                // 7. Xóa bài viết
                 _context.Blogs.Remove(blog);
                 
                 await _context.SaveChangesAsync();
