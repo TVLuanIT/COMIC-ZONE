@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using COMICZONE.Services;
 
 namespace COMICZONE.Areas.Admin.Controllers
 {
@@ -18,11 +19,13 @@ namespace COMICZONE.Areas.Admin.Controllers
     {
         private readonly ComiczoneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMarketplaceService _marketplaceService;
 
-        public MarketplacePostsController(ComiczoneContext context, IWebHostEnvironment webHostEnvironment)
+        public MarketplacePostsController(ComiczoneContext context, IWebHostEnvironment webHostEnvironment, IMarketplaceService marketplaceService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _marketplaceService = marketplaceService;
         }
 
         // ==================== INDEX ====================
@@ -33,6 +36,7 @@ namespace COMICZONE.Areas.Admin.Controllers
             var query = _context.MarketplacePosts
                 .Include(p => p.Seller)
                 .Include(p => p.MarketplacePostImages)
+                .Include(p => p.MarketplacePostPromotions)
                 .AsQueryable();
 
             query = query.ApplyMarketplacePostSearch(search);
@@ -215,6 +219,48 @@ namespace COMICZONE.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, isDeleted = post.Isdeleted });
+        }
+
+        // ==================== AJAX: PROMOTE (GIFT) ====================
+        [HttpPost]
+        public async Task<IActionResult> Promote(int id, int days)
+        {
+            var post = await _context.MarketplacePosts.FindAsync(id);
+            if (post == null) return Json(new { success = false, message = "Không tìm thấy bài đăng." });
+
+            if (days <= 0) days = 1;
+
+            try
+            {
+                // Create a promotion with 0 amount and special method
+                var promotion = await _marketplaceService.PromotePostAsync(id, post.Sellerid, days, 0, "ADMIN_GIFT");
+                
+                // Immediately activate it
+                await _marketplaceService.ActivatePromotionAsync(promotion.Id);
+
+                // Notify the user
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = post.Sellerid,
+                    Title = "Bài đăng được tặng quảng cáo",
+                    Message = $"Bài đăng \"{post.Title}\" của bạn đã được Admin tặng gói quảng cáo nổi bật trong {days} ngày.",
+                    CreatedBy = adminId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    Link = $"/Marketplace/MarketplacePosts/Details/{post.Id}"
+                });
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Đã tặng quảng cáo {days} ngày thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
     }
 }

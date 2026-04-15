@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using COMICZONE.ViewModels;
 using System.Threading.Tasks;
 using COMICZONE.Services;
 using COMICZONE.Models;
@@ -18,11 +20,15 @@ namespace COMICZONE.Areas.Marketplace.Controllers
     {
         private readonly IMarketplaceService _marketplaceService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IVnPayService _vnPayService;
+        private readonly PaypalClient _paypalClient;
 
-        public MarketplacePostsController(IMarketplaceService marketplaceService, IWebHostEnvironment webHostEnvironment)
+        public MarketplacePostsController(IMarketplaceService marketplaceService, IWebHostEnvironment webHostEnvironment, IVnPayService vnPayService, PaypalClient paypalClient)
         {
             _marketplaceService = marketplaceService;
             _webHostEnvironment = webHostEnvironment;
+            _vnPayService = vnPayService;
+            _paypalClient = paypalClient;
         }
 
         public async Task<IActionResult> Index(string sortOrder = "date_desc", string? searchTerm = null, string? category = null, string? condition = null, decimal? minPrice = null, decimal? maxPrice = null, int page = 1)
@@ -279,6 +285,147 @@ namespace COMICZONE.Areas.Marketplace.Controllers
 
             return View(posts);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> PromotionCheckout(int postId)
+        {
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            var post = await _marketplaceService.GetPostByIdAsync(postId);
+            if (post == null || post.Sellerid != int.Parse(CurrentUserId()))
+                return NotFound();
+
+            if (post.MarketplacePostPromotions.Any(p => p.Status == "Active" && p.EndDate > DateTime.Now))
+            {
+                TempData["Message"] = "Bài đăng của bạn đang được quảng cáo rồi.";
+                return RedirectToAction("MyPosts");
+            }
+
+            ViewBag.PaypalClientId = _paypalClient.ClientId;
+            return View(post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePromotionPayment_VnPay(int postId, int days)
+        {
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            var post = await _marketplaceService.GetPostByIdAsync(postId);
+            if (post == null || post.Sellerid != int.Parse(CurrentUserId()))
+                return NotFound();
+
+            if (days <= 0) days = 1;
+
+            decimal totalAmount = days * 10000;
+            var promotion = await _marketplaceService.PromotePostAsync(postId, post.Sellerid, days, totalAmount, "VNPAY");
+
+            var vnPayModel = new VnPaymentRequestModel
+            {
+                Amount = (double)(totalAmount * 100),
+                CreatedDate = DateTime.Now,
+                Description = $"Thanh toan quang cao bai viet {postId}",
+                FullName = CurrentUserId(),
+                OrderId = promotion.Id
+            };
+
+            string returnUrl = Url.Action("PromotionPaymentCallback_VnPay", "MarketplacePosts", new { area = "Marketplace" }, Request.Scheme);
+            return Redirect(_vnPayService.CreatePaymentUrl(HttpContext, vnPayModel, returnUrl));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PromotionPaymentCallback_VnPay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+
+            if (response == null || response.VnPayResponseCode != "00")
+            {
+                TempData["Error"] = $"Lỗi thanh toán VN Pay: {response?.VnPayResponseCode}";
+                return RedirectToAction("MyPosts");
+            }
+
+            if (!IsLoggedIn())
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+            
+            if (int.TryParse(response.OrderId, out int promotionId))
+            {
+                var activated = await _marketplaceService.ActivatePromotionAsync(promotionId);
+                if (activated)
+                {
+                    TempData["Success"] = "Thanh toán thành công! Bài viết của bạn đã được quảng cáo nổi bật.";
+                }
+                else
+                {
+                    TempData["Error"] = "Thanh toán thành công nhưng có lỗi xảy ra khi kích hoạt khuyến mãi.";
+                }
+            }
+
+            return RedirectToAction("MyPosts");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePaypalPromotion([FromBody] PromotionRequestModel model, CancellationToken cancellationToken)
+        {
+            if (!IsLoggedIn())
+                return BadRequest("Bạn cần đăng nhập trước khi thanh toán.");
+
+            var post = await _marketplaceService.GetPostByIdAsync(model.PostId);
+            if (post == null || post.Sellerid != int.Parse(CurrentUserId()))
+                return BadRequest("Bài đăng không khả dụng.");
+
+            int days = model.Days <= 0 ? 1 : model.Days;
+            decimal totalAmountVnd = days * 10000;
+            decimal usdRate = 25400;
+            var totalAmountUsd = Math.Round(totalAmountVnd / usdRate, 2);
+            var stringUSD = totalAmountUsd.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+
+            try
+            {
+                var promotion = await _marketplaceService.PromotePostAsync(model.PostId, post.Sellerid, days, totalAmountVnd, "PAYPAL");
+                
+                HttpContext.Session.SetInt32("PendingPaypalPromotionId", promotion.Id);
+
+                var response = await _paypalClient.CreateOrder(stringUSD, "USD", "PR" + promotion.Id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new { message = ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CapturePaypalPromotion([FromQuery] string orderID, CancellationToken cancellationToken)
+        {
+            if (!IsLoggedIn())
+                return BadRequest("Bạn cần đăng nhập trước khi bắt đầu.");
+
+            try
+            {
+                var response = await _paypalClient.CaptureOrder(orderID);
+
+                if (response.status != "COMPLETED")
+                    return BadRequest("Thanh toán Paypal chưa hoàn tất.");
+
+                var promotionId = HttpContext.Session.GetInt32("PendingPaypalPromotionId");
+                if (promotionId.HasValue)
+                {
+                    await _marketplaceService.ActivatePromotionAsync(promotionId.Value);
+                    HttpContext.Session.Remove("PendingPaypalPromotionId");
+                    TempData["Success"] = "Thanh toán Paypal thành công! Bài viết đã được quảng cáo.";
+                    return Ok(new { success = true });
+                }
+
+                return BadRequest("Không tìm thấy dữ liệu cấu hình quảng cáo.");
+            }
+            catch (Exception ex)
+            {
+                var error = new { message = ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
     }
 
     public class MessageRequest
@@ -286,5 +433,11 @@ namespace COMICZONE.Areas.Marketplace.Controllers
         public int PostId { get; set; }
         public int ReceiverId { get; set; }
         public string Message { get; set; }
+    }
+
+    public class PromotionRequestModel
+    {
+        public int PostId { get; set; }
+        public int Days { get; set; }
     }
 }

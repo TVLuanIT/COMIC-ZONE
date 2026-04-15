@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -38,6 +38,9 @@ public partial class MarketplacePostPromotion
 
     [Column("CREATED_AT", TypeName = "datetime")]
     public DateTime? CreatedAt { get; set; }
+
+    [Column("ISDELETED")]
+    public bool Isdeleted { get; set; }
 
     [ForeignKey("Postid")]
     [InverseProperty("MarketplacePostPromotions")]

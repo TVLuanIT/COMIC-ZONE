@@ -29,5 +29,11 @@ namespace COMICZONE.Services
 
         // User Profile Check
         Task<Customer?> GetCustomerByUserIdAsync(int userId);
+        // Promotion
+        Task<MarketplacePostPromotion> PromotePostAsync(int postId, int userId, int days, decimal totalAmount, string paymentMethod);
+        Task<MarketplacePostPromotion?> GetPromotionByIdAsync(int promotionId);
+        Task<bool> ActivatePromotionAsync(int promotionId);
+        Task<bool> CancelPromotionAsync(int promotionId);
+        Task<bool> RestorePromotionAsync(int promotionId);
     }
 }

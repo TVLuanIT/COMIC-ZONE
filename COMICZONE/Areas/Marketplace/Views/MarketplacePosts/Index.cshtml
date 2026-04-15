@@ -97,9 +97,20 @@
                 {
                     <div class="col-xl-3 col-lg-4 col-sm-6" data-aos="fade-up" data-aos-delay="@(delay * 50)">
                         <a asp-action="Details" asp-route-id="@post.Id" class="text-decoration-none">
-                            <div class="mp-card mp-product-card">
+                            @{
+                                bool isPromoted = post.MarketplacePostPromotions != null && post.MarketplacePostPromotions.Any(p => p.Status == "Active" && p.EndDate > DateTime.Now);
+                            }
+                            <div class="mp-card mp-product-card @(isPromoted ? "mp-promoted-card" : "")">
                                 <div class="mp-img-wrapper">
-                                    <span class="mp-badge-tag shadow-sm">@post.Category</span>
+                                    <div class="d-flex flex-column gap-2 position-absolute" style="top: 10px; left: 10px; z-index: 10;">
+                                        @if (isPromoted)
+                                        {
+                                            <span class="badge rounded-pill shadow mp-badge-sponsored fw-bold" style="font-family: 'Outfit', sans-serif;">
+                                                <i class="bi bi-fire me-1"></i> ĐƯỢC TÀI TRỢ
+                                            </span>
+                                        }
+                                        <span class="mp-badge-tag shadow-sm align-self-start position-relative" style="top: auto; left: auto; opacity: 0.9;">@post.Category</span>
+                                    </div>
                                     <div class="mp-img-inner shadow-sm">
                                         @if (post.MarketplacePostImages != null && post.MarketplacePostImages.Any())
                                         {

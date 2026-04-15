@@ -23,6 +23,7 @@ namespace COMICZONE.Services
             var query = _context.MarketplacePosts
                 .Include(p => p.Seller)
                 .Include(p => p.MarketplacePostImages)
+                .Include(p => p.MarketplacePostPromotions)
                 .Where(p => p.Status == status && p.Isdeleted == false);
 
             // Filtering
@@ -57,12 +58,12 @@ namespace COMICZONE.Services
             // Sorting
             query = sortOrder switch
             {
-                "date_asc" => query.OrderBy(p => p.Createdat),
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
-                "title_asc" => query.OrderBy(p => p.Title),
-                "title_desc" => query.OrderByDescending(p => p.Title),
-                _ => query.OrderByDescending(p => p.Createdat),
+                "date_asc" => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenBy(p => p.Createdat),
+                "price_asc" => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenByDescending(p => p.Price),
+                "title_asc" => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenBy(p => p.Title),
+                "title_desc" => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenByDescending(p => p.Title),
+                _ => query.OrderByDescending(p => p.MarketplacePostPromotions.Any(mp => mp.Status == "Active" && mp.EndDate > DateTime.Now)).ThenByDescending(p => p.Createdat),
             };
 
             // Pagination
@@ -121,6 +122,7 @@ namespace COMICZONE.Services
         {
             var query = _context.MarketplacePosts
                 .Include(p => p.MarketplacePostImages)
+                .Include(p => p.MarketplacePostPromotions)
                 .Where(p => p.Sellerid == sellerId && p.Isdeleted == false);
 
             int totalCount = await query.CountAsync();
@@ -235,6 +237,90 @@ namespace COMICZONE.Services
         {
             return await _context.Customers
                 .FirstOrDefaultAsync(c => c.Userid == userId);
+        }
+
+        // Promotions
+        public async Task<MarketplacePostPromotion> PromotePostAsync(int postId, int userId, int days, decimal totalAmount, string paymentMethod)
+        {
+            var promotion = new MarketplacePostPromotion
+            {
+                Postid = postId,
+                Userid = userId,
+                PromotionType = paymentMethod, // Store payment method here for tracking
+                Price = totalAmount,
+                Status = "Pending",
+                CreatedAt = DateTime.Now,
+                // EndDate & StartDate are left null for Pending, initialized upon Activation
+            };
+            
+            // We temporarily store the requested duration inside EndDate until it activates, or we can just infer it later?
+            // Actually, we can store StartDate = Now, EndDate = Now + days, but keep Status = "Pending".
+            // Then on Activate, we re-stamp StartDate and EndDate.
+            var now = DateTime.Now;
+            promotion.StartDate = now;
+            promotion.EndDate = now.AddDays(days);
+
+            _context.MarketplacePostPromotions.Add(promotion);
+            await _context.SaveChangesAsync();
+
+            return promotion;
+        }
+
+        public async Task<MarketplacePostPromotion?> GetPromotionByIdAsync(int promotionId)
+        {
+            return await _context.MarketplacePostPromotions.FindAsync(promotionId);
+        }
+
+        public async Task<bool> ActivatePromotionAsync(int promotionId)
+        {
+            var promotion = await _context.MarketplacePostPromotions.FindAsync(promotionId);
+            if (promotion == null || promotion.Status == "Active") return false;
+
+            // Recalculate dates based on the differential from Creation
+            int days = (promotion.EndDate.Value - promotion.StartDate.Value).Days;
+            if (days <= 0) days = 1;
+
+            var now = DateTime.Now;
+            promotion.StartDate = now;
+            promotion.EndDate = now.AddDays(days);
+            promotion.Status = "Active";
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> CancelPromotionAsync(int promotionId)
+        {
+            var promotion = await _context.MarketplacePostPromotions.FindAsync(promotionId);
+            if (promotion == null) return false;
+
+            promotion.Status = "Cancelled";
+            // promotion.EndDate = DateTime.Now; // Don't overwrite, so we can restore original duration
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RestorePromotionAsync(int promotionId)
+        {
+            var promotion = await _context.MarketplacePostPromotions.FindAsync(promotionId);
+            if (promotion == null) return false;
+
+            // Restoring only makes sense if it was cancelled
+            if (promotion.Status != "Cancelled") return false;
+
+            // If it's already past the end date, set it to Completed instead of Active
+            if (promotion.EndDate.HasValue && promotion.EndDate.Value <= DateTime.Now)
+            {
+                promotion.Status = "Completed";
+            }
+            else
+            {
+                promotion.Status = "Active";
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

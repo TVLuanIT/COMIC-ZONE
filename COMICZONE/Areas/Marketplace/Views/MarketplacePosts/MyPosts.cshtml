@@ -101,6 +101,10 @@
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-dropdown animate slideIn">
                                                     <li><a class="dropdown-item py-2" asp-action="Details" asp-route-id="@post.Id"><i class="bi bi-eye me-2 text-primary"></i>Xem chi tiết</a></li>
+                                                    @if (post.Status == "Approved" && !post.MarketplacePostPromotions.Any(p => p.Status == "Active" && p.EndDate > DateTime.Now))
+                                                    {
+                                                        <li><a class="dropdown-item py-2 fw-bold text-danger" asp-action="PromotionCheckout" asp-route-postId="@post.Id"><i class="bi bi-megaphone me-2"></i>Quảng cáo bài đăng</a></li>
+                                                    }
                                                     @if (post.Status != "Sold")
                                                     {
                                                         <li><a class="dropdown-item py-2" href="#"><i class="bi bi-pencil me-2 text-info"></i>Sửa (Sắp có)</a></li>

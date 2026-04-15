@@ -129,6 +129,29 @@
     border-color: rgba(99, 102, 241, 0.3);
 }
 
+/* Premium Promoted (Sponsored) Card Styles */
+.mp-promoted-card {
+    border: 1px solid rgba(255, 215, 0, 0.5) !important;
+    background: linear-gradient(to bottom, #fff, #fffaf0) !important;
+    box-shadow: 0 10px 30px -10px rgba(255, 184, 0, 0.25), 
+                0 0 20px rgba(255, 215, 0, 0.1) !important;
+}
+
+.mp-promoted-card:hover {
+    border-color: rgba(255, 215, 0, 0.8) !important;
+    box-shadow: 0 20px 40px -12px rgba(255, 184, 0, 0.4),
+                0 0 30px rgba(255, 215, 0, 0.2) !important;
+}
+
+.mp-badge-sponsored {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+    color: #1e1b4b !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 0.08em;
+    padding: 6px 14px !important;
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
 .mp-img-wrapper {
     position: relative;
     height: 280px;

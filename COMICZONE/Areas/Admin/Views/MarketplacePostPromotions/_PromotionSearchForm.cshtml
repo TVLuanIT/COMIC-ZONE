@@ -1,0 +1,60 @@
+@model COMICZONE.Areas.Admin.ViewModels.MarketplacePostPromotionSearchModel
+
+<div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
+    <div class="card-body p-4">
+        <form method="get" asp-action="Index" id="searchForm" class="row g-3">
+            <input type="hidden" asp-for="SortColumn" />
+            <input type="hidden" asp-for="IsAscending" />
+            <input type="hidden" asp-for="Page" />
+
+            <!-- Keyword Search -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-muted small">Từ khóa</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="ti ti-search text-muted"></i></span>
+                    <input type="text" asp-for="Keyword" class="form-control border-start-0 ps-0" placeholder="Id, Tên ng.dùng, Tên gói...">
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold text-muted small">Trạng thái</label>
+                <select asp-for="Status" class="form-select text-secondary">
+                    <option value="">Tất cả</option>
+                    <option value="Active">Đang chạy</option>
+                    <option value="Pending">Chờ thanh toán</option>
+                    <option value="Completed">Đã kết thúc</option>
+                    <option value="Cancelled">Đã hủy</option>
+                </select>
+            </div>
+
+            <!-- IsDeleted -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold text-muted small">Hiển thị</label>
+                <select asp-for="IsDeleted" class="form-select text-secondary">
+                    <option value="false">Hiện tại</option>
+                    <option value="true">Đã xóa mềm</option>
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+
+            <!-- Date Range -->
+            <div class="col-md-3 d-flex gap-2">
+                <div class="w-50">
+                    <label class="form-label fw-semibold text-muted small">Từ ngày</label>
+                    <input type="date" asp-for="CreatedFrom" class="form-control text-secondary">
+                </div>
+                <div class="w-50">
+                    <label class="form-label fw-semibold text-muted small">Đến ngày</label>
+                    <input type="date" asp-for="CreatedTo" class="form-control text-secondary">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
+                <a asp-action="Index" class="btn btn-light border" title="Xóa bộ lọc"><i class="ti ti-refresh"></i></a>
+            </div>
+        </form>
+    </div>
+</div>

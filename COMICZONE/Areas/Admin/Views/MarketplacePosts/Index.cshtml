@@ -97,7 +97,18 @@
                                                 "Rejected" => "Từ chối", "Sold" => "Đã bán", _ => item.Status
                                             };
                                         }
+                                        @{
+                                            var activePromo = item.MarketplacePostPromotions?.FirstOrDefault(p => p.Status == "Active" && p.EndDate > DateTime.Now);
+                                        }
                                         <span class="badge rounded-pill px-2 py-1 @statusBadge">@statusText</span>
+                                        @if (activePromo != null)
+                                        {
+                                            <div class="mt-1">
+                                                <span class="badge bg-warning text-dark border border-warning-subtle shadow-sm" style="font-size: 0.65rem;" title="Hết hạn: @activePromo.EndDate?.ToString("dd/MM/yyyy HH:mm")">
+                                                    <i class="ti ti-star-filled me-1"></i> TÀI TRỢ
+                                                </span>
+                                            </div>
+                                        }
                                     </td>
                                     <td class="small text-muted">@item.Createdat?.ToString("dd/MM/yyyy")</td>
                                     <td class="text-center">
@@ -120,6 +131,7 @@
 
                                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="ti ti-info-circle"></i></a>
                                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+                                            <button class="btn btn-sm btn-outline-primary btn-promote-post" data-id="@item.Id" data-title="@item.Title" title="Tặng quảng cáo"><i class="ti ti-speakerphone"></i></button>
                                             <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa vĩnh viễn"><i class="ti ti-trash"></i></a>
 
                                             <button class="btn btn-sm btn-outline-secondary btn-toggle-delete-post" data-id="@item.Id"
@@ -147,3 +159,115 @@
         }
     </div>
 </div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Approve Post
+            $('.btn-approve-post').click(function () {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: 'Duyệt bài đăng?',
+                    text: "Bài đăng này sẽ được hiển thị công khai trên Marketplace.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("Approve")', { id: id }, function (res) {
+                            if (res.success) {
+                                Swal.fire('Thành công!', 'Bài đăng đã được duyệt.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', 'Không thể duyệt bài đăng.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Reject Post
+            $('.btn-reject-post').click(function () {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: 'Từ chối bài đăng?',
+                    text: "Bạn có chắc chắn muốn từ chối bài đăng này?",
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Từ chối',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("Reject")', { id: id }, function (res) {
+                            if (res.success) {
+                                Swal.fire('Đã từ chối!', 'Bài đăng đã được chuyển trạng thái.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', 'Không thể thực hiện tao tác.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Toggle Delete
+            $('.btn-toggle-delete-post').click(function () {
+                var id = $(this).data('id');
+                $.post('@Url.Action("ToggleDelete")', { id: id }, function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire('Lỗi!', 'Không thể thay đổi trạng thái ẩn hiện.', 'error');
+                    }
+                });
+            });
+
+            // GIFT PROMOTION (NEW)
+            $('.btn-promote-post').click(function () {
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                Swal.fire({
+                    title: 'Tặng quảng cáo nổi bật',
+                    html: `Tặng gói tài trợ cho bài đăng:<br><b>${title}</b><br><br>Nhập số ngày muốn tặng:`,
+                    input: 'number',
+                    inputValue: 7,
+                    inputAttributes: {
+                        min: 1,
+                        max: 90,
+                        step: 1
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Tặng ngay',
+                    cancelButtonText: 'Hủy',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (days) => {
+                        return $.ajax({
+                            url: '@Url.Action("Promote")',
+                            type: 'POST',
+                            data: { id: id, days: days }
+                        }).then(response => {
+                            if (!response.success) {
+                                throw new Error(response.message || 'Lỗi không xác định')
+                            }
+                            return response;
+                        }).catch(error => {
+                            Swal.showValidationMessage(`Yêu cầu thất bại: ${error.message}`)
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: result.value.message,
+                            icon: 'success'
+                        }).then(() => location.reload());
+                    }
+                })
+            });
+        });
+    </script>
+}

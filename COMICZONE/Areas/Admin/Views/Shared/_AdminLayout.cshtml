@@ -257,7 +257,7 @@
 
                 <!-- 5.5. Marketplace -->
                 <li class="nav-item">
-                    <a class="nav-link @(controller == "MarketplacePosts" ? "active" : "")"
+                    <a class="nav-link @(controller == "MarketplacePosts" || controller == "MarketplacePostPromotions" ? "active" : "")"
                        data-bs-toggle="collapse" href="#marketplaceMenu">
                         <i class="ti ti-building-store"></i>
                         <span class="nav-text">Marketplace</span>
@@ -265,7 +265,7 @@
                         <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
-                    <ul class="collapse ps-3 @(controller == "MarketplacePosts" ? "show" : "")"
+                    <ul class="collapse ps-3 @(controller == "MarketplacePosts" || controller == "MarketplacePostPromotions" ? "show" : "")"
                         id="marketplaceMenu">
                         <li>
                             <a asp-area="Admin" asp-controller="MarketplacePosts" asp-action="Index"
@@ -273,7 +273,12 @@
                                 <i class="ti ti-package"></i> Quản lý bài đăng
                             </a>
                         </li>
-
+                        <li>
+                            <a asp-area="Admin" asp-controller="MarketplacePostPromotions" asp-action="Index"
+                               class="@(controller == "MarketplacePostPromotions" ? "active" : "")">
+                                <i class="ti ti-speakerphone"></i> Lịch sử quảng cáo
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
