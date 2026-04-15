@@ -21,7 +21,7 @@ const ChatApp = {
         this.setupFormHandlers();
 
         if (this.activeUserId) {
-            this.openConversation(this.activeUserId);
+            this.openConversation(this.activeUserId, this.config.initialOtherUserName, this.config.initialOtherUserAvatar);
         }
     },
 

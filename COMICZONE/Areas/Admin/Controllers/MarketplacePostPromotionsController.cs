@@ -16,11 +16,13 @@ namespace COMICZONE.Areas.Admin.Controllers
     {
         private readonly ComiczoneContext _context;
         private readonly IMarketplaceService _marketplaceService;
+        private readonly INotificationService _notificationService;
 
-        public MarketplacePostPromotionsController(ComiczoneContext context, IMarketplaceService marketplaceService)
+        public MarketplacePostPromotionsController(ComiczoneContext context, IMarketplaceService marketplaceService, INotificationService notificationService)
         {
             _context = context;
             _marketplaceService = marketplaceService;
+            _notificationService = notificationService;
         }
 
         // ==================== INDEX ====================
@@ -60,19 +62,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             var adminIdStr = HttpContext.Session.GetString("UserId");
             int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
 
-            _context.Notifications.Add(new Notification
-            {
-                UserId = promotion.Userid,
-                Title = "Quảng cáo bị hủy bởi Admin",
-                Message = $"Gói quảng cáo cho bài đăng \"{promotion.Post?.Title}\" đã bị Admin hủy bỏ.",
-                CreatedBy = adminId,
-                CreatedAt = DateTime.Now,
-                IsRead = false,
-                Link = "/Marketplace/MarketplacePosts/Index"
-            });
+            await _notificationService.SendNotificationAsync(promotion.Userid, adminId, "Quảng cáo bị hủy bởi Admin", $"Gói quảng cáo cho bài đăng \"{promotion.Post?.Title}\" đã bị Admin hủy bỏ.", "/Marketplace/MarketplacePosts/MyPosts");
 
-            await _context.SaveChangesAsync();
-            
             return Json(new { success = true, message = "Đã huỷ gói quảng cáo thành công." });
         }
 
@@ -102,20 +93,10 @@ namespace COMICZONE.Areas.Admin.Controllers
                 notificationMessage = $"Gói quảng cáo cho bài đăng \"{promotion.Post?.Title}\" đã được khôi phục nhưng hiện đã hết hạn.";
             }
 
-            _context.Notifications.Add(new Notification
-            {
-                UserId = promotion.Userid,
-                Title = notificationTitle,
-                Message = notificationMessage,
-                CreatedBy = adminId,
-                CreatedAt = DateTime.Now,
-                IsRead = false,
-                Link = promotion.Status == "Active" 
+            await _notificationService.SendNotificationAsync(promotion.Userid, adminId, notificationTitle, notificationMessage, 
+                promotion.Status == "Active" 
                     ? $"/Marketplace/MarketplacePosts/Details/{promotion.Postid}" 
-                    : "/Marketplace/MarketplacePosts/MyPosts"
-            });
-
-            await _context.SaveChangesAsync();
+                    : "/Marketplace/MarketplacePosts/MyPosts");
 
             return Json(new { success = true, message = "Đã khôi phục gói quảng cáo thành công." });
         }

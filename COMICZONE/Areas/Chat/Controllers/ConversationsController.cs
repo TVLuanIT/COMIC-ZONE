@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using COMICZONE.Services;
 using COMICZONE.Models;
+using COMICZONE.Data;
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
@@ -14,11 +15,13 @@ namespace COMICZONE.Areas.Chat.Controllers
     {
         private readonly IChatService _chatService;
         private readonly IMarketplaceService _marketplaceService;
+        private readonly ComiczoneContext _context;
 
-        public ConversationsController(IChatService chatService, IMarketplaceService marketplaceService)
+        public ConversationsController(IChatService chatService, IMarketplaceService marketplaceService, ComiczoneContext context)
         {
             _chatService = chatService;
             _marketplaceService = marketplaceService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index(int? otherUserId = null, int? postId = null)
@@ -36,6 +39,8 @@ namespace COMICZONE.Areas.Chat.Controllers
             if (otherUserId.HasValue)
             {
                 await _chatService.MarkAsReadAsync(currentUserId, otherUserId.Value);
+                var otherUser = await _context.Users.FindAsync(otherUserId.Value);
+                ViewBag.OtherUser = otherUser;
             }
 
             if (postId.HasValue)

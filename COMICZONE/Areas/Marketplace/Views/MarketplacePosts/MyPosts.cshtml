@@ -107,10 +107,16 @@
                                                     }
                                                     @if (post.Status != "Sold")
                                                     {
-                                                        <li><a class="dropdown-item py-2" href="#"><i class="bi bi-pencil me-2 text-info"></i>Sửa (Sắp có)</a></li>
+                                                        <li><a class="dropdown-item py-2" asp-action="Edit" asp-route-id="@post.Id"><i class="bi bi-pencil me-2 text-info"></i>Sửa</a></li>
                                                     }
                                                     <li><hr class="dropdown-divider opacity-10"></li>
-                                                    <li><a class="dropdown-item py-2 text-danger" href="#"><i class="bi bi-trash me-2"></i>Gỡ tin</a></li>
+                                                    <li>
+                                                        <form asp-action="Delete" asp-route-id="@post.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn gỡ tin này?');">
+                                                            <button type="submit" class="dropdown-item py-2 text-danger bg-transparent text-start w-100 border-0 m-0">
+                                                                <i class="bi bi-trash me-2"></i>Gỡ tin
+                                                            </button>
+                                                        </form>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </td>

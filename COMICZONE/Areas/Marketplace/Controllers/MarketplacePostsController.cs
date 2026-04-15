@@ -175,6 +175,88 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             }
             return View(post);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            if (!IsLoggedIn())
+            {
+                TempData["LoginRequired"] = "Bạn cần đăng nhập để thực hiện chức năng này.";
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+            }
+
+            var post = await _marketplaceService.GetPostByIdAsync(id);
+            if (post == null) return NotFound();
+
+            if (post.Sellerid != int.Parse(CurrentUserId()))
+            {
+                TempData["Error"] = "Bạn không có quyền chỉnh sửa bài đăng này.";
+                return RedirectToAction("MyPosts");
+            }
+
+            return View(post);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, MarketplacePost post)
+        {
+            if (!IsLoggedIn()) return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            if (id != post.Id) return NotFound();
+
+            var existingPost = await _marketplaceService.GetPostByIdAsync(id);
+            if (existingPost == null || existingPost.Sellerid != int.Parse(CurrentUserId()))
+            {
+                return RedirectToAction("MyPosts");
+            }
+
+            ModelState.Remove("Seller");
+            ModelState.Remove("Status");
+            ModelState.Remove("Condition");
+            ModelState.Remove("Category");
+            ModelState.Remove("MarketplacePostImages");
+            ModelState.Remove("MarketplaceFavorites");
+            ModelState.Remove("MarketplaceMessages");
+
+            if (ModelState.IsValid)
+            {
+                bool result = await _marketplaceService.UpdatePostAsync(post);
+                if (result)
+                {
+                    TempData["Success"] = "Cập nhật thành công. Bài đăng đang chờ phê duyệt lại.";
+                    return RedirectToAction("MyPosts");
+                }
+            }
+
+            return View(post);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsLoggedIn()) return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            var existingPost = await _marketplaceService.GetPostByIdAsync(id);
+            if (existingPost == null || existingPost.Sellerid != int.Parse(CurrentUserId()))
+            {
+                return RedirectToAction("MyPosts");
+            }
+
+            bool result = await _marketplaceService.DeletePostAsync(id);
+            if (result)
+            {
+                TempData["Success"] = "Tin đăng đã được xóa thành công.";
+            }
+            else
+            {
+                TempData["Error"] = "Có lỗi xảy ra khi xóa tin.";
+            }
+
+            return RedirectToAction("MyPosts");
+        }
+
         [HttpPost]
         public async Task<IActionResult> SendMessage([FromBody] MessageRequest request)
         {

@@ -1,3 +1,4 @@
+@inject COMICZONE.Data.ComiczoneContext DbContext
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -327,6 +328,13 @@
                 </a>
                 <a href="https://zalo.me/0373801713" target="_blank" class="contact-icon zalo-icon" title="Chat qua Zalo">
                     <i class="bi bi-chat-text-fill"></i>
+                </a>
+                @{
+                    var adminUser = DbContext.Users.FirstOrDefault(u => u.Email == "luan31032004@gmail.com");
+                    var adminChatLink = adminUser != null ? $"/Chat?otherUserId={adminUser.Id}" : "/Chat";
+                }
+                <a href="@adminChatLink" class="contact-icon admin-icon" title="Chat với Admin">
+                    <i class="bi bi-headset"></i>
                 </a>
                 <div id="chatbot-icon" class="contact-icon bot-icon" title="Chat với AI Trợ lý">
                     <i class="bi bi-chat-dots-fill"></i>

@@ -20,12 +20,14 @@ namespace COMICZONE.Areas.Admin.Controllers
         private readonly ComiczoneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMarketplaceService _marketplaceService;
+        private readonly INotificationService _notificationService;
 
-        public MarketplacePostsController(ComiczoneContext context, IWebHostEnvironment webHostEnvironment, IMarketplaceService marketplaceService)
+        public MarketplacePostsController(ComiczoneContext context, IWebHostEnvironment webHostEnvironment, IMarketplaceService marketplaceService, INotificationService notificationService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _marketplaceService = marketplaceService;
+            _notificationService = notificationService;
         }
 
         // ==================== INDEX ====================
@@ -89,11 +91,28 @@ namespace COMICZONE.Areas.Admin.Controllers
             var post = await _context.MarketplacePosts.FindAsync(id);
             if (post == null) return NotFound();
 
+            var oldStatus = post.Status;
             post.Status = model.Status;
             post.Isdeleted = model.Isdeleted;
             post.Updatedat = DateTime.Now;
 
             await _context.SaveChangesAsync();
+
+            // Send notification if status changed to Approved or Rejected
+            if (oldStatus != post.Status)
+            {
+                var adminIdStr = HttpContext.Session.GetString("UserId");
+                int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
+
+                if (post.Status == "Approved")
+                {
+                    await _notificationService.SendNotificationAsync(post.Sellerid, adminId, "Bài đăng được duyệt", $"Bài đăng \"{post.Title}\" của bạn đã được duyệt.", $"/Marketplace/MarketplacePosts/Details/{post.Id}");
+                }
+                else if (post.Status == "Rejected")
+                {
+                    await _notificationService.SendNotificationAsync(post.Sellerid, adminId, "Bài đăng bị từ chối", $"Bài đăng \"{post.Title}\" của bạn không được duyệt.", "/Marketplace/MarketplacePosts/MyPosts");
+                }
+            }
 
             TempData["Success"] = $"Đã cập nhật bài đăng #{post.Id} thành công.";
             return RedirectToAction(nameof(Index));
@@ -164,18 +183,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             var adminIdStr = HttpContext.Session.GetString("UserId");
             int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
 
-            _context.Notifications.Add(new Notification
-            {
-                UserId = post.Sellerid,
-                Title = "Bài đăng được duyệt",
-                Message = $"Bài đăng \"{post.Title}\" của bạn đã được duyệt.",
-                CreatedBy = adminId,
-                CreatedAt = DateTime.Now,
-                IsRead = false,
-                Link = $"/Marketplace/MarketplacePosts/Details/{post.Id}"
-            });
+            await _notificationService.SendNotificationAsync(post.Sellerid, adminId, "Bài đăng được duyệt", $"Bài đăng \"{post.Title}\" của bạn đã được duyệt.", $"/Marketplace/MarketplacePosts/Details/{post.Id}");
 
-            await _context.SaveChangesAsync();
             return Json(new { success = true, status = "Approved" });
         }
 
@@ -192,18 +201,8 @@ namespace COMICZONE.Areas.Admin.Controllers
             var adminIdStr = HttpContext.Session.GetString("UserId");
             int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
 
-            _context.Notifications.Add(new Notification
-            {
-                UserId = post.Sellerid,
-                Title = "Bài đăng bị từ chối",
-                Message = $"Bài đăng \"{post.Title}\" của bạn không được duyệt.",
-                CreatedBy = adminId,
-                CreatedAt = DateTime.Now,
-                IsRead = false,
-                Link = "/Marketplace/MarketplacePosts/Index"
-            });
+            await _notificationService.SendNotificationAsync(post.Sellerid, adminId, "Bài đăng bị từ chối", $"Bài đăng \"{post.Title}\" của bạn không được duyệt.", "/Marketplace/MarketplacePosts/MyPosts");
 
-            await _context.SaveChangesAsync();
             return Json(new { success = true, status = "Rejected" });
         }
 
@@ -242,18 +241,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 var adminIdStr = HttpContext.Session.GetString("UserId");
                 int? adminId = int.TryParse(adminIdStr, out var parsedId) ? parsedId : null;
 
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = post.Sellerid,
-                    Title = "Bài đăng được tặng quảng cáo",
-                    Message = $"Bài đăng \"{post.Title}\" của bạn đã được Admin tặng gói quảng cáo nổi bật trong {days} ngày.",
-                    CreatedBy = adminId,
-                    CreatedAt = DateTime.Now,
-                    IsRead = false,
-                    Link = $"/Marketplace/MarketplacePosts/Details/{post.Id}"
-                });
-
-                await _context.SaveChangesAsync();
+                await _notificationService.SendNotificationAsync(post.Sellerid, adminId, "Bài đăng được tặng quảng cáo", $"Bài đăng \"{post.Title}\" của bạn đã được Admin tặng gói quảng cáo nổi bật trong {days} ngày.", $"/Marketplace/MarketplacePosts/Details/{post.Id}");
 
                 return Json(new { success = true, message = $"Đã tặng quảng cáo {days} ngày thành công." });
             }

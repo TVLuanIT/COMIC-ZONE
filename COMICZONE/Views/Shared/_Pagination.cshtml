@@ -27,7 +27,42 @@
         }
 
         @* PAGE NUMBERS *@
-        @for (int i = 1; i <= Model.TotalPages; i++)
+        @{
+            int startPage = 1;
+            int endPage = Model.TotalPages;
+            bool showStartEllipsis = false;
+            bool showEndEllipsis = false;
+
+            if (Model.TotalPages > 7)
+            {
+                if (Model.CurrentPage <= 4)
+                {
+                    endPage = 5;
+                    showEndEllipsis = true;
+                }
+                else if (Model.CurrentPage >= Model.TotalPages - 3)
+                {
+                    startPage = Model.TotalPages - 4;
+                    showStartEllipsis = true;
+                }
+                else
+                {
+                    startPage = Model.CurrentPage - 2;
+                    endPage = Model.CurrentPage + 2;
+                    showStartEllipsis = true;
+                    showEndEllipsis = true;
+                }
+            }
+        }
+
+        @if (showStartEllipsis)
+        {
+            routeValues[Model.PageParam] = "1";
+            <a asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="@Model.Action" asp-all-route-data="routeValues" class="page-link-premium">1</a>
+            <span class="page-link-premium ellipsis">...</span>
+        }
+
+        @for (int i = startPage; i <= endPage; i++)
         {
             routeValues[Model.PageParam] = i.ToString();
 
@@ -38,6 +73,13 @@
                class="page-link-premium @(i == Model.CurrentPage ? "active" : "")">
                 @i
             </a>
+        }
+
+        @if (showEndEllipsis)
+        {
+            <span class="page-link-premium ellipsis">...</span>
+            routeValues[Model.PageParam] = Model.TotalPages.ToString();
+            <a asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="@Model.Action" asp-all-route-data="routeValues" class="page-link-premium">@Model.TotalPages</a>
         }
 
         @* NEXT *@

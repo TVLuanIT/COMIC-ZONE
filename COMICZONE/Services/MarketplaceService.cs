@@ -90,6 +90,26 @@ namespace COMICZONE.Services
             return post;
         }
 
+        public async Task<bool> UpdatePostAsync(MarketplacePost post)
+        {
+            var existingPost = await _context.MarketplacePosts.FindAsync(post.Id);
+            if (existingPost == null || existingPost.Isdeleted == true) return false;
+
+            existingPost.Title = post.Title;
+            existingPost.Price = post.Price;
+            existingPost.Condition = post.Condition;
+            existingPost.ConditionEnum = post.ConditionEnum;
+            existingPost.Category = post.Category;
+            existingPost.CategoryEnum = post.CategoryEnum;
+            existingPost.Description = post.Description;
+            existingPost.Updatedat = DateTime.Now;
+            existingPost.StatusEnum = MarketplacePostStatus.Pending; // Requires re-approval
+            existingPost.Status = MarketplacePostStatus.Pending.ToString();
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> UpdatePostStatusAsync(int postId, string status)
         {
             var post = await _context.MarketplacePosts.FindAsync(postId);

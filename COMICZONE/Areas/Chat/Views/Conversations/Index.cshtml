@@ -154,6 +154,8 @@
             ChatApp.init({
                 currentUserId: @currentUserId,
                 initialOtherUserId: @(ViewBag.OtherUserId ?? "null"),
+                initialOtherUserName: '@(ViewBag.OtherUser?.Username ?? "")',
+                initialOtherUserAvatar: '@(ViewBag.OtherUser?.Avatar ?? "/img/default-avatar.png")',
                 getMessagesUrl: '@Url.Action("GetMessages", "Conversations", new { area = "Chat" })',
                 sendMessageUrl: '@Url.Action("SendMessage", "Conversations", new { area = "Chat" })',
                 recallMessageUrl: '@Url.Action("RecallMessage", "Conversations", new { area = "Chat" })'
