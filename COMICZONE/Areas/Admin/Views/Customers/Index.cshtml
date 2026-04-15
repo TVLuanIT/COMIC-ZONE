@@ -40,22 +40,22 @@
                 <thead class="table-light border-bottom fw-bold text-uppercase small">
                     <tr class="align-middle">
                         <th class="ps-3">
-                            @Html.SortHeader("Họ tên", "Fullname", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Họ tên", "Fullname", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending)
                         </th>
                         <th>
-                            @Html.SortHeader("Số điện thoại", "Phone", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Số điện thoại", "Phone", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending)
                         </th>
                         <th>
-                            @Html.SortHeader("Email", "Email", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Email", "Email", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending)
                         </th>
                         <th>
-                            @Html.SortHeader("Địa chỉ", "Address", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Địa chỉ", "Address", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending)
                         </th>
                         <th>
                             Trạng thái
                         </th>
                         <th>
-                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Ngày tạo", "Createdat", searchModel.SortColumn ?? "Customerid", searchModel.IsAscending)
                         </th>
                         <th class="text-center pe-3">Hành động</th>
                     </tr>

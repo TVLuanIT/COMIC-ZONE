@@ -7,6 +7,8 @@
     var searchModel = ViewBag.SearchModel as COMICZONE.Areas.Admin.ViewModels.ViolationReportSearchRequest ?? new COMICZONE.Areas.Admin.ViewModels.ViolationReportSearchRequest();
     var reviewContents = ViewBag.ReviewContents as Dictionary<int, string> ?? new Dictionary<int, string>();
     var replyContents = ViewBag.ReplyContents as Dictionary<int, string> ?? new Dictionary<int, string>();
+    var blogCommentContents = ViewBag.BlogCommentContents as Dictionary<int, string> ?? new Dictionary<int, string>();
+    var blogReplyContents = ViewBag.BlogReplyContents as Dictionary<int, string> ?? new Dictionary<int, string>();
 }
 
 <div class="container-fluid py-4">
@@ -91,17 +93,20 @@
                             </td>
 
                             <td>
-                                @if (item.ReportTypeEnum == COMICZONE.Models.Enums.ReportType.Review)
+                                @switch (item.ReportTypeEnum)
                                 {
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-2">
-                                        Đánh giá
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2">
-                                        Phản hồi
-                                    </span>
+                                    case ReportType.Review:
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2">Đánh giá SP</span>
+                                        break;
+                                    case ReportType.Reply:
+                                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2">Phản hồi SP</span>
+                                        break;
+                                    case ReportType.BlogComment:
+                                        <span class="badge bg-orange-subtle text-orange border border-orange-subtle px-2">Bình luận Blog</span>
+                                        break;
+                                    case ReportType.BlogCommentReply:
+                                        <span class="badge bg-teal-subtle text-teal border border-teal-subtle px-2">Phản hồi Blog</span>
+                                        break;
                                 }
                             </td>
 
@@ -109,10 +114,13 @@
                                 <div class="d-flex flex-column" style="max-width: 300px;">
                                     @{
                                         string contextContent = "";
-                                        if (item.ReportTypeEnum == COMICZONE.Models.Enums.ReportType.Review) 
-                                            reviewContents.TryGetValue(item.Targetid, out contextContent);
-                                        else 
-                                            replyContents.TryGetValue(item.Targetid, out contextContent);
+                                        switch(item.ReportTypeEnum)
+                                        {
+                                            case ReportType.Review: reviewContents.TryGetValue(item.Targetid, out contextContent); break;
+                                            case ReportType.Reply: replyContents.TryGetValue(item.Targetid, out contextContent); break;
+                                            case ReportType.BlogComment: blogCommentContents.TryGetValue(item.Targetid, out contextContent); break;
+                                            case ReportType.BlogCommentReply: blogReplyContents.TryGetValue(item.Targetid, out contextContent); break;
+                                        }
                                     }
                                     <div class="text-muted small mb-1">
                                         <i class="ti ti-quote me-1"></i>
@@ -241,4 +249,12 @@
     .bg-purple-subtle { background-color: rgba(139, 92, 246, 0.1) !important; }
     .text-purple { color: #8b5cf6 !important; }
     .border-purple-subtle { border-color: rgba(139, 92, 246, 0.2) !important; }
+
+    .bg-orange-subtle { background-color: rgba(249, 115, 22, 0.1) !important; }
+    .text-orange { color: #f97316 !important; }
+    .border-orange-subtle { border-color: rgba(249, 115, 22, 0.2) !important; }
+
+    .bg-teal-subtle { background-color: rgba(20, 184, 166, 0.1) !important; }
+    .text-teal { color: #14b8a6 !important; }
+    .border-teal-subtle { border-color: rgba(20, 184, 166, 0.2) !important; }
 </style>

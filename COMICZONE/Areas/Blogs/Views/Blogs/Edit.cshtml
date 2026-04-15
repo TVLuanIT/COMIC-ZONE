@@ -1,0 +1,139 @@
+@model COMICZONE.Models.Blog
+@{
+    ViewData["Title"] = "Sửa bài viết";
+    var categories = ViewBag.Categories as List<COMICZONE.Models.BlogCategory>;
+}
+
+<div class="blog-hero mini-hero">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative z-index-2 py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-down">
+                <div class="badge-premium mb-3">
+                    <i class="bi bi-pencil-fill me-2"></i>Cập nhật nội dung
+                </div>
+                <h1 class="hero-title-main">Sửa <span class="text-gradient">Blog</span> Của Bạn</h1>
+                <p class="hero-subtitle">Cập nhật những đánh giá, tin tức và cảm xúc của bạn.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="py-5 bg-blogs-content">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-10 mx-auto">
+                <div class="create-blog-card" data-aos="fade-up">
+                    <form asp-action="Edit" asp-area="Blogs" asp-controller="Blogs" method="post" enctype="multipart/form-data" class="premium-form">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row g-4">
+                            <!-- Left Side: Basic Info -->
+                            <div class="col-lg-8">
+                                <div class="form-group-premium mb-4">
+                                    <label asp-for="Title" class="form-label-premium">Tiêu đề bài viết</label>
+                                    <input asp-for="Title" class="form-control-premium" placeholder="Nhập tiêu đề hấp dẫn..." required />
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group-premium mb-4">
+                                    <label asp-for="Shortdescription" class="form-label-premium">Mô tả ngắn</label>
+                                    <textarea asp-for="Shortdescription" class="form-control-premium" rows="3" placeholder="Tóm tắt ngắn gọn nội dung bài viết..."></textarea>
+                                    <span asp-validation-for="Shortdescription" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group-premium mb-4">
+                                    <label asp-for="Content" class="form-label-premium">Nội dung chi tiết</label>
+                                    <textarea asp-for="Content" class="form-control-premium" rows="15" id="blog-content-editor" placeholder="Viết nội dung bài viết ở đây..."></textarea>
+                                    <span asp-validation-for="Content" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Right Side: Sidebar Options -->
+                            <div class="col-lg-4">
+                                <div class="sidebar-card-premium mb-4">
+                                    <div class="card-header-premium">
+                                        <i class="bi bi-image me-2"></i>
+                                        <h6 class="mb-0">Ảnh đại diện (Thumbnail)</h6>
+                                    </div>
+                                    <div class="card-body-premium">
+                                        <div class="thumbnail-upload-wrap">
+                                            <div class="thumbnail-preview-container mb-3" id="thumbnail-preview">
+                                                @{
+                                                    var thumbSrc = string.IsNullOrEmpty(Model?.Thumbnail) ? "/blogs/images/default-blog.png" : (Model.Thumbnail.StartsWith("http") ? Model.Thumbnail : "/uploads/blogs/" + Model.Thumbnail);
+                                                }
+                                                <img src="@thumbSrc" class="img-fluid rounded shadow-sm" alt="Preview">
+                                            </div>
+                                            <input type="file" name="thumbnailFile" id="thumbnail-input" class="d-none" accept="image/*" />
+                                            <button type="button" class="btn-cta-outline w-100" onclick="document.getElementById('thumbnail-input').click()">
+                                                <i class="bi bi-cloud-upload me-2"></i>Tải ảnh mới
+                                            </button>
+                                            <small class="text-muted d-block mt-2 text-center italic">Định dạng: JPG, PNG, WEBP. Tối đa 2MB.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="sidebar-card-premium mb-4">
+                                    <div class="card-header-premium">
+                                        <i class="bi bi-tags-fill me-2"></i>
+                                        <h6 class="mb-0">Danh mục bài viết</h6>
+                                    </div>
+                                    <div class="card-body-premium">
+                                        <div class="category-selection-list">
+                                            @if (categories != null)
+                                            {
+                                                var selectedCats = ViewBag.SelectedCategories as List<int> ?? new List<int>();
+                                                foreach (var cat in categories)
+                                                {
+                                                    <div class="form-check custom-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               name="selectedCategories" value="@cat.Id" 
+                                                               id="cat-@cat.Id" 
+                                                               @(selectedCats.Contains(cat.Id) ? "checked" : "")>
+                                                        <label class="form-check-label" for="cat-@cat.Id">
+                                                            @cat.Name
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState["selectedCategories"]?.Errors.Count > 0)
+                                        {
+                                            <div class="text-danger small mt-2">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                @Html.ValidationMessage("selectedCategories")
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="publish-card sidebar-card-premium">
+                                    <div class="card-body-premium p-4">
+                                        <div class="d-flex align-items-center mb-4 text-warning">
+                                            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                            <p class="small mb-0">Bài viết cập nhật sẽ được chuyển sang trạng thái <strong>Chờ phê duyệt</strong>.</p>
+                                        </div>
+                                        <button type="submit" class="btn-premium-grad w-100 py-3 mb-3">
+                                            <i class="bi bi-send-fill me-2"></i>Lưu thay đổi
+                                        </button>
+                                        <a asp-area="Account" asp-controller="UserProfiles" asp-action="MyBlogs" class="btn btn-outline-secondary w-100 py-2 border-blogs-dim text-blogs-dim">Hủy bỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/blogs/css/blogs-create.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/blogs/js/blogs-create.js" asp-append-version="true"></script>
+}

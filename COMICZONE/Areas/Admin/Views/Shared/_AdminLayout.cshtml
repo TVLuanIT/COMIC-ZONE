@@ -28,6 +28,8 @@
         <!-- Select2 -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+        
+        @RenderSection("Styles", required: false)
     </head>
 
     <body>
@@ -213,7 +215,7 @@
 
                 <!-- 5. Nội dung -->
                 <li class="nav-item">
-                    <a class="nav-link @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "active" : "")"
+                    <a class="nav-link @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" || controller == "BlogComments" || controller == "BlogCommentReplies" ? "active" : "")"
                        data-bs-toggle="collapse" href="#contentMenu">
                         <i class="ti ti-article"></i>
                         <span class="nav-text">Nội dung</span>
@@ -221,12 +223,19 @@
                         <i class="ti ti-chevron-down ms-auto icon-plus"></i>
                     </a>
 
-                    <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" ? "show" : "")"
+                    <ul class="collapse ps-3 @(controller == "ProductReviews" || controller == "Blogs" || controller == "BlogCategories" || controller == "BlogComments" || controller == "BlogCommentReplies" ? "show" : "")"
                         id="contentMenu">
                         <li>
                             <a asp-area="Admin" asp-controller="ProductReviews" asp-action="Index"
                                class="@(controller == "ProductReviews" ? "active" : "")">
-                                <i class="ti ti-star"></i> Quản lý đánh giá
+                                <i class="ti ti-star"></i> Đánh giá sản phẩm
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="BlogComments" asp-action="Index"
+                               class="@(controller == "BlogComments" || controller == "BlogCommentReplies" ? "active" : "")">
+                                <i class="ti ti-message-circle"></i> Bình luận blog
                             </a>
                         </li>
 
@@ -241,6 +250,33 @@
                             <a asp-area="Admin" asp-controller="BlogCategories" asp-action="Index"
                                class="@(controller == "BlogCategories" ? "active" : "")">
                                 <i class="ti ti-folder"></i> Danh mục blog
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 5.5. Marketplace -->
+                <li class="nav-item">
+                    <a class="nav-link @(controller == "MarketplacePosts" || controller == "MarketplacePostPromotions" ? "active" : "")"
+                       data-bs-toggle="collapse" href="#marketplaceMenu">
+                        <i class="ti ti-building-store"></i>
+                        <span class="nav-text">Marketplace</span>
+
+                        <i class="ti ti-chevron-down ms-auto icon-plus"></i>
+                    </a>
+
+                    <ul class="collapse ps-3 @(controller == "MarketplacePosts" || controller == "MarketplacePostPromotions" ? "show" : "")"
+                        id="marketplaceMenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="MarketplacePosts" asp-action="Index"
+                               class="@(controller == "MarketplacePosts" ? "active" : "")">
+                                <i class="ti ti-package"></i> Quản lý bài đăng
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="MarketplacePostPromotions" asp-action="Index"
+                               class="@(controller == "MarketplacePostPromotions" ? "active" : "")">
+                                <i class="ti ti-speakerphone"></i> Lịch sử quảng cáo
                             </a>
                         </li>
                     </ul>
@@ -303,6 +339,7 @@
         <!-- Modular Admin Scripts -->
         <script src="~/assets/js/admin-products.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-blogs.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-blog-comments.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-reviews.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-violations.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-orders.js" asp-append-version="true"></script>
@@ -314,6 +351,7 @@
         <script src="~/assets/js/admin-notifications.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-reports.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-refunds.js" asp-append-version="true"></script>
+        <script src="~/assets/js/admin-marketplace.js" asp-append-version="true"></script>
         <script src="~/assets/js/admin-common.js" asp-append-version="true"></script>
         <!-- main -->
         <script src="~/assets/js/main.js" asp-append-version="true"></script>

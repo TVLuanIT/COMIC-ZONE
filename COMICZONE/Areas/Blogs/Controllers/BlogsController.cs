@@ -138,7 +138,7 @@ namespace COMICZONE.Areas.Blogs.Controllers
                     if (thumbnailFile != null && thumbnailFile.Length > 0)
                     {
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnailFile.FileName);
-                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs");
+                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs");
 
                         if (!Directory.Exists(folderPath))
                             Directory.CreateDirectory(folderPath);
@@ -190,6 +190,152 @@ namespace COMICZONE.Areas.Blogs.Controllers
             ViewBag.Categories = await _context.BlogCategories.Where(c => !c.Isdeleted).ToListAsync();
             ViewBag.SelectedCategories = selectedCategories?.ToList() ?? new List<int>();
             return View(blog);
+        }
+
+        // GET: Blogs/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            if (!IsLoggedIn())
+            {
+                TempData["LoginRequired"] = "Bạn cần đăng nhập để sửa bài.";
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+            }
+
+            var blog = await _context.Blogs
+                .Include(b => b.Categories)
+                .FirstOrDefaultAsync(b => b.Id == id && !b.Isdeleted);
+
+            if (blog == null) return NotFound();
+
+            if (blog.Authorid != int.Parse(CurrentUserId()!))
+            {
+                TempData["Error"] = "Bạn không có quyền sửa bài viết này.";
+                return RedirectToAction("MyBlogs", "UserProfiles", new { area = "Account" });
+            }
+
+            ViewBag.Categories = await _context.BlogCategories.Where(c => !c.Isdeleted).ToListAsync();
+            ViewBag.SelectedCategories = blog.Categories.Select(c => c.Id).ToList();
+            
+            return View(blog);
+        }
+
+        // POST: Blogs/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Shortdescription,Content,Thumbnail")] Blog blog, int[] selectedCategories, IFormFile? thumbnailFile)
+        {
+            if (!IsLoggedIn()) return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            if (id != blog.Id) return NotFound();
+
+            ModelState.Remove("Author");
+            ModelState.Remove("Categories");
+            ModelState.Remove("Slug");
+            ModelState.Remove("Status");
+            ModelState.Remove("Thumbnail");
+
+            if (selectedCategories == null || selectedCategories.Length == 0)
+            {
+                ModelState.AddModelError("selectedCategories", "Vui lòng chọn ít nhất một danh mục cho bài viết.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingBlog = await _context.Blogs
+                        .Include(b => b.Categories)
+                        .FirstOrDefaultAsync(b => b.Id == id && !b.Isdeleted);
+
+                    if (existingBlog == null || existingBlog.Authorid != int.Parse(CurrentUserId()!))
+                    {
+                        return NotFound();
+                    }
+
+                    // Handle Thumbnail update
+                    if (thumbnailFile != null && thumbnailFile.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnailFile.FileName);
+                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs");
+
+                        if (!Directory.Exists(folderPath))
+                            Directory.CreateDirectory(folderPath);
+
+                        var filePath = Path.Combine(folderPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await thumbnailFile.CopyToAsync(stream);
+                        }
+                        existingBlog.Thumbnail = fileName;
+                    }
+
+                    existingBlog.Title = blog.Title;
+                    existingBlog.Shortdescription = blog.Shortdescription;
+                    existingBlog.Content = blog.Content;
+                    existingBlog.Updatedat = DateTime.Now;
+                    existingBlog.Status = BlogStatus.Pending.ToString();
+                    existingBlog.Slug = GenerateSlug(blog.Title);
+
+                    // Update Categories
+                    existingBlog.Categories.Clear();
+                    if (selectedCategories != null && selectedCategories.Length > 0)
+                    {
+                        foreach (var categoryId in selectedCategories)
+                        {
+                            var category = await _context.BlogCategories.FindAsync(categoryId);
+                            if (category != null)
+                            {
+                                existingBlog.Categories.Add(category);
+                            }
+                        }
+                    }
+
+                    _context.Update(existingBlog);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Bài viết đã được cập nhật và đang chờ phê duyệt lại.";
+                    return RedirectToAction("MyBlogs", "UserProfiles", new { area = "Account" });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BlogExists(blog.Id)) return NotFound();
+                    else throw;
+                }
+            }
+
+            ViewBag.Categories = await _context.BlogCategories.Where(c => !c.Isdeleted).ToListAsync();
+            ViewBag.SelectedCategories = selectedCategories?.ToList() ?? new List<int>();
+            return View(blog);
+        }
+
+        private bool BlogExists(int id)
+        {
+            return _context.Blogs.Any(e => e.Id == id);
+        }
+
+        // POST: Blogs/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsLoggedIn()) return RedirectToAction("Login", "Authentication", new { area = "Account" });
+
+            var existingBlog = await _context.Blogs.FindAsync(id);
+            if (existingBlog == null || existingBlog.Authorid != int.Parse(CurrentUserId()!))
+            {
+                return RedirectToAction("MyBlogs", "UserProfiles", new { area = "Account" });
+            }
+
+            existingBlog.Isdeleted = true;
+            existingBlog.Updatedat = DateTime.Now;
+            _context.Update(existingBlog);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Bài viết đã được xóa thành công.";
+            return RedirectToAction("MyBlogs", "UserProfiles", new { area = "Account" });
         }
 
         private string GenerateSlug(string title)

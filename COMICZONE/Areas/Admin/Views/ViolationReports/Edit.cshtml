@@ -1,4 +1,4 @@
-﻿@model COMICZONE.Models.ViolationReport
+@model COMICZONE.Models.ViolationReport
 @using COMICZONE.Models.Enums
 
 @{
@@ -9,6 +9,8 @@
 
     var reviewDict = ViewBag.ReviewContents as Dictionary<int, string>;
     var replyDict = ViewBag.ReplyContents as Dictionary<int, string>;
+    var blogCommentDict = ViewBag.BlogCommentContents as Dictionary<int, string>;
+    var blogReplyDict = ViewBag.BlogReplyContents as Dictionary<int, string>;
 }
 
 <div class="container mt-4">
@@ -36,8 +38,10 @@
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Loại báo cáo</label>
                         <select asp-for="Reporttype" class="form-select">
-                            <option value="1">Đánh giá</option>
-                            <option value="2">Phản hồi</option>
+                            <option value="1">Đánh giá SP</option>
+                            <option value="2">Phản hồi SP</option>
+                            <option value="3">Bình luận Blog</option>
+                            <option value="4">Phản hồi Blog</option>
                         </select>
                     </div>
 
@@ -47,15 +51,19 @@
 
                         @if (Model.ReportTypeEnum == ReportType.Review)
                         {
-                            content = reviewDict != null && reviewDict.ContainsKey(Model.Targetid)
-                            ? reviewDict[Model.Targetid]
-                            : "[Review đã bị xóa]";
+                            content = (reviewDict != null && reviewDict.ContainsKey(Model.Targetid)) ? reviewDict[Model.Targetid] : "[Dữ liệu đã bị xóa]";
                         }
-                        else
+                        else if (Model.ReportTypeEnum == ReportType.Reply)
                         {
-                            content = replyDict != null && replyDict.ContainsKey(Model.Targetid)
-                            ? replyDict[Model.Targetid]
-                            : "[Reply đã bị xóa]";
+                            content = (replyDict != null && replyDict.ContainsKey(Model.Targetid)) ? replyDict[Model.Targetid] : "[Dữ liệu đã bị xóa]";
+                        }
+                        else if (Model.ReportTypeEnum == ReportType.BlogComment)
+                        {
+                            content = (blogCommentDict != null && blogCommentDict.ContainsKey(Model.Targetid)) ? blogCommentDict[Model.Targetid] : "[Dữ liệu đã bị xóa]";
+                        }
+                        else if (Model.ReportTypeEnum == ReportType.BlogCommentReply)
+                        {
+                            content = (blogReplyDict != null && blogReplyDict.ContainsKey(Model.Targetid)) ? blogReplyDict[Model.Targetid] : "[Dữ liệu đã bị xóa]";
                         }
 
                         <input type="hidden" asp-for="Targetid" />

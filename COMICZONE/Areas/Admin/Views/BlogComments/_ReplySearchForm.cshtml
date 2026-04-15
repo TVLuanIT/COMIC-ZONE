@@ -1,0 +1,118 @@
+@model COMICZONE.Areas.Admin.ViewModels.BlogCommentReplySearchModel
+
+<form method="get" class="review-search-form mb-4 border p-3 rounded bg-light shadow-sm">
+    <input type="hidden" name="activeTab" value="Replies" />
+    <div class="row align-items-end g-3">
+        @* Basic Search *@
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Từ khóa</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text" name="replySearch.Keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Mã PH, Mã BL, Username, Nội dung...">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary">Trạng thái</label>
+            <select name="replySearch.IsDeleted" class="form-select">
+                <option value="">-- Tất cả --</option>
+                <option value="false" selected="@(Model.IsDeleted == false)">Đang hiển thị</option>
+                <option value="true" selected="@(Model.IsDeleted == true)">Đã ẩn</option>
+            </select>
+        </div>
+
+        <div class="col-md-7 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyAdvancedSearch" aria-expanded="false">
+                <i class="ti ti-adjustments-horizontal"></i> Nâng cao
+            </button>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-filter"></i> Lọc
+            </button>
+            <a asp-action="Index" asp-route-activeTab="Replies" class="btn btn-outline-secondary">
+                <i class="ti ti-refresh"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Advanced Search (Collapsible) *@
+    <div class="collapse mt-4 pt-4 border-top @(CheckIfAdvancedFiltersUsed() ? "show" : "")" id="replyAdvancedSearch">
+        <div class="row g-3">
+            @* User & Blog info *@
+            <div class="col-12"><h6 class="text-primary border-bottom pb-1">Thông tin Người dùng & Bài viết</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Username</label>
+                <input type="text" name="replySearch.Username" value="@Model.Username" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Email</label>
+                <input type="text" name="replySearch.UserEmail" value="@Model.UserEmail" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Tiêu đề blog</label>
+                <input type="text" name="replySearch.BlogTitle" value="@Model.BlogTitle" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Trả lời cho user</label>
+                <input type="text" name="replySearch.ReplyToUsername" value="@Model.ReplyToUsername" class="form-control" placeholder="Username...">
+            </div>
+
+            @* Hierarchy & Counts *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Phân cấp & Định lượng</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Lượt thích (Min - Max)</label>
+                <div class="input-group">
+                    <input type="number" name="replySearch.LikeCountMin" value="@Model.LikeCountMin" class="form-control" placeholder="Từ">
+                    <input type="number" name="replySearch.LikeCountMax" value="@Model.LikeCountMax" class="form-control" placeholder="Đến">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-wrap gap-3 pt-3 mt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="replySearch.TopLevelOnly" value="true" @(Model.TopLevelOnly == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary">Cấp 1</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="replySearch.ChildReplyOnly" value="true" @(Model.ChildReplyOnly == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold text-uppercase text-secondary text-info">Phản hồi con</label>
+                    </div>
+                </div>
+            </div>
+
+            @* Timeline *@
+            <div class="col-12 mt-4"><h6 class="text-primary border-bottom pb-1">Thời gian</h6></div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày tạo từ</label>
+                <input type="date" name="replySearch.CreatedFrom" value="@(Model.CreatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Ngày tạo đến</label>
+                <input type="date" name="replySearch.CreatedTo" value="@(Model.CreatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật từ</label>
+                <input type="date" name="replySearch.UpdatedFrom" value="@(Model.UpdatedFrom?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Cập nhật đến</label>
+                <input type="date" name="replySearch.UpdatedTo" value="@(Model.UpdatedTo?.ToString("yyyy-MM-dd"))" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    @* Hidden Sort Info *@
+    <input type="hidden" name="replySearch.SortColumn" value="@Model.SortColumn">
+    <input type="hidden" name="replySearch.IsAscending" value="@Model.IsAscending.ToString().ToLower()">
+</form>
+
+@functions {
+    bool CheckIfAdvancedFiltersUsed()
+    {
+        return !string.IsNullOrWhiteSpace(Model.Username) || !string.IsNullOrWhiteSpace(Model.UserEmail) ||
+               !string.IsNullOrWhiteSpace(Model.BlogTitle) || !string.IsNullOrWhiteSpace(Model.ReplyToUsername) ||
+               Model.TopLevelOnly == true || Model.ChildReplyOnly == true ||
+               Model.LikeCountMin.HasValue || Model.CreatedFrom.HasValue ||
+               Model.UpdatedFrom.HasValue;
+    }
+}

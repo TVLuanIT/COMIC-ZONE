@@ -11,6 +11,7 @@ using COMICZONE.Controllers;
 using System.Net;
 using System.Net.Mail;
 using COMICZONE.Models.Enums;
+using COMICZONE.Services;
 
 namespace COMICZONE.Areas.Account.Controllers
 {
@@ -18,10 +19,12 @@ namespace COMICZONE.Areas.Account.Controllers
     public class UserProfilesController : BaseController
     {
         private readonly ComiczoneContext _context;
+        private readonly IMarketplaceService _marketplaceService;
 
-        public UserProfilesController(ComiczoneContext context)
+        public UserProfilesController(ComiczoneContext context, IMarketplaceService marketplaceService)
         {
             _context = context;
+            _marketplaceService = marketplaceService;
         }
 
         public IActionResult Settings(string? returnUrl = null)
@@ -666,6 +669,37 @@ namespace COMICZONE.Areas.Account.Controllers
 
             ViewBag.Page = "MyBlogs";
             return View(blogs);
+        }
+
+        public async Task<IActionResult> MyFavorites(int page = 1, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return RedirectToAction("Login", "Authentication", new { area = "Account" });
+            }
+
+            int userId = int.Parse(userIdStr);
+            int pageSize = 8;
+            var (favorites, totalCount) = await _marketplaceService.GetUserFavoritesAsync(userId, page, pageSize);
+
+            ViewBag.Pagination = new PaginationModel
+            {
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                Action = "MyFavorites",
+                Controller = "UserProfiles",
+                Area = "Account",
+                PageParam = "page",
+                ExtraParams = new Dictionary<string, string>()
+            };
+
+            ViewBag.Page = "MyFavorites";
+            ViewBag.Customer = GetCustomer();
+
+            return View(favorites);
         }
 
     }

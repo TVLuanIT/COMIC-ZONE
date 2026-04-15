@@ -25,7 +25,7 @@
                     {
                         <div class="swiper-slide py-4">
                             <a asp-area="Blogs" asp-action="Details" asp-controller="Blogs" asp-route-id="@blog.Id" class="blog-card-premium">
-                                <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/images/blogs/" + blog.Thumbnail))" 
+                                <img src="@(string.IsNullOrEmpty(blog.Thumbnail) ? "/blogs/images/default-blog.png" : (blog.Thumbnail.StartsWith("http") ? blog.Thumbnail : "/uploads/blogs/" + blog.Thumbnail))" 
                                      alt="@blog.Title" class="blog-card-image" loading="lazy">
                                 
                                 <div class="blog-card-content">

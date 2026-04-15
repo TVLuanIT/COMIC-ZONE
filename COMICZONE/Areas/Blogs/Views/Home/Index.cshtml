@@ -57,19 +57,24 @@
             <div class="featured-card mb-5" data-aos="fade-up">
                 <div class="row g-0">
                     <div class="col-lg-7">
-                        <div class="featured-image-wrap">
-                            <img src="@(string.IsNullOrEmpty(featured.Thumbnail) ? "/blogs/images/default-blog.png" : (featured.Thumbnail.StartsWith("http") ? featured.Thumbnail : "/images/blogs/" + featured.Thumbnail))" 
-                                 class="featured-img" alt="@featured.Title">
-                            <div class="featured-label">Nổi bật</div>
-                        </div>
+                        <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@featured.Id" class="featured-link-wrap">
+                            <div class="featured-image-wrap h-100">
+                                <img src="@(string.IsNullOrEmpty(featured.Thumbnail) ? "/blogs/images/default-blog.png" : (featured.Thumbnail.StartsWith("http") ? featured.Thumbnail : "/uploads/blogs/" + featured.Thumbnail))" 
+                                     class="featured-img" alt="@featured.Title">
+                                <div class="featured-label">Nổi bật</div>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-lg-5">
                         <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center h-100">
                             <div class="d-flex align-items-center mb-3 text-primary fw-bold small text-uppercase spacing-1">
                                 <i class="bi bi-tag-fill me-2"></i> @(featured.Categories?.FirstOrDefault()?.Name ?? "General")
                             </div>
-                            <h2 class="featured-title mb-3">@featured.Title</h2>
-                            <p class="featured-excerpt text-secondary mb-4 line-clamp-3">@featured.Shortdescription</p>
+                            
+                            <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@featured.Id" class="text-decoration-none">
+                                <h2 class="featured-title mb-3 text-dark hover-primary">@featured.Title</h2>
+                                <p class="featured-excerpt text-secondary mb-4 line-clamp-3">@featured.Shortdescription</p>
+                            </a>
                             
                             <div class="d-flex align-items-center justify-content-between mt-auto">
                                 <div class="author-meta">
@@ -103,7 +108,7 @@
                                 <div class="blog-card-premium">
                                 <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@item.Id" class="card-link">
                                         <div class="card-thumb-wrap">
-                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/uploads/blogs/" + item.Thumbnail))" 
                                                  class="card-thumb" alt="@item.Title">
                                             <div class="card-date-badge">
                                                 <span class="day">@item.Createdat.Day</span>
@@ -190,6 +195,11 @@
         </div>
     </div>
 </section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/blogs/css/blogs-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/blogs/css/blogs-widgets.css" asp-append-version="true" />
+}
 
 @section Scripts {
     <script src="~/blogs/js/blogs-home.js" asp-append-version="true"></script>

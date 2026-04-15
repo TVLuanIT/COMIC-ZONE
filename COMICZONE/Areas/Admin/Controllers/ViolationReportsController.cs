@@ -43,11 +43,16 @@ namespace COMICZONE.Areas.Admin.Controllers
             var pagedResults = await query.ApplyPagination(request.Page, request.PageSize).ToListAsync();
 
             // Custom mapping logic (preserved context for the view)
-            var reviewList = await _context.ProductReviews.ToListAsync();
-            var replyList = await _context.ProductReviewReplies.ToListAsync();
+            var reviewList = await _context.ProductReviews.AsNoTracking().ToListAsync();
+            var replyList = await _context.ProductReviewReplies.AsNoTracking().ToListAsync();
+            var blogCommentList = await _context.BlogComments.AsNoTracking().ToListAsync();
+            var blogCommentReplyList = await _context.BlogCommentReplies.AsNoTracking().ToListAsync();
 
             ViewBag.ReviewContents = reviewList.ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
             ViewBag.ReplyContents = replyList.ToDictionary(r => r.Replyid, r => r.Replycontent);
+            ViewBag.BlogCommentContents = blogCommentList.ToDictionary(r => r.Id, r => r.Content);
+            ViewBag.BlogReplyContents = blogCommentReplyList.ToDictionary(r => r.Replyid, r => r.Content);
+            
             ViewBag.SearchModel = request;
 
             return View(pagedResults);
@@ -84,6 +89,22 @@ namespace COMICZONE.Areas.Admin.Controllers
                     .FirstOrDefaultAsync(r => r.Replyid == report.Targetid);
                 ViewBag.ReportedItem = reply;
             }
+            else if (report.ReportTypeEnum == ReportType.BlogComment)
+            {
+                var comment = await _context.BlogComments
+                    .Include(c => c.Blog)
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == report.Targetid);
+                ViewBag.ReportedItem = comment;
+            }
+            else if (report.ReportTypeEnum == ReportType.BlogCommentReply)
+            {
+                var reply = await _context.BlogCommentReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Comment.Blog)
+                    .FirstOrDefaultAsync(r => r.Replyid == report.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
 
             return View(report);
         }
@@ -101,19 +122,15 @@ namespace COMICZONE.Areas.Admin.Controllers
                 return NotFound();
 
             // Load giống Index / Details
-            var reviewList = await _context.ProductReviews
-                .AsNoTracking()
-                .ToListAsync();
+            var reviewList = await _context.ProductReviews.AsNoTracking().ToListAsync();
+            var replyList = await _context.ProductReviewReplies.AsNoTracking().ToListAsync();
+            var blogCommentList = await _context.BlogComments.AsNoTracking().ToListAsync();
+            var blogReplyList = await _context.BlogCommentReplies.AsNoTracking().ToListAsync();
 
-            var replyList = await _context.ProductReviewReplies
-                .AsNoTracking()
-                .ToListAsync();
-
-            ViewBag.ReviewContents = reviewList
-                .ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
-
-            ViewBag.ReplyContents = replyList
-                .ToDictionary(r => r.Replyid, r => r.Replycontent);
+            ViewBag.ReviewContents = reviewList.ToDictionary(r => r.Reviewid, r => r.Reviewcontent);
+            ViewBag.ReplyContents = replyList.ToDictionary(r => r.Replyid, r => r.Replycontent);
+            ViewBag.BlogCommentContents = blogCommentList.ToDictionary(r => r.Id, r => r.Content);
+            ViewBag.BlogReplyContents = blogReplyList.ToDictionary(r => r.Replyid, r => r.Content);
 
             ViewData["Userid"] = new SelectList(_context.Users, "Id", "Username", report.Userid);
 
@@ -239,6 +256,22 @@ namespace COMICZONE.Areas.Admin.Controllers
                     .Include(r => r.User)
                     .Include(r => r.Review.Product)
                         .ThenInclude(pr => pr.Pictures)
+                    .FirstOrDefaultAsync(r => r.Replyid == violationReport.Targetid);
+                ViewBag.ReportedItem = reply;
+            }
+            else if (violationReport.ReportTypeEnum == ReportType.BlogComment)
+            {
+                var comment = await _context.BlogComments
+                    .Include(c => c.Blog)
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == violationReport.Targetid);
+                ViewBag.ReportedItem = comment;
+            }
+            else if (violationReport.ReportTypeEnum == ReportType.BlogCommentReply)
+            {
+                var reply = await _context.BlogCommentReplies
+                    .Include(r => r.User)
+                    .Include(r => r.Comment.Blog)
                     .FirstOrDefaultAsync(r => r.Replyid == violationReport.Targetid);
                 ViewBag.ReportedItem = reply;
             }

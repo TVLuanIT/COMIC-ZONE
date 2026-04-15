@@ -13,7 +13,7 @@ namespace COMICZONE.Services
             _config = config;
         }
 
-        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model)
+        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model, string? returnUrlOverride = null)
         {
             var vnpay = new VnPayLibrary();
             var timeNow = DateTime.UtcNow.AddHours(7);
@@ -37,7 +37,10 @@ namespace COMICZONE.Services
             vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
             vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang " + model.OrderId);
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackUrl"]);
+            
+            var returnUrl = string.IsNullOrEmpty(returnUrlOverride) ? _config["VnPay:PaymentBackUrl"] : returnUrlOverride;
+            vnpay.AddRequestData("vnp_ReturnUrl", returnUrl);
+            
             vnpay.AddRequestData("vnp_TxnRef", tick);
 
 

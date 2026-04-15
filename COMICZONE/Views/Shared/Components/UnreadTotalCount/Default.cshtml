@@ -1,0 +1,8 @@
+@model int
+
+@if (Model > 0)
+{
+    <span class="cart-badge notification-badge-total" style="background: #6366f1;">
+        @(Model > 99 ? "99+" : Model)
+    </span>
+}

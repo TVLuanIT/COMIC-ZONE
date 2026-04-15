@@ -1,0 +1,148 @@
+@model List<COMICZONE.Models.MarketplacePost>
+
+@{
+    ViewData["Title"] = "Marketplace của tôi";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/marketplace/css/marketplace.css" asp-append-version="true">
+    <style>
+        .table-responsive {
+            overflow: visible !important;
+        }
+        
+        @@media (max-width: 991.98px) {
+            .table-responsive {
+                overflow-x: auto !important;
+                padding-bottom: 80px;
+            }
+        }
+        
+        .glass-dropdown {
+            margin-top: 8px !important;
+            z-index: 1060 !important; /* Cao hơn các thành phần khác */
+        }
+    </style>
+}
+
+<div class="marketplace-area">
+    <div class="mesh-bg"></div>
+    
+    <div class="profile-container-premium">
+        <!-- SIDEBAR -->
+        @await Html.PartialAsync("~/Areas/Account/Views/UserProfiles/_MyProfileSidebar.cshtml")
+        
+        <!-- MAIN CONTENT -->
+        <div class="profile-glass-content">
+            <div class="premium-content-card" data-aos="fade-left">
+                <div class="card-header-premium">
+                    <h2 class="fw-800 mb-0">Quản lý tin đăng</h2>
+                    <a asp-action="Create" class="btn btn-sm btn-outline-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-plus-lg me-2"></i>Đăng tin mới
+                    </a>
+                </div>
+
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover align-middle border-0">
+                            <thead class="bg-light bg-opacity-50">
+                                <tr>
+                                    <th class="border-0 rounded-start px-4">Sản phẩm</th>
+                                    <th class="border-0">Giá</th>
+                                    <th class="border-0">Ngày đăng</th>
+                                    <th class="border-0 text-center">Trạng thái</th>
+                                    <th class="border-0 rounded-end text-end px-4">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var post in Model)
+                                {
+                                    <tr>
+                                        <td class="px-4 py-3 border-0">
+                                            <div class="d-flex align-items-center">
+                                                @{
+                                                    var firstImg = post.MarketplacePostImages?.FirstOrDefault()?.Filename ?? "default.png";
+                                                }
+                                                <img src="/uploads/marketplace/@firstImg" class="rounded-3 shadow-sm object-fit-cover" width="60" height="60" />
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0 fw-800 text-truncate" style="max-width: 200px;">@post.Title</h6>
+                                                    <small class="text-muted">@post.Category</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="fw-700 text-primary border-0">@post.Price.ToString("N0")₫</td>
+                                        <td class="small text-muted border-0">@post.Createdat?.ToString("dd/MM/yyyy")</td>
+                                        <td class="text-center border-0">
+                                            @switch (post.Status)
+                                            {
+                                                case "Approved":
+                                                    <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill">Đang hiển thị</span>
+                                                    break;
+                                                case "Pending":
+                                                    <span class="badge bg-warning-soft text-warning px-3 py-2 rounded-pill">Chờ duyệt</span>
+                                                    break;
+                                                case "Sold":
+                                                    <span class="badge bg-info-soft text-info px-3 py-2 rounded-pill">Đã bán</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary-soft text-secondary px-3 py-2 rounded-pill">@post.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end px-4 border-0">
+                                            <div class="dropdown">
+                                                <button class="btn btn-light btn-sm rounded-circle shadow-none" 
+                                                        type="button" 
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-dropdown animate slideIn">
+                                                    <li><a class="dropdown-item py-2" asp-action="Details" asp-route-id="@post.Id"><i class="bi bi-eye me-2 text-primary"></i>Xem chi tiết</a></li>
+                                                    @if (post.Status == "Approved" && !post.MarketplacePostPromotions.Any(p => p.Status == "Active" && p.EndDate > DateTime.Now))
+                                                    {
+                                                        <li><a class="dropdown-item py-2 fw-bold text-danger" asp-action="PromotionCheckout" asp-route-postId="@post.Id"><i class="bi bi-megaphone me-2"></i>Quảng cáo bài đăng</a></li>
+                                                    }
+                                                    @if (post.Status != "Sold")
+                                                    {
+                                                        <li><a class="dropdown-item py-2" asp-action="Edit" asp-route-id="@post.Id"><i class="bi bi-pencil me-2 text-info"></i>Sửa</a></li>
+                                                    }
+                                                    <li><hr class="dropdown-divider opacity-10"></li>
+                                                    <li>
+                                                        <form asp-action="Delete" asp-route-id="@post.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn gỡ tin này?');">
+                                                            <button type="submit" class="dropdown-item py-2 text-danger bg-transparent text-start w-100 border-0 m-0">
+                                                                <i class="bi bi-trash me-2"></i>Gỡ tin
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-4">
+                        @await Html.PartialAsync("_Pagination", (PaginationModel)ViewBag.Pagination)
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="mb-4 d-inline-flex p-4 bg-light rounded-circle">
+                            <i class="bi bi-shop fs-1 text-muted opacity-50"></i>
+                        </div>
+                        <h4 class="fw-800">Bạn chưa đăng bán sản phẩm nào</h4>
+                        <p class="text-muted mb-4">Hãy bắt đầu thanh lý những cuốn truyện không dùng đến ngay hôm nay!</p>
+                        <a asp-action="Create" class="btn-premium-grad px-5 py-3 border-0">Đăng sản phẩm đầu tiên</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

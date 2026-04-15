@@ -1,0 +1,229 @@
+@model COMICZONE.Models.MarketplacePost
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/marketplace/css/marketplace.css" asp-append-version="true">
+}
+
+<div class="marketplace-area">
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
+
+    <div class="container pt-5 pb-5">
+        <!-- Breadcrumb & Header -->
+        <nav aria-label="breadcrumb" class="mb-5" data-aos="fade-down">
+            <ol class="breadcrumb mp-filter-bar px-4 py-3 shadow-md border-0 mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-primary fw-700">Marketplace</a></li>
+                <li class="breadcrumb-item active fw-800 text-dark text-truncate" style="max-width: 300px;" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4 mp-details-container">
+            <!-- Left Side: Gallery -->
+            <div class="col-lg-7" data-aos="fade-right">
+                <div class="glass-card p-4 h-100">
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner mp-img-main shadow-lg">
+                            @if (Model.MarketplacePostImages != null && Model.MarketplacePostImages.Any())
+                            {
+                                int i = 0;
+                                foreach (var img in Model.MarketplacePostImages)
+                                {
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="/uploads/marketplace/@img.Filename" class="d-block w-100" style="height: 550px; object-fit: contain; background: #fff;" alt="@Model.Title">
+                                    </div>
+                                    i++;
+                                }
+                            }
+                            else
+                            {
+                                <div class="carousel-item active">
+                                    <img src="/uploads/marketplace/default.png" class="d-block w-100" style="height: 550px; object-fit: contain; background: #fff;" alt="Default Image">
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (Model.MarketplacePostImages?.Count > 1)
+                        {
+                            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <div class="carousel-btn shadow-lg">
+                                    <i class="bi bi-arrow-left fs-4"></i>
+                                </div>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <div class="carousel-btn shadow-lg">
+                                    <i class="bi bi-arrow-right fs-4"></i>
+                                </div>
+                            </button>
+                        }
+                    </div>
+                    
+                    @if (Model.MarketplacePostImages?.Count > 1)
+                    {
+                        <div class="d-flex gap-3 mt-4 overflow-auto justify-content-center pb-2">
+                            @{ int j = 0; }
+                            @foreach (var img in Model.MarketplacePostImages)
+                            {
+                                <div class="mp-thumb-item @(j == 0 ? "active" : "")" data-bs-target="#productCarousel" data-bs-slide-to="@j">
+                                    <img src="/uploads/marketplace/@img.Filename" class="w-100 h-100 object-fit-cover" />
+                                </div>
+                                j++;
+                            }
+                        </div>
+                    }
+
+                    <!-- Description Card (Now below gallery for visual weight) -->
+                    <div class="mt-5 p-4 bg-white bg-opacity-40 rounded-4 border">
+                        <h6 class="fw-800 mb-4 text-uppercase small text-primary letter-spacing-2">Mô tả sản phẩm</h6>
+                        <div class="mp-description-area" style="white-space: pre-line;">
+                            @Model.Description
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Info & Actions -->
+            <div class="col-lg-5">
+                <div class="sticky-aside" data-aos="fade-left">
+                    <div class="glass-card p-4 p-md-5">
+                        <div class="mb-4 d-flex flex-wrap gap-2">
+                            <span class="mp-details-badge bg-primary text-white">@Model.Category</span>
+                            @{
+                                var condClass = Model.Condition switch {
+                                    "NewLike" => "bg-success text-white",
+                                    "VeryGood" => "bg-info text-dark",
+                                    "Good" => "bg-warning text-dark",
+                                    "Acceptable" => "bg-secondary text-white",
+                                    _ => "bg-dark text-white"
+                                };
+                            }
+                            <span class="mp-details-badge @condClass">@Model.Condition</span>
+                        </div>
+                        
+                        <h1 class="mp-details-title">@Model.Title</h1>
+                        
+                        <div class="mb-5">
+                            <div class="mp-price-tag">
+                                @Model.Price.ToString("N0") <span class="fs-6 ms-2 opacity-75">₫</span>
+                            </div>
+                            @if (Model.Status == "Sold")
+                            {
+                                <div class="mt-3">
+                                    <span class="badge bg-danger px-4 py-2 rounded-pill fs-6 shadow-sm">Đã bán</span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Group -->
+                        <div class="d-grid gap-3 mb-5">
+                            @if (Model.Status != "Sold")
+                            {
+                                @if (ViewBag.CurrentUserId != null && ViewBag.CurrentUserId == Model.Sellerid)
+                                {
+                                    <button class="btn btn-secondary btn-lg rounded-pill py-3 fw-800 disabled opacity-50 border-0">
+                                        Đây là sản phẩm của bạn
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn-premium-grad btn-lg shadow-lg position-relative border-0 py-3" id="btnContactSeller">
+                                        <i class="bi bi-chat-dots-fill me-2"></i>Liên hệ người bán
+                                        <span id="unreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm" style="display: none; border: 2px solid #fff;">
+                                            0
+                                        </span>
+                                    </button>
+                                }
+                                <button class="btn-premium-outline btn-lg" id="btnFavorite" onclick="toggleFavorite(@Model.Id)">
+                                    @if ((bool)ViewBag.IsFavorited)
+                                    {
+                                        <i class="bi bi-heart-fill me-2 text-danger"></i><span>Đã lưu bài</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-heart me-2"></i><span>Lưu vào yêu thích</span>
+                                    }
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-dark btn-lg rounded-pill py-3 fw-800 disabled shadow-sm border-0">
+                                    Sản phẩm đã được bán
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Seller Mini Profile -->
+                        <div class="p-4 bg-white bg-opacity-60 rounded-4 border">
+                            <h6 class="fw-800 mb-4 text-uppercase extra-small text-muted letter-spacing-1">Người đăng bán</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="shadow-sm rounded-circle p-1 bg-white">
+                                    @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.Seller?.Avatar, size = 56 })
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-0 fw-800 text-dark">@Model.Seller?.Username</h6>
+                                    <small class="text-muted fw-600">Tham gia @(Model.Seller?.Createdat.ToString("MM/yyyy") ?? "N/A")</small>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="bi bi-chevron-right text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<!-- Chat Drawer -->
+<div id="chatDrawerBackdrop" class="drawer-backdrop"></div>
+<div id="chatDrawer" class="chat-drawer shadow-lg d-flex flex-column">
+    <div class="chat-header p-4 d-flex align-items-center text-white shadow-sm" style="background: var(--mp-grad);">
+        @await Component.InvokeAsync("UserAvatar", new { avatarUrl = Model.Seller?.Avatar, size = 48 })
+        <div class="ms-3 flex-grow-1">
+            <h6 class="mb-0 fw-800">@Model.Seller?.Username</h6>
+            <small class="text-white-50 text-truncate d-block fw-500" style="max-width: 200px;">Sản phẩm: @Model.Title</small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="btnCloseChat" aria-label="Close"></button>
+    </div>
+    
+    <div class="chat-body flex-grow-1 p-4 overflow-auto bg-light bg-opacity-50" id="chatMessageList">
+        <div class="text-center text-muted small mt-2">Đang tải cuộc trò chuyện...</div>
+    </div>
+    
+    <div class="chat-footer p-4 bg-white border-top shadow-sm-reverse">
+        <form id="chatForm" class="d-flex align-items-center gap-2">
+            <input type="text" class="form-control rounded-pill px-4 py-3 bg-light border-0 shadow-none mp-form-control" id="chatInput" placeholder="Nhập tin nhắn..." autocomplete="off">
+            <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-lg border-0 transition-smooth" style="width: 50px; height: 50px; background: var(--mp-grad);" id="btnSendChat">
+                <i class="bi bi-send-fill fs-5"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/marketplace/js/marketplace.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Marketplace.initDetails({
+                postId: @Model.Id,
+                sellerId: @Model.Sellerid,
+                currentUserId: @(ViewBag.CurrentUserId != null ? ViewBag.CurrentUserId.ToString() : "null"),
+                loginUrl: '@Url.Action("Login", "Authentication", new { area = "Account" })',
+                toggleFavoriteUrl: '@Url.Action("ToggleFavorite", "MarketplacePosts")',
+                getMessagesUrl: '@Url.Action("GetMessages", "MarketplacePosts")',
+                sendMessageUrl: '@Url.Action("SendMessage", "MarketplacePosts")',
+                getUnreadCountUrl: '@Url.Action("GetUnreadCount", "MarketplacePosts")'
+            });
+        });
+
+        function toggleFavorite(postId) {
+            Marketplace.toggleFavorite(postId);
+        }
+    </script>
+}

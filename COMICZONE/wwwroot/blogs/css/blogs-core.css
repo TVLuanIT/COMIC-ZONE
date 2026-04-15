@@ -8,19 +8,19 @@
     --blogs-primary: hsl(var(--blogs-primary-h), 80%, 55%);
     --blogs-secondary-h: 280;
     --blogs-secondary: hsl(var(--blogs-secondary-h), 80%, 55%);
-    
+
     --blogs-accent: #f43f5e;
     --blogs-bg: #f8fafc;
     --blogs-surface: rgba(255, 255, 255, 0.6);
     --blogs-glass: rgba(255, 255, 255, 0.85);
     --blogs-border: rgba(0, 0, 0, 0.08);
-    
+
     --blogs-text: #0f172a;
     --blogs-text-dim: #64748b;
-    
+
     --blogs-sh-premium: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
     --blogs-tr: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    
+
     /* Gradients */
     --blogs-grad: linear-gradient(135deg, var(--blogs-primary) 0%, var(--blogs-secondary) 100%);
     --blogs-grad-glass: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
@@ -36,22 +36,36 @@
 }
 
 /* Global Reset Overrides */
-html, body {
+html,
+body {
     background-color: var(--blogs-bg) !important;
     color: var(--blogs-text) !important;
     font-family: 'Inter', sans-serif;
     scroll-behavior: smooth;
     overflow-x: hidden;
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: 'Outfit', sans-serif !important;
     font-weight: 800;
 }
 
-a { transition: var(--blogs-tr); text-decoration: none; color: var(--blogs-primary); }
-a:hover { color: var(--blogs-secondary); }
+a {
+    transition: var(--blogs-tr);
+    text-decoration: none;
+    color: var(--blogs-primary);
+}
+
+a:hover {
+    color: var(--blogs-secondary);
+}
 
 .container {
     max-width: 1300px !important;
@@ -74,24 +88,104 @@ a:hover { color: var(--blogs-secondary); }
     box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
     transition: var(--blogs-tr);
 }
+
 .btn-premium-grad:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
     filter: brightness(1.1);
 }
-.btn-premium-grad i { transition: transform 0.3s; }
-.btn-premium-grad:hover i { transform: translateY(3px); }
 
-/* UTILS */
-.text-blogs-dim { color: #64748b !important; }
-.shadow-premium { box-shadow: var(--blogs-sh-premium); }
-.rounded-premium { border-radius: 40px !important; }
-
-/* ANIMATIONS */
-.floating-hero-logo { animation: floatLogo 6s ease-in-out infinite; }
-@keyframes floatLogo {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+.btn-premium-grad i {
+    transition: transform 0.3s;
 }
 
-[data-aos] { transition-duration: 800ms !important; }
+.btn-premium-grad:hover i {
+    transform: translateY(3px);
+}
+
+/* UTILS */
+.text-blogs-dim {
+    color: #64748b !important;
+}
+
+.shadow-premium {
+    box-shadow: var(--blogs-sh-premium);
+}
+
+.rounded-premium {
+    border-radius: 40px !important;
+}
+
+.z-index-1 {
+    z-index: 1 !important;
+}
+
+.z-index-2 {
+    z-index: 2 !important;
+}
+
+.z-index-3 {
+    z-index: 3 !important;
+}
+
+/* FIX NAVBAR DISTORTION IN BLOGS AREA */
+.modern-navbar .nav-link,
+.modern-navbar .navbar-brand,
+.modern-navbar .dropdown-item,
+.modern-navbar .premium-dropdown-item {
+    white-space: nowrap !important;
+}
+
+.modern-nav-container,
+.modern-nav-container>div {
+    align-items: center !important;
+}
+
+/* PREMIUM BLOG HERO - SHARED across Home, Create, etc. */
+.blog-hero {
+    position: relative;
+    padding: 180px 0 100px;
+    background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+    background-color: #f8fafc;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.4) 0%, rgba(248, 250, 252, 0.2) 100%);
+    z-index: 1;
+}
+
+.hero-title-main {
+    font-size: 4.5rem;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    color: var(--blogs-text);
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.text-gradient {
+    background: var(--blogs-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    color: var(--blogs-text-dim);
+    font-size: 1.15rem;
+    line-height: 1.7;
+    margin-bottom: 35px;
+    position: relative;
+    z-index: 2;
+}
+
+[data-aos] {
+    transition-duration: 800ms !important;
+}

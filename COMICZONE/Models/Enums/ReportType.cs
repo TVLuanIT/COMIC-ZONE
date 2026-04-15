@@ -4,10 +4,10 @@ namespace COMICZONE.Models.Enums
 {
     public enum ReportType
     {
-        [Display(Name = "Đánh giá sản phẩm")]
+        [Display(Name = "Đánh giá SP")]
         Review = 1,
 
-        [Display(Name = "Phản hồi đánh giá")]
+        [Display(Name = "Phản hồi SP")]
         Reply = 2,
 
         [Display(Name = "Bình luận Blog")]

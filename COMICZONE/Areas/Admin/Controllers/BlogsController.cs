@@ -19,11 +19,13 @@ namespace COMICZONE.Areas.Admin.Controllers
     {
         private readonly ComiczoneContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public BlogsController(ComiczoneContext context, INotificationService notificationService)
+        public BlogsController(ComiczoneContext context, INotificationService notificationService, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _notificationService = notificationService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Admin/Blogs
@@ -106,7 +108,7 @@ namespace COMICZONE.Areas.Admin.Controllers
                 if (thumbnailFile != null && thumbnailFile.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnailFile.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs", fileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs", fileName);
                     
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -194,12 +196,12 @@ namespace COMICZONE.Areas.Admin.Controllers
                         // Xóa ảnh cũ nếu có
                         if (!string.IsNullOrEmpty(blog.Thumbnail))
                         {
-                            var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs", blog.Thumbnail);
+                            var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs", blog.Thumbnail);
                             if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
                         }
 
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnailFile.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs", fileName);
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/blogs", fileName);
                         
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
@@ -346,20 +348,75 @@ namespace COMICZONE.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var blog = await _context.Blogs.FindAsync(id);
+            // Load blog with all related entities to handle manual cascade delete
+            var blog = await _context.Blogs
+                .Include(b => b.BlogComments)
+                    .ThenInclude(c => c.BlogCommentReplies)
+                        .ThenInclude(r => r.BlogCommentReplyLikes)
+                .Include(b => b.BlogComments)
+                    .ThenInclude(c => c.BlogCommentLikes)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (blog != null)
             {
-                // Xóa tệp hình ảnh thumbnail nếu có
+                // 1. Delete Reply Likes
+                var replyLikes = blog.BlogComments
+                    .SelectMany(c => c.BlogCommentReplies)
+                    .SelectMany(r => r.BlogCommentReplyLikes)
+                    .ToList();
+                if (replyLikes.Any()) _context.BlogCommentReplyLikes.RemoveRange(replyLikes);
+
+                // 2. Delete Comment Likes
+                var commentLikes = blog.BlogComments
+                    .SelectMany(c => c.BlogCommentLikes)
+                    .ToList();
+                if (commentLikes.Any()) _context.BlogCommentLikes.RemoveRange(commentLikes);
+
+                // 3. Delete Replies
+                var replies = blog.BlogComments
+                    .SelectMany(c => c.BlogCommentReplies)
+                    .ToList();
+                if (replies.Any())
+                {
+                    // If there are nested replies, we might need to null out Parentreplyid 
+                    // or just let EF handle it if it can batch them correctly.
+                    // For safety with self-referencing FKs:
+                    foreach (var reply in replies) reply.Parentreplyid = null;
+                    _context.BlogCommentReplies.RemoveRange(replies);
+                }
+
+                // 4. Delete Comments
+                if (blog.BlogComments.Any()) _context.BlogComments.RemoveRange(blog.BlogComments);
+
+                // 5. Xóa tệp hình ảnh thumbnail nếu có
                 if (!string.IsNullOrEmpty(blog.Thumbnail))
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs", blog.Thumbnail);
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "blogs", blog.Thumbnail);
                     if (System.IO.File.Exists(filePath))
                     {
-                        System.IO.File.Delete(filePath);
+                        try { System.IO.File.Delete(filePath); } catch { }
                     }
                 }
 
+                // 6. Xóa các tệp ảnh được nhúng trong nội dung Content (nếu có)
+                if (!string.IsNullOrEmpty(blog.Content))
+                {
+                    // Tìm các đường dẫn hình ảnh trong thẻ img có nguồn từ /uploads/blogs/
+                    var matches = System.Text.RegularExpressions.Regex.Matches(blog.Content, @"src=""/uploads/blogs/([^""]+)""");
+                    foreach (System.Text.RegularExpressions.Match match in matches)
+                    {
+                        var fileName = match.Groups[1].Value;
+                        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "blogs", fileName);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            try { System.IO.File.Delete(filePath); } catch { }
+                        }
+                    }
+                }
+
+                // 7. Xóa bài viết
                 _context.Blogs.Remove(blog);
+                
                 await _context.SaveChangesAsync();
             }
 

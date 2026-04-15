@@ -403,6 +403,13 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+.page-link-premium.ellipsis {
+    cursor: default;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+}
+
 /* Cinematic Glass Toasts */
 .toast-notification {
     position: fixed;

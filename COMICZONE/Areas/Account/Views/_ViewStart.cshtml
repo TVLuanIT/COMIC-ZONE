@@ -11,11 +11,7 @@
     bool isAdmin = returnUrl.Contains("/Admin", StringComparison.OrdinalIgnoreCase) || 
                    returnUrl.Contains("%2FAdmin", StringComparison.OrdinalIgnoreCase);
 
-    if (isBlogs)
-    {
-        Layout = "~/Areas/Blogs/Views/Shared/_BlogsLayout.cshtml";
-    }
-    else if (isAdmin)
+    if (isAdmin)
     {
         Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     }

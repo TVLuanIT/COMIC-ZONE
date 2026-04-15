@@ -1,0 +1,270 @@
+@model COMICZONE.Areas.Admin.ViewModels.BlogCommentManagementViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Bình luận & Phản hồi Blog";
+    var activeTab = Model.ActiveTab;
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-7 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-5 align-self-center text-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <ol class="breadcrumb justify-content-end mb-0 px-0 bg-transparent">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active">Bình luận blog</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs nav-tabs-line nav-stretch fs-6 border-bottom border-light-subtle mb-4" id="blogCommentTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link text-active-primary py-3 @(activeTab == "Comments" ? "active fw-bold border-bottom border-primary" : "text-muted")" 
+               href="?activeTab=Comments" role="tab">
+                <i class="ti ti-message me-2"></i>Bình luận blog
+                @if(activeTab == "Comments" && Model.CommentSearch.TotalItems > 0) {
+                    <span class="badge bg-light-primary text-primary ms-1">@Model.CommentSearch.TotalItems</span>
+                }
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link text-active-primary py-3 @(activeTab == "Replies" ? "active fw-bold border-bottom border-primary" : "text-muted")" 
+               href="?activeTab=Replies" role="tab">
+                <i class="ti ti-message-dots me-2"></i>Phản hồi bình luận
+                @if(activeTab == "Replies" && Model.ReplySearch.TotalItems > 0) {
+                    <span class="badge bg-light-info text-info ms-1">@Model.ReplySearch.TotalItems</span>
+                }
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="blogCommentTabsContent">
+        @* --- TAB: COMMENTS --- *@
+        <div class="tab-pane fade @(activeTab == "Comments" ? "show active" : "")" id="commentsTab" role="tabpanel">
+            <partial name="_CommentSearchForm" model="Model.CommentSearch" />
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small fw-bold">
+                                <tr class="align-middle">
+                                    <th class="ps-4">@Html.SortHeader("ID", "Id", Model.CommentSearch.SortColumn, Model.CommentSearch.IsAscending, "commentSearch")</th>
+                                    <th>@Html.SortHeader("Bài viết", "Blog.Title", Model.CommentSearch.SortColumn, Model.CommentSearch.IsAscending, "commentSearch")</th>
+                                    <th>@Html.SortHeader("Người dùng", "User.Username", Model.CommentSearch.SortColumn, Model.CommentSearch.IsAscending, "commentSearch")</th>
+                                    <th>Nội dung</th>
+                                    <th class="text-center">@Html.SortHeader("Ngày", "Createdat", Model.CommentSearch.SortColumn, Model.CommentSearch.IsAscending, "commentSearch")</th>
+                                    <th class="text-center">Likes</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center pe-4">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Comments != null && Model.Comments.Any())
+                                {
+                                    @foreach (var item in Model.Comments)
+                                    {
+                                        var likeCount = item.BlogCommentLikes?.Count(l => l.Islike == true) ?? 0;
+                                        var dislikeCount = item.BlogCommentLikes?.Count(l => l.Islike == false) ?? 0;
+                                        <tr id="comment-row-@item.Id" class="@(item.Isdeleted == true ? "bg-light text-muted opacity-75" : "") align-middle">
+                                            <td class="ps-4 fw-bold">#@item.Id</td>
+                                            <td>
+                                                <span class="text-truncate d-inline-block" style="max-width: 180px;" title="@item.Blog?.Title">@item.Blog?.Title</span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">@item.User?.Username</div>
+                                                <div class="small text-muted">@item.User?.Email</div>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted text-truncate-2" style="max-width: 250px;">@item.Content</div>
+                                                @if (item.BlogCommentReplies?.Any() == true)
+                                                {
+                                                    <span class="badge bg-light-info text-info border border-info-subtle mt-1" style="font-size: 10px;">@item.BlogCommentReplies.Count phản hồi</span>
+                                                }
+                                            </td>
+                                            <td class="small">@item.Createdat.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-up me-1"></i>@likeCount</span>
+                                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-down me-1"></i>@dislikeCount</span>
+                                            </td>
+                                            <td id="comment-status-cell-@item.Id" class="text-center">
+                                                @if (item.Isdeleted == true)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2">Đã ẩn</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success rounded-pill px-3 py-2">Hiển thị</span>
+                                                }
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-icon btn-outline-info" title="Chi tiết">
+                                                       <i class="ti ti-eye"></i>
+                                                    </a>
+                                                    
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-icon btn-outline-warning" title="Chỉnh sửa">
+                                                       <i class="ti ti-edit"></i>
+                                                    </a>
+
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-icon btn-outline-danger shadow-sm" title="Xóa vĩnh viễn">
+                                                        <i class="ti ti-trash"></i>
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-icon ajax-toggle-blog-comment-status @(item.Isdeleted == true ? "btn-success" : "btn-outline-danger")"
+                                                            data-id="@item.Id"
+                                                            data-url="@Url.Action("ToggleDelete", "BlogComments", new { area = "Admin" })"
+                                                            title="@(item.Isdeleted == true ? "Hiện bình luận" : "Ẩn bình luận")">
+                                                        <i class="ti @(item.Isdeleted == true ? "ti-refresh" : "ti-ban")"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy bình luận nào.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if (Model.Comments != null && Model.Comments.Any())
+                {
+                    <div class="card-footer bg-white border-top-0">
+                        @{ ViewData["PagePrefix"] = "commentSearch"; }
+                        <partial name="_AdminPagination" model="Model.CommentSearch" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- TAB: REPLIES --- *@
+        <div class="tab-pane fade @(activeTab == "Replies" ? "show active" : "")" id="repliesTab" role="tabpanel">
+            <partial name="_ReplySearchForm" model="Model.ReplySearch" />
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small fw-bold">
+                                <tr class="align-middle">
+                                    <th class="ps-4">@Html.SortHeader("ID", "Replyid", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>@Html.SortHeader("Đối tượng", "Comment.Blog.Title", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>@Html.SortHeader("Người gửi", "User.Username", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th>Nội dung</th>
+                                    <th class="text-center">@Html.SortHeader("Ngày", "Createdat", Model.ReplySearch.SortColumn, Model.ReplySearch.IsAscending, "replySearch")</th>
+                                    <th class="text-center">Likes</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center pe-4">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Replies != null && Model.Replies.Any())
+                                {
+                                    @foreach (var item in Model.Replies)
+                                    {
+                                        var rLikeCount = item.BlogCommentReplyLikes?.Count(l => l.Islike == true) ?? 0;
+                                        var rDislikeCount = item.BlogCommentReplyLikes?.Count(l => l.Islike == false) ?? 0;
+                                        <tr id="blog-reply-row-@item.Replyid" class="@(item.Isdeleted == true ? "bg-light text-muted opacity-75" : "") align-middle">
+                                            <td class="ps-4 fw-bold">#@item.Replyid</td>
+                                            <td>
+                                                <div class="small">Blog: <span class="fw-bold">@item.Comment?.Blog?.Title</span></div>
+                                                <div class="small text-muted">ID BL: #@item.Commentid</div>
+                                                @if(item.Replytouser != null) {
+                                                    <div class="small text-info">@@item.Replytouser.Username</div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">@item.User?.Username</div>
+                                                <div class="small text-muted">@item.User?.Email</div>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted text-truncate-2" style="max-width: 300px;">@item.Content</div>
+                                                @if(item.Parentreplyid.HasValue) {
+                                                    <span class="badge bg-light-secondary text-secondary mt-1" style="font-size: 10px;">Trả lời #@item.Parentreplyid</span>
+                                                }
+                                            </td>
+                                            <td class="small">@item.Createdat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-up me-1"></i>@rLikeCount</span>
+                                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-down me-1"></i>@rDislikeCount</span>
+                                            </td>
+                                            <td id="blog-reply-status-cell-@item.Replyid" class="text-center">
+                                                @if (item.Isdeleted == true)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2">Đã ẩn</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success rounded-pill px-3 py-2">Hiển thị</span>
+                                                }
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <a asp-controller="BlogComments" asp-action="Details" asp-route-id="@item.Commentid" 
+                                                       class="btn btn-sm btn-icon btn-outline-secondary" title="Xem bình luận gốc">
+                                                       <i class="ti ti-external-link"></i>
+                                                    </a>
+
+                                                    <a asp-controller="BlogCommentReplies" asp-action="Details" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-info" title="Chi tiết">
+                                                       <i class="ti ti-eye"></i>
+                                                    </a>
+                                                    
+                                                    <a asp-controller="BlogCommentReplies" asp-action="Edit" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-warning" title="Chỉnh sửa">
+                                                       <i class="ti ti-edit"></i>
+                                                    </a>
+
+                                                    <a asp-controller="BlogCommentReplies" asp-action="Delete" asp-route-id="@item.Replyid" 
+                                                       class="btn btn-sm btn-icon btn-outline-danger shadow-sm" title="Xóa vĩnh viễn">
+                                                        <i class="ti ti-trash"></i>
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-icon ajax-toggle-blog-reply-status @(item.Isdeleted == true ? "btn-success" : "btn-outline-danger")"
+                                                            data-id="@item.Replyid"
+                                                            data-url="@Url.Action("ToggleSoftDelete", "BlogCommentReplies", new { area = "Admin" })"
+                                                            title="@(item.Isdeleted == true ? "Hiện phản hồi" : "Ẩn phản hồi")">
+                                                        <i class="ti @(item.Isdeleted == true ? "ti-refresh" : "ti-ban")"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy phản hồi nào.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if (Model.Replies != null && Model.Replies.Any())
+                {
+                    <div class="card-footer bg-white border-top-0">
+                        @{ ViewData["PagePrefix"] = "replySearch"; }
+                        <partial name="_AdminPagination" model="Model.ReplySearch" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Scripts handled by admin-blog-comments.js with ajax-toggle-blog-comment-status and ajax-toggle-blog-reply-status classes *@
+}

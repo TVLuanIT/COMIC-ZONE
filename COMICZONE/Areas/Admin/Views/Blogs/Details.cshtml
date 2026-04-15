@@ -34,10 +34,16 @@
                 @if (!string.IsNullOrEmpty(Model.Thumbnail))
                 {
                     <div class="position-relative">
-                        <img src="/images/blogs/@Model.Thumbnail" class="card-img-top" alt="@Model.Title" style="height: 450px; object-fit: cover;">
+                        <img src="/uploads/blogs/@Model.Thumbnail" class="card-img-top" alt="@Model.Title" style="height: 450px; object-fit: cover;">
                         <div class="position-absolute bottom-0 start-0 w-100 p-4 bg-gradient-to-t from-dark text-white d-md-none">
                             <h2 class="fs-4 fw-bold mb-0">@Model.Title</h2>
                         </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="position-relative">
+                        <img src="/blogs/images/default-blog.png" class="card-img-top" alt="Default Blog" style="height: 450px; object-fit: cover;">
                     </div>
                 }
                 <div class="card-body p-4 p-md-5">

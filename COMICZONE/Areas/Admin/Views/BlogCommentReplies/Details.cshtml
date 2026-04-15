@@ -1,0 +1,164 @@
+@model COMICZONE.Models.BlogCommentReply
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết phản hồi bình luận";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles mb-4">
+        <div class="col-md-7 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-5 align-self-center text-end">
+            <ol class="breadcrumb justify-content-end mb-0 px-0 bg-transparent">
+                <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="BlogComments" asp-action="Index">Bình luận blog</a></li>
+                <li class="breadcrumb-item active">Chi tiết phản hồi</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Reply Details -->
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="ti ti-message-dots me-2"></i>Phản hồi #@Model.Replyid</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th class="text-muted" style="width: 170px;">ID Phản hồi</th>
+                            <td class="fw-bold">#@Model.Replyid</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Bài viết</th>
+                            <td>
+                                <a asp-area="Admin" asp-controller="Blogs" asp-action="Details" asp-route-id="@Model.Comment?.Blog?.Id" class="text-decoration-none fw-bold">
+                                    @Model.Comment?.Blog?.Title
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Bình luận gốc</th>
+                            <td>
+                                <a asp-area="Admin" asp-controller="BlogComments" asp-action="Details" asp-route-id="@Model.Commentid" class="text-decoration-none">
+                                    <span class="fw-bold">#@Model.Commentid</span> — @Model.Comment?.User?.Username
+                                </a>
+                                <div class="small text-muted mt-1" style="max-width: 400px;">@Model.Comment?.Content</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Người gửi</th>
+                            <td>
+                                <div class="fw-bold">@Model.User?.Username</div>
+                                <div class="small text-muted">@Model.User?.Email</div>
+                            </td>
+                        </tr>
+                        @if (Model.Replytouser != null)
+                        {
+                            <tr>
+                                <th class="text-muted">Trả lời cho</th>
+                                <td><span class="text-info fw-bold">@@Model.Replytouser.Username</span></td>
+                            </tr>
+                        }
+                        @if (Model.Parentreplyid.HasValue)
+                        {
+                            <tr>
+                                <th class="text-muted">Phản hồi cha</th>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@Model.Parentreplyid" class="text-decoration-none fw-bold">#@Model.Parentreplyid</a>
+                                    @if (Model.Parentreply != null)
+                                    {
+                                        <div class="small text-muted mt-1">@Model.Parentreply.Content</div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <th class="text-muted">Nội dung</th>
+                            <td>@Model.Content</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Ngày tạo</th>
+                            <td>@Model.Createdat?.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Ngày cập nhật</th>
+                            <td>@(Model.Updatedat?.ToString("dd/MM/yyyy HH:mm:ss") ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Trạng thái</th>
+                            <td>
+                                @if (Model.Isdeleted == true)
+                                {
+                                    <span class="badge bg-danger rounded-pill px-3 py-2">Đã ẩn</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success rounded-pill px-3 py-2">Hiển thị</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Lượt thích</th>
+                            <td>
+                                @{
+                                    var likeCount = Model.BlogCommentReplyLikes?.Count(l => l.Islike == true) ?? 0;
+                                    var dislikeCount = Model.BlogCommentReplyLikes?.Count(l => l.Islike == false) ?? 0;
+                                }
+                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-up me-1"></i>@likeCount</span>
+                                <span class="badge bg-light text-dark"><i class="ti ti-thumb-down me-1"></i>@dislikeCount</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card-footer bg-white d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Replyid" class="btn btn-sm btn-warning">
+                        <i class="ti ti-edit me-1"></i>Chỉnh sửa
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Replyid" class="btn btn-sm btn-danger">
+                        <i class="ti ti-trash me-1"></i>Xóa vĩnh viễn
+                    </a>
+                    <a asp-area="Admin" asp-controller="BlogComments" asp-action="Index" asp-route-activeTab="Replies" class="btn btn-sm btn-outline-secondary ms-auto">
+                        <i class="ti ti-arrow-left me-1"></i>Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Child Replies -->
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="ti ti-messages me-2"></i>Phản hồi con (@(Model.InverseParentreply?.Count ?? 0))</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.InverseParentreply?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var child in Model.InverseParentreply.OrderByDescending(r => r.Createdat))
+                            {
+                                <div class="list-group-item @(child.Isdeleted == true ? "bg-light opacity-75" : "")">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="fw-bold small">@child.User?.Username</span>
+                                        <a asp-action="Details" asp-route-id="@child.Replyid" class="btn btn-sm btn-icon btn-outline-info" style="padding: 2px 6px;">
+                                            <i class="ti ti-eye" style="font-size: 12px;"></i>
+                                        </a>
+                                    </div>
+                                    <p class="mb-1 small">@child.Content</p>
+                                    <small class="text-muted">@child.Createdat?.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">Không có phản hồi con</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

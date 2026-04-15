@@ -1,0 +1,273 @@
+@model COMICZONE.Areas.Admin.ViewModels.MarketplacePostSearchModel
+@using System.Linq
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Bài đăng Marketplace";
+    var posts = ViewBag.Posts as List<COMICZONE.Models.MarketplacePost> ?? new();
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb & Title -->
+    <div class="row page-titles mb-4">
+        <div class="col-md-7 align-self-center">
+            <h4 class="text-themecolor">@ViewData["Title"]</h4>
+        </div>
+        <div class="col-md-5 align-self-center text-end">
+            <ol class="breadcrumb justify-content-end mb-0 px-0 bg-transparent">
+                <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                <li class="breadcrumb-item">Marketplace</li>
+                <li class="breadcrumb-item active">Bài đăng</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <partial name="_PostSearchForm" model="Model" />
+
+    <!-- Table -->
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase small fw-bold">
+                        <tr class="align-middle">
+                            <th class="ps-4">@Html.SortHeader("ID", "id", Model.SortColumn, Model.IsAscending)</th>
+                            <th>Ảnh</th>
+                            <th>@Html.SortHeader("Tiêu đề", "title", Model.SortColumn, Model.IsAscending)</th>
+                            <th>@Html.SortHeader("Người bán", "seller", Model.SortColumn, Model.IsAscending)</th>
+                            <th class="text-end">@Html.SortHeader("Giá", "price", Model.SortColumn, Model.IsAscending)</th>
+                            <th>@Html.SortHeader("Danh mục", "category", Model.SortColumn, Model.IsAscending)</th>
+                            <th>@Html.SortHeader("Tình trạng", "condition", Model.SortColumn, Model.IsAscending)</th>
+                            <th class="text-center">@Html.SortHeader("Trạng thái", "status", Model.SortColumn, Model.IsAscending)</th>
+                            <th class="text-center">@Html.SortHeader("Ngày", "createdat", Model.SortColumn, Model.IsAscending)</th>
+                            <th class="text-center">Hiển thị</th>
+                            <th class="text-center pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (posts.Any())
+                        {
+                            @foreach (var item in posts)
+                            {
+                                var firstImg = item.MarketplacePostImages?.FirstOrDefault()?.Filename;
+                                <tr id="mkt-post-row-@item.Id" class="@(item.Isdeleted == true ? "bg-light text-muted opacity-75" : "")">
+                                    <td class="ps-4 fw-bold">#@item.Id</td>
+                                    <td>
+                                        @if (item.MarketplacePostImages != null && item.MarketplacePostImages.Any())
+                                        {
+                                            <img src="/uploads/marketplace/@firstImg" class="rounded-1" width="40" height="40" style="object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <img src="/uploads/marketplace/default.png" class="rounded-1" width="40" height="40" style="object-fit: cover;" />
+                                        }
+                                    </td>
+                                    <td><span class="text-truncate d-inline-block" style="max-width:180px;" title="@item.Title">@item.Title</span></td>
+                                    <td>@item.Seller?.Username</td>
+                                    <td class="fw-semibold text-success">@item.Price.ToString("N0")đ</td>
+                                    <td><span class="badge bg-light text-dark">@item.Category</span></td>
+                                    <td>
+                                        @{
+                                            var condBadge = item.Condition switch {
+                                                "NewLike" => "bg-success-subtle text-success",
+                                                "VeryGood" => "bg-info-subtle text-info",
+                                                "Good" => "bg-primary-subtle text-primary",
+                                                "Acceptable" => "bg-warning-subtle text-warning",
+                                                _ => "bg-secondary-subtle text-secondary"
+                                            };
+                                            var condText = item.Condition switch {
+                                                "NewLike" => "Như mới", "VeryGood" => "Rất tốt", "Good" => "Tốt",
+                                                "Acceptable" => "Chấp nhận được", _ => item.Condition
+                                            };
+                                        }
+                                        <span class="badge @condBadge">@condText</span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var statusBadge = item.Status switch {
+                                                "Pending" => "bg-warning-subtle text-warning border border-warning-subtle",
+                                                "Approved" => "bg-success-subtle text-success border border-success-subtle",
+                                                "Rejected" => "bg-danger-subtle text-danger border border-danger-subtle",
+                                                "Sold" => "bg-info-subtle text-info border border-info-subtle",
+                                                _ => "bg-secondary-subtle text-secondary"
+                                            };
+                                            var statusText = item.Status switch {
+                                                "Pending" => "Chờ duyệt", "Approved" => "Đã duyệt",
+                                                "Rejected" => "Từ chối", "Sold" => "Đã bán", _ => item.Status
+                                            };
+                                        }
+                                        @{
+                                            var activePromo = item.MarketplacePostPromotions?.FirstOrDefault(p => p.Status == "Active" && p.EndDate > DateTime.Now);
+                                        }
+                                        <span class="badge rounded-pill px-2 py-1 @statusBadge">@statusText</span>
+                                        @if (activePromo != null)
+                                        {
+                                            <div class="mt-1">
+                                                <span class="badge bg-warning text-dark border border-warning-subtle shadow-sm" style="font-size: 0.65rem;" title="Hết hạn: @activePromo.EndDate?.ToString("dd/MM/yyyy HH:mm")">
+                                                    <i class="ti ti-star-filled me-1"></i> TÀI TRỢ
+                                                </span>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="small text-muted">@item.Createdat?.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">
+                                        @if (item.Isdeleted == true)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger visibility-badge">Đã ẩn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success-subtle text-success visibility-badge">Công khai</span>
+                                        }
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            @if (item.Status == "Pending")
+                                            {
+                                                <button class="btn btn-sm btn-outline-success btn-approve-post" data-id="@item.Id" title="Duyệt"><i class="ti ti-check"></i></button>
+                                                <button class="btn btn-sm btn-outline-danger btn-reject-post" data-id="@item.Id" title="Từ chối"><i class="ti ti-x"></i></button>
+                                            }
+
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="ti ti-info-circle"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+                                            <button class="btn btn-sm btn-outline-primary btn-promote-post" data-id="@item.Id" data-title="@item.Title" title="Tặng quảng cáo"><i class="ti ti-speakerphone"></i></button>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa vĩnh viễn"><i class="ti ti-trash"></i></a>
+
+                                            <button class="btn btn-sm btn-outline-secondary btn-toggle-delete-post" data-id="@item.Id"
+                                                    title="@(item.Isdeleted == true ? "Hiển thị lại" : "Tạm ẩn")">
+                                                <i class="ti ti-@(item.Isdeleted == true ? "refresh" : "ban")"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="10" class="text-center py-5 text-muted"><i class="ti ti-mood-empty fs-1 d-block mb-2"></i>Không tìm thấy bài đăng nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-footer bg-white border-top-0 py-3">
+                <partial name="~/Areas/Admin/Views/Shared/_AdminPagination.cshtml" model="Model" />
+            </div>
+        }
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Approve Post
+            $('.btn-approve-post').click(function () {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: 'Duyệt bài đăng?',
+                    text: "Bài đăng này sẽ được hiển thị công khai trên Marketplace.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("Approve")', { id: id }, function (res) {
+                            if (res.success) {
+                                Swal.fire('Thành công!', 'Bài đăng đã được duyệt.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', 'Không thể duyệt bài đăng.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Reject Post
+            $('.btn-reject-post').click(function () {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: 'Từ chối bài đăng?',
+                    text: "Bạn có chắc chắn muốn từ chối bài đăng này?",
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Từ chối',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("Reject")', { id: id }, function (res) {
+                            if (res.success) {
+                                Swal.fire('Đã từ chối!', 'Bài đăng đã được chuyển trạng thái.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', 'Không thể thực hiện tao tác.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Toggle Delete
+            $('.btn-toggle-delete-post').click(function () {
+                var id = $(this).data('id');
+                $.post('@Url.Action("ToggleDelete")', { id: id }, function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire('Lỗi!', 'Không thể thay đổi trạng thái ẩn hiện.', 'error');
+                    }
+                });
+            });
+
+            // GIFT PROMOTION (NEW)
+            $('.btn-promote-post').click(function () {
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                Swal.fire({
+                    title: 'Tặng quảng cáo nổi bật',
+                    html: `Tặng gói tài trợ cho bài đăng:<br><b>${title}</b><br><br>Nhập số ngày muốn tặng:`,
+                    input: 'number',
+                    inputValue: 7,
+                    inputAttributes: {
+                        min: 1,
+                        max: 90,
+                        step: 1
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Tặng ngay',
+                    cancelButtonText: 'Hủy',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (days) => {
+                        return $.ajax({
+                            url: '@Url.Action("Promote")',
+                            type: 'POST',
+                            data: { id: id, days: days }
+                        }).then(response => {
+                            if (!response.success) {
+                                throw new Error(response.message || 'Lỗi không xác định')
+                            }
+                            return response;
+                        }).catch(error => {
+                            Swal.showValidationMessage(`Yêu cầu thất bại: ${error.message}`)
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: result.value.message,
+                            icon: 'success'
+                        }).then(() => location.reload());
+                    }
+                })
+            });
+        });
+    </script>
+}

@@ -1,0 +1,108 @@
+@using COMICZONE.Models.Enums
+@model COMICZONE.Models.MarketplacePost
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = $"Chỉnh sửa bài đăng #{Model.Id}";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">✏️ @ViewData["Title"]</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm">⬅ Quay lại</a>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-4">
+                    <!-- Thông tin chỉ đọc -->
+                    <div class="col-md-6">
+                        <div class="p-4 border rounded-4 bg-light">
+                            <label class="text-muted small d-block mb-3 fw-bold text-uppercase">📋 Thông tin bài đăng</label>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Tiêu đề</label>
+                                <input value="@Model.Title" class="form-control" disabled />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Người bán</label>
+                                <input value="@Model.Seller?.Username" class="form-control" disabled />
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small fw-semibold">Giá</label>
+                                    <input value="@Model.Price.ToString("N0")đ" class="form-control" disabled />
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small fw-semibold">Danh mục</label>
+                                    <input value="@Model.Category" class="form-control" disabled />
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label small fw-semibold">Tình trạng</label>
+                                @{
+                                    var condText = Model.Condition switch {
+                                        "NewLike" => "Như mới",
+                                        "VeryGood" => "Rất tốt",
+                                        "Good" => "Tốt",
+                                        "Acceptable" => "Chấp nhận được",
+                                        _ => Model.Condition
+                                    };
+                                }
+                                <input value="@condText" class="form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Các trường có thể chỉnh sửa -->
+                    <div class="col-md-6">
+                        <div class="p-4 border rounded-4 bg-light">
+                            <label class="text-muted small d-block mb-3 fw-bold text-uppercase">⚙️ Cập nhật trạng thái</label>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Trạng thái bài đăng</label>
+                                <select asp-for="StatusEnum" class="form-select" asp-items="Html.GetEnumSelectList<MarketplacePostStatus>()">
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Hiển thị</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="Isdeleted" name="Isdeleted" value="true" @(Model.Isdeleted == true ? "checked" : "") style="width:3em;height:1.5em;">
+                                    <input type="hidden" name="Isdeleted" value="false" />
+                                    <label class="form-check-label ms-2" for="Isdeleted">Đã ẩn (soft delete)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ảnh thumbnail -->
+                        <div class="p-3 border rounded-4 bg-light mt-3">
+                            <label class="text-muted small d-block mb-2 fw-bold">🖼️ Ảnh đính kèm</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if (Model.MarketplacePostImages?.Any() == true)
+                                {
+                                    @foreach (var img in Model.MarketplacePostImages)
+                                    {
+                                        <img src="/uploads/marketplace/@img.Filename" class="rounded-2 border" width="60" height="60" style="object-fit:cover;" />
+                                    }
+                                }
+                                else
+                                {
+                                    <img src="/uploads/marketplace/default.png" class="rounded-2 border" width="60" height="60" style="object-fit:cover;" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-4 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">Hủy</a>
+                    <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

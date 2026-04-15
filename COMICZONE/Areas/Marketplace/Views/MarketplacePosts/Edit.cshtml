@@ -1,0 +1,94 @@
+@using COMICZONE.Models.Enums
+@model COMICZONE.Models.MarketplacePost
+
+@{
+    ViewData["Title"] = "Sửa bài đăng";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nice-select2@2.1.0/dist/css/nice-select2.css">
+    <link rel="stylesheet" href="~/marketplace/css/marketplace.css" asp-append-version="true">
+}
+
+<div class="marketplace-area">
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
+
+    <div class="container pt-5 pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Header -->
+                <div class="text-center mb-5" data-aos="fade-down">
+                    <h1 class="fw-900 letter-spacing-tight mb-2 h1" style="font-size: 3.5rem;">
+                        Sửa <span class="text-gradient">Bài đăng</span>
+                    </h1>
+                    <p class="text-muted fs-5">Cập nhật thông tin món đồ của bạn</p>
+                </div>
+
+                <div class="mp-card border-0 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+                    <div class="mp-card-body p-4 p-md-5">
+                        <form asp-action="Edit" method="post">
+                            <input type="hidden" asp-for="Id" />
+                            <div class="row g-4">
+                                <!-- Title -->
+                                <div class="col-12">
+                                    <label asp-for="Title" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Tiêu đề sản phẩm</label>
+                                    <input asp-for="Title" class="form-control mp-form-control" placeholder="Ví dụ: Bộ Dragon Ball 1-42 bản 2014..." required />
+                                </div>
+
+                                <!-- Price & Condition -->
+                                <div class="col-md-6">
+                                    <label asp-for="Price" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Giá bán (VNĐ)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0 px-3 fw-bold">₫</span>
+                                        <input asp-for="Price" type="number" class="form-control mp-form-control" placeholder="0" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="ConditionEnum" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Tình trạng phẩm</label>
+                                    <select asp-for="ConditionEnum" class="form-select mp-form-control" asp-items="Html.GetEnumSelectList<MarketplacePostCondition>()">
+                                    </select>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="col-12">
+                                    <label asp-for="CategoryEnum" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Danh mục</label>
+                                    <select asp-for="CategoryEnum" class="form-select mp-form-control" asp-items="Html.GetEnumSelectList<MarketplacePostCategory>()">
+                                        <option value="" disabled selected>-- Chọn danh mục sản phẩm --</option>
+                                    </select>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-12">
+                                    <label asp-for="Description" class="form-label fw-800 text-uppercase small text-primary letter-spacing-1">Mô tả chi tiết</label>
+                                    <textarea asp-for="Description" class="form-control mp-form-control" rows="6" placeholder="Mô tả kỹ tình trạng: gáy sách, giấy, phụ kiện kèm theo, lỗi (nếu có)..."></textarea>
+                                </div>
+                                
+                                <div class="col-12 mt-5">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-4 p-4 bg-white rounded-4 border shadow-sm" style="border-radius: 32px !important;">
+                                        <a asp-action="MyPosts" class="btn btn-link text-secondary fw-800 text-decoration-none px-4">
+                                            <i class="bi bi-arrow-left me-2"></i>Hủy bỏ
+                                        </a>
+                                        <button type="submit" class="btn-premium-grad py-3 px-5 shadow-lg">
+                                            <i class="bi bi-send-check-fill me-2"></i>Lưu thay đổi
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/nice-select2@2.1.0/dist/js/nice-select2.js"></script>
+    <script src="~/marketplace/js/marketplace.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Marketplace.initCreate(); // Re-use initCreate for select2 initialization
+        });
+    </script>
+}

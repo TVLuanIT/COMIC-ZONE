@@ -220,9 +220,6 @@
                 </div>
 
                 <div class="row g-4">
-                    @section Scripts {
-                        <script src="~/blogs/js/blogs-search.js" asp-append-version="true"></script>
-                    }
                     
                     @if (Model != null && Model.Any())
                     {
@@ -232,7 +229,7 @@
                                 <div class="blog-card-premium">
                                     <a asp-area="Blogs" asp-controller="Blogs" asp-action="Details" asp-route-id="@item.Id" class="card-link">
                                         <div class="card-thumb-wrap">
-                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/images/blogs/" + item.Thumbnail))" 
+                                            <img src="@(string.IsNullOrEmpty(item.Thumbnail) ? "/blogs/images/default-blog.png" : (item.Thumbnail.StartsWith("http") ? item.Thumbnail : "/uploads/blogs/" + item.Thumbnail))" 
                                                  class="card-thumb" alt="@item.Title">
                                             <div class="card-date-badge">
                                                 <span class="day">@item.Createdat.Day</span>
@@ -285,3 +282,12 @@
         </div>
     </div>
 </section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/blogs/css/blogs-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/blogs/css/blogs-widgets.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/blogs/js/blogs-search.js" asp-append-version="true"></script>
+}

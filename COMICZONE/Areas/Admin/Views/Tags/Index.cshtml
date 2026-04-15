@@ -27,16 +27,16 @@
                 <thead class="table-light border-bottom">
                     <tr class="align-middle">
                         <th>
-                            @Html.SortHeader("#", "Id", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("#", "Id", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
                         </th>
                         <th>
-                            @Html.SortHeader("Tên thẻ", "Name", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Tên thẻ", "Name", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
                         </th>
                         <th class="text-center">
-                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Trạng thái", "Isdeleted", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
                         </th>
                         <th class="text-center">
-                            @Html.SortHeader("Số sản phẩm", "Products.Count", searchModel.SortColumn ?? "Id", searchModel.IsAscending, searchModel.Keyword)
+                            @Html.SortHeader("Số sản phẩm", "Products.Count", searchModel.SortColumn ?? "Id", searchModel.IsAscending)
                         </th>
 
                         <th class="text-end table-actions">
