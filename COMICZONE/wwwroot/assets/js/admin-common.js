@@ -130,6 +130,21 @@ const AdminLayout = () => {
     return { init };
 };
 
+const GlobalSelect2 = () => {
+    const init = () => {
+        if (typeof jQuery !== "undefined" && typeof jQuery.fn.select2 !== "undefined") {
+            jQuery('select').not('.selectedartist, .selectedtag, .no-select2').each(function () {
+                jQuery(this).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    minimumResultsForSearch: 10
+                });
+            });
+        }
+    };
+    return { init };
+};
+
 // ===============================
 // DOM Initialization
 // ===============================
@@ -149,6 +164,7 @@ const initAdmin = () => {
 
     safeInit(GlobalNotifications);
     safeInit(AdminLayout);
+    safeInit(GlobalSelect2);
 
     // Feature modules (initialized if they exist)
     if (typeof ProductIndex === 'function') safeInit(ProductIndex);

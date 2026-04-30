@@ -22,7 +22,7 @@ namespace COMICZONE.Services
             vnpay.AddRequestData("vnp_Version", _config["VnPay:Version"]);
             vnpay.AddRequestData("vnp_Command", _config["VnPay:Command"]);
             vnpay.AddRequestData("vnp_TmnCode", _config["VnPay:TmnCode"]);
-            vnpay.AddRequestData("vnp_Amount", ((long)model.Amount).ToString());
+            vnpay.AddRequestData("vnp_Amount", ((long)(model.Amount)).ToString());
 
             vnpay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);

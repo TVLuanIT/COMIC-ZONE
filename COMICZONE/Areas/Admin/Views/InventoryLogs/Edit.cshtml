@@ -49,10 +49,10 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Type" class="form-label fw-bold">Loại giao dịch</label>
-                            <select asp-for="Type" id="logType" class="form-select">
-                                <option value="Import">Nhập kho (+)</option>
-                                <option value="Export">Xuất kho (-)</option>
+                            <label class="form-label fw-bold">Loại giao dịch</label>
+                            <select name="Type" id="logType" class="form-select no-select2">
+                                <option value="Import" selected="@(Model.Type == "Import" ? "selected" : null)">Nhập kho (+)</option>
+                                <option value="Export" selected="@(Model.Type == "Export" ? "selected" : null)">Xuất kho (-)</option>
                             </select>
                             <span asp-validation-for="Type" class="text-danger small"></span>
                         </div>
@@ -82,9 +82,17 @@
     <script>
         $(document).ready(function() {
             if (typeof $.fn.select2 === 'function') {
+                // ProductId dropdown - dùng select2 có tìm kiếm
                 $('.select2').select2({
                     theme: 'bootstrap-5',
                     width: '100%'
+                });
+
+                // Loại giao dịch - select2 không có ô tìm kiếm (chỉ 2 options)
+                $('#logType').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
                 });
             }
         });

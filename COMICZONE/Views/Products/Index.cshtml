@@ -5,6 +5,10 @@
 @{
     ViewBag.Title = "Danh mục truyện";
     var currentSort = ViewBag.CurrentSort as string ?? "";
+
+    // Cấu hình SEO
+    ViewData["MetaDescription"] = "Khám phá danh mục truyện tranh khổng lồ tại COMICZONE. Phân loại chi tiết theo tác giả, thể loại, nhà xuất bản. Tìm kiếm dễ dàng, mua sắm nhanh chóng.";
+    ViewData["MetaKeywords"] = "danh mục truyện tranh, mua truyện tranh online, truyện tranh thể loại, tìm truyện tranh, manga, comic";
 }
 
 @section Styles {

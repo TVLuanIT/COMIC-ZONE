@@ -14,6 +14,20 @@
     var breakdown = Enumerable.Range(1, 5)
         .ToDictionary(i => i, i => ratingReviews.Count(r => r.Rating == i));
     ViewBag.RatingBreakdown = breakdown;
+
+    // Cấu hình SEO động theo sản phẩm
+    var plainDescription = !string.IsNullOrEmpty(Model.Description) 
+        ? System.Text.RegularExpressions.Regex.Replace(Model.Description, "<.*?>", String.Empty).Trim() 
+        : "";
+    if (plainDescription.Length > 160) plainDescription = plainDescription.Substring(0, 157) + "...";
+    
+    var tags = Model.Tags != null ? string.Join(", ", Model.Tags.Where(t => !t.Isdeleted).Select(t => t.Name)) : "";
+    var keywords = $"{Model.Name}, {Model.Author}, truyện tranh, " + tags;
+
+    ViewData["MetaDescription"] = plainDescription;
+    ViewData["MetaKeywords"] = keywords;
+    ViewData["OgImage"] = Model.GetImagePath();
+    ViewData["OgType"] = "product";
 }
 
 @section Styles {

@@ -40,17 +40,12 @@ namespace COMICZONE.Helpers
             var signData = new StringBuilder();
             var query = new StringBuilder();
 
-            // thêm dòng này trước khi build hash
-            _requestData.Add("vnp_SecureHashType", "HmacSHA512");
-
             foreach (var (key, value) in _requestData)
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    signData.Append(key + "=" + value + "&");
-
-                    query.Append(System.Net.WebUtility.UrlEncode(key) + "=" +
-                                 System.Net.WebUtility.UrlEncode(value) + "&");
+                    signData.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value) + "&");
+                    query.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value) + "&");
                 }
             }
 
@@ -89,7 +84,7 @@ namespace COMICZONE.Helpers
 
             foreach (var (key, value) in _responseData.Where(kv => !string.IsNullOrEmpty(kv.Value)))
             {
-                data.Append(key + "=" + value + "&");
+                data.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value) + "&");
             }
 
             //remove last '&'
