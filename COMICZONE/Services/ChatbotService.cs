@@ -34,7 +34,16 @@ namespace COMICZONE.Services
                 Hãy trả lời thân thiện, chính xác.
                 ";
 
-            return await _geminiService.SendAsync(prompt);
+            var reply = await _geminiService.SendAsync(prompt);
+
+            // Chuyển error code thành thông báo thân thiện
+            return reply switch
+            {
+                "__GEMINI_OVERLOADED__" => "⏳ Trợ lý đang bận xử lý nhiều yêu cầu, vui lòng thử lại sau vài giây nhé! Mình luôn sẵn sàng hỗ trợ bạn. 😊",
+                "__GEMINI_AUTH_ERROR__" => "⚠️ Trợ lý tạm thời không khả dụng. Vui lòng liên hệ COMICZONE để được hỗ trợ trực tiếp.",
+                "__GEMINI_ERROR__"      => "⚠️ Đã xảy ra sự cố kỹ thuật. Vui lòng thử lại sau hoặc liên hệ COMICZONE để được hỗ trợ.",
+                _                      => reply
+            };
         }
     }
 }

@@ -29,7 +29,7 @@ public class ChatbotController : BaseController
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Json(new { reply = "LỖI HỆ THỐNG C#: " + ex.Message + "\n" + ex.StackTrace });
+            return Json(new { reply = "⚠️ Đã xảy ra sự cố không mong muốn. Vui lòng thử lại sau." });
         }
     }
 }
