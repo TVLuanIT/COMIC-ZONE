@@ -53,11 +53,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="Status" class="form-label fw-bold">Trạng thái</label>
-                                <select asp-for="Status" class="form-select">
-                                    <option value="PENDING">Chờ duyệt (PENDING)</option>
-                                    <option value="PROCESSING">Đang xử lý (PROCESSING)</option>
-                                    <option value="SUCCESS">Thành công (SUCCESS)</option>
-                                    <option value="FAILED">Thất bại (FAILED)</option>
+                                <select name="Status" id="refundStatus" class="form-select no-select2">
+                                    <option value="PENDING" selected="@(Model.Status == "PENDING" ? "selected" : null)">Chờ duyệt (PENDING)</option>
+                                    <option value="PROCESSING" selected="@(Model.Status == "PROCESSING" ? "selected" : null)">Đang xử lý (PROCESSING)</option>
+                                    <option value="SUCCESS" selected="@(Model.Status == "SUCCESS" ? "selected" : null)">Thành công (SUCCESS)</option>
+                                    <option value="FAILED" selected="@(Model.Status == "FAILED" ? "selected" : null)">Thất bại (FAILED)</option>
                                 </select>
                                 <span asp-validation-for="Status" class="text-danger small"></span>
                             </div>
@@ -92,11 +92,21 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Chọn mã thanh toán'
-            });
+            if (typeof $.fn.select2 === 'function') {
+                // Thanh toán dropdown - có tìm kiếm
+                $('.select2').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Chọn mã thanh toán'
+                });
+
+                // Trạng thái - không có ô tìm kiếm
+                $('#refundStatus').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
+                });
+            }
         });
     </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -119,31 +119,33 @@
                                 <div class="text-muted smaller">@item.Createdat.ToString("HH:mm")</div>
                             </td>
                             <td class="text-center pe-3">
-                                <a class="btn btn-sm btn-icon btn-outline-info me-1" 
-                                   asp-action="Details" asp-route-id="@item.Customerid" 
-                                   title="Chi tiết khách hàng">
-                                   <i class="ti ti-eye"></i>
-                                </a>
+                                <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                    <a class="btn btn-sm btn-icon btn-outline-info" 
+                                       asp-action="Details" asp-route-id="@item.Customerid" 
+                                       title="Chi tiết khách hàng">
+                                       <i class="ti ti-eye"></i>
+                                    </a>
 
-                                <a class="btn btn-sm btn-icon btn-outline-warning me-1" 
-                                   asp-action="Edit" asp-route-id="@item.Customerid" 
-                                   title="Chỉnh sửa">
-                                   <i class="ti ti-edit"></i>
-                                </a>
+                                    <a class="btn btn-sm btn-icon btn-outline-warning" 
+                                       asp-action="Edit" asp-route-id="@item.Customerid" 
+                                       title="Chỉnh sửa">
+                                       <i class="ti ti-edit"></i>
+                                    </a>
 
-                                <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm"
-                                   asp-action="Delete" asp-route-id="@item.Customerid"
-                                   title="Xóa vĩnh viễn">
-                                    <i class="ti ti-trash"></i>
-                                </a>
+                                    <a class="btn btn-sm btn-icon btn-outline-danger shadow-sm"
+                                       asp-action="Delete" asp-route-id="@item.Customerid"
+                                       title="Xóa vĩnh viễn">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
 
-                                <button type="button"
-                                        class="btn btn-sm btn-icon ajax-toggle-customer-status me-1 @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
-                                        data-id="@item.Customerid"
-                                        data-url="@Url.Action("ToggleDelete", "Customers", new { area = "Admin" })"
-                                        title="@(item.Isdeleted ? "Khôi phục hồ sơ" : "Vô hiệu hóa hồ sơ")">
-                                    <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
-                                </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-icon ajax-toggle-customer-status @(item.Isdeleted ? "btn-success" : "btn-outline-danger")"
+                                            data-id="@item.Customerid"
+                                            data-url="@Url.Action("ToggleDelete", "Customers", new { area = "Admin" })"
+                                            title="@(item.Isdeleted ? "Khôi phục hồ sơ" : "Vô hiệu hóa hồ sơ")">
+                                        <i class="ti @(item.Isdeleted ? "ti-refresh" : "ti-ban")"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     }

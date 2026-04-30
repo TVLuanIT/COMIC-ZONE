@@ -231,9 +231,9 @@ const ReportsDashboard = () => {
         statusChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: data.map(x => x.status),
+                labels: data.map(x => x.status || x.Status || 'Không rõ'),
                 datasets: [{
-                    data: data.map(x => x.count),
+                    data: data.map(x => x.count !== undefined ? x.count : x.Count),
                     backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
                     borderWidth: 2
                 }]

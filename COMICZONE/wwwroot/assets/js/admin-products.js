@@ -26,31 +26,36 @@ const BadgeSelect = () => {
     };
 
     const initBadge = (selectClass, containerId, badgeClass, removeClass, inputName) => {
-        const select = document.querySelector(selectClass);
-        if (!select) return;
+        const $select = jQuery(selectClass);
+        if (!$select.length) return;
 
-        select.addEventListener("change", function () {
+        $select.on("change", function () {
             const container = document.getElementById(containerId);
             if (!container) return;
 
-            const selectedOptions = this.selectedOptions;
+            const id = jQuery(this).val();
+            if (!id) return;
 
-            for (let option of selectedOptions) {
-                const id = option.value;
-                const name = option.text;
+            const name = jQuery(this).find(`option[value="${id}"]`).text().trim();
 
-                const exists = container.querySelector(`.${badgeClass}[data-id="${id}"]`);
-                if (exists) continue;
-
-                const badge = document.createElement("span");
-                badge.className = `badge bg-secondary ${badgeClass} d-flex align-items-center gap-1`;
-                badge.setAttribute("data-id", id);
-                badge.innerHTML = name +
-                    ` <button type="button" class="btn-close btn-close-white ${removeClass}"></button>` +
-                    `<input type="hidden" name="${inputName}" value="${id}" />`;
-
-                container.appendChild(badge);
+            const exists = container.querySelector(`.${badgeClass}[data-id="${id}"]`);
+            if (exists) {
+                // Reset select so user can pick again
+                jQuery(this).val(null).trigger('change.select2');
+                return;
             }
+
+            const badge = document.createElement("span");
+            badge.className = `badge bg-secondary ${badgeClass} d-flex align-items-center gap-1`;
+            badge.setAttribute("data-id", id);
+            badge.innerHTML = name +
+                ` <button type="button" class="btn-close btn-close-white ${removeClass}"></button>` +
+                `<input type="hidden" name="${inputName}" value="${id}" />`;
+
+            container.appendChild(badge);
+
+            // Reset select after adding badge
+            jQuery(this).val(null).trigger('change.select2');
         });
     };
 

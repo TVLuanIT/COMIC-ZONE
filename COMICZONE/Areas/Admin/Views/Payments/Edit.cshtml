@@ -51,13 +51,13 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="Paymentstatus" class="form-label fw-bold">Trạng thái thanh toán</label>
-                                <select asp-for="Paymentstatus" class="form-select">
-                                    <option value="PENDING">Chờ thanh toán</option>
-                                    <option value="SUCCESS">Thanh toán thành công</option>
-                                    <option value="FAILED">Thanh toán thất bại</option>
-                                    <option value="CANCELLED">Đã hủy thanh toán</option>
-                                    <option value="REFUND_PENDING">Chờ hoàn tiền</option>
-                                    <option value="REFUNDED">Đã hoàn tiền</option>
+                                <select name="Paymentstatus" id="paymentStatus" class="form-select no-select2">
+                                    <option value="PENDING" selected="@(Model.Paymentstatus == "PENDING" ? "selected" : null)">Chờ thanh toán</option>
+                                    <option value="SUCCESS" selected="@(Model.Paymentstatus == "SUCCESS" ? "selected" : null)">Thanh toán thành công</option>
+                                    <option value="FAILED" selected="@(Model.Paymentstatus == "FAILED" ? "selected" : null)">Thanh toán thất bại</option>
+                                    <option value="CANCELLED" selected="@(Model.Paymentstatus == "CANCELLED" ? "selected" : null)">Đã hủy thanh toán</option>
+                                    <option value="REFUND_PENDING" selected="@(Model.Paymentstatus == "REFUND_PENDING" ? "selected" : null)">Chờ hoàn tiền</option>
+                                    <option value="REFUNDED" selected="@(Model.Paymentstatus == "REFUNDED" ? "selected" : null)">Đã hoàn tiền</option>
                                 </select>
                                 <span asp-validation-for="Paymentstatus" class="text-danger small"></span>
                             </div>
@@ -108,9 +108,17 @@
     <script>
         jQuery(document).ready(function() {
             if (typeof jQuery.fn.select2 === 'function') {
+                // Đơn hàng dropdown - có tìm kiếm
                 jQuery('.select2').select2({
                     theme: 'bootstrap-5',
                     width: '100%'
+                });
+
+                // Trạng thái thanh toán - không có ô tìm kiếm
+                jQuery('#paymentStatus').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
                 });
             } else {
                 console.warn('Select2 plugin not loaded. Falling back to standard select.');
