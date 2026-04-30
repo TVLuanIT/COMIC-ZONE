@@ -30,20 +30,47 @@ public class GeminiService : IGeminiService
 
         var json = JsonSerializer.Serialize(requestBody);
 
-        var response = await _httpClient.PostAsync(
-            url,
-            new StringContent(json, Encoding.UTF8, "application/json")
-        );
+        // Retry tối đa 3 lần khi gặp lỗi 503 (overloaded) hoặc 429 (rate limit)
+        int maxRetries = 3;
+        int[] retryDelaysMs = { 2000, 4000, 6000 };
 
-        if (!response.IsSuccessStatusCode)
-            return "Gemini API lỗi: " + await response.Content.ReadAsStringAsync();
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            var response = await _httpClient.PostAsync(
+                url,
+                new StringContent(json, Encoding.UTF8, "application/json")
+            );
 
-        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        return doc.RootElement.GetProperty("candidates")[0]
-                              .GetProperty("content")
-                              .GetProperty("parts")[0]
-                              .GetProperty("text")
-                              .GetString();
+            if (response.IsSuccessStatusCode)
+            {
+                using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                return doc.RootElement.GetProperty("candidates")[0]
+                                      .GetProperty("content")
+                                      .GetProperty("parts")[0]
+                                      .GetProperty("text")
+                                      .GetString();
+            }
+
+            var statusCode = (int)response.StatusCode;
+
+            // Nếu là lỗi tạm thời (503 overloaded, 429 rate limit) → retry
+            if ((statusCode == 503 || statusCode == 429) && attempt < maxRetries - 1)
+            {
+                await Task.Delay(retryDelaysMs[attempt]);
+                continue;
+            }
+
+            // Lỗi cuối cùng hoặc lỗi khác → trả thông báo thân thiện
+            if (statusCode == 503 || statusCode == 429)
+                return "__GEMINI_OVERLOADED__";
+
+            if (statusCode == 401 || statusCode == 403)
+                return "__GEMINI_AUTH_ERROR__";
+
+            return "__GEMINI_ERROR__";
+        }
+
+        return "__GEMINI_OVERLOADED__";
     }
 
     public async Task<ChatbotIntent> AnalyzeIntentAsync(string message)
