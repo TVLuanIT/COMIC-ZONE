@@ -430,7 +430,20 @@ namespace COMICZONE.Areas.Marketplace.Controllers
             if (!IsLoggedIn())
                 return RedirectToAction("Login", "Authentication", new { area = "Account" });
             
-            if (int.TryParse(response.OrderId, out int promotionId))
+            int promotionId = 0;
+
+            if (!string.IsNullOrEmpty(response.OrderDescription) && response.OrderDescription.StartsWith("Thanh toan don hang "))
+            {
+                var idStr = response.OrderDescription.Replace("Thanh toan don hang ", "");
+                int.TryParse(idStr, out promotionId);
+            }
+            
+            if (promotionId == 0)
+            {
+                int.TryParse(response.OrderId, out promotionId);
+            }
+
+            if (promotionId > 0)
             {
                 var activated = await _marketplaceService.ActivatePromotionAsync(promotionId);
                 if (activated)
@@ -441,6 +454,10 @@ namespace COMICZONE.Areas.Marketplace.Controllers
                 {
                     TempData["Error"] = "Thanh toán thành công nhưng có lỗi xảy ra khi kích hoạt khuyến mãi.";
                 }
+            }
+            else
+            {
+                TempData["Error"] = "Thanh toán thành công nhưng không thể xác định mã khuyến mãi để kích hoạt.";
             }
 
             return RedirectToAction("MyPosts");

@@ -21,7 +21,7 @@ const ChatApp = {
         this.setupFormHandlers();
 
         if (this.activeUserId) {
-            this.openConversation(this.activeUserId, this.config.initialOtherUserName, this.config.initialOtherUserAvatar);
+            this.openConversation(this.activeUserId, this.config.initialOtherUserName, this.config.initialOtherUserAvatar, true);
         }
     },
 
@@ -155,7 +155,7 @@ const ChatApp = {
         }
     },
 
-    openConversation: async function (userId, username, avatar) {
+    openConversation: async function (userId, username, avatar, isInitialLoad = false) {
         this.activeUserId = userId;
         document.getElementById('targetUserId').value = userId;
 
@@ -165,8 +165,7 @@ const ChatApp = {
         if (activeItem) activeItem.classList.add('active');
 
         // Chỉ đóng ngữ cảnh sản phẩm nếu người dùng chủ động chuyển sang cuộc hội thoại khác từ sidebar
-        // (Khi load lần đầu từ URL, username và avatar sẽ không được truyền vào)
-        if (username || avatar) {
+        if ((username || avatar) && !isInitialLoad) {
             this.closePostContext();
         }
 
